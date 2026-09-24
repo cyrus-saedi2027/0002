@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="fa" dir="rtl" data-style="clinical">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>استودیو سبک ساسان</title>
+<script>
+  /* pick the style before first paint so there is no flash of the default */
+  (function () {
+    var ids = ["clinical", "noir", "heritage", "swiss", "pro", "lavender", "brutal", "organic"];
+    var s = (location.hash || "").slice(1);
+    if (ids.indexOf(s) < 0) { try { s = localStorage.getItem("sasan-style"); } catch (e) { s = null; } }
+    var d = document.documentElement;
+    d.setAttribute("lang", "fa"); d.setAttribute("dir", "rtl");
+    d.setAttribute("data-style", ids.indexOf(s) >= 0 ? s : "clinical");
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&family=Markazi+Text:wght@500;600;700&family=Amiri:wght@400;700&family=Noto+Kufi+Arabic:wght@400;600;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Estedad:wght@400;500;600;800&family=Lalezar&family=El+Messiri:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="lab.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Icons: Lucide (ISC licence) + a tooth drawn in the same 24px / 2px-stroke grid -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><path d="M8 2v3"/><path d="M16 2v3"/><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="m9 15 2 2 4-4"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"/></symbol>
+  <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/><path d="M20 2v4"/><path d="M22 4h-4"/><circle cx="4" cy="20" r="2"/></symbol>
+  <symbol id="i-steth" viewBox="0 0 24 24"><path d="M11 2v2"/><path d="M5 2v2"/><path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1"/><path d="M8 15a6 6 0 0 0 12 0v-3"/><circle cx="20" cy="10" r="2"/></symbol>
+  <symbol id="i-tooth" viewBox="0 0 24 24"><path d="M7.4 3.2C4.9 3.2 3.4 5.2 3.4 7.8c0 1.9.8 3.3 1.4 4.7.7 1.6.9 3.6 1.3 5.7.3 1.7.9 2.8 1.9 2.8 1.3 0 1.6-1.8 2-3.6.3-1.4.8-2.3 2-2.3s1.7.9 2 2.3c.4 1.8.7 3.6 2 3.6 1 0 1.6-1.1 1.9-2.8.4-2.1.6-4.1 1.3-5.7.6-1.4 1.4-2.8 1.4-4.7 0-2.6-1.5-4.6-4-4.6-1.9 0-2.9 1-4.6 1S9.3 3.2 7.4 3.2Z"/></symbol>
+  <symbol id="i-baby" viewBox="0 0 24 24"><path d="M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5"/><path d="M15 12h.01"/><path d="M19.38 6.813A9 9 0 0 1 20.8 10.2a2 2 0 0 1 0 3.6 9 9 0 0 1-17.6 0 2 2 0 0 1 0-3.6A9 9 0 0 1 12 3c2 0 3.5 1.1 3.5 2.5s-.9 2.5-2 2.5c-.8 0-1.5-.4-1.5-1"/><path d="M9 12h.01"/></symbol>
+  <symbol id="i-salad" viewBox="0 0 24 24"><path d="M7 21h10"/><path d="M12 21a9 9 0 0 0 9-9H3a9 9 0 0 0 9 9Z"/><path d="M11.38 12a2.4 2.4 0 0 1-.4-4.77 2.4 2.4 0 0 1 3.2-2.77 2.4 2.4 0 0 1 3.47-.63 2.4 2.4 0 0 1 3.37 3.37 2.4 2.4 0 0 1-1.1 3.7 2.51 2.51 0 0 1 .03 1.1"/><path d="m13 12 4-4"/><path d="M10.9 7.25A3.99 3.99 0 0 0 4 10c0 .73.2 1.41.54 2"/></symbol>
+  <symbol id="i-person" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1"/><path d="m9 20 3-6 3 6"/><path d="m6 8 6 2 6-2"/><path d="M12 10v4"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol>
+  <symbol id="i-replay" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></symbol>
+  <symbol id="i-mobile" viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></symbol>
+  <symbol id="i-sunset" viewBox="0 0 24 24"><path d="M12 10V2"/><path d="m4.93 10.93 1.41 1.41"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m19.07 10.93-1.41 1.41"/><path d="M22 22H2"/><path d="m16 6-4 4-4-4"/><path d="M16 18a4 4 0 0 0-8 0"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></symbol>
+  <symbol id="i-pulse" viewBox="0 0 24 24"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></symbol>
+</svg>
+
+<div id="app">
+  <div class="stage">
+    <div class="site" id="site">
+      <div class="tileband deco" aria-hidden="true"></div>
+      <div class="gridlines" aria-hidden="true"><div class="wrap"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+      <div class="grain" aria-hidden="true"></div>
+
+      <!-- ─────────── Header ─────────── -->
+      <header class="hdr" id="hdr">
+        <div class="wrap hdr-in">
+          <a class="logo" href="#top" aria-label="کلینیک ساسان، صفحه‌ی اصلی">
+            <span class="logo-mark"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M28 12.5c0 3-1.2 4-2.4 4s-2.4-1-2.4-4c0 3-1.2 4-2.4 4s-2.4-1-2.4-4c0 6-3.5 9.5-7.4 9.5-3.4 0-5.8-2.6-5.8-6.2"/></svg></span>
+            <span class="logo-t"><b>کلینیک ساسان</b><small>پلی‌کلینیک تخصصی</small></span>
+          </a>
+          <nav class="nav" id="nav" aria-label="منوی اصلی">
+            <span class="nav-pill" aria-hidden="true"></span>
+            <a href="#services">خدمات</a>
+            <a href="#booking" data-step="1">پزشکان</a>
+            <a href="#booking">نوبت‌دهی</a>
+            <a href="#contact">ساعات کاری</a>
+            <a href="#contact">تماس</a>
+          </nav>
+          <div class="hdr-act">
+            <a class="hdr-phone" href="tel:02188104276" aria-label="تلفن پذیرش ۰۲۱۸۸۱۰۴۲۷۶"><svg class="ic"><use href="#i-phone"/></svg><span>۰۲۱ - ۸۸۱۰ ۴۲۷۶</span></a>
+            <a class="btn btn-primary btn-sm magnetic" href="#booking"><span class="shine"></span><span>رزرو نوبت</span></a>
+            <button class="burger" id="burger" aria-expanded="false" aria-controls="mnav" aria-label="باز کردن منو"><i></i><i></i><i></i></button>
+          </div>
+        </div>
+        <nav class="mnav" id="mnav" aria-label="منوی موبایل">
+          <a href="#services">خدمات <svg class="ic"><use href="#i-chev"/></svg></a>
+          <a href="#booking" data-step="1">پزشکان <svg class="ic"><use href="#i-chev"/></svg></a>
+          <a href="#booking">نوبت‌دهی آنلاین <svg class="ic"><use href="#i-chev"/></svg></a>
+          <a href="#contact">ساعات کاری <svg class="ic"><use href="#i-chev"/></svg></a>
+          <a href="#contact">تماس و آدرس <svg class="ic"><use href="#i-chev"/></svg></a>
+          <div class="mnav-cta"><a class="btn btn-primary btn-sm" href="#booking"><span>رزرو نوبت</span></a></div>
+        </nav>
+      </header>
+
+      <main>
+        <!-- ─────────── Hero ─────────── -->
+        <section class="hero" id="top">
+          <div class="deco waves" aria-hidden="true">
+            <svg viewBox="0 0 1200 300" preserveAspectRatio="none">
+              <path d="M-20 170 C 160 40, 330 40, 470 150 S 780 300, 930 170 S 1150 30, 1240 90" stroke="#FF9F45"/>
+              <path d="M-20 196 C 160 66, 330 66, 470 176 S 780 326, 930 196 S 1150 56, 1240 116" stroke="#6CC3E0"/>
+              <path d="M-20 222 C 160 92, 330 92, 470 202 S 780 352, 930 222 S 1150 82, 1240 142" stroke="#F4D35E"/>
+              <path d="M-20 248 C 160 118, 330 118, 470 228 S 780 378, 930 248 S 1150 108, 1240 168" stroke="#A0A0AA"/>
+            </svg>
+          </div>
+          <div class="deco conf" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="deco blobs" aria-hidden="true"><i></i><i></i></div>
+
+          <div class="wrap">
+            <div class="hero-copy">
+              <p class="eyebrow"><span class="live" aria-hidden="true"></span>پذیرش امروز تا ساعت ۲۱ باز است</p>
+              <h1 class="h1" data-split>اینجا برای <em class="hl"><span class="hl-bg" aria-hidden="true"></span><span class="hl-ink">شنیدن</span><svg class="hl-u" viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden="true"><path d="M4 13 C 50 5, 110 4, 196 11"/></svg></em> شما وقت داریم</h1>
+              <p class="lead">۲۸ پزشک متخصص در ۱۲ رشته، زیر یک سقف و با یک پرونده‌ی مشترک. نوبت آنلاین کمتر از یک دقیقه طول می‌کشد و یک روز قبل پیامک یادآوری می‌گیرید.</p>
+              <div class="ctas">
+                <a class="btn btn-primary magnetic" href="#booking"><span class="shine"></span><span>رزرو نوبت آنلاین</span><svg class="ic arrow"><use href="#i-arrow"/></svg></a>
+                <a class="btn btn-ghost magnetic" href="#contact"><svg class="ic"><use href="#i-phone"/></svg><span>مشاوره‌ی تلفنی رایگان</span></a>
+              </div>
+              <div class="trust">
+                <div class="faces" aria-hidden="true">
+                  <span class="av ini" style="background:#6C8EAD">م</span><span class="av ini" style="background:#B5836B">ع</span><span class="av ini" style="background:#7D9C74">ز</span><span class="av ini" style="background:#9A7AB8">ر</span>
+                </div>
+                <div class="trust-t"><b><svg class="ic"><use href="#i-star"/></svg><span class="num">۴٫۹ از ۵</span></b><span>میانگین ۲٬۳۱۴ نظر بیماران در سال ۱۴۰۴</span></div>
+              </div>
+            </div>
+
+            <div class="hero-visual" id="heroVis" aria-label="نمونه‌ی کارت‌های نوبت و پزشک">
+              <div class="frame">
+                <div class="art art-clin" aria-hidden="true"><i class="rg"></i><i class="rg"></i><i class="rg"></i><span class="cross"><svg class="ic"><use href="#i-steth"/></svg></span></div>
+                <div class="art art-noir" aria-hidden="true">
+                  <i class="ar"></i><i class="ar"></i><i class="ar"></i><i class="glow"></i>
+                  <svg class="star8" viewBox="0 0 100 100"><polygon points="50,2 64.06,16.06 83.94,16.06 83.94,35.94 98,50 83.94,64.06 83.94,83.94 64.06,83.94 50,98 35.94,83.94 16.06,83.94 16.06,64.06 2,50 16.06,35.94 16.06,16.06 35.94,16.06"/><polygon points="50,22 58,42 78,50 58,58 50,78 42,58 22,50 42,42"/><circle cx="50" cy="50" r="2.4"/></svg>
+                </div>
+                <div class="art art-her" aria-hidden="true">
+                  <svg class="girih"><defs><pattern id="girihP" width="48" height="48" patternUnits="userSpaceOnUse">
+                    <rect class="g0" width="48" height="48"/>
+                    <polygon class="g1" points="24,9 28.39,13.39 34.61,13.39 34.61,19.61 39,24 34.61,28.39 34.61,34.61 28.39,34.61 24,39 19.61,34.61 13.39,34.61 13.39,28.39 9,24 13.39,19.61 13.39,13.39 19.61,13.39"/>
+                    <polygon class="g2" points="24,16 26.34,18.34 29.66,18.34 29.66,21.66 32,24 29.66,26.34 29.66,29.66 26.34,29.66 24,32 21.66,29.66 18.34,29.66 18.34,26.34 16,24 18.34,21.66 18.34,18.34 21.66,18.34"/>
+                    <circle class="g4" cx="24" cy="24" r="2.2"/>
+                    <polygon class="g3" points="0,-5 5,0 0,5 -5,0"/><polygon class="g3" points="48,-5 53,0 48,5 43,0"/><polygon class="g3" points="0,43 5,48 0,53 -5,48"/><polygon class="g3" points="48,43 53,48 48,53 43,48"/>
+                  </pattern></defs><rect width="100%" height="100%" fill="url(#girihP)"/></svg>
+                  <i class="shade"></i>
+                  <svg class="arch-line" viewBox="0 0 100 140" preserveAspectRatio="none"><path d="M5 140V60C5 34 29 18 50 6C71 18 95 34 95 60V140"/></svg>
+                </div>
+                <div class="art art-swiss" aria-hidden="true"><span class="fig"><b class="num">۱۴۰۵</b>شکل ۱ — نشانه‌ی ساسان<br>از خط ضربان قلب</span><span class="big-sin">س</span></div>
+                <div class="art art-pro" aria-hidden="true">
+                  <div class="pro-top"><span><b>نوبت‌های امروز</b> · ۱۴۶ رزرو</span><span class="lv"><i></i><span id="liveNow">۳ نفر در حال رزرو</span></span></div>
+                  <div class="bars"><i style="--h:34%"></i><i style="--h:58%"></i><i style="--h:82%"></i><i style="--h:71%"></i><i style="--h:46%"></i><i style="--h:22%"></i><i style="--h:30%"></i><i style="--h:64%"></i><i class="now" style="--h:90%"></i><i style="--h:76%"></i><i style="--h:52%"></i><i style="--h:28%"></i></div>
+                  <div class="hours"><span>۹</span><span>۱۱</span><span>۱۳</span><span>۱۶</span><span>۱۸</span><span>۲۰</span></div>
+                </div>
+                <div class="art art-lav" aria-hidden="true"><i class="dash d1"></i><i class="dash d2"></i><i class="plate"></i><span class="plate-ic"><svg class="ic"><use href="#i-heart"/></svg></span><i class="dot"></i><i class="dot"></i><i class="dot"></i><i class="dot"></i></div>
+                <div class="art art-brut" aria-hidden="true"><i class="sun"></i><i class="big"></i></div>
+                <div class="art art-org" aria-hidden="true"><i class="ob"></i><i class="ob"></i><svg class="leaf" viewBox="0 0 100 120"><path d="M20 118 C 30 80, 40 40, 86 6"/><path d="M34 84 C 18 70, 14 52, 22 40"/><path d="M44 62 C 64 62, 78 50, 84 34"/><path d="M54 44 C 42 30, 42 18, 50 8"/></svg></div>
+                <svg class="pulse" viewBox="0 0 600 200" aria-hidden="true">
+                  <path class="p-line" pathLength="1000" d="M600 110 H452 c-8 0 -8 -30 -14 -30 s-6 30 -14 30 c-8 0 -8 -30 -14 -30 s-6 30 -14 30 c-8 0 -8 -30 -14 -30 c0 44 -24 66 -54 66 c-26 0 -42 -18 -42 -44 q-4 8 -14 8 H236 l-6 -12 l-6 12 H214 l-5 14 l-8 -84 l-10 110 l-7 -40 H160 c-6 -16 -22 -16 -28 0 H0"/>
+                  <path class="p-glow" pathLength="1000" d="M600 110 H452 c-8 0 -8 -30 -14 -30 s-6 30 -14 30 c-8 0 -8 -30 -14 -30 s-6 30 -14 30 c-8 0 -8 -30 -14 -30 c0 44 -24 66 -54 66 c-26 0 -42 -18 -42 -44 q-4 8 -14 8 H236 l-6 -12 l-6 12 H214 l-5 14 l-8 -84 l-10 110 l-7 -40 H160 c-6 -16 -22 -16 -28 0 H0"/>
+                </svg>
+              </div>
+
+              <div class="fcard fc-doc" data-depth="26"><div class="fl"><article class="card">
+                <div class="fc-head">
+                  <span class="av" data-av="d1"></span>
+                  <div><b>دکتر نگار فرهمند</b><small>متخصص پوست، مو و زیبایی</small></div>
+                  <button class="like" type="button" aria-pressed="false" aria-label="ذخیره‌ی دکتر فرهمند در علاقه‌مندی‌ها"><svg class="ic"><use href="#i-heart"/></svg></button>
+                </div>
+                <div class="fc-meta">
+                  <span class="status"><i></i>در حال ویزیت</span>
+                  <span class="stars" aria-label="امتیاز ۴٫۹ از ۵"><svg class="ic"><use href="#i-star"/></svg><svg class="ic"><use href="#i-star"/></svg><svg class="ic"><use href="#i-star"/></svg><svg class="ic"><use href="#i-star"/></svg><svg class="ic"><use href="#i-star"/></svg><em class="num">۴٫۹</em></span>
+                </div>
+                <div class="fc-next">
+                  <div><span>نوبت خالی بعدی</span><b class="num">امروز · ۱۷:۴۵</b></div>
+                  <a class="mini-btn" href="#booking" data-book="skin" data-doc="d1">رزرو</a>
+                </div>
+              </article></div></div>
+
+              <div class="fcard fc-status" data-depth="14"><div class="fl"><article class="card">
+                <p class="fs-t"><span>وضعیت نوبت شما</span><span class="num">شنبه ۵ مهر</span></p>
+                <ol class="tl">
+                  <li class="done"><span class="tl-ic"><svg class="ic"><use href="#i-check"/></svg></span><div><b>نوبت ثبت شد</b><small class="num">ساعت ۱۰:۱۵ · کد پیگیری س-۴۸۲۷</small></div></li>
+                  <li class="now"><span class="tl-ic"><svg class="ic"><use href="#i-clock"/></svg></span><div><b>پذیرش، طبقه‌ی دوم</b><small>۱۰ دقیقه قبل از نوبت برسید</small></div></li>
+                  <li><span class="tl-ic"><svg class="ic"><use href="#i-steth"/></svg></span><div><b>ویزیت</b><small class="num">دکتر فرهمند · اتاق ۲۰۴</small></div></li>
+                </ol>
+              </article></div></div>
+
+              <div class="fcard fc-rate drag" data-depth="38" title="بکشید و رها کنید"><div class="fl"><div class="card chip-card">
+                <svg class="ic big-star"><use href="#i-star"/></svg>
+                <div><b class="num">۴٫۹</b><small>رضایت بیماران</small></div>
+              </div></div></div>
+
+              <div class="fcard fc-wait drag" data-depth="32" title="بکشید و رها کنید"><div class="fl"><div class="card chip-card">
+                <svg class="ring" viewBox="0 0 42 42"><circle class="r-bg" cx="21" cy="21" r="16" pathLength="100"/><circle class="r-fg" cx="21" cy="21" r="16" pathLength="100"/></svg>
+                <div><b class="num">۷ دقیقه</b><small>انتظار در سالن</small></div>
+              </div></div></div>
+            </div>
+
+            <dl class="stats">
+              <div><dt>سال تجربه</dt><dd class="num" data-count="16">۱۶</dd></div>
+              <div><dt>پزشک متخصص</dt><dd class="num" data-count="28">۲۸</dd></div>
+              <div><dt>ویزیت در سال ۱۴۰۴</dt><dd class="num" data-count="47812">۴۷٬۸۱۲</dd></div>
+              <div><dt>میانگین انتظار در سالن</dt><dd class="num" data-count="7" data-suffix="دقیقه">۷<small>دقیقه</small></dd></div>
+            </dl>
+          </div>
+        </section>
+
+        <!-- ─────────── Services ─────────── -->
+        <section class="sec svc" id="services">
+          <div class="wrap">
+            <header class="sec-head">
+              <p class="eyebrow">خدمات کلینیک</p>
+              <h2 class="h2" data-split>۱۲ بخش تخصصی، یک پرونده‌ی مشترک</h2>
+              <p class="sec-lead">پرونده‌ی شما بین همه‌ی پزشکان کلینیک مشترک است. لازم نیست سابقه و جواب آزمایش‌ها را هر بار از اول توضیح بدهید.</p>
+            </header>
+            <div class="svc-grid" id="svcGrid">
+              <article class="svc-card" data-svc="skin">
+                <span class="svc-ic"><svg class="ic"><use href="#i-sparkles"/></svg></span>
+                <h3>پوست، مو و زیبایی</h3>
+                <p>درمان آکنه و لک، لیزر موهای زائد، بوتاکس و فیلر؛ همه با معاینه و تجویز متخصص پوست.</p>
+                <div class="svc-meta"><span>۵ پزشک</span><span class="soon">اولین نوبت: امروز ۱۷:۴۵</span></div>
+                <button class="svc-go" type="button" data-book="skin"><span>نوبت همین بخش</span><svg class="ic"><use href="#i-arrow"/></svg></button>
+              </article>
+              <article class="svc-card" data-svc="dental">
+                <span class="svc-ic"><svg class="ic"><use href="#i-tooth"/></svg></span>
+                <h3>دندانپزشکی</h3>
+                <p>ترمیم، عصب‌کشی، ایمپلنت و ارتودنسی، با رادیوگرافی دیجیتال در همان طبقه.</p>
+                <div class="svc-meta"><span>۴ پزشک</span><span>اولین نوبت: فردا ۹:۳۰</span></div>
+                <button class="svc-go" type="button" data-book="dental"><span>نوبت همین بخش</span><svg class="ic"><use href="#i-arrow"/></svg></button>
+              </article>
+              <article class="svc-card" data-svc="internal">
+                <span class="svc-ic"><svg class="ic"><use href="#i-steth"/></svg></span>
+                <h3>داخلی و چکاپ</h3>
+                <p>چکاپ سالانه با آزمایش خون و نوار قلب در یک نوبت صبحگاهی؛ جواب‌ها همان روز.</p>
+                <div class="svc-meta"><span>۶ پزشک</span><span class="soon">اولین نوبت: امروز ۱۸:۱۰</span></div>
+                <button class="svc-go" type="button" data-book="internal"><span>نوبت همین بخش</span><svg class="ic"><use href="#i-arrow"/></svg></button>
+              </article>
+              <article class="svc-card" data-svc="women">
+                <span class="svc-ic"><svg class="ic"><use href="#i-baby"/></svg></span>
+                <h3>زنان و مامایی</h3>
+                <p>مراقبت‌های دوران بارداری، سونوگرافی و مشاوره‌ی باروری با پزشک زن.</p>
+                <div class="svc-meta"><span>۴ پزشک</span><span>اولین نوبت: یکشنبه ۱۱:۰۰</span></div>
+                <button class="svc-go" type="button" data-book="women"><span>نوبت همین بخش</span><svg class="ic"><use href="#i-arrow"/></svg></button>
+              </article>
+              <article class="svc-card" data-svc="nutrition">
+                <span class="svc-ic"><svg class="ic"><use href="#i-salad"/></svg></span>
+                <h3>تغذیه و رژیم درمانی</h3>
+                <p>برنامه‌ی غذایی بر اساس آزمایش خون و سبک زندگی خودتان، نه یک نسخه‌ی کپی‌شده.</p>
+                <div class="svc-meta"><span>۳ پزشک</span><span>اولین نوبت: فردا ۱۶:۴۰</span></div>
+                <button class="svc-go" type="button" data-book="nutrition"><span>نوبت همین بخش</span><svg class="ic"><use href="#i-arrow"/></svg></button>
+              </article>
+              <article class="svc-card" data-svc="physio">
+                <span class="svc-ic"><svg class="ic"><use href="#i-person"/></svg></span>
+                <h3>فیزیوتراپی</h3>
+                <p>درمان دردهای گردن، کمر و زانو، همراه با برنامه‌ی تمرینی که در خانه هم ادامه می‌دهید.</p>
+                <div class="svc-meta"><span>۶ درمانگر</span><span class="soon">اولین نوبت: امروز ۱۹:۲۰</span></div>
+                <button class="svc-go" type="button" data-book="physio"><span>نوبت همین بخش</span><svg class="ic"><use href="#i-arrow"/></svg></button>
+              </article>
+            </div>
+            <div class="svc-dots" id="svcDots" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="svc-foot"><a class="btn btn-ghost magnetic" href="#booking"><span>دیدن هر ۱۲ بخش و پزشکان</span><svg class="ic arrow"><use href="#i-arrow"/></svg></a></div>
+          </div>
+        </section>
+
+        <!-- ─────────── Booking ─────────── -->
+        <section class="sec book" id="booking">
+          <div class="wrap">
+            <header class="sec-head">
+              <p class="eyebrow">نوبت‌دهی آنلاین</p>
+              <h2 class="h2" data-split>نوبت در چهار قدم، بدون پشت خط ماندن</h2>
+              <p class="sec-lead">ساعت‌های خالی مستقیم از تقویم پزشکان خوانده می‌شود. تا ۳ ساعت قبل از نوبت می‌توانید بدون هزینه لغوش کنید.</p>
+            </header>
+
+            <div class="bk" id="bk">
+              <ol class="bk-steps" id="bkSteps">
+                <li class="is-active"><button type="button" data-go="0"><span class="n">۱</span><span class="lbl">بخش</span></button></li>
+                <li><button type="button" data-go="1"><span class="n">۲</span><span class="lbl">پزشک</span></button></li>
+                <li><button type="button" data-go="2"><span class="n">۳</span><span class="lbl">روز و ساعت</span></button></li>
+                <li><button type="button" data-go="3"><span class="n">۴</span><span class="lbl">مشخصات</span></button></li>
+                <span class="bk-bar" aria-hidden="true"></span>
+              </ol>
+              <div class="bk-body">
+                <div class="bk-stage" id="bkStage" aria-live="polite"></div>
+                <aside class="bk-sum" id="bkSum" aria-label="خلاصه‌ی نوبت">
+                  <p class="sum-t">خلاصه‌ی نوبت <small id="sumStep">قدم ۱ از ۴</small></p>
+                  <dl class="sum-l">
+                    <div data-k="svc"><dt><svg class="ic"><use href="#i-sparkles"/></svg>بخش</dt><dd class="nil">هنوز انتخاب نشده</dd></div>
+                    <div data-k="doc"><dt><svg class="ic"><use href="#i-user"/></svg>پزشک</dt><dd class="nil">—</dd></div>
+                    <div data-k="when"><dt><svg class="ic"><use href="#i-cal"/></svg>زمان</dt><dd class="nil">—</dd></div>
+                    <div data-k="fee"><dt><svg class="ic"><use href="#i-shield"/></svg>ویزیت</dt><dd class="nil">—</dd></div>
+                  </dl>
+                  <p class="sum-note"><svg class="ic"><use href="#i-shield"/></svg><span>هزینه در کلینیک پرداخت می‌شود. لغو رایگان تا ۳ ساعت قبل از نوبت.</span></p>
+                  <div class="sum-nav">
+                    <button class="btn btn-ghost" type="button" id="bkPrev" aria-label="قدم قبل"><svg class="ic" style="transform:scaleX(-1)"><use href="#i-arrow"/></svg></button>
+                    <button class="btn btn-primary" type="button" id="bkNext"><span class="shine"></span><span id="bkNextT">قدم بعد</span><svg class="ic arrow"><use href="#i-arrow"/></svg></button>
+                  </div>
+                </aside>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <!-- ─────────── Footer ─────────── -->
+      <footer class="ftr" id="contact">
+        <div class="wrap">
+          <div class="ftr-col"><b>کلینیک ساسان</b><span>تهران، خیابان نمونه، پلاک ۲۴، طبقه‌ی دوم</span><span class="num">تلفن پذیرش: ۰۲۱ - ۸۸۱۰ ۴۲۷۶</span></div>
+          <div class="ftr-col"><b>ساعات کاری</b><span>شنبه تا چهارشنبه: ۸ تا ۲۱</span><span>پنجشنبه: ۸ تا ۱۴ · جمعه تعطیل</span></div>
+          <div class="ftr-col"><b>اورژانس</b><span>کلینیک اورژانس ندارد. در موارد فوری با ۱۱۵ تماس بگیرید.</span></div>
+          <p class="ftr-note">این صفحه یک نمونه‌ی طراحی است. نام پزشکان، آمار، تلفن و آدرس ساختگی‌اند و با اطلاعات واقعی کلینیک جایگزین می‌شوند.</p>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ─────────── Lab chrome ─────────── -->
+  <div class="cursor" id="cursor" aria-hidden="true"></div>
+
+  <nav class="dock" id="dock" aria-label="انتخاب سبک طراحی">
+    <span class="dk-hint" id="dkHint">سبک‌ها را از اینجا عوض کنید</span>
+    <button class="dk-btn" type="button" id="dkNotes" aria-controls="notes" aria-expanded="false"><svg class="ic"><use href="#i-info"/></svg><span class="t">یادداشت طراح</span></button>
+    <div class="dk-styles" id="dkStyles" role="tablist" aria-label="سبک‌ها"><span class="dk-ind" id="dkInd" aria-hidden="true"></span></div>
+    <button class="dk-btn icon" type="button" id="dkReplay" aria-label="پخش دوباره‌ی انیمیشن‌ها" title="پخش دوباره‌ی انیمیشن‌ها"><svg class="ic"><use href="#i-replay"/></svg></button>
+    <button class="dk-btn icon" type="button" id="dkPhone" aria-pressed="false" aria-label="نمایش در قاب موبایل" title="نمایش در قاب موبایل"><svg class="ic"><use href="#i-mobile"/></svg></button>
+  </nav>
+
+  <aside class="notes" id="notes" aria-hidden="true">
+    <div class="nt-scrim" id="ntScrim"></div>
+    <div class="nt-panel" id="ntPanel" role="dialog" aria-modal="true" aria-labelledby="ntTitle">
+      <span class="nt-grab" aria-hidden="true"></span>
+      <header class="nt-head" id="ntHead">
+        <p class="nt-k" id="ntK">سبک ۱ از ۸</p>
+        <h2 id="ntTitle">پزشکی مدرن</h2>
+        <p class="nt-tag" id="ntTag"></p>
+        <button class="nt-x" type="button" id="ntX" aria-label="بستن یادداشت"><svg class="ic"><use href="#i-x"/></svg></button>
+      </header>
+      <div class="nt-tabs" role="tablist">
+        <button class="nt-tab" type="button" role="tab" aria-selected="true" data-tab="this">این سبک</button>
+        <button class="nt-tab" type="button" role="tab" aria-selected="false" data-tab="cmp">مقایسه‌ی همه</button>
+        <button class="nt-tab" type="button" role="tab" aria-selected="false" data-tab="road">مسیر پیشنهادی</button>
+      </div>
+      <div class="nt-body" id="ntBody" data-lenis-prevent></div>
+    </div>
+  </aside>
+  <div class="wipe" id="wipe" aria-hidden="true"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.min.js"></script>
+<script src="lab.js"></script>
+</body>
+</html>
