@@ -201,6 +201,134 @@
       take: 'اگر روی سلامت زنان، روان یا تغذیه تمرکز دارید، این سبک از همه انسانی‌تر است.',
       score: [4, 4, 4, 3, 3],
     },
+    {
+      id: 'glass', name: 'شیشه‌ای مات', sw: ['#B9DCFF', '#FFD7C4'], bg: '#E9EFF6', round: 2,
+      motion: { words: 'blur', dur: 1.1, stagger: .06, ease: 'expo.out', frame: 'glass', tilt: true,
+        cards: { y: 40, scale: .92, autoAlpha: 0, filter: 'blur(12px)', duration: 1.3, ease: 'expo.out' },
+        reveal: [{ y: 50, scale: .95, autoAlpha: 0 }, { y: 0, scale: 1, autoAlpha: 1, duration: 1.1, ease: 'expo.out' }] },
+      tag: 'کارت‌های شیشه‌ای مات روی رنگ‌های ملایم و زنده، الهام‌گرفته از طراحی جدید اپل (visionOS).',
+      mood: 'سبک، روشن، امروزی',
+      fit: 'کلینیک‌های پوست و زیبایی و دندانپزشکی که مخاطب جوان و حس «به‌روز بودن» برایشان مهم است.',
+      palette: [['#E9EFF6', 'زمینه'], ['#0E1B2B', 'متن و دکمه'], ['#B9DCFF', 'آبی مه'], ['#C4F0DE', 'نعنایی'], ['#FF7A59', 'مرجانی']],
+      fonts: 'ریدکس پرو (Readex Pro)؛ فونتی گرد و خوانا با حس فناوری.',
+      motionText: 'لکه‌های رنگی پشت صفحه آرام جابه‌جا می‌شوند و شیشه‌ها روی آن‌ها تار می‌کنند. عکس از حالت محو به واضح می‌آید، کارت‌ها با کمی بزرگ‌نمایی ظاهر می‌شوند و روی دسکتاپ نور روی شیشه دنبال ماوس می‌آید.',
+      pros: ['خیلی امروزی و شیک، بدون اینکه شلوغ شود', 'عکس‌ها زیر شیشه زیبا دیده می‌شوند', 'برای موبایل هم سبک و تمیز است'],
+      cons: ['افکت شیشه روی گوشی‌های خیلی ضعیف سنگین‌تر است', 'متن روی شیشه باید با دقت کنتراست داشته باشد'],
+      take: 'یکی از بهترین گزینه‌ها برای ترکیب «شیک + دوستانه». اگر زیبایی و پوست مهم است، کنار «لوکس» جدی بررسی‌اش کنید.',
+      score: [4, 4, 5, 4, 3],
+    },
+    {
+      id: 'bento', name: 'اپلی / بنتو', sw: ['#1D1D1F', '#F56300'], bg: '#F5F5F7', round: 2,
+      motion: { words: 'rise', dur: .95, stagger: .05, ease: 'power4.out', frame: 'scale', tilt: false,
+        cards: { y: 50, autoAlpha: 0, duration: 1, ease: 'power4.out' },
+        reveal: [{ y: 60, scale: .97, autoAlpha: 0 }, { y: 0, scale: 1, autoAlpha: 1, duration: 1, ease: 'power4.out' }] },
+      tag: 'مثل صفحه‌ی معرفی محصولات اپل: خاکستری روشن، کاشی‌های سفید، تیترهای درشت و عکس‌هایی که با اسکرول بزرگ می‌شوند.',
+      mood: 'دقیق، ممتاز، آرام',
+      fit: 'کلینیکی که می‌خواهد مثل یک برند درجه‌یک دیده شود؛ برای همه‌ی سنین هم قابل‌فهم است.',
+      palette: [['#F5F5F7', 'زمینه'], ['#FFFFFF', 'کاشی'], ['#1D1D1F', 'متن و دکمه'], ['#F56300', 'نارنجی'], ['#FF2D55', 'صورتی']],
+      fonts: 'روبیک (Rubik)؛ هندسی و نرم، شبیه فونت‌های اپل.',
+      motionText: 'تیتر با شتاب نرم از پایین بالا می‌آید، عکس اصلی از کوچک به تمام‌قد باز می‌شود و با اسکرول کمی زوم می‌کند. خدمات در کاشی‌های بنتو با اندازه‌های مختلف چیده شده‌اند و فیلتر پزشکان یک کنترل تکه‌ای مثل آیفون است.',
+      pros: ['حس کیفیت خیلی بالا بدون تزئین اضافه', 'خوانایی و سادگی برای همه', 'چیدمان بنتو اطلاعات زیاد را مرتب نشان می‌دهد'],
+      cons: ['اگر عکس‌های باکیفیت نداشته باشید، ضعیف دیده می‌شود'],
+      take: 'اگر عکاسی حرفه‌ای از کلینیک انجام بدهید، این سبک از همه «گران‌تر» دیده می‌شود و در عین حال ساده است.',
+      score: [5, 3, 4, 4, 4],
+    },
+    {
+      id: 'material', name: 'متریال گوگل', sw: ['#8C4A5E', '#FFD9E1'], bg: '#FFF8F8', round: 2,
+      motion: { words: 'fadeThrough', dur: .7, stagger: .04, ease: 'expo.out', frame: 'cookie', tilt: false,
+        cards: { scale: .9, autoAlpha: 0, duration: .7, ease: 'expo.out' },
+        reveal: [{ scale: .92, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: .7, ease: 'expo.out' }] },
+      tag: 'زبان طراحی Material You گوگل؛ همان چیزی که کاربر اندروید هر روز می‌بیند: رنگ‌های تونال، چیپ‌ها، موج لمس و دکمه‌ی شناور.',
+      mood: 'آشنا، دوستانه، کاربردی',
+      fit: 'وقتی بیشتر بیماران با گوشی اندروید سایت را باز می‌کنند (در ایران اکثریت) و سادگی استفاده اولویت اول است.',
+      palette: [['#FFF8F8', 'زمینه'], ['#8C4A5E', 'رنگ اصلی'], ['#FFD9E1', 'ظرف رنگی'], ['#F6E2E5', 'سطح'], ['#22191B', 'متن']],
+      fonts: 'نوتو سنس عربی (Noto Sans Arabic)؛ فونت خود گوگل.',
+      motionText: 'هر لمس یک موج (ripple) از زیر انگشت پخش می‌کند. قاب عکس شکل «کلوچه‌ای» متریال دارد و با چرخش باز می‌شود. دکمه‌ی شناور رزرو موقع اسکرول به پایین جمع و موقع بالا رفتن باز می‌شود.',
+      pros: ['برای کاربر اندروید کاملاً آشناست؛ بدون آموزش کار می‌کند', 'بازخورد لمسی روشن روی موبایل', 'دکمه‌ی رزرو همیشه در دسترس است'],
+      cons: ['ممکن است شبیه «یک اپ گوگل» دیده شود تا یک برند مستقل'],
+      take: 'کاربرپسندترین سبک برای موبایل. رنگ صورتی‌گلبهی را می‌شود با رنگ برند عوض کرد و همین حس را نگه داشت.',
+      score: [4, 3, 3, 4, 4],
+    },
+    {
+      id: 'access', name: 'دسترس‌پذیر', sw: ['#005EB8', '#FFEB3B'], bg: '#FFFFFF', round: 2,
+      motion: { words: 'fade', dur: .45, stagger: .02, ease: 'power2.out', frame: 'fade', tilt: false,
+        cards: { y: 12, autoAlpha: 0, duration: .45, ease: 'power2.out' },
+        reveal: [{ y: 16, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: .45, ease: 'power2.out' }] },
+      tag: 'به سبک سایت‌های سلامت دولتی انگلستان (NHS و GOV.UK): متن بزرگ، کنتراست بالا، دکمه‌های واضح و نوار تنظیمات دسترس‌پذیری.',
+      mood: 'روشن، قابل اعتماد، بی‌ادعا',
+      fit: 'کلینیک‌هایی با بیماران مسن، بیماری‌های مزمن، یا هر جایی که «هر کسی باید بتواند نوبت بگیرد» اولویت است.',
+      palette: [['#FFFFFF', 'زمینه'], ['#0B0C0C', 'متن'], ['#005EB8', 'آبی لینک'], ['#007F3B', 'سبز دکمه'], ['#FFEB3B', 'زرد فوکوس']],
+      fonts: 'وزیرمتن در اندازه‌ی بزرگ‌تر؛ خواناترین فونت فارسی.',
+      motionText: 'حرکت‌ها کوتاه و فقط برای راهنمایی‌اند. بالای صفحه می‌شود متن را بزرگ کرد، کنتراست بالا را روشن کرد یا همه‌ی حرکت‌ها را متوقف کرد. فوکوس کیبورد زرد و خیلی واضح است و دکمه‌ها موقع فشار واقعاً پایین می‌روند.',
+      pros: ['بیشترین کاربرپسندی برای همه‌ی سنین', 'برای سئو و قوانین دسترس‌پذیری عالی', 'هشدار «اورژانس نیستیم» واضح دیده می‌شود'],
+      cons: ['کمترین جذابیت بصری و تمایز'],
+      take: 'حتی اگر این سبک را انتخاب نکنید، پیشنهادم این است که نوار تنظیمات متن و کنتراست آن را به سایت نهایی اضافه کنیم.',
+      score: [5, 2, 2, 5, 5],
+    },
+    {
+      id: 'editorial', name: 'مجله‌ای', sw: ['#111111', '#D6382B'], bg: '#FFFFFF', mask: true, round: 2,
+      motion: { words: 'mask', dur: 1.15, stagger: .06, ease: 'power4.out', frame: 'curtain', tilt: false,
+        cards: { y: 40, autoAlpha: 0, duration: 1.1, ease: 'power3.out' },
+        reveal: [{ clipPath: 'inset(0% 0% 100% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.2, ease: 'power4.inOut' }] },
+      tag: 'مثل یک مجله‌ی سلامت: عکس‌های بزرگ سیاه‌وسفید که با لمس رنگی می‌شوند، تیترهای نسخ درشت و برچسب‌های قرمز.',
+      mood: 'فرهیخته، روایی، معتبر',
+      fit: 'کلینیکی که محتوای آموزشی و مجله‌ی سلامت پررنگ دارد، یا می‌خواهد «متخصص و معتبر» دیده شود.',
+      palette: [['#FFFFFF', 'کاغذ'], ['#111111', 'جوهر'], ['#D6382B', 'قرمز مجله'], ['#F6F4F1', 'کاغذ کاهی'], ['#4D4D4D', 'متن دوم']],
+      fonts: 'نوتو نسخ عربی (Noto Naskh Arabic) برای تیترها و وزیرمتن برای متن.',
+      motionText: 'تیتر از پشت ماسک بالا می‌آید، عکس روی جلد مثل پرده از بالا باز می‌شود و آرام زوم‌بک می‌کند. عکس‌ها سیاه‌وسفیدند و با نزدیک شدن ماوس رنگی می‌شوند؛ خدمات مثل ستون‌های یک مجله چیده شده‌اند.',
+      pros: ['با محتوای زیاد (مقاله، سؤال‌های پرتکرار) عالی کار می‌کند', 'حس اعتبار و تخصص', 'بسیار متفاوت از سایت‌های پزشکی رایج'],
+      cons: ['به عکس‌های خوب و متن‌نویسی حرفه‌ای وابسته است'],
+      take: 'اگر برنامه دارید مجله‌ی سلامت و سئو را جدی بگیرید، این سبک بهترین بستر است.',
+      score: [4, 5, 4, 3, 3],
+    },
+    {
+      id: 'kinetic', name: 'حرکتی (آوواردز)', sw: ['#FF8A5B', '#111010'], bg: '#111010', mask: true, cursor: true, round: 2,
+      motion: { words: 'skew', dur: 1.15, stagger: .07, ease: 'power4.out', frame: 'oval', tilt: true,
+        cards: { y: 70, rotation: () => rand(-6, 6), autoAlpha: 0, duration: 1.2, ease: 'expo.out' },
+        reveal: [{ y: 80, skewY: 4, autoAlpha: 0 }, { y: 0, skewY: 0, autoAlpha: 1, duration: 1.1, ease: 'expo.out' }] },
+      tag: 'سبک سایت‌های برنده‌ی جایزه (Awwwards): تایپوگرافی عظیم، نوار متن متحرک، عکس بیضی و پیش‌نمایش تصویری که دنبال ماوس می‌آید.',
+      mood: 'جسور، سینمایی، پرانرژی',
+      fit: 'برندی که می‌خواهد «خفن» و متفاوت دیده شود؛ کلینیک زیبایی یا دندانپزشکی با مخاطب جوان و شبکه‌های اجتماعی فعال.',
+      palette: [['#111010', 'مشکی گرم'], ['#F2EFEA', 'استخوانی'], ['#FF8A5B', 'هلویی تند'], ['#1B1A19', 'سطح'], ['#A8A39B', 'متن دوم']],
+      fonts: 'کوفام (Kufam) برای تیترهای عظیم و وزیرمتن برای متن.',
+      motionText: 'کلمه‌ها با کمی کجی از پشت ماسک می‌آیند، عکس از یک بیضی کوچک باز می‌شود، نوار متن مدام حرکت می‌کند و عکس‌ها با سرعت اسکرول کمی کج می‌شوند. روی دسکتاپ با رفتن روی هر خدمت، عکسش دنبال ماوس می‌آید.',
+      pros: ['به‌یادماندنی‌ترین و «خفن‌ترین» سبک', 'حس برند مد و لایف‌استایل', 'برای ویدیو و شبکه‌های اجتماعی هماهنگ است'],
+      cons: ['برای بیمار مسن ممکن است شلوغ و گیج‌کننده باشد', 'اجرای درستش روی موبایل‌های ضعیف دقت می‌خواهد'],
+      take: 'اگر کلینیک زیبایی است و می‌خواهید در اینستاگرام دیده شوید، عالی است. برای کلینیک عمومی، فقط بخشی از حرکت‌هایش را قرض بگیریم.',
+      score: [3, 5, 4, 2, 2],
+    },
+    {
+      id: 'clay', name: 'خمیری سه‌بعدی', sw: ['#5B7BFF', '#FF8FB1'], bg: '#E7EDFF', round: 2,
+      motion: { words: 'pop', dur: .9, stagger: .06, ease: 'back.out(2.2)', frame: 'jelly', tilt: true,
+        cards: { y: 60, scale: .7, autoAlpha: 0, duration: 1.1, ease: 'elastic.out(1, .6)' },
+        reveal: [{ y: 60, scale: .85, autoAlpha: 0 }, { y: 0, scale: 1, autoAlpha: 1, duration: 1.1, ease: 'elastic.out(1, .7)' }] },
+      tag: 'همه‌چیز پف‌دار و نرم، مثل اسباب‌بازی‌های خمیری؛ کپسول، توپ و حلقه‌ی سه‌بعدی دور عکس شناورند.',
+      mood: 'شاد، مهربان، بی‌استرس',
+      fit: 'دندانپزشکی کودکان، کلینیک اطفال، یا مرکزی که می‌خواهد ترس بیمار را کم کند.',
+      palette: [['#E7EDFF', 'زمینه'], ['#5B7BFF', 'آبی خمیری'], ['#FF8FB1', 'صورتی'], ['#FFD166', 'زرد'], ['#6FE3C1', 'نعنایی']],
+      fonts: 'پلی‌پن سنس عربی (Playpen Sans Arabic) برای تیترها؛ حس دست‌نویس و گرد. متن با وزیرمتن.',
+      motionText: 'عناصر با فنر می‌پرند و کمی لق می‌زنند. دکمه‌ها موقع ماوس مثل ژله تکان می‌خورند و موقع فشار واقعاً فرو می‌روند. کپسول و توپ‌ها دور عکس شناورند و فیلدهای فرم فرورفته‌اند.',
+      pros: ['گرم‌ترین و بی‌استرس‌ترین سبک', 'برای کودکان و خانواده‌ها عالی', 'در بین سایت‌های پزشکی ایران کاملاً متفاوت'],
+      cons: ['برای خدمات جدی بزرگسالان کمی کودکانه است'],
+      take: 'برای دندانپزشکی یا بخش کودکان فوق‌العاده است. برای کل کلینیک، اگر مخاطب خانواده‌ها هستند، جدی فکر کنید.',
+      score: [3, 5, 3, 2, 3],
+    },
+    {
+      id: 'medtech', name: 'پزشکی آینده', sw: ['#9AE6FF', '#06080B'], bg: '#06080B', round: 2,
+      motion: { words: 'glitch', dur: .6, stagger: .06, ease: 'steps(5)', frame: 'scan', tilt: true,
+        cards: { y: 30, autoAlpha: 0, filter: 'blur(6px)', duration: .9, ease: 'power3.out' },
+        reveal: [{ clipPath: 'inset(0% 0% 100% 0%)', autoAlpha: .2 }, { clipPath: 'inset(0% 0% 0% 0%)', autoAlpha: 1, duration: .9, ease: 'power2.inOut' }] },
+      tag: 'مثل مراکز چکاپ هوشمند آینده: سیاه عمیق، خطوط آبی یخی، کره‌ی نقطه‌ای که می‌چرخد و خط اسکن که روی آن حرکت می‌کند.',
+      mood: 'آینده‌نگر، دقیق، فناورانه',
+      fit: 'چکاپ پیشرفته، تصویربرداری، ژنتیک، یا کلینیکی که روی تجهیزات جدید مانور می‌دهد.',
+      palette: [['#06080B', 'سیاه'], ['#E6EEF3', 'متن'], ['#9AE6FF', 'آبی یخی'], ['#B7A6FF', 'بنفش داده'], ['#7CF0C0', 'سبز وضعیت']],
+      fonts: 'المرعی (Almarai) برای متن و هندجت (Handjet) برای اعداد و داده‌ها.',
+      motionText: 'یک کره از ۷۰۰ نقطه می‌چرخد و با ماوس (یا خودکار روی موبایل) جهت عوض می‌کند؛ نقطه‌هایی که خط اسکن از رویشان رد می‌شود روشن می‌شوند. کلمه‌ها دیجیتالی ظاهر می‌شوند و کارت‌ها گوشه‌های «هدف‌گیری» دارند.',
+      pros: ['خیلی خاص و «خفن»', 'حس تجهیزات پیشرفته و دقت', 'برای تبلیغات و شبکه‌های اجتماعی جذاب'],
+      cons: ['برای بیمار مسن سرد و فنی است', 'تیره بودن برای متن‌های طولانی مناسب نیست'],
+      take: 'اگر خدمات چکاپ و تصویربرداری نقطه‌ی قوت شماست، این سبک آن را بهتر از همه نشان می‌دهد.',
+      score: [4, 5, 3, 3, 2],
+    },
   ];
   const byId = (id) => STYLES.find((s) => s.id === id) || STYLES[0];
   const cur = () => byId(html.dataset.style);
@@ -214,16 +342,16 @@
     { id: 'physio', name: 'فیزیوتراپی', icon: 'person', fee: 560000, feeNote: 'هر جلسه' },
   ];
   const DOCTORS = [
-    { id: 'd1', svc: 'skin', name: 'دکتر نگار فرهمند', title: 'متخصص پوست، مو و زیبایی', rate: '۴٫۹', n: '۶۱۲', av: { g: 'f', skin: '#E9C4A6', scarf: '#1F2A44', bg: '#CFE3DD' } },
-    { id: 'd2', svc: 'skin', name: 'دکتر آرش توکلی', title: 'فلوشیپ لیزر و جوانسازی پوست', rate: '۴٫۸', n: '۳۴۸', av: { g: 'm', skin: '#D9A98A', hair: '#2B211C', bg: '#DDD5EE', glasses: true } },
-    { id: 'd3', svc: 'dental', name: 'دکتر سپیده امینی', title: 'متخصص ارتودنسی', rate: '۴٫۹', n: '۴۲۷', av: { g: 'f', skin: '#F0CFB4', scarf: '#3B2F4A', bg: '#F3DCC6' } },
+    { id: 'd1', svc: 'skin', name: 'دکتر نگار فرهمند', title: 'متخصص پوست، مو و زیبایی', rate: '۴٫۹', n: '۶۱۲', av: { photo: 'img/doc-d1.webp', g: 'f', skin: '#E9C4A6', scarf: '#1F2A44', bg: '#CFE3DD' } },
+    { id: 'd2', svc: 'skin', name: 'دکتر آرش توکلی', title: 'فلوشیپ لیزر و جوانسازی پوست', rate: '۴٫۸', n: '۳۴۸', av: { photo: 'img/doc-d2.webp', g: 'm', skin: '#D9A98A', hair: '#2B211C', bg: '#DDD5EE', glasses: true } },
+    { id: 'd3', svc: 'dental', name: 'دکتر سپیده امینی', title: 'متخصص ارتودنسی', rate: '۴٫۹', n: '۴۲۷', av: { photo: 'img/doc-d3.webp', g: 'f', skin: '#F0CFB4', scarf: '#3B2F4A', bg: '#F3DCC6' } },
     { id: 'd4', svc: 'dental', name: 'دکتر بهرام کاویانی', title: 'جراح دندانپزشک، ایمپلنت', rate: '۴٫۷', n: '۲۹۱', av: { g: 'm', skin: '#C99474', hair: '#6B6B6B', bg: '#D6E6F2', beard: true } },
-    { id: 'd5', svc: 'internal', name: 'دکتر مهدی رستگار', title: 'متخصص بیماری‌های داخلی', rate: '۴٫۸', n: '۵۵۳', av: { g: 'm', skin: '#E0B292', hair: '#1E1A18', bg: '#D9E8D2', beard: true } },
+    { id: 'd5', svc: 'internal', name: 'دکتر مهدی رستگار', title: 'متخصص بیماری‌های داخلی', rate: '۴٫۸', n: '۵۵۳', av: { photo: 'img/doc-d5.webp', g: 'm', skin: '#E0B292', hair: '#1E1A18', bg: '#D9E8D2', beard: true } },
     { id: 'd6', svc: 'internal', name: 'دکتر لیلا صدری', title: 'فوق‌تخصص غدد و متابولیسم', rate: '۴٫۹', n: '۳۸۹', av: { g: 'f', skin: '#EBC3A2', scarf: '#18202E', bg: '#E7DDF3', glasses: true } },
-    { id: 'd7', svc: 'women', name: 'دکتر مریم نیک‌پور', title: 'متخصص زنان و زایمان', rate: '۴٫۹', n: '۷۰۴', av: { g: 'f', skin: '#DDB08E', scarf: '#4A2433', bg: '#F4D9D6' } },
-    { id: 'd8', svc: 'women', name: 'دکتر شیرین احمدی', title: 'فلوشیپ ناباروری', rate: '۴٫۸', n: '۲۶۶', av: { g: 'f', skin: '#F1D0B5', scarf: '#233B3A', bg: '#D8EBE6' } },
+    { id: 'd7', svc: 'women', name: 'دکتر مریم نیک‌پور', title: 'متخصص زنان و زایمان', rate: '۴٫۹', n: '۷۰۴', av: { photo: 'img/doc-d7.webp', g: 'f', skin: '#DDB08E', scarf: '#4A2433', bg: '#F4D9D6' } },
+    { id: 'd8', svc: 'women', name: 'دکتر شیرین احمدی', title: 'فلوشیپ ناباروری و درمان', rate: '۴٫۸', n: '۲۶۶', av: { g: 'f', skin: '#F1D0B5', scarf: '#233B3A', bg: '#D8EBE6' } },
     { id: 'd9', svc: 'nutrition', name: 'دکتر کیوان مهرآیین', title: 'دکترای تغذیه‌ی بالینی', rate: '۴٫۷', n: '۳۱۲', av: { g: 'm', skin: '#E3B899', hair: '#3A2A20', bg: '#EFE3C8' } },
-    { id: 'd10', svc: 'nutrition', name: 'دکتر الهام زارع', title: 'متخصص تغذیه‌ی ورزشی', rate: '۴٫۸', n: '۱۹۸', av: { g: 'f', skin: '#E8BE9C', scarf: '#2D3E2B', bg: '#DCE8CF' } },
+    { id: 'd10', svc: 'nutrition', name: 'دکتر الهام زارع', title: 'متخصص تغذیه‌ی ورزشی', rate: '۴٫۸', n: '۱۹۸', av: { photo: 'img/doc-d10.webp', g: 'f', skin: '#E8BE9C', scarf: '#2D3E2B', bg: '#DCE8CF' } },
     { id: 'd11', svc: 'physio', name: 'دکتر پویا شریفی', title: 'دکترای فیزیوتراپی', rate: '۴٫۸', n: '۴۴۰', av: { g: 'm', skin: '#D7A383', hair: '#231C19', bg: '#D5E3F0', glasses: true } },
     { id: 'd12', svc: 'physio', name: 'دکتر ندا یزدانی', title: 'فیزیوتراپیست ورزشی', rate: '۴٫۹', n: '۳۰۵', av: { g: 'f', skin: '#EDC7A8', scarf: '#1D2B4A', bg: '#F0DCCB' } },
   ];
@@ -233,6 +361,7 @@
 
   /* Minimal, faceless doctor portraits so the page never shows a grey silhouette. */
   function avatar(a) {
+    if (a.photo) return `<img src="${a.photo}" alt="" loading="lazy">`;
     const coat = '#F7F8FA';
     let s = `<svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" fill="${a.bg}"/>`;
     if (a.g === 'f') s += `<path d="M17.5 50C17 34 20 14.5 32 14.5S47 34 46.5 50Z" fill="${a.scarf}"/>`;
@@ -339,6 +468,10 @@
     pop: (m) => ({ y: 40, scale: .4, autoAlpha: 0, stagger: m.stagger, duration: m.dur, ease: m.ease }),
     drop: (m) => ({ y: -80, rotation: () => rand(-16, 16), autoAlpha: 0, stagger: m.stagger, duration: m.dur, ease: m.ease }),
     breathe: (m) => ({ autoAlpha: 0, scale: 1.14, filter: 'blur(9px)', stagger: m.stagger, duration: m.dur, ease: m.ease, clearProps: 'filter' }),
+    rise: (m) => ({ y: 56, autoAlpha: 0, stagger: m.stagger, duration: m.dur, ease: m.ease }),
+    skew: (m) => ({ yPercent: 120, skewY: 9, stagger: m.stagger, duration: m.dur, ease: m.ease }),
+    fadeThrough: (m) => ({ scale: .9, autoAlpha: 0, stagger: m.stagger, duration: m.dur, ease: m.ease }),
+    glitch: (m) => ({ autoAlpha: 0, x: () => rand(-26, 26), filter: 'blur(5px)', stagger: m.stagger, duration: m.dur, ease: m.ease, clearProps: 'filter,transform' }),
   };
   const FRAME = {
     inset: [{ clipPath: 'inset(14% 14% 14% 14% round 48px)', autoAlpha: 0 }, { clipPath: 'inset(0% 0% 0% 0% round 36px)', autoAlpha: 1, duration: 1.5, ease: 'expo.out', clearProps: 'clipPath' }],
@@ -349,6 +482,14 @@
     pop: [{ scale: .55, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 1.1, ease: 'back.out(1.6)' }],
     drop: [{ y: -140, rotation: -9, autoAlpha: 0 }, { y: 0, rotation: 0, autoAlpha: 1, duration: 1.5, ease: 'elastic.out(1, .6)' }],
     bloom: [{ scale: .5, autoAlpha: 0, filter: 'blur(24px)' }, { scale: 1, autoAlpha: 1, filter: 'blur(0px)', duration: 2, ease: 'power3.out', clearProps: 'filter' }],
+    glass: [{ scale: 1.06, autoAlpha: 0, filter: 'blur(28px)' }, { scale: 1, autoAlpha: 1, filter: 'blur(0px)', duration: 1.7, ease: 'power3.out', clearProps: 'filter' }],
+    scale: [{ scale: .8, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 1.5, ease: 'power4.out' }],
+    cookie: [{ rotation: -120, scale: .35, autoAlpha: 0 }, { rotation: 0, scale: 1, autoAlpha: 1, duration: 1.5, ease: 'expo.out' }],
+    fade: [{ autoAlpha: 0 }, { autoAlpha: 1, duration: .5, ease: 'power1.out' }],
+    curtain: [{ clipPath: 'inset(0% 0% 100% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.5, ease: 'power4.inOut', clearProps: 'clipPath' }],
+    oval: [{ clipPath: 'inset(42% 44% 42% 44% round 999px)' }, { clipPath: 'inset(0% 0% 0% 0% round 999px)', duration: 1.7, ease: 'expo.inOut', clearProps: 'clipPath' }],
+    jelly: [{ scale: .45, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 1.5, ease: 'elastic.out(1, .5)' }],
+    scan: [{ clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.4, ease: 'power2.inOut', clearProps: 'clipPath' }],
   };
 
   function drawIn(tl, els, at, dur = 1.4, ease = 'power2.inOut') {
@@ -386,6 +527,22 @@
         tl.from($$('.deco.conf i'), { scale: 0, rotation: () => rand(-180, 180), duration: .8, stagger: .06, ease: 'back.out(3)' }, .5)
           .from($('.art-brut .sun', f), { scale: 0, duration: 1, ease: 'elastic.out(1, .5)' }, at + .6)
           .from($('.art-brut .big', f), { y: 120, duration: 1.2, ease: 'elastic.out(1, .6)' }, at + .5); break;
+      case 'glass': case 'bento': case 'material':
+        tl.from($('.art-photo', f), { scale: 1.25, duration: 2, ease: 'power3.out' }, at);
+        if (id === 'glass') tl.from($$('.mesh i'), { autoAlpha: 0, scale: .6, duration: 2.2, stagger: .2 }, 0);
+        break;
+      case 'editorial':
+        tl.from($('.art-photo', f), { scale: 1.35, duration: 2.4, ease: 'power3.out' }, at)
+          .from($('.ed-cap'), { autoAlpha: 0, y: 10, duration: .8 }, at + 1); break;
+      case 'kinetic':
+        tl.from($('.art-photo', f), { scale: 1.5, duration: 2.2, ease: 'expo.out' }, at + .2)
+          .from($('.kin-band'), { autoAlpha: 0, y: 30, duration: 1, ease: 'power3.out' }, 1.2); break;
+      case 'clay':
+        tl.from($('.art-photo', f), { scale: .7, autoAlpha: 0, duration: 1.2, ease: 'back.out(1.6)' }, at + .3)
+          .from($$('.clayfx i'), { scale: 0, rotation: () => rand(-90, 90), duration: 1.2, stagger: .12, ease: 'elastic.out(1, .45)' }, at + .6); break;
+      case 'medtech':
+        tl.from($$('.art-med .hud', f), { autoAlpha: 0, x: 12, duration: .5, stagger: .15, ease: 'steps(4)' }, at + .8)
+          .from($('.art-med .scan-cv', f), { autoAlpha: 0, scale: .6, duration: 1.6, ease: 'expo.out' }, at + .3); break;
       case 'organic':
         tl.from($$('.art-org .ob', f), { scale: 0, duration: 1.8, stagger: .2, ease: 'power3.out' }, at + .3)
           .from($$('.deco.blobs i'), { autoAlpha: 0, scale: .6, duration: 2.4, stagger: .3 }, 0);
@@ -396,7 +553,8 @@
   function highlight(tl, id, at) {
     const hl = $('.hero .hl'); if (!hl) return;
     const bg = $('.hl-bg', hl); const u = $('.hl-u path', hl);
-    if (id === 'lavender' || id === 'organic') {
+    if (['glass', 'bento', 'editorial', 'kinetic'].includes(id)) return;
+    if (['lavender', 'organic', 'material', 'access', 'clay'].includes(id)) {
       tl.fromTo(bg, { scaleX: 0 }, { scaleX: 1, duration: .8, ease: 'power3.inOut' }, at);
     } else if (id !== 'swiss') {
       drawIn(tl, [u], at, id === 'noir' ? 1.4 : .9, id === 'noir' ? 'power3.inOut' : 'power2.out');
@@ -448,6 +606,11 @@
     G.from($$('.svc-card .svc-ic'), { scale: 0, duration: .8, stagger: .09, delay: .25, ease: 'back.out(2.4)', clearProps: 'all', scrollTrigger: { trigger: '#svcGrid', start: 'top 82%', once: true } });
     G.fromTo('#bk', m.reveal[0], { ...m.reveal[1], clearProps: 'all', scrollTrigger: { trigger: '#bk', start: 'top 86%', once: true } });
     G.from($$('.ftr-col'), { y: 20, autoAlpha: 0, duration: .8, stagger: .08, ease: 'power3.out', scrollTrigger: { trigger: '.ftr', start: 'top 92%', once: true } });
+    G.fromTo($$('.dcard'), m.reveal[0], { ...m.reveal[1], stagger: .08, clearProps: 'transform,translate,rotate,scale,opacity,visibility,clipPath', scrollTrigger: { trigger: '#dgrid', start: 'top 84%', once: true } });
+    G.from('#dfilter', { y: 16, autoAlpha: 0, duration: .7, ease: 'power3.out', clearProps: 'all', scrollTrigger: { trigger: '#dfilter', start: 'top 90%', once: true } });
+    G.fromTo('.jr-media', m.reveal[0], { ...m.reveal[1], clearProps: 'transform,opacity,visibility,clipPath', scrollTrigger: { trigger: '.jr-grid', start: 'top 80%', once: true } });
+    $$('.jr-step').forEach((st) => G.from($$('.jr-mimg, .jr-n, h3, p, .jr-facts', st), { y: 26, autoAlpha: 0, duration: .8, stagger: .07, ease: 'power3.out', clearProps: 'all', scrollTrigger: { trigger: st, start: 'top 82%', once: true } }));
+    G.from($$('.rv-row'), { x: (i) => (i ? 80 : -80), autoAlpha: 0, duration: 1.2, stagger: .15, ease: 'power3.out', clearProps: 'all', scrollTrigger: { trigger: '.rv-rows', start: 'top 88%', once: true } });
   }
 
   let ctx = null;
@@ -456,7 +619,7 @@
     if (!G) { startLive(); return; }
     if (ctx) { ctx.revert(); statsFinal(); }
     ctx = G.context(() => {
-      if (!RM.matches) { intro(); if (ST) reveals(); }
+      if (!RM.matches && !html.classList.contains('still')) { intro(); if (ST) reveals(); styleScrollFx(cur().id); }
     }, site);
     if (ST) ST.refresh();
     startLive();
@@ -483,6 +646,7 @@
 
   function renderDock() {
     STYLES.forEach((s, i) => {
+      if (s.round === 2 && !$('.dk-sep', dkStyles)) { const sep = document.createElement('span'); sep.className = 'dk-sep'; sep.textContent = 'جدید'; dkStyles.appendChild(sep); }
       const b = document.createElement('button');
       b.type = 'button'; b.className = 'dk-chip'; b.dataset.id = s.id;
       b.setAttribute('role', 'tab'); b.setAttribute('aria-selected', 'false');
@@ -504,7 +668,7 @@
     const chip = $(`.dk-chip[data-id="${id}"]`); if (!chip) return;
     if (instant || !indW.x) { indX.set(chip.offsetLeft); indW.set(chip.offsetWidth); }
     else { indX.to(chip.offsetLeft); indW.to(chip.offsetWidth); }
-    try { chip.scrollIntoView({ block: 'nearest', inline: 'center', behavior: instant ? 'auto' : 'smooth' }); } catch (e) { /* old browsers */ }
+    centerIn(dkStyles, chip, instant);
   }
 
   function applyStyle(id) {
@@ -513,7 +677,8 @@
     html.classList.toggle('mask-words', !!s.mask);
     store.set('sasan-style', s.id);
     try { history.replaceState(null, '', '#' + s.id); } catch (e) { /* sandboxed */ }
-    syncDock(); renderNotes(); setupCursor(); setHlPath();
+    syncDock(); renderNotes(); setupCursor(); setHlPath(); styleEnterLeave(s.id);
+    requestAnimationFrame(() => placeDoctorFilter(true));
     const meta = $('meta[name="theme-color"]'); if (meta) meta.content = s.bg;
   }
 
@@ -737,7 +902,7 @@
   /* ───────────────────────── 7 · services ───────────────────────── */
   function services() {
     const grid = $('#svcGrid');
-    $$('.svc-card', grid).forEach((card) => {
+    $$('.svc-card, .dcard').forEach((card) => {
       const rx = new Spring(0, { k: 180, c: 18 }); const ry = new Spring(0, { k: 180, c: 18 });
       rx.on((v) => card.style.setProperty('--rx', `${v}deg`)); ry.on((v) => card.style.setProperty('--ry', `${v}deg`));
       card.addEventListener('pointermove', (e) => {
@@ -812,7 +977,8 @@
     const free = list.filter((x) => !x.taken);
     if (!free.length) {
       const next = DAYS.find((d) => d.i > day.i && !d.closed && freeCount(d) > 0);
-      return `<div class="empty"><b>همه‌ی نوبت‌های ${dayLabel(day)} ${day.dnum} ${day.mon} پر شده</b>
+      const over = day.i === 0 && list.length && list.every((x) => x.past);
+      return `<div class="empty"><b>${over ? 'ساعت پذیرش امروز تمام شده است' : `همه‌ی نوبت‌های ${dayLabel(day)} ${day.dnum} ${day.mon} پر شده`}</b>
         <p>${next ? `نزدیک‌ترین روز با نوبت خالی ${dayLabel(next)} ${next.dnum} ${next.mon} است.` : 'در دو هفته‌ی آینده نوبت خالی نیست؛ با پذیرش تماس بگیرید تا در فهرست انتظار قرار بگیرید.'}</p>
         ${next ? `<button type="button" class="btn btn-ghost btn-sm" data-jump="${next.key}"><span>رفتن به ${dayLabel(next)}</span></button>` : ''}</div>`;
     }
@@ -923,21 +1089,19 @@
     ['x', 'y', 'w', 'h'].forEach((k) => (instant || fresh) ? glideSpring[k].set(t[k]) : glideSpring[k].to(t[k]));
     g.style.opacity = '1';
   }
-  function centerDate(btn, instant) {
-    if (!btn) return;
-    try { btn.scrollIntoView({ block: 'nearest', inline: 'center', behavior: instant ? 'auto' : 'smooth' }); } catch (e) { /* noop */ }
-  }
+  function centerDate(btn, instant) { if (btn) centerIn(btn.closest('.dates'), btn, instant); }
+  const drag = { el: null, x: 0, sl: 0, moved: false, bound: false };
   function dragScroll(el) {
     if (!el || el.dataset.drag) return; el.dataset.drag = '1';
-    let down = null; let moved = false;
-    el.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse') return; down = { x: e.clientX, sl: el.scrollLeft }; moved = false; });
+    el.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse') return; Object.assign(drag, { el, x: e.clientX, sl: el.scrollLeft, moved: false }); });
+    el.addEventListener('click', (e) => { if (drag.moved) { e.stopPropagation(); e.preventDefault(); drag.moved = false; } }, true);
+    if (drag.bound) return; drag.bound = true;
     addEventListener('pointermove', (e) => {
-      if (!down) return; const dx = e.clientX - down.x;
-      if (Math.abs(dx) > 5) { moved = true; el.classList.add('is-drag'); }
-      el.scrollLeft = down.sl - dx;
+      if (!drag.el) return; const dx = e.clientX - drag.x;
+      if (Math.abs(dx) > 5) { drag.moved = true; drag.el.classList.add('is-drag'); }
+      drag.el.scrollLeft = drag.sl - dx;
     });
-    addEventListener('pointerup', () => { down = null; setTimeout(() => el.classList.remove('is-drag'), 0); });
-    el.addEventListener('click', (e) => { if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; } }, true);
+    addEventListener('pointerup', () => { const el2 = drag.el; drag.el = null; if (el2) setTimeout(() => el2.classList.remove('is-drag'), 0); });
   }
   function pop(btn) { if (G && !RM.matches) G.fromTo(btn, { scale: .94 }, { scale: 1, duration: .6, ease: 'elastic.out(1.1, .45)', clearProps: 'all' }); }
 
@@ -1029,7 +1193,7 @@
         const pick = slotsForPick(bk.day, bk.doc, bk.svc).find((x) => x.t === bk.slot); bk.slotDoc = pick ? pick.doc : bk.doc;
         $$('[data-t]', stage).forEach((b) => b.setAttribute('aria-checked', String(b === slotBtn)));
         glideTo(slotBtn); pop(slotBtn); syncChrome();
-        autoT = setTimeout(() => go(3), RM.matches ? 0 : 650); return;
+        const nb = $('#bkNext'); nb.classList.remove('nudge'); void nb.offsetWidth; nb.classList.add('nudge'); return;
       }
       const act = t.closest('[data-act]');
       if (act) {
@@ -1085,7 +1249,7 @@
         <div class="nt-scroll"><table class="nt-cmp"><thead><tr><th>سبک</th>${SCORE_LABELS.map((l) => `<th>${l}</th>`).join('')}</tr></thead><tbody>
         ${STYLES.map((x) => `<tr class="${x.id === s.id ? 'cur' : ''}" data-id="${x.id}" style="cursor:pointer"><td>${x.name}</td>${x.score.map((v) => `<td class="dots">${dots(v)}</td>`).join('')}</tr>`).join('')}
         </tbody></table></div>
-        <div class="nt-sec nt-take" style="margin-top:14px"><h3>جمع‌بندی من</h3><p>برای یک کلینیک چندتخصصی، <b>پزشکی مدرن</b> پایه‌ی درستی است و <b>کلاسیک ایرانی</b> بهترین «امضا» برای متمایز شدن. اگر تمرکز روی زیبایی است، <b>لوکس</b> را انتخاب کنید. سبک‌های تصویر ۱ و ۲ برای مخاطب جوان یا یک بخش خاص (مثلاً کودکان) عالی‌اند.</p></div>`;
+        <div class="nt-sec nt-take" style="margin-top:14px"><h3>جمع‌بندی من</h3><p>برای یک کلینیک چندتخصصی، <b>پزشکی مدرن</b> یا <b>اپلی / بنتو</b> پایه‌ی درستی‌اند و <b>کلاسیک ایرانی</b> بهترین «امضا» برای متمایز شدن است. برای بیشترین کاربرپسندی روی موبایل <b>متریال گوگل</b> و برای بیماران مسن <b>دسترس‌پذیر</b>. اگر تمرکز روی زیبایی است، <b>لوکس</b> یا <b>شیشه‌ای مات</b>؛ و اگر می‌خواهید «خفن» دیده شوید، <b>حرکتی</b> یا <b>پزشکی آینده</b>.</p></div>`;
     } else {
       body.innerHTML = `
         <div class="nt-sec"><h3>۱ · انتخاب سبک</h3><p>یک سبک اصلی انتخاب کنید. می‌توانیم یک عنصر امضا (مثلاً طاق ایرانی یا خط ضربانِ «س») را از سبک دیگری قرض بگیریم.</p></div>
@@ -1149,8 +1313,215 @@
     head.addEventListener('pointerup', end); head.addEventListener('pointercancel', end);
   }
 
+  /* ───────────────────────── 11 · round-2 sections ───────────────────────── */
+
+  /* scroll an element to the middle of its own scroller without moving the page */
+  function centerIn(scroller, el, instant) {
+    if (!scroller || !el) return;
+    const cr = scroller.getBoundingClientRect(); const er = el.getBoundingClientRect();
+    const delta = (er.left + er.width / 2) - (cr.left + cr.width / 2);
+    if (Math.abs(delta) < 2) return;
+    scroller.scrollBy({ left: delta, behavior: instant || RM.matches ? 'auto' : 'smooth' });
+  }
+
+  /* Doctors: filter chips with a sliding indicator; cards re-flow with Flip */
+  function doctors() {
+    const grid = $('#dgrid'); const filt = $('#dfilter'); if (!grid || !filt) return;
+    const ind = $('.df-ind', filt);
+    const sx = new Spring(0, { k: 280, c: 28 }); const sw = new Spring(0, { k: 280, c: 28 });
+    const paint = () => { ind.style.transform = `translateX(${sx.x}px)`; ind.style.width = `${sw.x}px`; };
+    sx.on(paint); sw.on(paint);
+    const place = (instant) => {
+      const b = $('button[aria-selected="true"]', filt); if (!b) return;
+      if (instant || !sw.x) { sx.set(b.offsetLeft); sw.set(b.offsetWidth); } else { sx.to(b.offsetLeft); sw.to(b.offsetWidth); }
+    };
+    filt.addEventListener('click', (e) => {
+      const b = e.target.closest('button[data-f]'); if (!b || b.getAttribute('aria-selected') === 'true') return;
+      $$('button[data-f]', filt).forEach((x) => x.setAttribute('aria-selected', String(x === b)));
+      place(); centerIn(filt, b);
+      const f = b.dataset.f; const cards = $$('.dcard', grid);
+      const F = window.Flip; const anim = F && G && !RM.matches && !html.classList.contains('still');
+      const state = anim ? F.getState(cards) : null;
+      cards.forEach((c) => c.classList.toggle('off', !(f === 'all' || c.dataset.svc === f)));
+      if (anim) {
+        F.from(state, {
+          duration: .65, ease: 'power3.inOut', absolute: true, scale: true,
+          onEnter: (els) => G.fromTo(els, { autoAlpha: 0, scale: .85, y: 30 }, { autoAlpha: 1, scale: 1, y: 0, duration: .55, delay: .15, ease: 'power3.out', clearProps: 'transform,opacity,visibility' }),
+          onLeave: (els) => G.to(els, { autoAlpha: 0, scale: .85, duration: .35, ease: 'power2.in' }),
+        });
+      }
+      grid.scrollTo({ left: 0, behavior: 'auto' });
+    });
+    grid.addEventListener('click', (e) => { const b = e.target.closest('.dbtn'); if (b) bookFrom(b.dataset.book, b.dataset.doc); });
+    $$('.dcard', grid).forEach((c) => {
+      const ff = firstFree([c.dataset.doc]); const nx = $('.dnext', c);
+      if (nx && ff) nx.textContent = firstFreeText(ff);
+    });
+    addEventListener('resize', () => place(true));
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => place(true));
+    place(true);
+    return place;
+  }
+  let placeDoctorFilter = () => {};
+
+  /* Journey: the step that crosses the middle of the screen owns the photo */
+  function journey() {
+    const steps = $$('.jr-step'); const imgs = $$('.jr-img'); if (!steps.length) return;
+    let cur = 0;
+    const set = (i) => {
+      if (i === cur) return;
+      steps.forEach((s, k) => s.classList.toggle('is-on', k === i));
+      imgs.forEach((im, k) => { im.classList.toggle('was', k === cur); im.classList.toggle('is-on', k === i); });
+      const old = cur; cur = i;
+      setTimeout(() => { if (cur !== old) imgs[old].classList.remove('was'); }, 1100);
+      $('#jrNow').textContent = fa(i + 1);
+      $('#jrBar').parentElement.style.setProperty('--p', String((i + 1) / steps.length));
+    };
+    if (!('IntersectionObserver' in window)) return;
+    const io = new IntersectionObserver((ents) => {
+      ents.forEach((en) => { if (en.isIntersecting) set(+en.target.dataset.i); });
+    }, { rootMargin: '-45% 0px -45% 0px' });
+    steps.forEach((s) => io.observe(s));
+  }
+
+  /* Reviews: duplicate each track once so the marquee loops without a seam */
+  function reviews() {
+    $$('.rv-track').forEach((t) => {
+      if (t.dataset.dup) return; t.dataset.dup = '1';
+      $$('.rv-card', t).forEach((c) => { const d = c.cloneNode(true); d.setAttribute('aria-hidden', 'true'); t.appendChild(d); });
+      const w = t.scrollWidth / 2; t.style.setProperty('--rv-d', `${Math.round(w / 38)}s`);
+    });
+  }
+
+  /* Material: ink ripple from the touch point + a FAB that folds while scrolling down */
+  function ripples() {
+    const sel = '.btn, .opt, .date, .slot, .dfilter button, .dbtn, .svc-go, .mini-btn, .fab, .like, .nav a, .bk-steps button, .svc-card, .dcard';
+    site.addEventListener('pointerdown', (e) => {
+      if (cur().id !== 'material' || RM.matches) return;
+      const el = e.target.closest(sel); if (!el || el.disabled) return;
+      const r = el.getBoundingClientRect(); const d = Math.max(r.width, r.height) * 2.2;
+      const rp = document.createElement('span'); rp.className = 'ripple';
+      rp.style.cssText = `width:${d}px;height:${d}px;left:${e.clientX - r.left - d / 2}px;top:${e.clientY - r.top - d / 2}px`;
+      if (getComputedStyle(el).position === 'static') el.style.position = 'relative';
+      el.appendChild(rp); setTimeout(() => rp.remove(), 700);
+    });
+    const fab = $('.fab'); let last = scrollY;
+    addEventListener('scroll', () => {
+      const y = scrollY; if (fab) fab.classList.toggle('mini', y > 420 && y > last); last = y;
+    }, { passive: true });
+  }
+
+  /* Access: text size / contrast / motion switches, remembered per viewer */
+  const A11Y = { fs: +(store.get('sasan-fs') || 1), hc: store.get('sasan-hc') === '1', still: store.get('sasan-still') === '1' };
+  function a11yApply(on) {
+    html.style.fontSize = on && A11Y.fs !== 1 ? `${A11Y.fs * 100}%` : '';
+    html.classList.toggle('hc', on && A11Y.hc);
+    html.classList.toggle('still', on && A11Y.still);
+    $$('.a11y [data-fs]').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.fs === A11Y.fs)));
+    $('#a11yHc').setAttribute('aria-pressed', String(A11Y.hc));
+    $('#a11yStill').setAttribute('aria-pressed', String(A11Y.still));
+  }
+  function a11yUI() {
+    $$('.a11y [data-fs]').forEach((b) => b.addEventListener('click', () => { A11Y.fs = +b.dataset.fs; store.set('sasan-fs', String(A11Y.fs)); a11yApply(true); if (ST) ST.refresh(); }));
+    $('#a11yHc').addEventListener('click', () => { A11Y.hc = !A11Y.hc; store.set('sasan-hc', A11Y.hc ? '1' : '0'); a11yApply(true); });
+    $('#a11yStill').addEventListener('click', () => { A11Y.still = !A11Y.still; store.set('sasan-still', A11Y.still ? '1' : '0'); a11yApply(true); buildMotion(); });
+  }
+
+  /* Medtech: a 700-point sphere drawn on canvas; the CSS scan line lights up the points it passes */
+  const scan = (() => {
+    let cv = null; let c2 = null; let raf = 0; let run = false; let pts = []; let mx = 0; let my = 0; let tx = 0; let ty = 0; let seen = true;
+    const make = () => {
+      const N = 700; const g = Math.PI * (3 - Math.sqrt(5)); pts = [];
+      for (let i = 0; i < N; i++) { const y = 1 - (i / (N - 1)) * 2; const r = Math.sqrt(1 - y * y); const t = g * i; pts.push([Math.cos(t) * r, y, Math.sin(t) * r]); }
+    };
+    const size = () => {
+      const dpr = Math.min(devicePixelRatio || 1, 2); const w = cv.clientWidth; const h = cv.clientHeight;
+      if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+      return dpr;
+    };
+    const frame = (t) => {
+      if (!run) return; raf = requestAnimationFrame(frame);
+      if (!seen) return;
+      const dpr = size(); const w = cv.width; const h = cv.height; c2.clearRect(0, 0, w, h);
+      mx += (tx - mx) * .05; my += (ty - my) * .05;
+      const R = Math.min(w, h) * .34; const ry = t * .00022 + mx * .9; const rx = -.3 + my * .5;
+      const cy = Math.cos(ry); const sy = Math.sin(ry); const cx = Math.cos(rx); const sx = Math.sin(rx);
+      const scanY = h * (.08 + .84 * (.5 - .5 * Math.cos((t / 4500) * Math.PI * 2)));
+      for (let i = 0; i < pts.length; i++) {
+        const p = pts[i]; const x1 = p[0] * cy + p[2] * sy; const z1 = -p[0] * sy + p[2] * cy;
+        const y2 = p[1] * cx - z1 * sx; const z2 = p[1] * sx + z1 * cx; const k = 1 / (1.9 - z2 * .55);
+        const X = w / 2 + x1 * R * k * 1.35; const Y = h / 2 + y2 * R * k * 1.35;
+        const near = Math.abs(Y - scanY) < 9 * dpr; const a = .16 + .62 * ((z2 + 1) / 2);
+        const s = (1.1 + (z2 + 1) * 1.1) * dpr;
+        c2.fillStyle = near ? `rgba(220,250,255,${Math.min(1, a + .45)})` : `rgba(154,230,255,${a})`;
+        c2.fillRect(X - s / 2, Y - s / 2, near ? s * 1.6 : s, near ? s * 1.6 : s);
+      }
+    };
+    return {
+      start() {
+        if (run) return; cv = $('.scan-cv'); if (!cv) return; c2 = cv.getContext('2d'); if (!pts.length) make();
+        run = true; raf = requestAnimationFrame(frame);
+        if (!cv.dataset.bound) {
+          cv.dataset.bound = '1';
+          $('.hero').addEventListener('pointermove', (e) => { const r = $('.hero').getBoundingClientRect(); tx = ((e.clientX - r.left) / r.width - .5) * 2; ty = ((e.clientY - r.top) / r.height - .5) * 2; });
+          if ('IntersectionObserver' in window) new IntersectionObserver((en) => { seen = en[0].isIntersecting; }).observe(cv);
+        }
+      },
+      stop() { run = false; cancelAnimationFrame(raf); },
+    };
+  })();
+
+  /* Kinetic: hovering a service row floats its photo next to the cursor */
+  function kineticPreview() {
+    const box = $('#kinPrev'); const img = $('img', box);
+    const px = new Spring(0, { k: 160, c: 18 }); const py = new Spring(0, { k: 160, c: 18 }); const pr = new Spring(0, { k: 120, c: 14 });
+    const paint = () => { box.style.transform = `translate3d(${px.x}px, ${py.x}px, 0) rotate(${pr.x}deg)`; };
+    px.on(paint); py.on(paint); pr.on(paint);
+    let lastX = 0; let active = null;
+    $('#svcGrid').addEventListener('pointermove', (e) => {
+      if (cur().id !== 'kinetic' || e.pointerType !== 'mouse') return;
+      const card = e.target.closest('.svc-card'); if (!card) return;
+      if (card !== active) { active = card; img.src = $('.svc-img img', card).src; if (!box.classList.contains('on')) { px.set(e.clientX); py.set(e.clientY); } box.classList.add('on'); }
+      px.to(e.clientX); py.to(e.clientY); pr.to(clamp((e.clientX - lastX) * .6, -12, 12)); lastX = e.clientX;
+    });
+    $('#svcGrid').addEventListener('pointerleave', () => { active = null; box.classList.remove('on'); pr.to(0); });
+  }
+
+  /* per-style scroll effects, built inside the motion context so they revert on switch */
+  function styleScrollFx(id) {
+    if (!G || !ST) return;
+    if (id === 'bento' || id === 'glass') {
+      G.fromTo('.hero .art-photo', { scale: 1.18 }, { scale: 1, ease: 'none', scrollTrigger: { trigger: '#heroVis', start: 'top bottom', end: 'bottom 40%', scrub: true } });
+    }
+    if (id === 'editorial') {
+      G.fromTo('.hero .art-photo', { yPercent: -6, scale: 1.14 }, { yPercent: 6, scale: 1.14, ease: 'none', scrollTrigger: { trigger: '#heroVis', start: 'top bottom', end: 'bottom top', scrub: true } });
+      $$('.svc-img img').forEach((im) => G.fromTo(im, { yPercent: -5, scale: 1.12 }, { yPercent: 5, scale: 1.12, ease: 'none', scrollTrigger: { trigger: im.parentElement, start: 'top bottom', end: 'bottom top', scrub: true } }));
+    }
+    if (id === 'kinetic') {
+      const skews = $$('.dphoto img, .jr-media, .hero .frame').map((t) => G.quickTo(t, 'skewY', { duration: .6, ease: 'power3' }));
+      let settle = 0;
+      ST.create({ start: 0, end: 'max', onUpdate: (self) => {
+        const v = clamp(self.getVelocity() / -320, -7, 7); skews.forEach((q) => q(v));
+        clearTimeout(settle); settle = setTimeout(() => skews.forEach((q) => q(0)), 140);
+      } });
+    }
+  }
+
+  let prevStyle = null;
+  function styleEnterLeave(id) {
+    if (prevStyle === id) return;
+    if (prevStyle === 'access') a11yApply(false);
+    if (prevStyle === 'medtech') scan.stop();
+    if (prevStyle === 'kinetic') $('#kinPrev').classList.remove('on');
+    if (id === 'access') a11yApply(true);
+    if (id === 'medtech' && !RM.matches) scan.start();
+    prevStyle = id;
+  }
+
   /* ───────────────────────── 10 · boot ───────────────────────── */
   function boot() {
+    try { history.scrollRestoration = 'manual'; } catch (e) { /* older browsers */ }
+    if (STYLES.some((x) => '#' + x.id === location.hash)) scrollTo(0, 0);
     $$('[data-split]').forEach(splitWords);
     $$('[data-av]').forEach((el) => { const d = docOf(el.dataset.av); if (d) el.innerHTML = avatar(d.av); });
     renderDock();
@@ -1169,11 +1540,13 @@
     heroParallax(); dragChips(); magnetic();
     $('.like').addEventListener('click', (e) => burst(e.currentTarget));
     services(); booking(); notesUI();
+    placeDoctorFilter = doctors() || placeDoctorFilter; journey(); reviews(); ripples(); a11yUI(); kineticPreview();
     $('#dkReplay').addEventListener('click', replay);
     $('#dkPhone').addEventListener('click', togglePhone);
     document.addEventListener('keydown', (e) => {
       if (e.target.closest('input, textarea') || e.metaKey || e.ctrlKey || e.altKey) return;
-      const n = +toLatin(e.key); if (n >= 1 && n <= STYLES.length) switchTo(STYLES[n - 1].id);
+      if (!/^[0-9۰-۹]$/.test(e.key)) return;
+      const n = +toLatin(e.key) || 10; if (n <= STYLES.length) switchTo(STYLES[n - 1].id);
     });
     addEventListener('resize', () => syncDock(true));
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => syncDock(true));
@@ -1189,7 +1562,7 @@
     /* warm the other styles' fonts so a switch never flashes a fallback */
     setTimeout(() => {
       if (!document.fonts || !document.fonts.load) return;
-      ['800 1em Vazirmatn', '600 1em "Markazi Text"', '700 1em Amiri', '800 1em "Noto Kufi Arabic"', '700 1em "IBM Plex Sans Arabic"', '800 1em Estedad', '1em Lalezar', '700 1em "El Messiri"', '400 1em "Noto Kufi Arabic"', '400 1em "IBM Plex Sans Arabic"', '400 1em Estedad', '300 1em Vazirmatn']
+      ['800 1em Vazirmatn', '600 1em "Markazi Text"', '700 1em Amiri', '800 1em "Noto Kufi Arabic"', '700 1em "IBM Plex Sans Arabic"', '800 1em Estedad', '1em Lalezar', '700 1em "El Messiri"', '400 1em "Noto Kufi Arabic"', '400 1em "IBM Plex Sans Arabic"', '400 1em Estedad', '300 1em Vazirmatn', '700 1em "Readex Pro"', '400 1em "Readex Pro"', '700 1em Rubik', '400 1em Rubik', '600 1em "Noto Sans Arabic"', '400 1em "Noto Sans Arabic"', '700 1em "Noto Naskh Arabic"', '800 1em Kufam', '800 1em "Playpen Sans Arabic"', '800 1em Almarai', '400 1em Almarai', '600 1em Handjet']
         .forEach((f) => document.fonts.load(f, 'سلام کلینیک ۱۲۳').catch(() => {}));
     }, 1800);
   }

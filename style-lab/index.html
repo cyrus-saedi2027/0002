@@ -7,7 +7,7 @@
 <script>
   /* pick the style before first paint so there is no flash of the default */
   (function () {
-    var ids = ["clinical", "noir", "heritage", "swiss", "pro", "lavender", "brutal", "organic"];
+    var ids = ["clinical", "noir", "heritage", "swiss", "pro", "lavender", "brutal", "organic", "glass", "bento", "material", "access", "editorial", "kinetic", "clay", "medtech"];
     var s = (location.hash || "").slice(1);
     if (ids.indexOf(s) < 0) { try { s = localStorage.getItem("sasan-style"); } catch (e) { s = null; } }
     var d = document.documentElement;
@@ -17,9 +17,11 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&family=Markazi+Text:wght@500;600;700&family=Amiri:wght@400;700&family=Noto+Kufi+Arabic:wght@400;600;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Estedad:wght@400;500;600;800&family=Lalezar&family=El+Messiri:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&family=Markazi+Text:wght@500;600;700&family=Amiri:wght@400;700&family=Noto+Kufi+Arabic:wght@400;600;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Estedad:wght@400;500;600;800&family=Lalezar&family=El+Messiri:wght@500;600;700&family=Readex+Pro:wght@400;500;600;700&family=Rubik:wght@400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@500;600;700&family=Kufam:wght@500;700;800&family=Playpen+Sans+Arabic:wght@400;600;800&family=Almarai:wght@400;700;800&family=Handjet:wght@400;600&display=swap">
 <link rel="stylesheet" href="lab.css">
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="sections.css">
+<link rel="stylesheet" href="styles2.css">
 </head>
 <body>
 
@@ -59,6 +61,19 @@
       <div class="tileband deco" aria-hidden="true"></div>
       <div class="gridlines" aria-hidden="true"><div class="wrap"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
       <div class="grain" aria-hidden="true"></div>
+      <div class="mesh" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      <div class="a11y" role="region" aria-label="تنظیمات دسترس‌پذیری">
+        <div class="wrap a11y-in">
+          <span class="a11y-t">نمایش سایت:</span>
+          <div class="a11y-g" role="group" aria-label="اندازه‌ی متن">
+            <button type="button" data-fs="1" aria-pressed="true">متن عادی</button>
+            <button type="button" data-fs="1.15" aria-pressed="false">متن بزرگ</button>
+            <button type="button" data-fs="1.3" aria-pressed="false">متن خیلی بزرگ</button>
+          </div>
+          <button type="button" class="a11y-tg" id="a11yHc" aria-pressed="false">کنتراست بالا</button>
+          <button type="button" class="a11y-tg" id="a11yStill" aria-pressed="false">توقف حرکت‌ها</button>
+        </div>
+      </div>
 
       <!-- ─────────── Header ─────────── -->
       <header class="hdr" id="hdr">
@@ -120,10 +135,12 @@
                 </div>
                 <div class="trust-t"><b><svg class="ic"><use href="#i-star"/></svg><span class="num">۴٫۹ از ۵</span></b><span>میانگین ۲٬۳۱۴ نظر بیماران در سال ۱۴۰۴</span></div>
               </div>
+              <p class="callout"><svg class="ic"><use href="#i-info"/></svg><span><b>کلینیک اورژانس ندارد.</b> در موارد فوری مثل درد قفسه‌ی سینه یا تنگی نفس، همین حالا با ۱۱۵ تماس بگیرید.</span></p>
             </div>
 
             <div class="hero-visual" id="heroVis" aria-label="نمونه‌ی کارت‌های نوبت و پزشک">
               <div class="frame">
+                <img class="art-photo" src="img/hero.webp" alt="" width="560" height="700">
                 <div class="art art-clin" aria-hidden="true"><i class="rg"></i><i class="rg"></i><i class="rg"></i><span class="cross"><svg class="ic"><use href="#i-steth"/></svg></span></div>
                 <div class="art art-noir" aria-hidden="true">
                   <i class="ar"></i><i class="ar"></i><i class="ar"></i><i class="glow"></i>
@@ -149,11 +166,16 @@
                 <div class="art art-lav" aria-hidden="true"><i class="dash d1"></i><i class="dash d2"></i><i class="plate"></i><span class="plate-ic"><svg class="ic"><use href="#i-heart"/></svg></span><i class="dot"></i><i class="dot"></i><i class="dot"></i><i class="dot"></i></div>
                 <div class="art art-brut" aria-hidden="true"><i class="sun"></i><i class="big"></i></div>
                 <div class="art art-org" aria-hidden="true"><i class="ob"></i><i class="ob"></i><svg class="leaf" viewBox="0 0 100 120"><path d="M20 118 C 30 80, 40 40, 86 6"/><path d="M34 84 C 18 70, 14 52, 22 40"/><path d="M44 62 C 64 62, 78 50, 84 34"/><path d="M54 44 C 42 30, 42 18, 50 8"/></svg></div>
+                <div class="art art-glass" aria-hidden="true"><i class="gl-sheen"></i></div>
+                <div class="art art-med" aria-hidden="true"><canvas class="scan-cv"></canvas><i class="scan-line"></i><span class="hud h1x">اسکن ۰۴ · قلب و عروق</span><span class="hud h2x num">ضربان ۷۲</span><span class="hud h3x num">اکسیژن ۹۸٪</span><i class="brk"></i></div>
                 <svg class="pulse" viewBox="0 0 600 200" aria-hidden="true">
                   <path class="p-line" pathLength="1000" d="M600 110 H452 c-8 0 -8 -30 -14 -30 s-6 30 -14 30 c-8 0 -8 -30 -14 -30 s-6 30 -14 30 c-8 0 -8 -30 -14 -30 c0 44 -24 66 -54 66 c-26 0 -42 -18 -42 -44 q-4 8 -14 8 H236 l-6 -12 l-6 12 H214 l-5 14 l-8 -84 l-10 110 l-7 -40 H160 c-6 -16 -22 -16 -28 0 H0"/>
                   <path class="p-glow" pathLength="1000" d="M600 110 H452 c-8 0 -8 -30 -14 -30 s-6 30 -14 30 c-8 0 -8 -30 -14 -30 s-6 30 -14 30 c-8 0 -8 -30 -14 -30 c0 44 -24 66 -54 66 c-26 0 -42 -18 -42 -44 q-4 8 -14 8 H236 l-6 -12 l-6 12 H214 l-5 14 l-8 -84 l-10 110 l-7 -40 H160 c-6 -16 -22 -16 -28 0 H0"/>
                 </svg>
               </div>
+
+              <div class="deco clayfx" aria-hidden="true"><i class="cl-pill"></i><i class="cl-ball"></i><i class="cl-ring"></i><i class="cl-ball b2"></i></div>
+              <p class="ed-cap" aria-hidden="true"><b>عکس روی جلد</b> اتاق معاینه‌ی طبقه‌ی دوم · تصویر نمونه</p>
 
               <div class="fcard fc-doc" data-depth="26"><div class="fl"><article class="card">
                 <div class="fc-head">
@@ -200,6 +222,8 @@
           </div>
         </section>
 
+        <div class="kin-band" aria-hidden="true"><div class="kb-track"><span>۱۲ بخش تخصصی</span><i>✺</i><span>۲۸ پزشک</span><i>✺</i><span>نوبت در کمتر از یک دقیقه</span><i>✺</i><span>یک پرونده‌ی مشترک</span><i>✺</i><span>۱۲ بخش تخصصی</span><i>✺</i><span>۲۸ پزشک</span><i>✺</i><span>نوبت در کمتر از یک دقیقه</span><i>✺</i><span>یک پرونده‌ی مشترک</span><i>✺</i></div></div>
+
         <!-- ─────────── Services ─────────── -->
         <section class="sec svc" id="services">
           <div class="wrap">
@@ -210,6 +234,7 @@
             </header>
             <div class="svc-grid" id="svcGrid">
               <article class="svc-card" data-svc="skin">
+                <figure class="svc-img"><img src="img/svc-skin.webp" alt="کرم مرطوب‌کننده روی پوست صورت" width="880" height="660" loading="lazy"><span class="svc-tag">۵ پزشک</span></figure>
                 <span class="svc-ic"><svg class="ic"><use href="#i-sparkles"/></svg></span>
                 <h3>پوست، مو و زیبایی</h3>
                 <p>درمان آکنه و لک، لیزر موهای زائد، بوتاکس و فیلر؛ همه با معاینه و تجویز متخصص پوست.</p>
@@ -217,6 +242,7 @@
                 <button class="svc-go" type="button" data-book="skin"><span>نوبت همین بخش</span><svg class="ic"><use href="#i-arrow"/></svg></button>
               </article>
               <article class="svc-card" data-svc="dental">
+                <figure class="svc-img"><img src="img/svc-dental.webp" alt="دندانپزشک در حال معاینه‌ی بیمار" width="880" height="660" loading="lazy"><span class="svc-tag">۴ پزشک</span></figure>
                 <span class="svc-ic"><svg class="ic"><use href="#i-tooth"/></svg></span>
                 <h3>دندانپزشکی</h3>
                 <p>ترمیم، عصب‌کشی، ایمپلنت و ارتودنسی، با رادیوگرافی دیجیتال در همان طبقه.</p>
@@ -224,6 +250,7 @@
                 <button class="svc-go" type="button" data-book="dental"><span>نوبت همین بخش</span><svg class="ic"><use href="#i-arrow"/></svg></button>
               </article>
               <article class="svc-card" data-svc="internal">
+                <figure class="svc-img"><img src="img/svc-internal.webp" alt="پزشک در حال صحبت با بیمار سالمند" width="880" height="660" loading="lazy"><span class="svc-tag">۶ پزشک</span></figure>
                 <span class="svc-ic"><svg class="ic"><use href="#i-steth"/></svg></span>
                 <h3>داخلی و چکاپ</h3>
                 <p>چکاپ سالانه با آزمایش خون و نوار قلب در یک نوبت صبحگاهی؛ جواب‌ها همان روز.</p>
@@ -231,6 +258,7 @@
                 <button class="svc-go" type="button" data-book="internal"><span>نوبت همین بخش</span><svg class="ic"><use href="#i-arrow"/></svg></button>
               </article>
               <article class="svc-card" data-svc="women">
+                <figure class="svc-img"><img src="img/svc-women.webp" alt="مادر و نوزاد" width="880" height="660" loading="lazy"><span class="svc-tag">۴ پزشک</span></figure>
                 <span class="svc-ic"><svg class="ic"><use href="#i-baby"/></svg></span>
                 <h3>زنان و مامایی</h3>
                 <p>مراقبت‌های دوران بارداری، سونوگرافی و مشاوره‌ی باروری با پزشک زن.</p>
@@ -238,6 +266,7 @@
                 <button class="svc-go" type="button" data-book="women"><span>نوبت همین بخش</span><svg class="ic"><use href="#i-arrow"/></svg></button>
               </article>
               <article class="svc-card" data-svc="nutrition">
+                <figure class="svc-img"><img src="img/svc-nutrition.webp" alt="بشقاب سالاد سبزیجات تازه" width="880" height="660" loading="lazy"><span class="svc-tag">۳ پزشک</span></figure>
                 <span class="svc-ic"><svg class="ic"><use href="#i-salad"/></svg></span>
                 <h3>تغذیه و رژیم درمانی</h3>
                 <p>برنامه‌ی غذایی بر اساس آزمایش خون و سبک زندگی خودتان، نه یک نسخه‌ی کپی‌شده.</p>
@@ -245,6 +274,7 @@
                 <button class="svc-go" type="button" data-book="nutrition"><span>نوبت همین بخش</span><svg class="ic"><use href="#i-arrow"/></svg></button>
               </article>
               <article class="svc-card" data-svc="physio">
+                <figure class="svc-img"><img src="img/svc-physio.webp" alt="فیزیوتراپیست در حال تمرین کششی با بیمار" width="880" height="660" loading="lazy"><span class="svc-tag">۶ درمانگر</span></figure>
                 <span class="svc-ic"><svg class="ic"><use href="#i-person"/></svg></span>
                 <h3>فیزیوتراپی</h3>
                 <p>درمان دردهای گردن، کمر و زانو، همراه با برنامه‌ی تمرینی که در خانه هم ادامه می‌دهید.</p>
@@ -254,6 +284,163 @@
             </div>
             <div class="svc-dots" id="svcDots" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i><i></i><i></i></div>
             <div class="svc-foot"><a class="btn btn-ghost magnetic" href="#booking"><span>دیدن هر ۱۲ بخش و پزشکان</span><svg class="ic arrow"><use href="#i-arrow"/></svg></a></div>
+          </div>
+        </section>
+
+        <!-- ─────────── Journey ─────────── -->
+        <section class="sec jr" id="journey">
+          <div class="wrap">
+            <header class="sec-head">
+              <p class="eyebrow">یک مراجعه در ساسان</p>
+              <h2 class="h2" data-split>از در کلینیک تا جواب آزمایش، بدون سردرگمی</h2>
+              <p class="sec-lead">سه قدم که هر بیمار طی می‌کند. هر قدم را طوری چیده‌ایم که کمترین انتظار و بیشترین وقت با پزشک را داشته باشید.</p>
+            </header>
+            <div class="jr-grid">
+              <ol class="jr-steps">
+                <li class="jr-step is-on" data-i="0">
+                  <figure class="jr-mimg"><img src="img/j-reception.webp" alt="میز پذیرش روشن و مرتب" width="960" height="720" loading="lazy"></figure>
+                  <span class="jr-n num">۱</span>
+                  <h3>پذیرش بدون صف</h3>
+                  <p>کد پیگیری را به پذیرش طبقه‌ی دوم نشان می‌دهید و مستقیم به اتاق انتظار می‌روید. پرونده‌تان از قبل آماده است و لازم نیست فرمی پر کنید.</p>
+                  <ul class="jr-facts"><li><svg class="ic"><use href="#i-clock"/></svg>میانگین انتظار ۷ دقیقه</li><li><svg class="ic"><use href="#i-pin"/></svg>پارکینگ ۲ ساعت رایگان</li></ul>
+                </li>
+                <li class="jr-step" data-i="1">
+                  <figure class="jr-mimg"><img src="img/j-consult2.webp" alt="پزشک در حال گفت‌وگو با بیمار" width="960" height="720" loading="lazy"></figure>
+                  <span class="jr-n num">۲</span>
+                  <h3>ویزیت با حوصله</h3>
+                  <p>هر ویزیت دست‌کم ۲۰ دقیقه وقت دارد. پزشک سابقه، آزمایش‌ها و داروهای قبلی‌تان را جلوی چشم دارد و برای سؤال‌هایتان عجله نمی‌کند.</p>
+                  <ul class="jr-facts"><li><svg class="ic"><use href="#i-clock"/></svg>ویزیت ۲۰ دقیقه‌ای</li><li><svg class="ic"><use href="#i-pencil"/></svg>برنامه‌ی درمان به‌صورت کتبی</li></ul>
+                </li>
+                <li class="jr-step" data-i="2">
+                  <figure class="jr-mimg"><img src="img/j-lab.webp" alt="کارشناسان آزمایشگاه در حال کار" width="960" height="720" loading="lazy"></figure>
+                  <span class="jr-n num">۳</span>
+                  <h3>آزمایش و پیگیری</h3>
+                  <p>آزمایشگاه در همان ساختمان است. جواب‌ها در پرونده‌ی آنلاین ثبت می‌شود و اگر چیزی نیاز به توجه داشته باشد، پزشک خودش تماس می‌گیرد.</p>
+                  <ul class="jr-facts"><li><svg class="ic"><use href="#i-check"/></svg>جواب بیشتر آزمایش‌ها همان روز</li><li><svg class="ic"><use href="#i-phone"/></svg>پیگیری تلفنی رایگان</li></ul>
+                </li>
+              </ol>
+              <div class="jr-media" aria-hidden="true">
+                <figure class="jr-img is-on" data-i="0"><img src="img/j-reception.webp" alt="" width="960" height="720" loading="lazy"></figure>
+                <figure class="jr-img" data-i="1"><img src="img/j-consult2.webp" alt="" width="960" height="720" loading="lazy"></figure>
+                <figure class="jr-img" data-i="2"><img src="img/j-lab.webp" alt="" width="960" height="720" loading="lazy"></figure>
+                <span class="jr-count num"><b id="jrNow">۱</b> / ۳</span>
+                <span class="jr-bar"><i id="jrBar"></i></span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ─────────── Doctors ─────────── -->
+        <section class="sec drs" id="doctors">
+          <div class="wrap">
+            <header class="sec-head">
+              <p class="eyebrow">پزشکان</p>
+              <h2 class="h2" data-split>پزشکی که پرونده‌تان را می‌شناسد</h2>
+              <p class="sec-lead">همه‌ی پزشکان بورد تخصصی دارند و حداقل دو روز در هفته در کلینیک هستند. نوبت هر پزشک را مستقیم از کارت خودش بگیرید.</p>
+            </header>
+            <div class="dfilter" id="dfilter" role="tablist" aria-label="فیلتر بر اساس بخش">
+              <span class="df-ind" aria-hidden="true"></span>
+              <button type="button" role="tab" aria-selected="true" data-f="all">همه <small class="num">۶</small></button>
+              <button type="button" role="tab" aria-selected="false" data-f="skin">پوست</button>
+              <button type="button" role="tab" aria-selected="false" data-f="dental">دندان</button>
+              <button type="button" role="tab" aria-selected="false" data-f="internal">داخلی</button>
+              <button type="button" role="tab" aria-selected="false" data-f="women">زنان</button>
+              <button type="button" role="tab" aria-selected="false" data-f="nutrition">تغذیه</button>
+            </div>
+            <div class="dgrid" id="dgrid">
+              <article class="dcard" data-svc="skin" data-doc="d1">
+                <figure class="dphoto"><img src="img/doc-d1.webp" alt="عکس نمونه برای کارت دکتر نگار فرهمند" width="480" height="600" loading="lazy"><span class="dbadge num">۱۴ سال سابقه</span></figure>
+                <div class="dbody">
+                  <p class="dspec">پوست، مو و زیبایی</p>
+                  <h3>دکتر نگار فرهمند</h3>
+                  <p class="dtitle">متخصص پوست، عضو انجمن درماتولوژی ایران</p>
+                  <div class="dmeta"><span class="stars"><svg class="ic"><use href="#i-star"/></svg><em class="num">۴٫۹</em><small class="num">(۶۱۲ نظر)</small></span><span class="dnext num">امروز ۱۷:۴۵</span></div>
+                  <ul class="dtags"><li>آکنه و لک</li><li>لیزر</li><li>بوتاکس</li></ul>
+                  <button class="dbtn" type="button" data-book="skin" data-doc="d1"><span>نوبت از دکتر فرهمند</span><svg class="ic"><use href="#i-arrow"/></svg></button>
+                </div>
+              </article>
+              <article class="dcard" data-svc="skin" data-doc="d2">
+                <figure class="dphoto"><img src="img/doc-d2.webp" alt="عکس نمونه برای کارت دکتر آرش توکلی" width="480" height="600" loading="lazy"><span class="dbadge num">۹ سال سابقه</span></figure>
+                <div class="dbody">
+                  <p class="dspec">پوست، مو و زیبایی</p>
+                  <h3>دکتر آرش توکلی</h3>
+                  <p class="dtitle">فلوشیپ لیزر و جوانسازی پوست</p>
+                  <div class="dmeta"><span class="stars"><svg class="ic"><use href="#i-star"/></svg><em class="num">۴٫۸</em><small class="num">(۳۴۸ نظر)</small></span><span class="dnext num">فردا ۱۰:۳۰</span></div>
+                  <ul class="dtags"><li>لیزر</li><li>اسکار</li><li>جوانسازی</li></ul>
+                  <button class="dbtn" type="button" data-book="skin" data-doc="d2"><span>نوبت از دکتر توکلی</span><svg class="ic"><use href="#i-arrow"/></svg></button>
+                </div>
+              </article>
+              <article class="dcard" data-svc="dental" data-doc="d3">
+                <figure class="dphoto"><img src="img/doc-d3.webp" alt="عکس نمونه برای کارت دکتر سپیده امینی" width="480" height="600" loading="lazy"><span class="dbadge num">۱۱ سال سابقه</span></figure>
+                <div class="dbody">
+                  <p class="dspec">دندانپزشکی</p>
+                  <h3>دکتر سپیده امینی</h3>
+                  <p class="dtitle">متخصص ارتودنسی کودکان و بزرگسالان</p>
+                  <div class="dmeta"><span class="stars"><svg class="ic"><use href="#i-star"/></svg><em class="num">۴٫۹</em><small class="num">(۴۲۷ نظر)</small></span><span class="dnext num">فردا ۹:۳۰</span></div>
+                  <ul class="dtags"><li>ارتودنسی نامرئی</li><li>کودکان</li></ul>
+                  <button class="dbtn" type="button" data-book="dental" data-doc="d3"><span>نوبت از دکتر امینی</span><svg class="ic"><use href="#i-arrow"/></svg></button>
+                </div>
+              </article>
+              <article class="dcard" data-svc="internal" data-doc="d5">
+                <figure class="dphoto"><img src="img/doc-d5.webp" alt="عکس نمونه برای کارت دکتر مهدی رستگار" width="480" height="600" loading="lazy"><span class="dbadge num">۱۸ سال سابقه</span></figure>
+                <div class="dbody">
+                  <p class="dspec">داخلی و چکاپ</p>
+                  <h3>دکتر مهدی رستگار</h3>
+                  <p class="dtitle">متخصص بیماری‌های داخلی</p>
+                  <div class="dmeta"><span class="stars"><svg class="ic"><use href="#i-star"/></svg><em class="num">۴٫۸</em><small class="num">(۵۵۳ نظر)</small></span><span class="dnext num">امروز ۱۸:۱۰</span></div>
+                  <ul class="dtags"><li>چکاپ سالانه</li><li>دیابت</li><li>فشار خون</li></ul>
+                  <button class="dbtn" type="button" data-book="internal" data-doc="d5"><span>نوبت از دکتر رستگار</span><svg class="ic"><use href="#i-arrow"/></svg></button>
+                </div>
+              </article>
+              <article class="dcard" data-svc="women" data-doc="d7">
+                <figure class="dphoto"><img src="img/doc-d7.webp" alt="عکس نمونه برای کارت دکتر مریم نیک‌پور" width="480" height="600" loading="lazy"><span class="dbadge num">۱۶ سال سابقه</span></figure>
+                <div class="dbody">
+                  <p class="dspec">زنان و مامایی</p>
+                  <h3>دکتر مریم نیک‌پور</h3>
+                  <p class="dtitle">متخصص زنان و زایمان</p>
+                  <div class="dmeta"><span class="stars"><svg class="ic"><use href="#i-star"/></svg><em class="num">۴٫۹</em><small class="num">(۷۰۴ نظر)</small></span><span class="dnext num">یکشنبه ۱۱:۰۰</span></div>
+                  <ul class="dtags"><li>بارداری</li><li>سونوگرافی</li><li>یائسگی</li></ul>
+                  <button class="dbtn" type="button" data-book="women" data-doc="d7"><span>نوبت از دکتر نیک‌پور</span><svg class="ic"><use href="#i-arrow"/></svg></button>
+                </div>
+              </article>
+              <article class="dcard" data-svc="nutrition" data-doc="d10">
+                <figure class="dphoto"><img src="img/doc-d10.webp" alt="عکس نمونه برای کارت دکتر الهام زارع" width="480" height="600" loading="lazy"><span class="dbadge num">۷ سال سابقه</span></figure>
+                <div class="dbody">
+                  <p class="dspec">تغذیه و رژیم درمانی</p>
+                  <h3>دکتر الهام زارع</h3>
+                  <p class="dtitle">متخصص تغذیه‌ی ورزشی و بالینی</p>
+                  <div class="dmeta"><span class="stars"><svg class="ic"><use href="#i-star"/></svg><em class="num">۴٫۸</em><small class="num">(۱۹۸ نظر)</small></span><span class="dnext num">فردا ۱۶:۴۰</span></div>
+                  <ul class="dtags"><li>کاهش وزن</li><li>تغذیه‌ی ورزشی</li></ul>
+                  <button class="dbtn" type="button" data-book="nutrition" data-doc="d10"><span>نوبت از دکتر زارع</span><svg class="ic"><use href="#i-arrow"/></svg></button>
+                </div>
+              </article>
+            </div>
+            <p class="photo-note"><svg class="ic"><use href="#i-info"/></svg>عکس‌ها نمونه‌اند و افراد در آن‌ها پزشکان کلینیک ساسان نیستند.</p>
+          </div>
+        </section>
+
+        <!-- ─────────── Reviews ─────────── -->
+        <section class="sec rv" id="reviews">
+          <div class="wrap">
+            <header class="sec-head">
+              <p class="eyebrow">نظر بیماران</p>
+              <h2 class="h2" data-split>۴٫۹ از ۵، از ۲٬۳۱۴ نظر ثبت‌شده</h2>
+              <p class="sec-lead">فقط بیمارانی که ویزیت شده‌اند می‌توانند نظر بدهند. نظرها ویرایش نمی‌شوند؛ این‌ها چند نمونه‌اند.</p>
+            </header>
+          </div>
+          <div class="rv-rows">
+            <div class="rv-row"><div class="rv-track">
+              <figure class="rv-card"><div class="rv-stars" aria-label="۵ ستاره">★★★★★</div><blockquote>دکتر فرهمند برای آکنه‌ی پسرم برنامه‌ی سه‌ماهه نوشت و هر مرحله را توضیح داد. بعد از دو ماه تفاوت کاملاً معلوم بود.</blockquote><figcaption><span class="av ini" style="background:#B5836B">ف</span><span><b>فرشته کریمی</b><small>پوست · مهر ۱۴۰۴</small></span></figcaption></figure>
+              <figure class="rv-card"><div class="rv-stars" aria-label="۵ ستاره">★★★★★</div><blockquote>نوبت را ساعت ۱۱ شب گرفتم و فردا ۹:۳۰ ویزیت شدم. هیچ‌کس پشت تلفن معطلم نکرد.</blockquote><figcaption><span class="av ini" style="background:#6C8EAD">ا</span><span><b>امیر حسینی</b><small>داخلی · آبان ۱۴۰۴</small></span></figcaption></figure>
+              <figure class="rv-card"><div class="rv-stars" aria-label="۵ ستاره">★★★★★</div><blockquote>برای ایمپلنت دو جای دیگر هم رفته بودم. اینجا اولین جایی بود که قبل از هر کاری عکس و هزینه را کامل نشانم دادند.</blockquote><figcaption><span class="av ini" style="background:#7D9C74">ل</span><span><b>لیلا محمدی</b><small>دندانپزشکی · شهریور ۱۴۰۴</small></span></figcaption></figure>
+              <figure class="rv-card"><div class="rv-stars" aria-label="۴ ستاره">★★★★<i>★</i></div><blockquote>پارکینگ شلوغ بود، ولی خود ویزیت عالی بود. دوران بارداری هر بار با همان پزشک و همان پرونده جلو رفتیم.</blockquote><figcaption><span class="av ini" style="background:#9A7AB8">س</span><span><b>سارا نوری</b><small>زنان · مرداد ۱۴۰۴</small></span></figcaption></figure>
+            </div></div>
+            <div class="rv-row rev"><div class="rv-track">
+              <figure class="rv-card"><div class="rv-stars" aria-label="۵ ستاره">★★★★★</div><blockquote>فیزیوتراپی کمرم با تمرین‌هایی که در خانه انجام می‌دادم ادامه پیدا کرد. بعد از شش جلسه دیگر مسکن نمی‌خورم.</blockquote><figcaption><span class="av ini" style="background:#C07A5A">ر</span><span><b>رضا کاظمی</b><small>فیزیوتراپی · مهر ۱۴۰۴</small></span></figcaption></figure>
+              <figure class="rv-card"><div class="rv-stars" aria-label="۵ ستاره">★★★★★</div><blockquote>رژیمم بر اساس آزمایش خون خودم نوشته شد، نه یک برگه‌ی کپی‌شده. در سه ماه هفت کیلو کم کردم.</blockquote><figcaption><span class="av ini" style="background:#5E9C94">م</span><span><b>مینا افشار</b><small>تغذیه · تیر ۱۴۰۴</small></span></figcaption></figure>
+              <figure class="rv-card"><div class="rv-stars" aria-label="۵ ستاره">★★★★★</div><blockquote>پدرم ۷۸ سال دارد. پذیرش ویلچر آورد و مسیر آسانسور تا اتاق پزشک خیلی راحت بود.</blockquote><figcaption><span class="av ini" style="background:#8A8FC4">ح</span><span><b>حمید رحیمی</b><small>داخلی · آبان ۱۴۰۴</small></span></figcaption></figure>
+              <figure class="rv-card"><div class="rv-stars" aria-label="۵ ستاره">★★★★★</div><blockquote>جواب آزمایش همان روز در پرونده‌ی آنلاین آمد و دکتر خودش زنگ زد و توضیح داد.</blockquote><figcaption><span class="av ini" style="background:#B77A9C">ن</span><span><b>نیلوفر باقری</b><small>چکاپ · مهر ۱۴۰۴</small></span></figcaption></figure>
+            </div></div>
           </div>
         </section>
 
@@ -294,6 +481,7 @@
             </div>
           </div>
         </section>
+        <div class="fab-wrap"><a class="fab" href="#booking" aria-label="رزرو نوبت"><svg class="ic"><use href="#i-cal"/></svg><span>رزرو نوبت</span></a></div>
       </main>
 
       <!-- ─────────── Footer ─────────── -->
@@ -302,7 +490,28 @@
           <div class="ftr-col"><b>کلینیک ساسان</b><span>تهران، خیابان نمونه، پلاک ۲۴، طبقه‌ی دوم</span><span class="num">تلفن پذیرش: ۰۲۱ - ۸۸۱۰ ۴۲۷۶</span></div>
           <div class="ftr-col"><b>ساعات کاری</b><span>شنبه تا چهارشنبه: ۸ تا ۲۱</span><span>پنجشنبه: ۸ تا ۱۴ · جمعه تعطیل</span></div>
           <div class="ftr-col"><b>اورژانس</b><span>کلینیک اورژانس ندارد. در موارد فوری با ۱۱۵ تماس بگیرید.</span></div>
-          <p class="ftr-note">این صفحه یک نمونه‌ی طراحی است. نام پزشکان، آمار، تلفن و آدرس ساختگی‌اند و با اطلاعات واقعی کلینیک جایگزین می‌شوند.</p>
+          <p class="ftr-note">این صفحه یک نمونه‌ی طراحی است. نام پزشکان، آمار، نظرها، تلفن و آدرس ساختگی‌اند و با اطلاعات واقعی کلینیک جایگزین می‌شوند.</p>
+          <details class="credits">
+            <summary>منبع عکس‌ها (Open Images از Flickr، مجوز CC BY 2.0)</summary>
+            <p>افراد در عکس‌ها پزشکان یا بیماران کلینیک ساسان نیستند. عکس‌ها برش خورده و فشرده شده‌اند.</p>
+            <ul>
+              <li><a href="https://www.flickr.com/photos/dermatologycom/7281530984" target="_blank" rel="noopener">پوست: Luke Lehrfeld</a></li>
+              <li><a href="https://www.flickr.com/photos/24627533@N04/8388522258" target="_blank" rel="noopener">دندانپزشکی: mich225</a></li>
+              <li><a href="https://www.flickr.com/photos/124912440@N03/14804959651" target="_blank" rel="noopener">داخلی: Brett Snodgrass</a></li>
+              <li><a href="https://www.flickr.com/photos/abbers13/16381604994" target="_blank" rel="noopener">زنان: Abby Gillardi</a></li>
+              <li><a href="https://www.flickr.com/photos/ralphandjenny/7846872334" target="_blank" rel="noopener">تغذیه: Ralph Daily</a></li>
+              <li><a href="https://www.flickr.com/photos/60472693@N05/5859684968" target="_blank" rel="noopener">فیزیوتراپی: Saludand</a></li>
+              <li><a href="https://www.flickr.com/photos/rodeime/9147444309/" target="_blank" rel="noopener">پذیرش: Roderick Eime</a></li>
+              <li><a href="https://www.flickr.com/photos/sijedinecomas/5579309075" target="_blank" rel="noopener">ویزیت: Si jediné čo máš.</a></li>
+              <li><a href="https://www.flickr.com/photos/dnashots/9679143591" target="_blank" rel="noopener">آزمایشگاه: Azim Ghazali</a></li>
+              <li><a href="https://www.flickr.com/photos/atgeist/11322575523" target="_blank" rel="noopener">عکس هیرو: TownePost Network</a></li>
+              <li><a href="https://www.flickr.com/photos/waltstoneburner/3373248256" target="_blank" rel="noopener">پزشک ۱: Walt Stoneburner</a></li>
+              <li><a href="https://www.flickr.com/photos/bobowen/4335072638/" target="_blank" rel="noopener">پزشک ۲: Bob Owen</a></li>
+              <li><a href="https://www.flickr.com/photos/apotekhjartat/15163270976" target="_blank" rel="noopener">پزشک ۳ و ۶: Apotek Hjartat</a></li>
+              <li><a href="https://www.flickr.com/photos/59632563@N04/6104068209" target="_blank" rel="noopener">پزشک ۴: Vic</a></li>
+              <li><a href="https://www.flickr.com/photos/bancsang/8948754757" target="_blank" rel="noopener">پزشک ۵: Banc de Sang i Teixits</a></li>
+            </ul>
+          </details>
         </div>
       </footer>
     </div>
@@ -310,6 +519,7 @@
 
   <!-- ─────────── Lab chrome ─────────── -->
   <div class="cursor" id="cursor" aria-hidden="true"></div>
+  <div class="kin-prev" id="kinPrev" aria-hidden="true"><img alt=""></div>
 
   <nav class="dock" id="dock" aria-label="انتخاب سبک طراحی">
     <span class="dk-hint" id="dkHint">سبک‌ها را از اینجا عوض کنید</span>
@@ -342,6 +552,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/Flip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.min.js"></script>
 <script src="lab.js"></script>
 </body>
