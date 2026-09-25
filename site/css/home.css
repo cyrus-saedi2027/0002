@@ -1,0 +1,339 @@
+/* ==========================================================================
+   home.css: هیرو، ریل تصاویر (مدل ۲۱)، کارت سه بخش (مدل ۴۰)، نمای بخش
+   حالت پیش‌فرض ایستا است؛ کلاس html.motion حالت متحرک را روشن می‌کند
+   ========================================================================== */
+
+/* ---------- ورود متن‌ها ---------- */
+.w { display: inline-block; vertical-align: top; overflow: hidden; padding-block: .12em .16em; margin-block: -.12em -.16em; }
+.wi { display: inline-block; will-change: transform; }
+html.intro .hero__title { opacity: 0; }
+html.intro [data-intro] { opacity: 0; transform: translate3d(0, 26px, 0); }
+html.intro .reel__item { clip-path: inset(100% 0 0 0 round 18px); }
+
+/* ==========================================================================
+   هیرو
+   ========================================================================== */
+.hero { position: relative; color: #fff; padding-top: calc(var(--util-h) + var(--bar-h) + clamp(28px, 5.5vh, 72px)); }
+.hero__in {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
+  gap: clamp(28px, 5vw, 88px);
+  align-items: end;
+  padding-bottom: clamp(36px, 6vh, 72px);
+}
+.hero__copy { max-width: 840px; }
+.hero__eyebrow { margin-bottom: clamp(18px, 3vh, 28px); }
+.hero__title { font-size: var(--fs-display); line-height: 1.2; font-weight: 800; }
+.hl { position: relative; white-space: nowrap; }
+.hl::after {
+  content: ""; position: absolute; inset-inline: .04em; bottom: .02em; height: .12em; border-radius: .1em;
+  background: linear-gradient(270deg, var(--dental) 0 33.3%, var(--beauty) 33.3% 66.6%, var(--med) 66.6%);
+  transform-origin: 100% 50%;
+  transform: scaleX(var(--hl, 1));
+}
+.hero__lead { margin-top: clamp(16px, 2.6vh, 24px); max-width: 62ch; font-size: var(--fs-lead); line-height: 1.95; color: rgba(222, 231, 247, .8); }
+.hero__ctas { margin-top: clamp(24px, 4vh, 36px); display: flex; flex-wrap: wrap; gap: 12px; }
+.trust { margin-top: clamp(22px, 3.4vh, 32px); display: flex; flex-wrap: wrap; align-items: center; gap: 10px 26px; font-size: .9375rem; color: rgba(222, 231, 247, .78); }
+.trust li { display: inline-flex; align-items: center; gap: 10px; }
+.trust li + li::before { content: ""; width: 4px; height: 4px; border-radius: 50%; background: rgba(222, 231, 247, .35); margin-inline-end: 16px; }
+.trust b { color: #fff; font-weight: 800; font-variant-numeric: tabular-nums; }
+.stars { display: inline-flex; gap: 1px; color: #ffc947; }
+.stars .ic { width: 15px; height: 15px; fill: currentColor; stroke: none; }
+
+/* کارت نوبت زنده */
+.slot {
+  display: grid; gap: 12px;
+  padding: 20px;
+  border-radius: 26px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, .1), rgba(255, 255, 255, .03));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14), 0 40px 70px -40px rgba(0, 0, 0, .7);
+  -webkit-backdrop-filter: blur(24px) saturate(1.3); backdrop-filter: blur(24px) saturate(1.3);
+}
+.slot__head { display: flex; align-items: center; gap: 10px; }
+.live { display: inline-flex; align-items: center; gap: 8px; padding: 4px 10px; border-radius: 999px; background: rgba(25, 179, 107, .16); color: #7de8b3; font-family: var(--f-ui); font-size: .75rem; font-weight: 600; }
+.slot__kicker { font-family: var(--f-ui); font-size: var(--fs-label); color: rgba(222, 231, 247, .72); }
+.slot__when { font-size: 1.6rem; font-weight: 800; line-height: 1.35; }
+.slot__who { font-size: .9375rem; color: rgba(222, 231, 247, .78); margin-top: -8px; }
+.slot__list { display: grid; border-radius: 16px; background: rgba(3, 10, 25, .28); padding: 4px 14px; }
+.slot__list li { display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: .9375rem; border-bottom: 1px solid rgba(255, 255, 255, .08); }
+.slot__list li:last-child { border-bottom: 0; }
+.slot__list b { margin-inline-start: auto; font-weight: 700; font-variant-numeric: tabular-nums; }
+.sd { width: 8px; height: 8px; border-radius: 50%; }
+.sd--dental { background: var(--dental); }
+.sd--beauty { background: var(--beauty); }
+.sd--med { background: var(--med); }
+.slot .btn .ic { margin-inline-start: 2px; }
+.slot__note { font-family: var(--f-ui); font-size: .75rem; color: rgba(222, 231, 247, .55); line-height: 1.7; }
+
+/* ==========================================================================
+   ریل تصاویر (بر پایه‌ی مدل ۲۱: جابه‌جایی چیدمان با اسکرول)
+   ========================================================================== */
+.reel { position: relative; --u: min(17vh, 22vw); --gap: clamp(12px, 1.8vw, 26px); padding-block: 24px 64px; }
+.reel__row { position: relative; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--gap); }
+.reel__item {
+  flex: none; position: relative; margin: 0;
+  height: var(--u); aspect-ratio: 2 / 3;
+  border-radius: 18px; overflow: hidden;
+  background: #0d1d3a;
+  box-shadow: 0 30px 60px -30px rgba(0, 0, 0, .65);
+}
+.reel__item img { width: 100%; height: 100%; object-fit: cover; }
+.reel__item--m { height: calc(var(--u) * 1.25); }
+.reel__item--l { height: calc(var(--u) * 2.5); }
+.reel__item--xl { height: calc(var(--u) * 3.75); z-index: 2; }
+.reel__item--center img { object-position: 42% 50%; }
+html.motion .reel__item--center { -webkit-mask-image: linear-gradient(180deg, #000 var(--fade, 100%), transparent 100%); mask-image: linear-gradient(180deg, #000 var(--fade, 100%), transparent 100%); }
+.reel__inner { position: absolute; inset: 0; }
+.reel__shade { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(4, 11, 26, .9) 0%, rgba(4, 11, 26, .35) 45%, rgba(4, 11, 26, 0) 70%); opacity: 0; pointer-events: none; }
+.reel__cap { position: relative; z-index: 3; flex: 0 0 100%; max-width: 820px; margin-top: 32px; }
+.reel__cap .chip { margin-bottom: 16px; }
+.reel__title { font-size: var(--fs-h2); line-height: 1.3; }
+.reel__text { margin-top: 14px; max-width: 58ch; font-size: var(--fs-lead); line-height: 1.95; color: rgba(226, 234, 248, .86); }
+.reel__facts { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 8px; }
+.reel__facts li {
+  display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px;
+  font-size: .9375rem; background: rgba(255, 255, 255, .1); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+}
+.reel__facts .ic { width: 18px; height: 18px; opacity: .85; }
+
+/* حالت ایستا (حرکت کمتر یا بدون اسکریپت): سه عکس کنار هم، روی موبایل یک عکس */
+html:not(.motion) .reel__item--s, html:not(.motion) .reel__item--m { display: none; }
+@media (max-width: 699.98px) {
+  html:not(.motion) .reel__item--l { display: none; }
+  html:not(.motion) .reel__item--center { width: 100%; height: auto; aspect-ratio: 4 / 3; }
+}
+
+/* حالت متحرک: قاب تمام‌صفحه و دو چیدمان برای Flip */
+html.motion .reel { height: 100svh; overflow: hidden; padding: 0; }
+@media (min-width: 1021px) { html.motion .reel { margin-top: -10vh; } }
+html.motion .reel__row { flex-wrap: nowrap; height: 100%; width: 100%; }
+html.motion .reel__cap {
+  position: absolute; flex: none; margin: 0;
+  inset-inline-start: 0; bottom: -60vh; width: 100%;
+  padding: 0 var(--gutter) clamp(90px, 17vh, 170px);
+  padding-inline-start: max(var(--gutter), calc((100vw - 1280px) / 2 + var(--gutter)));
+  opacity: 0;
+}
+html.motion .reel__row.is-open .reel__item--m,
+html.motion .reel__row.is-open .reel__item--l { height: var(--u); }
+html.motion .reel__row.is-open .reel__item--center { width: 100%; height: 100%; aspect-ratio: auto; border-radius: 0; filter: brightness(.62); }
+html.motion .reel__row.is-open .reel__cap { bottom: 0; opacity: 1; }
+
+/* ==========================================================================
+   سه بخش اصلی (بر پایه‌ی مدل ۴۰: یک تصویر، سه کارت، چرخش)
+   ========================================================================== */
+.pillars { position: relative; color: var(--ink); }
+.pillars__stage {
+  --chrome: 400px;
+  position: relative;
+  display: flex; flex-direction: column; align-items: center;
+  gap: clamp(18px, 3.4vh, 34px);
+  padding: clamp(80px, 12vh, 140px) var(--gutter) clamp(40px, 8vh, 80px);
+}
+.pillars__head { display: grid; justify-items: center; gap: 10px; text-align: center; max-width: 800px; }
+.pillars__title { font-size: var(--fs-h2); line-height: 1.3; }
+.pillars__sub { color: var(--ink-2); font-size: 1.0625rem; line-height: 1.9; max-width: 62ch; }
+.pillars__hint { display: inline-flex; align-items: center; gap: 8px; font-size: .9375rem; color: var(--ink-3); text-align: center; }
+.pillars__hint .ic { color: var(--blue); }
+
+.deck { width: 100%; max-width: 1080px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.pcard { position: relative; display: block; color: #fff; border-radius: 24px; min-height: 420px; }
+.pcard__face { position: absolute; inset: 0; border-radius: inherit; overflow: hidden; }
+.pcard__front { display: none; background: #0d1d3a url("../img/clinic-wide.webp") no-repeat; }
+.pcard__back {
+  display: flex; flex-direction: column; gap: 12px;
+  padding: clamp(16px, 1.7vw, 24px);
+  background:
+    radial-gradient(120% 70% at 100% 0%, rgba(255, 255, 255, .2), rgba(255, 255, 255, 0) 55%),
+    linear-gradient(165deg, var(--c2), var(--c1));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14), 0 34px 60px -30px rgba(10, 26, 51, .6);
+}
+.pcard--dental { --c1: var(--dental-1); --c2: var(--dental-2); --cc: var(--dental); }
+.pcard--beauty { --c1: var(--beauty-1); --c2: var(--beauty-2); --cc: var(--beauty); }
+.pcard--med { --c1: var(--med-1); --c2: var(--med-2); --cc: var(--med); }
+.pcard__top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.pcard__ic { width: 46px; height: 46px; border-radius: 15px; display: grid; place-items: center; background: rgba(255, 255, 255, .16); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .2); }
+.pcard__ic .ic { width: 24px; height: 24px; }
+.pcard__meta { font-family: var(--f-ui); font-size: .75rem; color: rgba(255, 255, 255, .8); white-space: nowrap; }
+.pcard__body { display: grid; gap: 8px; margin-top: auto; }
+.pcard__title { font-size: clamp(1.35rem, 1.1rem + .7vw, 1.75rem); font-weight: 800; line-height: 1.3; }
+.pcard__desc { font-size: .9375rem; line-height: 1.8; color: rgba(255, 255, 255, .86); }
+.pcard__tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.pcard__tags i { font-style: normal; font-size: .75rem; font-family: var(--f-ui); padding: 3px 10px; border-radius: 999px; background: rgba(255, 255, 255, .14); line-height: 1.7; }
+.pcard__foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, .16); }
+.pcard__slot { font-family: var(--f-ui); font-size: .75rem; color: rgba(255, 255, 255, .85); }
+.pcard__go { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: #fff; color: var(--c1); transition: translate .6s var(--spring), scale .5s var(--spring); flex: none; }
+.pcard__go .ic { width: 20px; height: 20px; }
+.pcard:hover .pcard__go { translate: -4px 0; scale: 1.08; }
+@container (max-height: 380px) { .pcard__tags { display: none; } }
+@container (max-height: 320px) { .pcard__meta { display: none; } .pcard__desc { font-size: .875rem; line-height: 1.7; } }
+
+/* حالت متحرک */
+html.motion .pillars__stage { height: 100svh; min-height: 540px; padding: calc(var(--bar-h) + 20px) var(--gutter) clamp(18px, 4vh, 36px); justify-content: center; justify-content: safe center; overflow: hidden; }
+html.motion .deck {
+  --dw: min(60vw, calc((100svh - var(--chrome)) * 15 / 7), 1080px);
+  width: var(--dw); max-width: none;
+  display: flex; gap: 0; perspective: 1400px;
+}
+html.motion .pcard {
+  flex: 1 1 0; min-height: 0; aspect-ratio: 5 / 7;
+  transform-style: preserve-3d; transform-origin: 50% 0;
+  border-radius: 0;
+  transition: translate .7s var(--spring), scale .6s var(--spring);
+}
+html.motion .pcard:nth-child(1) { border-radius: 0 24px 24px 0; }
+html.motion .pcard:nth-child(3) { border-radius: 24px 0 0 24px; }
+html.motion .pcard:nth-child(2) { z-index: 2; }
+html.motion .pcard__face { -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+html.motion .pcard__front { display: block; background-size: 300% auto; }
+html.motion .pcard:nth-child(1) .pcard__front { background-position: 100% 50%; }
+html.motion .pcard:nth-child(2) .pcard__front { background-position: 50% 50%; }
+html.motion .pcard:nth-child(3) .pcard__front { background-position: 0% 50%; }
+html.motion .pcard__back { transform: rotateY(180deg); container-type: size; }
+html.motion .deck.is-flipped .pcard:hover { translate: 0 -12px; scale: 1.025; }
+
+@media (min-width: 700px) and (max-width: 1020px) {
+  html.motion .deck { --dw: min(90vw, calc((100svh - var(--chrome)) * 15 / 7), 1080px); }
+}
+@media (max-height: 780px) {
+  .pillars__stage { --chrome: 320px; }
+  html.motion .pillars__sub { display: none; }
+}
+
+/* ==========================================================================
+   پایان موقت
+   ========================================================================== */
+.endcap { position: relative; color: var(--ink); padding-block: clamp(90px, 14vh, 170px) clamp(40px, 8vh, 80px); }
+.endcap__in { display: grid; gap: 28px; }
+.endcap__card {
+  width: 100%; max-width: 900px; margin-inline: auto;
+  display: grid; gap: 14px;
+  padding: clamp(26px, 5vw, 56px);
+  border-radius: 32px;
+  background: rgba(255, 255, 255, .62);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .85), 0 50px 90px -50px rgba(10, 26, 51, .35);
+  -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+}
+.endcap__card h2 { font-size: var(--fs-h3); line-height: 1.5; }
+.endcap__card > p:not(.eyebrow) { color: var(--ink-2); }
+.endcap__contact { display: grid; gap: 6px; margin-top: 8px; padding-top: 18px; border-top: 1px solid var(--line); }
+.endcap__contact p { display: flex; align-items: center; gap: 10px; font-size: .9375rem; }
+.endcap__contact .ic { color: var(--blue); }
+.credits { max-width: 900px; margin-inline: auto; font-family: var(--f-ui); font-size: .75rem; line-height: 1.9; color: var(--ink-3); text-align: center; }
+.credits a { text-decoration: underline; text-underline-offset: 3px; }
+
+/* ==========================================================================
+   نمای هر بخش (باز شدن از خود کارت)
+   ========================================================================== */
+.svc { position: fixed; inset: 0; z-index: 100; color: #fff; }
+.svc[data-k="dental"] { --s1: var(--dental-1); --s2: var(--dental-2); --sc: var(--dental); }
+.svc[data-k="beauty"] { --s1: var(--beauty-1); --s2: var(--beauty-2); --sc: var(--beauty); }
+.svc[data-k="medicine"] { --s1: var(--med-1); --s2: var(--med-2); --sc: var(--med); }
+.svc__bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(80% 60% at 100% 0%, rgba(255, 255, 255, .2), rgba(255, 255, 255, 0) 60%),
+    radial-gradient(60% 50% at 0% 100%, rgb(0 0 0 / .25), rgb(0 0 0 / 0) 70%),
+    linear-gradient(165deg, var(--s2), var(--s1));
+}
+.svc__scroll { position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain; padding-bottom: calc(48px + env(safe-area-inset-bottom, 0px)); }
+.svc__top { display: flex; align-items: center; gap: 14px; min-height: 76px; padding-top: env(safe-area-inset-top, 0px); }
+.svc__back { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding-inline: 14px 18px; border-radius: 999px; background: rgba(255, 255, 255, .16); font-weight: 700; transition: background-color .25s, scale .5s var(--spring); }
+.svc__back:hover { background: rgba(255, 255, 255, .24); }
+.svc__back:active { scale: .95; }
+.svc__back .ic { transform: scaleX(-1); }
+.svc__crumb { font-family: var(--f-ui); font-size: var(--fs-label); color: rgba(255, 255, 255, .72); }
+.svc__hero { display: grid; justify-items: start; gap: 14px; padding-block: clamp(20px, 6vh, 64px) clamp(24px, 5vh, 48px); }
+.svc__ic { width: 64px; height: 64px; border-radius: 20px; display: grid; place-items: center; background: rgba(255, 255, 255, .16); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .22); }
+.svc__ic .ic { width: 30px; height: 30px; }
+.svc__title { font-size: var(--fs-display); line-height: 1.2; }
+.svc__lead { max-width: 60ch; font-size: var(--fs-lead); line-height: 1.95; color: rgba(255, 255, 255, .86); }
+.svc__ctas { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 18px; margin-top: 8px; }
+.svc__slot { font-family: var(--f-ui); font-size: .875rem; color: rgba(255, 255, 255, .85); display: inline-flex; align-items: center; gap: 8px; }
+.svc__list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.svc__item {
+  display: grid; gap: 8px; align-content: start;
+  padding: 22px; border-radius: 22px;
+  background: rgba(255, 255, 255, .1);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .15);
+}
+.svc__item b { font-size: 1.125rem; }
+.svc__item p { font-size: .9375rem; line-height: 1.85; color: rgba(255, 255, 255, .84); }
+.svc__dur { display: inline-flex; align-items: center; gap: 6px; margin-top: 4px; font-family: var(--f-ui); font-size: .8125rem; color: rgba(255, 255, 255, .78); }
+.svc__dur .ic { width: 16px; height: 16px; }
+.svc__note { margin-top: 28px; font-family: var(--f-ui); font-size: .8125rem; color: rgba(255, 255, 255, .7); }
+
+/* ==========================================================================
+   واکنش‌گرا
+   ========================================================================== */
+@media (max-width: 1020px) {
+  .hero { padding-top: calc(var(--bar-h) + 10px + clamp(28px, 5vh, 56px)); }
+  .hero__in { grid-template-columns: 1fr; align-items: start; }
+  .slot { max-width: 520px; }
+  .svc__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 699.98px) {
+  .hero__ctas .btn { flex: 1 1 100%; }
+  .trust { gap: 8px 18px; font-size: .875rem; }
+  .trust li + li::before { margin-inline-end: 10px; }
+  .slot { max-width: none; }
+
+  .reel__cap .chip { margin-bottom: 12px; }
+  .reel__facts li { font-size: .875rem; padding: 7px 12px; }
+
+  .deck { grid-template-columns: 1fr; }
+  .pcard { min-height: 0; }
+  .pcard__back { position: relative; }
+
+  /* کارت‌ها در موبایل: سه نوار افقی که حول محور افقی می‌چرخند */
+  html.motion .pillars__stage { --chrome: 370px; padding-top: calc(var(--bar-h) + 26px); }
+  html.motion .deck {
+    --dw: calc(100vw - 2 * var(--gutter));
+    --sh: min(calc(var(--dw) / 1.9), calc((100svh - var(--chrome)) / 3), 230px);
+    flex-direction: column;
+  }
+  html.motion .pcard { flex: none; aspect-ratio: auto; height: var(--sh); transform-origin: 50% 50%; }
+  html.motion .pcard:nth-child(1) { border-radius: 24px 24px 0 0; }
+  html.motion .pcard:nth-child(3) { border-radius: 0 0 24px 24px; }
+  html.motion .pcard__front { background-size: auto 300%; }
+  html.motion .pcard:nth-child(1) .pcard__front { background-position: 50% 0%; }
+  html.motion .pcard:nth-child(2) .pcard__front { background-position: 50% 50%; }
+  html.motion .pcard:nth-child(3) .pcard__front { background-position: 50% 100%; }
+  html.motion .pcard__back { position: absolute; transform: rotateX(180deg); }
+  html.motion .deck.is-flipped .pcard:hover { translate: none; scale: none; }
+
+  html.motion .pcard__back { flex-direction: row; align-items: center; gap: 14px; padding: 14px 16px; }
+  html.motion .pcard__top { flex: none; align-self: stretch; flex-direction: column; justify-content: space-between; align-items: center; }
+  html.motion .pcard__meta { display: none; }
+  html.motion .pcard__body { margin: 0; gap: 4px; flex: 1; }
+  html.motion .pcard__title { font-size: 1.25rem; }
+  html.motion .pcard__desc { font-size: .875rem; line-height: 1.75; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  html.motion .pcard__tags { display: none; }
+  html.motion .pcard__foot { flex: none; align-self: stretch; flex-direction: column; justify-content: center; border: 0; padding: 0; }
+  html.motion .pcard__slot { display: none; }
+  html.motion .pillars__sub { display: none; }
+  html.motion .pillars__title { font-size: clamp(1.6rem, 1.1rem + 2.4vw, 2.2rem); }
+  html.motion .pillars__hint { font-size: .875rem; }
+
+  .svc__list { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 699.98px) and (max-height: 700px) {
+  html.motion .pcard__desc { -webkit-line-clamp: 2; }
+}
+
+/* ---------- کنتراست بالا ---------- */
+html.hc .hero, html.hc .hero .hero__lead, html.hc .trust, html.hc .trust b { color: #000; }
+html.hc .hl::after { background: #000; }
+html.hc .slot { background: #fff; color: #000; box-shadow: inset 0 0 0 2px #000; -webkit-backdrop-filter: none; backdrop-filter: none; }
+html.hc .slot__kicker, html.hc .slot__who, html.hc .slot__note { color: #000; }
+html.hc .slot__list { background: #f1f1f1; }
+html.hc .live { background: #000; color: #fff; }
+html.hc .reel__cap { background: #000; color: #fff; border-radius: 24px; }
+html.hc.motion .reel__cap { border-radius: 0; }
+html.hc .reel__text { color: #fff; }
+html.hc .pillars__sub, html.hc .pillars__hint { color: #000; }
+html.hc .endcap__card { background: #fff; box-shadow: inset 0 0 0 2px #000; }
+html.hc .credits, html.hc .endcap__card > p:not(.eyebrow) { color: #000; }
