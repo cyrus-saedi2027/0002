@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>کلینیک ساسان</title>
-<meta name="description" content="کلینیک ساسان: دندانپزشکی، زیبایی و پزشکی عمومی زیر یک سقف، با یک پرونده و برنامه‌ی درمان روشن.">
-<meta name="theme-color" content="#061126">
+<meta name="description" content="کلینیک ساسان: دندانپزشکی، زیبایی و پوست و پزشکی عمومی زیر یک سقف، با یک پرونده و برنامه‌ی درمان مکتوب.">
+<meta name="theme-color" content="#081427">
 <script>
-  /* تنظیمات دسترسی‌پذیری را قبل از اولین رنگ‌آمیزی اعمال می‌کند تا صفحه پرش نداشته باشد */
+  /* تنظیمات نمایش را قبل از اولین رنگ‌آمیزی اعمال می‌کند */
   (function () {
     var d = document.documentElement, get = function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } };
     d.classList.remove('no-js'); d.classList.add('js');
@@ -17,19 +17,18 @@
     if (rm === '1' || (rm === null && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) d.classList.add('rm');
     if (!d.classList.contains('rm')) {
       d.classList.add('intro');
-      /* اگر اسکریپت‌ها بار نشدند، متن‌ها پنهان نمی‌مانند */
       setTimeout(function () { if (!window.__sasanIntro) d.classList.remove('intro'); }, 2600);
     }
   })();
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300..900&amp;family=IBM+Plex+Sans+Arabic:wght@400;500;600&amp;display=swap">
-<link rel="preload" as="image" href="img/reel-care.webp">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300..900&amp;family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;display=swap">
+<link rel="preload" as="image" href="img/hero-dental.webp" fetchpriority="high">
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/home.css">
 </head>
-<body data-tone="dark">
+<body>
 <svg class="sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
   <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 5h16" /> <path d="M4 12h16" /> <path d="M4 19h16" /></symbol>
   <symbol id="i-text" viewBox="0 0 24 24"><path d="m15 16 2.536-7.328a1.02 1.02 1 0 1 1.928 0L22 16" /> <path d="M15.697 14h5.606" /> <path d="m2 16 4.039-9.69a.5.5 0 0 1 .923 0L11 16" /> <path d="M3.304 13h6.392" /></symbol>
@@ -60,29 +59,32 @@
   <symbol id="i-pulse" viewBox="0 0 24 24"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5" /> <path d="M3.22 13H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27" /></symbol>
   <symbol id="i-syringe" viewBox="0 0 24 24"><path d="m18 2 4 4" /> <path d="m17 7 3-3" /> <path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5" /> <path d="m9 11 4 4" /> <path d="m5 19-3 3" /> <path d="m14 4 6 6" /></symbol>
   <symbol id="i-tooth" viewBox="0 0 24 24"><path d="M7.4 3.2C4.9 3.2 3.4 5.2 3.4 7.8c0 1.9.8 3.3 1.4 4.7.7 1.6.9 3.6 1.3 5.7.3 1.7.9 2.8 1.9 2.8 1.3 0 1.6-1.8 2-3.6.3-1.4.8-2.3 2-2.3s1.7.9 2 2.3c.4 1.8.7 3.6 2 3.6 1 0 1.6-1.1 1.9-2.8.4-2.1.6-4.1 1.3-5.7.6-1.4 1.4-2.8 1.4-4.7 0-2.6-1.5-4.6-4-4.6-1.9 0-2.9 1-4.6 1S9.3 3.2 7.4 3.2Z"/></symbol>
+  <symbol id="i-chev-l" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6" /></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34" /> <circle cx="11" cy="11" r="8" /></symbol>
+  <symbol id="i-building" viewBox="0 0 24 24"><path d="M10 12h4" /> <path d="M10 8h4" /> <path d="M14 21v-3a2 2 0 0 0-4 0v3" /> <path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2" /> <path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16" /></symbol>
+  <symbol id="i-award" viewBox="0 0 24 24"><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526" /> <circle cx="12" cy="8" r="6" /></symbol>
+  <symbol id="i-user-round" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5" /> <path d="M20 21a8 8 0 0 0-16 0" /></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><path d="M8 2v3" /> <path d="M16 2v3" /> <rect x="3" y="3" width="18" height="18" rx="2" /> <path d="M3 9h18" /> <path d="M8 13h.01" /> <path d="M12 13h.01" /> <path d="M16 13h.01" /> <path d="M8 17h.01" /> <path d="M12 17h.01" /> <path d="M16 17h.01" /></symbol>
+  <symbol id="i-arrow-r" viewBox="0 0 24 24"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></symbol>
+  <symbol id="i-shield-plus" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /> <path d="M9 12h6" /> <path d="M12 9v6" /></symbol>
+  <symbol id="i-microscope" viewBox="0 0 24 24"><path d="M6 18h8" /> <path d="M3 22h18" /> <path d="M14 22a7 7 0 1 0 0-14h-1" /> <path d="M9 14h2" /> <path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z" /> <path d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3" /></symbol>
+  <symbol id="i-heart-hand" viewBox="0 0 24 24"><path d="M19.414 14.414C21 12.828 22 11.5 22 9.5a5.5 5.5 0 0 0-9.591-3.676.6.6 0 0 1-.818.001A5.5 5.5 0 0 0 2 9.5c0 2.3 1.5 4 3 5.5l5.535 5.362a2 2 0 0 0 2.879.052 2.12 2.12 0 0 0-.004-3 2.124 2.124 0 1 0 3-3 2.124 2.124 0 0 0 3.004 0 2 2 0 0 0 0-2.828l-1.881-1.882a2.41 2.41 0 0 0-3.409 0l-1.71 1.71a2 2 0 0 1-2.828 0 2 2 0 0 1 0-2.828l2.823-2.762" /></symbol>
 </svg>
 
 <a class="skip" href="#main">پرش به محتوای اصلی</a>
 
-<!-- پس‌زمینه‌ی گرادیانی ثابت؛ رنگ‌ها با اسکرول بین بخش‌ها عوض می‌شوند -->
-<div class="scene" aria-hidden="true">
-  <div class="scene__glow scene__glow--a"><i></i></div>
-  <div class="scene__glow scene__glow--b"><i></i></div>
-  <div class="scene__glow scene__glow--c"><i></i></div>
-  <div class="scene__grain"></div>
-</div>
-
 <header class="hdr" id="hdr">
   <div class="util">
-    <div class="util__in wrap">
+    <div class="wrap util__in">
       <p class="util__status" id="openStatus"><span class="dot" aria-hidden="true"></span><span class="util__status-text">شنبه تا چهارشنبه ۹ تا ۲۱، پنجشنبه ۹ تا ۱۴</span></p>
-      <p class="util__addr"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>تهران، سعادت‌آباد، خیابان سرو غربی، پلاک ۴۲</p>
-      <p class="util__phone"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg><span dir="ltr">۰۲۱ ۲۲۳۴ ۵۶۷۸</span></p>
+      <p class="util__item"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>تهران، سعادت‌آباد، خیابان سرو غربی، پلاک ۴۲</p>
+      <p class="util__item"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg><span dir="ltr">۰۲۱ ۲۲۳۴ ۵۶۷۸</span></p>
       <div class="a11y" role="group" aria-label="تنظیمات نمایش">
+        <span class="a11y__label">اندازه‌ی متن</span>
         <div class="seg" role="radiogroup" aria-label="اندازه‌ی متن">
-          <button type="button" class="seg__btn" role="radio" data-fs="0" aria-label="متن معمولی"><span style="font-size:.8em">آ</span></button>
-          <button type="button" class="seg__btn" role="radio" data-fs="1" aria-label="متن بزرگ"><span style="font-size:1em">آ</span></button>
-          <button type="button" class="seg__btn" role="radio" data-fs="2" aria-label="متن خیلی بزرگ"><span style="font-size:1.22em">آ</span></button>
+          <button type="button" class="seg__btn" role="radio" data-fs="0" aria-label="متن معمولی"><span style="font-size:.78em">آ</span></button>
+          <button type="button" class="seg__btn" role="radio" data-fs="1" aria-label="متن بزرگ"><span style="font-size:.98em">آ</span></button>
+          <button type="button" class="seg__btn" role="radio" data-fs="2" aria-label="متن خیلی بزرگ"><span style="font-size:1.2em">آ</span></button>
         </div>
         <button type="button" class="tgl" data-pref="hc" aria-pressed="false"><svg class="ic" aria-hidden="true"><use href="#i-contrast"/></svg>کنتراست بالا</button>
         <button type="button" class="tgl" data-pref="rm" aria-pressed="false"><svg class="ic" aria-hidden="true"><use href="#i-pause"/></svg>حرکت کمتر</button>
@@ -90,16 +92,18 @@
     </div>
   </div>
 
-  <div class="bar-wrap wrap">
-    <div class="bar">
+  <div class="bar">
+    <div class="wrap bar__in">
       <a class="brand" href="#top" aria-label="کلینیک ساسان، صفحه‌ی اصلی">
-        <svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true">
-          <rect width="40" height="40" rx="12" class="brand__tile"/>
-          <circle cx="20" cy="15" r="7" fill="#1AA3D6"/>
-          <circle cx="14.5" cy="24.5" r="7" fill="#E0648C" class="brand__c2"/>
-          <circle cx="25.5" cy="24.5" r="7" fill="#1DB88E" class="brand__c3"/>
+        <svg class="brand__mark" viewBox="0 0 44 44" aria-hidden="true">
+          <rect width="44" height="44" rx="6" fill="#0B1A33"/>
+          <g style="mix-blend-mode:screen">
+            <circle cx="22" cy="16.5" r="7.4" fill="#2A9BE0"/>
+            <circle cx="16.4" cy="26.2" r="7.4" fill="#D65A83"/>
+            <circle cx="27.6" cy="26.2" r="7.4" fill="#1FAE86"/>
+          </g>
         </svg>
-        <span class="brand__txt"><b>کلینیک ساسان</b><small>دندانپزشکی · زیبایی · پزشکی</small></span>
+        <span class="brand__txt"><b>کلینیک ساسان</b><small>دندانپزشکی · زیبایی و پوست · پزشکی</small></span>
       </a>
 
       <nav class="nav" aria-label="منوی اصلی">
@@ -108,36 +112,48 @@
         <a class="nav__link" href="#services">پزشکان</a>
         <a class="nav__link" href="#services">نمونه‌کارها</a>
         <a class="nav__link" href="#services">مقالات</a>
-        <a class="nav__link" href="#services">درباره‌ی ما</a>
+        <a class="nav__link" href="#about">درباره‌ی ما</a>
         <a class="nav__link" href="#endcap">تماس</a>
       </nav>
 
       <div class="bar__end">
-        <a class="btn btn--primary btn--sm bar__cta" href="#endcap" data-magnetic><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg><span>نوبت بگیرید</span></a>
-        <button type="button" class="burger" aria-expanded="false" aria-controls="sheet" aria-label="باز کردن منو"><span></span><span></span></button>
+        <a class="btn btn--primary bar__cta" href="#book" data-magnetic><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg><span>نوبت بگیرید</span></a>
+        <button type="button" class="burger" aria-expanded="false" aria-controls="sheet" aria-label="باز کردن منو"><span></span><span></span><span></span></button>
       </div>
     </div>
 
     <div class="mega" id="mega" hidden>
-      <div class="mega__grid">
-        <a class="mega__col mega__col--dental" href="#dental" data-svc="dental">
-          <span class="mega__ic"><svg class="ic" aria-hidden="true"><use href="#i-tooth"/></svg></span>
-          <b>دندانپزشکی</b>
-          <span class="mega__desc">ایمپلنت، لمینت، ارتودنسی، درمان ریشه و دندانپزشکی کودکان</span>
-          <span class="mega__more">ورود به بخش<svg class="ic ic--s" aria-hidden="true"><use href="#i-arrow"/></svg></span>
-        </a>
-        <a class="mega__col mega__col--beauty" href="#beauty" data-svc="beauty">
-          <span class="mega__ic"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg></span>
-          <b>زیبایی و پوست</b>
-          <span class="mega__desc">بوتاکس و فیلر، لیزر موهای زائد، جوان‌سازی و درمان آکنه و لک</span>
-          <span class="mega__more">ورود به بخش<svg class="ic ic--s" aria-hidden="true"><use href="#i-arrow"/></svg></span>
-        </a>
-        <a class="mega__col mega__col--med" href="#medicine" data-svc="medicine">
-          <span class="mega__ic"><svg class="ic" aria-hidden="true"><use href="#i-steth"/></svg></span>
-          <b>پزشکی</b>
-          <span class="mega__desc">چکاپ کامل، داخلی، پزشک عمومی، تغذیه و آزمایشگاه در محل</span>
-          <span class="mega__more">ورود به بخش<svg class="ic ic--s" aria-hidden="true"><use href="#i-arrow"/></svg></span>
-        </a>
+      <div class="wrap mega__grid">
+        <div class="mega__col mega__col--dental">
+          <a class="mega__head" href="#dental" data-svc="dental"><span class="mega__ic"><svg class="ic" aria-hidden="true"><use href="#i-tooth"/></svg></span><b>دندانپزشکی</b></a>
+          <ul class="mega__list">
+            <li><a href="#dental" data-svc="dental">ایمپلنت دیجیتال</a></li>
+            <li><a href="#dental" data-svc="dental">لمینت و کامپوزیت</a></li>
+            <li><a href="#dental" data-svc="dental">ارتودنسی و الاینر</a></li>
+            <li><a href="#dental" data-svc="dental">درمان ریشه</a></li>
+            <li><a href="#dental" data-svc="dental">دندانپزشکی کودکان</a></li>
+          </ul>
+        </div>
+        <div class="mega__col mega__col--beauty">
+          <a class="mega__head" href="#beauty" data-svc="beauty"><span class="mega__ic"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg></span><b>زیبایی و پوست</b></a>
+          <ul class="mega__list">
+            <li><a href="#beauty" data-svc="beauty">بوتاکس و فیلر</a></li>
+            <li><a href="#beauty" data-svc="beauty">لیزر موهای زائد</a></li>
+            <li><a href="#beauty" data-svc="beauty">جوان‌سازی و مزوتراپی</a></li>
+            <li><a href="#beauty" data-svc="beauty">پاکسازی و هیدرافیشیال</a></li>
+            <li><a href="#beauty" data-svc="beauty">درمان آکنه و لک</a></li>
+          </ul>
+        </div>
+        <div class="mega__col mega__col--med">
+          <a class="mega__head" href="#medicine" data-svc="medicine"><span class="mega__ic"><svg class="ic" aria-hidden="true"><use href="#i-steth"/></svg></span><b>پزشکی</b></a>
+          <ul class="mega__list">
+            <li><a href="#medicine" data-svc="medicine">چکاپ کامل</a></li>
+            <li><a href="#medicine" data-svc="medicine">داخلی و دیابت</a></li>
+            <li><a href="#medicine" data-svc="medicine">پزشک عمومی</a></li>
+            <li><a href="#medicine" data-svc="medicine">تغذیه و رژیم</a></li>
+            <li><a href="#medicine" data-svc="medicine">آزمایشگاه در محل</a></li>
+          </ul>
+        </div>
         <div class="mega__aside">
           <p class="mega__kicker">اولین بار است می‌آیید؟</p>
           <p>یک تماس کوتاه بگیرید تا بگوییم کدام بخش و کدام پزشک برای مشکلتان مناسب‌تر است. این مشاوره هزینه‌ای ندارد.</p>
@@ -148,23 +164,24 @@
   </div>
 </header>
 
-<!-- منوی موبایل به شکل شیت iOS -->
+<!-- منوی موبایل -->
 <div class="sheet" id="sheet" hidden>
   <div class="sheet__scrim" data-close></div>
   <div class="sheet__panel" role="dialog" aria-modal="true" aria-label="منو">
     <div class="sheet__grab" aria-hidden="true"><span></span></div>
     <div class="sheet__body" data-lenis-prevent>
+      <p class="sheet__label">بخش‌ها</p>
       <div class="sheet__svcs">
         <a href="#dental" data-svc="dental" class="sheet__svc sheet__svc--dental"><svg class="ic" aria-hidden="true"><use href="#i-tooth"/></svg>دندانپزشکی</a>
         <a href="#beauty" data-svc="beauty" class="sheet__svc sheet__svc--beauty"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg>زیبایی و پوست</a>
         <a href="#medicine" data-svc="medicine" class="sheet__svc sheet__svc--med"><svg class="ic" aria-hidden="true"><use href="#i-steth"/></svg>پزشکی</a>
       </div>
       <nav class="sheet__nav" aria-label="منوی موبایل">
-        <a href="#services">پزشکان<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
-        <a href="#services">نمونه‌کارها<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
-        <a href="#services">مقالات<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
-        <a href="#services">درباره‌ی ما<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
-        <a href="#endcap">تماس و آدرس<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        <a href="#services">پزشکان<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
+        <a href="#services">نمونه‌کارها<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
+        <a href="#services">مقالات<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
+        <a href="#about">درباره‌ی ما<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
+        <a href="#endcap">تماس و آدرس<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
       </nav>
       <div class="sheet__a11y">
         <p class="sheet__label">نمایش</p>
@@ -180,7 +197,7 @@
       </div>
       <div class="sheet__foot">
         <p><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg><span dir="ltr">۰۲۱ ۲۲۳۴ ۵۶۷۸</span></p>
-        <a class="btn btn--primary btn--block" href="#endcap"><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg>نوبت بگیرید</a>
+        <a class="btn btn--primary btn--block" href="#book"><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg>نوبت بگیرید</a>
       </div>
     </div>
   </div>
@@ -188,163 +205,184 @@
 
 <main id="main">
 
-  <!-- ========== بخش ۱: هیرو و ریل تصاویر (مدل ۲۱) ========== -->
-  <section class="hero" id="top" data-scene="night" aria-labelledby="hero-title">
-    <div class="hero__in wrap">
-      <div class="hero__copy">
-        <p class="chip chip--glass hero__eyebrow" data-intro>
-          <span class="tri" aria-hidden="true"><i></i><i></i><i></i></span>
-          دندانپزشکی، زیبایی و پزشکی عمومی در یک ساختمان
-        </p>
-        <h1 class="hero__title" id="hero-title" data-split>لبخند، پوست و سلامتتان را به <span class="hl">یک&nbsp;تیم</span> بسپارید</h1>
-        <p class="hero__lead" data-intro>در کلینیک ساسان دندانپزشک، متخصص پوست و پزشک عمومی کنار هم کار می‌کنند. یک پرونده دارید و یک برنامه‌ی درمان روشن، و قبل از شروع هر کاری می‌دانید چقدر طول می‌کشد و چقدر هزینه دارد.</p>
-        <div class="hero__ctas" data-intro>
-          <a class="btn btn--primary btn--lg" href="#endcap" data-magnetic><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg><span>نوبت بگیرید</span></a>
-          <a class="btn btn--ghost btn--lg" href="#endcap"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg><span>مشاوره‌ی تلفنی رایگان</span></a>
-        </div>
-        <ul class="trust" data-intro>
-          <li><span class="stars" aria-hidden="true"><svg class="ic"><use href="#i-star"/></svg><svg class="ic"><use href="#i-star"/></svg><svg class="ic"><use href="#i-star"/></svg><svg class="ic"><use href="#i-star"/></svg><svg class="ic"><use href="#i-star"/></svg></span><span><b data-count="4.9" data-dec="1">۴٫۹</b> از ۵ در ۲٬۱۴۰ نظرسنجی بعد از ویزیت</span></li>
-          <li><span><b data-count="18">۱۸</b> پزشک متخصص و عمومی</span></li>
-          <li><span><b data-count="14">۱۴</b> بیمه‌ی طرف قرارداد</span></li>
-        </ul>
+  <!-- ========== بخش ۱: هیرو که با اسکرول به «درباره‌ی ما» تبدیل می‌شود (مدل ۲۱) ========== -->
+  <section class="stage" id="top" aria-labelledby="hero-title">
+    <div class="stage__pin">
+      <div class="stage__media" aria-hidden="true">
+        <div class="stage__zoom"><img class="stage__img" src="img/hero-dental.webp" alt="" width="1672" height="940" fetchpriority="high" decoding="async"></div>
+        <div class="stage__shade"></div>
       </div>
 
-      <aside class="slot" aria-label="نزدیک‌ترین نوبت خالی" data-intro>
-        <div class="slot__head">
-          <span class="live"><span class="dot" aria-hidden="true"></span>به‌روز</span>
-          <span class="slot__kicker">نزدیک‌ترین نوبت خالی</span>
+      <div class="hero">
+        <div class="wrap hero__in">
+          <div class="hero__copy">
+            <p class="kicker kicker--light" data-intro>کلینیک تخصصی · سعادت‌آباد، تهران</p>
+            <h1 class="hero__title" id="hero-title" data-split>لبخند، پوست و سلامتتان را به یک&nbsp;تیم بسپارید</h1>
+            <p class="hero__lead" data-intro>در کلینیک ساسان دندانپزشک، متخصص پوست و پزشک عمومی کنار هم کار می‌کنند. یک پرونده دارید و یک برنامه‌ی درمان روشن، و قبل از شروع هر کاری می‌دانید چقدر طول می‌کشد و چقدر هزینه دارد.</p>
+            <div class="hero__ctas" data-intro>
+              <a class="btn btn--primary btn--lg" href="#book" data-magnetic><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg><span>نوبت بگیرید</span></a>
+              <a class="btn btn--outline-light btn--lg" href="#endcap"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg><span>مشاوره‌ی تلفنی رایگان</span></a>
+            </div>
+          </div>
         </div>
-        <p class="slot__when" id="slotWhen">فردا، ساعت ۱۰:۳۰</p>
-        <p class="slot__who" id="slotWho">دندانپزشکی · دکتر سارا امینی</p>
-        <ul class="slot__list" id="slotList" aria-label="نوبت‌های خالی بخش‌ها">
-          <li data-k="dental"><span class="sd sd--dental" aria-hidden="true"></span>دندانپزشکی<b>—</b></li>
-          <li data-k="beauty"><span class="sd sd--beauty" aria-hidden="true"></span>زیبایی و پوست<b>—</b></li>
-          <li data-k="medicine"><span class="sd sd--med" aria-hidden="true"></span>پزشکی<b>—</b></li>
-        </ul>
-        <a class="btn btn--light btn--block" href="#endcap">رزرو همین نوبت<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
-        <p class="slot__note">نوبت‌ها هر چند دقیقه یک بار با تقویم پزشکان هماهنگ می‌شوند.</p>
-      </aside>
-    </div>
 
-    <div class="reel" id="reel">
-      <div class="reel__row">
-        <figure class="reel__item reel__item--s"><img src="img/reel-team.webp" alt="" width="512" height="768" decoding="async"></figure>
-        <figure class="reel__item reel__item--m"><img src="img/reel-dental.webp" alt="" width="512" height="768" decoding="async"></figure>
-        <figure class="reel__item reel__item--l"><img src="img/reel-derm.webp" alt="" width="455" height="683" decoding="async"></figure>
-        <figure class="reel__item reel__item--xl reel__item--center"><div class="reel__inner"><img src="img/reel-care.webp" alt="پزشک در حال صحبت با یک بیمار سالمند و خندیدن با او" width="1024" height="700" fetchpriority="high"></div><span class="reel__shade" aria-hidden="true"></span></figure>
-        <figure class="reel__item reel__item--l"><img src="img/reel-dentist.webp" alt="" width="454" height="681" decoding="async"></figure>
-        <figure class="reel__item reel__item--m"><img src="img/reel-skin.webp" alt="" width="455" height="682" decoding="async"></figure>
-        <figure class="reel__item reel__item--s"><img src="img/reel-lab.webp" alt="" width="452" height="678" decoding="async"></figure>
-        <div class="reel__cap">
-          <p class="chip chip--glass">روش کار ما</p>
-          <h2 class="reel__title">جلسه‌ی اول فقط برای شناختن شماست.</h2>
-          <p class="reel__text">پزشک سابقه‌تان را می‌خواند، معاینه می‌کند و گزینه‌های درمان را با هزینه و زمان هر کدام روی کاغذ می‌نویسد. اگر درمانی لازم نباشد، همین را از ما می‌شنوید.</p>
-          <ul class="reel__facts">
-            <li><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>ویزیت اول ۴۵ دقیقه</li>
-            <li><svg class="ic" aria-hidden="true"><use href="#i-clip"/></svg>برنامه‌ی درمان مکتوب</li>
-            <li><svg class="ic" aria-hidden="true"><use href="#i-wallet"/></svg>هزینه‌ی روشن قبل از شروع</li>
-          </ul>
+        <div class="wrap qbook-wrap" id="book">
+          <form class="qbook" id="qbook" novalidate data-intro>
+            <div class="qbook__head">
+              <b>نوبت آنلاین</b>
+              <span class="qbook__live"><span class="dot" aria-hidden="true"></span><span id="qbookLive">در حال بررسی نوبت‌ها</span></span>
+            </div>
+            <div class="qbook__fields">
+              <label class="field">
+                <span class="field__label">بخش</span>
+                <select id="qbDept" name="dept">
+                  <option value="dental">دندانپزشکی</option>
+                  <option value="beauty">زیبایی و پوست</option>
+                  <option value="medicine">پزشکی</option>
+                </select>
+              </label>
+              <label class="field">
+                <span class="field__label">نوع مراجعه</span>
+                <select id="qbType" name="type">
+                  <option>ویزیت اول</option>
+                  <option>ادامه‌ی درمان</option>
+                  <option>مشاوره پیش از درمان</option>
+                </select>
+              </label>
+              <label class="field">
+                <span class="field__label">زمان مناسب</span>
+                <select id="qbWhen" name="when">
+                  <option value="any">اولین نوبت خالی</option>
+                  <option value="am">صبح (۹ تا ۱۳)</option>
+                  <option value="pm">عصر (۱۶ تا ۲۱)</option>
+                </select>
+              </label>
+              <button class="btn btn--primary qbook__submit" type="submit"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>دیدن نوبت‌های خالی</button>
+            </div>
+            <p class="qbook__result" id="qbResult" role="status" aria-live="polite" hidden></p>
+          </form>
+        </div>
+      </div>
+
+      <div class="about" id="about">
+        <div class="wrap about__in">
+          <div class="about__text">
+            <p class="kicker">درباره‌ی کلینیک</p>
+            <h2 class="about__title">از سال ۱۳۹۲، سه تخصص زیر یک سقف و با یک پرونده</h2>
+            <p class="about__p">کلینیک ساسان در سعادت‌آباد تهران کار می‌کند. بخش‌های دندانپزشکی، زیبایی و پوست و پزشکی عمومی یک سامانه‌ی پرونده‌ی مشترک دارند؛ هر پزشکی که به او مراجعه می‌کنید سابقه‌ی درمان، داروها و حساسیت‌هایتان را از قبل می‌بیند و لازم نیست همه‌چیز را از اول تعریف کنید.</p>
+            <dl class="figures">
+              <div class="fig"><dt>سابقه‌ی کار</dt><dd><b data-count="12">۱۲</b><span>سال</span></dd></div>
+              <div class="fig"><dt>پزشک متخصص و عمومی</dt><dd><b data-count="18">۱۸</b><span>نفر</span></dd></div>
+              <div class="fig"><dt>رضایت بیماران</dt><dd><b data-count="4.9" data-dec="1">۴٫۹</b><span>از ۵</span></dd></div>
+              <div class="fig"><dt>بیمه‌ی طرف قرارداد</dt><dd><b data-count="14">۱۴</b><span>شرکت</span></dd></div>
+            </dl>
+            <a class="link-arrow" href="#services">آشنایی با بخش‌ها و پزشکان<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          </div>
+          <div class="about__frame" aria-hidden="true"></div>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ========== بخش ۲: سه بخش اصلی (مدل ۴۰) ========== -->
-  <section class="pillars" id="services" data-scene="ice" aria-labelledby="pillars-title">
-    <div class="pillars__stage">
-      <header class="pillars__head">
-        <p class="eyebrow">بخش‌های کلینیک</p>
-        <h2 class="pillars__title" id="pillars-title">یک ساختمان، سه&nbsp;تخصص، یک&nbsp;پرونده</h2>
-        <p class="pillars__sub">هر سه بخش پرونده‌ی شما را می‌بینند؛ دندانپزشک از داروهایی که مصرف می‌کنید خبر دارد و متخصص پوست سابقه‌ی حساسیتتان را می‌داند.</p>
+  <section class="depts" id="services" aria-labelledby="depts-title">
+    <div class="depts__stage">
+      <header class="wrap depts__head">
+        <div class="depts__headtext">
+          <p class="kicker kicker--light">بخش‌های کلینیک</p>
+          <h2 class="depts__title" id="depts-title">هر بخش، تیم و تجهیزات خودش را دارد</h2>
+          <p class="depts__sub">از جرم‌گیری ساده تا ایمپلنت، از پاکسازی پوست تا چکاپ کامل. روی هر بخش بزنید تا خدمات و زمان هر درمان را ببینید.</p>
+        </div>
+        <a class="link-arrow link-arrow--light" href="#dental" data-svc="dental">فهرست کامل خدمات<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
       </header>
 
       <div class="deck" id="deck">
         <a class="pcard pcard--dental" href="#dental" data-svc="dental" aria-label="بخش دندانپزشکی">
           <span class="pcard__face pcard__front" aria-hidden="true"></span>
           <span class="pcard__face pcard__back">
+            <svg class="pcard__mark" aria-hidden="true"><use href="#i-tooth"/></svg>
             <span class="pcard__top"><span class="pcard__ic"><svg class="ic" aria-hidden="true"><use href="#i-tooth"/></svg></span><span class="pcard__meta">۶ پزشک · ۲۴ خدمت</span></span>
-            <span class="pcard__body">
-              <b class="pcard__title">دندانپزشکی</b>
-              <span class="pcard__desc">از جرم‌گیری و ترمیم ساده تا ایمپلنت و لمینت. هر درمانی با عکس و برنامه‌ی مکتوب شروع می‌شود.</span>
-              <span class="pcard__tags"><i>ایمپلنت</i><i>لمینت</i><i>ارتودنسی</i><i>درمان ریشه</i></span>
-            </span>
+            <b class="pcard__title">دندانپزشکی</b>
+            <span class="pcard__desc">از جرم‌گیری و ترمیم تا ایمپلنت و لمینت؛ هر درمان با عکس و طرح مکتوب شروع می‌شود.</span>
+            <span class="pcard__list"><i>ایمپلنت دیجیتال</i><i>لمینت و کامپوزیت</i><i>ارتودنسی و الاینر</i><i>درمان ریشه</i></span>
             <span class="pcard__foot"><span class="pcard__slot" data-slot="dental">نوبت خالی: —</span><span class="pcard__go"><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></span></span>
           </span>
         </a>
         <a class="pcard pcard--beauty" href="#beauty" data-svc="beauty" aria-label="بخش زیبایی و پوست">
           <span class="pcard__face pcard__front" aria-hidden="true"></span>
           <span class="pcard__face pcard__back">
+            <svg class="pcard__mark" aria-hidden="true"><use href="#i-sparkles"/></svg>
             <span class="pcard__top"><span class="pcard__ic"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg></span><span class="pcard__meta">۵ پزشک · ۱۹ خدمت</span></span>
-            <span class="pcard__body">
-              <b class="pcard__title">زیبایی و پوست</b>
-              <span class="pcard__desc">پوست، مو و جوان‌سازی با دستگاه‌های به‌روز، و پزشکی که پیش از هر تزریق صادقانه می‌گوید لازم دارید یا نه.</span>
-              <span class="pcard__tags"><i>بوتاکس و فیلر</i><i>لیزر</i><i>جوان‌سازی</i><i>آکنه و لک</i></span>
-            </span>
+            <b class="pcard__title">زیبایی و پوست</b>
+            <span class="pcard__desc">پوست، مو و جوان‌سازی زیر نظر متخصص پوست، با دستگاه‌های به‌روز و دوز حساب‌شده.</span>
+            <span class="pcard__list"><i>بوتاکس و فیلر</i><i>لیزر موهای زائد</i><i>جوان‌سازی و مزوتراپی</i><i>درمان آکنه و لک</i></span>
             <span class="pcard__foot"><span class="pcard__slot" data-slot="beauty">نوبت خالی: —</span><span class="pcard__go"><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></span></span>
           </span>
         </a>
         <a class="pcard pcard--med" href="#medicine" data-svc="medicine" aria-label="بخش پزشکی">
           <span class="pcard__face pcard__front" aria-hidden="true"></span>
           <span class="pcard__face pcard__back">
+            <svg class="pcard__mark" aria-hidden="true"><use href="#i-steth"/></svg>
             <span class="pcard__top"><span class="pcard__ic"><svg class="ic" aria-hidden="true"><use href="#i-steth"/></svg></span><span class="pcard__meta">۷ پزشک · ۲۱ خدمت</span></span>
-            <span class="pcard__body">
-              <b class="pcard__title">پزشکی</b>
-              <span class="pcard__desc">پزشک عمومی، داخلی و تغذیه برای چکاپ، بیماری‌های مزمن و هر سؤالی که درباره‌ی سلامتتان دارید.</span>
-              <span class="pcard__tags"><i>چکاپ کامل</i><i>داخلی</i><i>تغذیه</i><i>آزمایشگاه</i></span>
-            </span>
+            <b class="pcard__title">پزشکی</b>
+            <span class="pcard__desc">پزشک عمومی، داخلی و تغذیه برای چکاپ، بیماری‌های مزمن و مراقبت روزمره.</span>
+            <span class="pcard__list"><i>چکاپ کامل</i><i>داخلی و دیابت</i><i>تغذیه و رژیم</i><i>آزمایشگاه در محل</i></span>
             <span class="pcard__foot"><span class="pcard__slot" data-slot="medicine">نوبت خالی: —</span><span class="pcard__go"><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></span></span>
           </span>
         </a>
       </div>
-
-      <p class="pillars__hint"><svg class="ic" aria-hidden="true"><use href="#i-arrow-ul"/></svg>روی هر بخش بزنید تا خدمات، پزشکان و زمان هر درمان را ببینید.</p>
     </div>
   </section>
 
-  <!-- پایان موقت صفحه تا تأیید دو بخش بالا -->
-  <section class="endcap" id="endcap" data-scene="mist" aria-labelledby="endcap-title">
+  <!-- پایان موقت صفحه تا تأیید این دو بخش -->
+  <section class="endcap" id="endcap" aria-labelledby="endcap-title">
     <div class="wrap endcap__in">
-      <div class="endcap__card">
-        <p class="eyebrow">نسخه‌ی اولیه · مرحله‌ی ۱</p>
-        <h2 id="endcap-title">ادامه‌ی صفحه‌ی اصلی بعد از تأیید همین دو بخش ساخته می‌شود.</h2>
-        <p>تا این‌جا هدر، هیرو با ریل تصاویر و کارت‌های سه بخش اصلی آماده است. رزرو نوبت، پزشکان، نمونه‌کارها، نظر بیماران، مقالات و نقشه در مرحله‌های بعد اضافه می‌شوند.</p>
-        <div class="endcap__contact">
-          <p><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>تهران، سعادت‌آباد، خیابان سرو غربی، پلاک ۴۲، طبقه‌ی سوم</p>
-          <p><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg><span dir="ltr">۰۲۱ ۲۲۳۴ ۵۶۷۸</span></p>
-          <p><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>شنبه تا چهارشنبه ۹ تا ۲۱ · پنجشنبه ۹ تا ۱۴</p>
-        </div>
+      <div class="endcap__main">
+        <p class="kicker">نسخه‌ی اولیه · مرحله‌ی ۱</p>
+        <h2 id="endcap-title">بخش‌های بعدی صفحه‌ی اصلی بعد از تأیید همین دو بخش ساخته می‌شوند.</h2>
+        <p>پزشکان، نمونه‌کارها، نظر بیماران، مقالات، نقشه و رزرو کامل نوبت در مرحله‌های بعد اضافه می‌شوند.</p>
       </div>
-      <p class="credits">عکس‌ها موقت‌اند و از Open Images با مجوز CC BY 2.0 آمده‌اند؛ افراد در عکس‌ها کارکنان کلینیک نیستند. عکاس‌ها:
-        <span id="creditList"></span>. نام پزشکان، آمار، آدرس و تلفن نمونه‌اند.</p>
+      <div class="endcap__contact">
+        <p><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>تهران، سعادت‌آباد، خیابان سرو غربی، پلاک ۴۲، طبقه‌ی سوم</p>
+        <p><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg><span dir="ltr">۰۲۱ ۲۲۳۴ ۵۶۷۸</span></p>
+        <p><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>شنبه تا چهارشنبه ۹ تا ۲۱ · پنجشنبه ۹ تا ۱۴</p>
+      </div>
+      <p class="credits">نام پزشکان، آمار، آدرس و تلفن نمونه‌اند.</p>
     </div>
   </section>
 </main>
 
-<!-- نمای صفحه‌ی هر بخش؛ با کلیک روی کارت از خود کارت باز می‌شود -->
+<!-- نمای هر بخش؛ از خود کارت باز می‌شود -->
 <div class="svc" id="svc" role="dialog" aria-modal="true" aria-labelledby="svcTitle" hidden>
   <div class="svc__bg"></div>
   <div class="svc__scroll" data-lenis-prevent>
-    <div class="svc__top wrap">
-      <button type="button" class="svc__back" id="svcBack"><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg><span>صفحه‌ی اصلی</span></button>
-      <span class="svc__crumb" id="svcCrumb">خدمات</span>
-    </div>
-    <div class="svc__hero wrap">
-      <span class="svc__ic" id="svcIc"><svg class="ic" aria-hidden="true"><use href="#i-tooth"/></svg></span>
-      <h1 class="svc__title" id="svcTitle">دندانپزشکی</h1>
-      <p class="svc__lead" id="svcLead"></p>
-      <div class="svc__ctas">
-        <a class="btn btn--light btn--lg" href="#endcap" data-close-svc><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg>نوبت در این بخش</a>
-        <span class="svc__slot" id="svcSlot"></span>
+    <div class="svc__band">
+      <div class="wrap svc__top">
+        <button type="button" class="svc__back" id="svcBack"><svg class="ic" aria-hidden="true"><use href="#i-arrow-r"/></svg><span>صفحه‌ی اصلی</span></button>
+        <span class="svc__crumb" id="svcCrumb">خدمات</span>
+      </div>
+      <div class="wrap svc__hero">
+        <span class="svc__ic" id="svcIc"><svg class="ic" aria-hidden="true"><use href="#i-tooth"/></svg></span>
+        <h1 class="svc__title" id="svcTitle">دندانپزشکی</h1>
+        <p class="svc__lead" id="svcLead"></p>
+        <div class="svc__ctas">
+          <a class="btn btn--light btn--lg" href="#book" data-close-svc><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg>نوبت در این بخش</a>
+          <span class="svc__slot" id="svcSlot"></span>
+        </div>
       </div>
     </div>
-    <div class="svc__list wrap" id="svcList"></div>
-    <p class="svc__note wrap">صفحه‌ی کامل این بخش، با پزشکان، نمونه‌کارها، تعرفه‌ها و پرسش‌های رایج، مرحله‌ی بعدی ساخت است.</p>
+    <div class="svc__main">
+      <div class="wrap svc__body">
+        <h2 class="svc__h2">خدمات این بخش</h2>
+        <div class="svc__list" id="svcList"></div>
+        <p class="svc__note">صفحه‌ی کامل این بخش، با پزشکان، نمونه‌کارها، تعرفه‌ها و پرسش‌های رایج، مرحله‌ی بعدی ساخت است.</p>
+      </div>
+    </div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrollTrigger.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/Flip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.min.js"></script>
 <script src="js/core.js"></script>
 <script src="js/home.js"></script>

@@ -48,7 +48,6 @@
   const hasGsap = !!(window.gsap && window.ScrollTrigger);
   if (hasGsap) {
     gsap.registerPlugin(ScrollTrigger);
-    if (window.Flip) gsap.registerPlugin(Flip);
     ScrollTrigger.config({ ignoreMobileResize: true });
   }
 
@@ -114,13 +113,12 @@
     setFs(n) {
       this.fs = n; root.classList.remove('fs-1', 'fs-2'); if (n) root.classList.add('fs-' + n);
       store.set('sasan:fs', String(n)); this.sync();
-      requestAnimationFrame(() => { Motion.rebuild(); Scene.update(true); });
+      requestAnimationFrame(() => Motion.rebuild());
     },
     toggle(k) {
       this[k] = !this[k]; store.set('sasan:' + k, this[k] ? '1' : '0');
       root.classList.toggle(k, this[k]);
       if (k === 'rm') { if (this.rm) Motion.stop(); else Motion.start(); }
-      if (k === 'hc') Scene.update(true);
       this.sync();
     }
   };
@@ -129,53 +127,11 @@
   Prefs.sync();
 
   /* ==========================================================================
-     صحنه: رنگ پس‌زمینه بین بخش‌ها بدون مرز جابه‌جا می‌شود
-     ========================================================================== */
-  const SCENES = {
-    night: { b: [6, 17, 38], a: [21, 96, 240], aa: 0.55, ax: 76, ay: 6, c1: [14, 139, 192], c1a: 0.3, bx: 4, by: 60, c2: [194, 63, 106], c2a: 0.22, cx: 40, cy: 110, tone: 'dark' },
-    ice: { b: [232, 239, 250], a: [140, 182, 255], aa: 0.55, ax: 88, ay: 16, c1: [255, 186, 208], c1a: 0.5, bx: 6, by: 44, c2: [150, 228, 200], c2a: 0.55, cx: 52, cy: 104, tone: 'light' },
-    mist: { b: [241, 245, 252], a: [186, 208, 255], aa: 0.5, ax: 16, ay: 12, c1: [190, 232, 246], c1a: 0.5, bx: 92, by: 66, c2: [250, 212, 226], c2a: 0.42, cx: 50, cy: 116, tone: 'light' }
-  };
-  const Scene = {
-    el: $('.scene'),
-    secs: [],
-    last: '',
-    tone: document.body.dataset.tone || 'dark',
-    init() { this.secs = $$('[data-scene]'); this.update(true); },
-    update(force) {
-      if (!this.el || !this.secs.length) return;
-      const vh = window.innerHeight;
-      let i = 0;
-      for (let k = 0; k < this.secs.length; k++) if (this.secs[k].getBoundingClientRect().top <= vh * 0.5) i = k;
-      const cur = this.secs[i], nx = this.secs[i + 1];
-      let t = 0;
-      if (nx) t = clamp((vh - nx.getBoundingClientRect().top) / (vh * 0.5), 0, 1);
-      t = t * t * (3 - 2 * t);
-      const A = SCENES[cur.dataset.scene] || SCENES.night;
-      const B = nx ? (SCENES[nx.dataset.scene] || A) : A;
-      const mix = (x, y) => x.map((v, j) => Math.round(lerp(v, y[j], t))).join(' ');
-      const n = (x, y, d = 2) => lerp(x, y, t).toFixed(d);
-      const css = `--b:${mix(A.b, B.b)};--a:${mix(A.a, B.a)};--aa:${n(A.aa, B.aa)};--ax:${n(A.ax, B.ax, 1)};--ay:${n(A.ay, B.ay, 1)};` +
-        `--c1:${mix(A.c1, B.c1)};--c1a:${n(A.c1a, B.c1a)};--bx:${n(A.bx, B.bx, 1)};--by:${n(A.by, B.by, 1)};` +
-        `--c2:${mix(A.c2, B.c2)};--c2a:${n(A.c2a, B.c2a)};--cx:${n(A.cx, B.cx, 1)};--cy:${n(A.cy, B.cy, 1)}`;
-      if (force || css !== this.last) { this.el.style.cssText = css; this.last = css; }
-      let tone = t > 0.5 ? B.tone : A.tone;
-      if (root.classList.contains('hc')) tone = 'light';
-      if (tone !== this.tone || force) {
-        this.tone = tone; document.body.dataset.tone = tone;
-        const meta = $('meta[name="theme-color"]');
-        if (meta) meta.setAttribute('content', tone === 'dark' ? '#061126' : '#eef3fa');
-      }
-    }
-  };
-
-  /* ==========================================================================
      هدر: جمع شدن نوار بالا، نشانگر فنری منو، مگامنو
      ========================================================================== */
   const hdr = $('#hdr');
   const onScroll = () => {
     hdr.classList.toggle('is-scrolled', window.scrollY > 30);
-    Scene.update(false);
   };
   let scrollQueued = false;
   window.addEventListener('scroll', () => {
@@ -211,9 +167,9 @@
     if (megaOpen) return; megaOpen = true;
     mega.hidden = false; megaBtn.setAttribute('aria-expanded', 'true');
     if (Motion.on) {
-      gsap.killTweensOf([mega, ...mega.querySelectorAll('.mega__col, .mega__aside')]);
-      gsap.fromTo(mega, { opacity: 0, y: -10, scaleY: 0.94, filter: 'blur(8px)' }, { opacity: 1, y: 0, scaleY: 1, filter: 'blur(0px)', duration: 0.55, ease: 'expo.out', clearProps: 'filter' });
-      gsap.fromTo(mega.querySelectorAll('.mega__col, .mega__aside'), { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.6, ease: 'expo.out', stagger: 0.045, delay: 0.05 });
+      gsap.killTweensOf([mega, ...mega.querySelectorAll('.mega__head, .mega__list li, .mega__aside')]);
+      gsap.fromTo(mega, { clipPath: 'inset(0% 0% 100% 0%)' }, { clipPath: 'inset(0% 0% -40% 0%)', duration: 0.55, ease: 'expo.out' });
+      gsap.fromTo(mega.querySelectorAll('.mega__head, .mega__list li, .mega__aside'), { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.5, ease: 'expo.out', stagger: 0.018, delay: 0.06 });
     }
   };
   const closeMega = (now) => {
@@ -223,7 +179,7 @@
       megaBtn.setAttribute('aria-expanded', 'false');
       if (Motion.on) {
         gsap.killTweensOf(mega);
-        gsap.to(mega, { opacity: 0, y: -6, scaleY: 0.97, duration: 0.22, ease: 'power2.in', onComplete: () => { if (!megaOpen) mega.hidden = true; } });
+        gsap.to(mega, { clipPath: 'inset(0% 0% 100% 0%)', duration: 0.28, ease: 'power3.in', onComplete: () => { if (!megaOpen) mega.hidden = true; } });
       } else mega.hidden = true;
     };
     if (now) run(); else megaTimer = setTimeout(run, 220);
@@ -295,7 +251,7 @@
     };
     panel.addEventListener('pointerup', end);
     panel.addEventListener('pointercancel', end);
-    window.matchMedia('(min-width: 1021px)').addEventListener('change', (m) => { if (m.matches) close(false); });
+    window.matchMedia('(min-width: 1061px)').addEventListener('change', (m) => { if (m.matches) close(false); });
   }
 
   /* ==========================================================================
@@ -308,8 +264,8 @@
         const r = el.getBoundingClientRect();
         const dx = (e.clientX - (r.left + r.width / 2)) / (r.width / 2);
         const dy = (e.clientY - (r.top + r.height / 2)) / (r.height / 2);
-        el.style.setProperty('--mx', (dx * 6).toFixed(1) + 'px');
-        el.style.setProperty('--my', (dy * 5).toFixed(1) + 'px');
+        el.style.setProperty('--mx', (dx * 3).toFixed(1) + 'px');
+        el.style.setProperty('--my', (dy * 2.5).toFixed(1) + 'px');
       });
       el.addEventListener('pointerleave', () => { el.style.setProperty('--mx', '0px'); el.style.setProperty('--my', '0px'); });
     });
@@ -361,15 +317,16 @@
       }
       return { open: false, text: '' };
     },
-    nextSlot(key) {
+    nextSlot(key, when = 'any') {
       const n = tehranNow();
       const dayNo = Math.floor(Date.now() / 864e5);
+      const okTime = (t) => when === 'am' ? t < 13 * 60 : when === 'pm' ? t >= 16 * 60 : true;
       let start = Math.ceil((n.min + 90) / 30) * 30;
       for (let off = 0; off < 10; off++) {
         const di = (n.d + off) % 7, hrs = HOURS[di];
         if (hrs) {
           for (let t = Math.max(start, hrs[0] * 60 + 30); t <= hrs[1] * 60 - 30; t += 30) {
-            if (hash(key + ':' + (dayNo + off) + ':' + t) < 0.22) return { off, di, t, label: `${dayLabel(off, di)}، ساعت ${fmtTime(t)}`, short: `${dayLabel(off, di)} ${fmtTime(t)}` };
+            if (okTime(t) && hash(key + ':' + (dayNo + off) + ':' + t) < 0.22) return { off, di, t, label: `${dayLabel(off, di)}، ساعت ${fmtTime(t)}`, short: `${dayLabel(off, di)} ${fmtTime(t)}` };
           }
         }
         start = 0;
@@ -385,13 +342,11 @@
   }
 
   /* ---------- راه‌اندازی ---------- */
-  window.Sasan = { $, $$, clamp, lerp, toFa, Spring, Motion, Prefs, Scene, Clinic, store, finePointer };
-  Scene.init();
-  window.addEventListener('resize', () => Scene.update(true));
+  window.Sasan = { $, $$, clamp, lerp, toFa, Spring, Motion, Prefs, Clinic, store, finePointer };
   document.addEventListener('DOMContentLoaded', () => {
     if (!root.classList.contains('rm')) Motion.start();
     onScroll();
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (Motion.on) ScrollTrigger.refresh(); Scene.update(true); });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (Motion.on) ScrollTrigger.refresh(); });
   });
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 })();
