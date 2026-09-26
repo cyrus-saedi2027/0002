@@ -9,6 +9,8 @@
   if (!S) return;
   const { $, $$, toFa, Motion, Clinic, Aurora } = S;
   const root = document.documentElement;
+  /* ۰ تا ۱ با شروع و پایان نرم */
+  const ease01 = (t) => { t = t < 0 ? 0 : t > 1 ? 1 : t; return t * t * (3 - 2 * t); };
   const isMob = () => window.matchMedia('(max-width: 699.98px)').matches;
   if (window.gsap && window.Flip) gsap.registerPlugin(Flip);
 
@@ -222,12 +224,6 @@
       const mob = isMob();
       let counted = false;
 
-      const frameClip = () => {
-        const p = pin.getBoundingClientRect(), r = frame.getBoundingClientRect();
-        const t = r.top - p.top, rt = p.right - r.right, b = p.bottom - r.bottom, l = r.left - p.left;
-        return `inset(${t.toFixed(1)}px ${rt.toFixed(1)}px ${b.toFixed(1)}px ${l.toFixed(1)}px round 8px)`;
-      };
-
       /* عکس را خودمان به اندازه‌ی cover می‌چینیم تا هنگام بزرگ‌نمایی و جابه‌جایی لبه‌اش پیدا نشود.
          جای دندان (نسبت به ابعاد اصلی تصویر) و اندازه‌اش را داریم تا در مرکز قاب بنشیند و در قاب جا شود. */
       const SUBJECT = { x: 0.265, y: 0.62, w: 0.19, h: 0.37 };
@@ -242,11 +238,12 @@
         const p = pin.getBoundingClientRect(), r = frame.getBoundingClientRect();
         const fw = r.width, fh = r.height, fx = r.left - p.left + fw / 2, fy = r.top - p.top + fh / 2;
         const clamp = (v, a, b) => Math.min(Math.max(v, a), b);
+        const base = { L: ox, T: oy, W, H, F: { x: r.left - p.left, y: r.top - p.top, w: fw, h: fh } };
         if (window.innerWidth >= 1061) {
           /* دسکتاپ: دندان وسط قاب و کمی بزرگ‌تر */
           const fit = Math.min(1.16, 0.8 * fh / (SUBJECT.h * rh), 0.8 * fw / (SUBJECT.w * rw));
           const cover = Math.max((fw / 2) / (px - ox), (fw / 2) / (ox + rw - px), (fh / 2) / (py - oy), (fh / 2) / (oy + rh - py)) * 1.02;
-          return { ox: px - ox, oy: py - oy, dx: fx - px, dy: fy - py, s: Math.max(cover, fit) };
+          return { ...base, ox: px - ox, oy: py - oy, dx: fx - px, dy: fy - py, s: Math.max(cover, fit) };
         }
         /* تبلت و موبایل: عکس کوچک‌تر می‌شود تا بیشتر صحنه دیده شود؛
            دندان حدود ۴۰٪ ارتفاع قاب را می‌گیرد و قاب همیشه پر می‌ماند */
@@ -256,19 +253,33 @@
         const lx = px - ox, ly = py - oy;
         const tx = clamp(fx, fR - (rw - lx) * sc, fL + lx * sc);
         const ty = clamp(fy, fB - (rh - ly) * sc, fT + ly * sc);
-        return { ox: lx, oy: ly, dx: tx - px, dy: ty - py, s: sc };
+        return { ...base, ox: lx, oy: ly, dx: tx - px, dy: ty - py, s: sc };
       };
       let P = push();
+      /* قاب بدون clip-path: خود قاب با transform کوچک می‌شود و عکس و سایه با transform معکوس سر جایشان می‌مانند؛
+         در طول اسکرول هیچ لایه‌ای دوباره رسم نمی‌شود و فقط کارت گرافیک جابه‌جا می‌کند */
+      const V = { q: 0 };
+      const paint = () => {
+        const q = V.q, F = P.F;
+        const tx = F.x * q, ty = F.y * q, sx = (P.W + (F.w - P.W) * q) / P.W, sy = (P.H + (F.h - P.H) * q) / P.H;
+        /* گوشه‌ی گرد فقط در انتهای حرکت (وقتی قاب تقریباً ایستاده) اضافه می‌شود؛ بقیه‌ی مسیر قاب ساده و ارزان است */
+        const s = 1 + (P.s - 1) * q, x = P.dx * q, y = P.dy * q, r = 8 * ease01((q - 0.8) / 0.2);
+        media.style.transform = `translate3d(${tx}px, ${ty}px, 0) scale(${sx}, ${sy})`;
+        media.style.borderRadius = r > 0.05 ? `${r / sx}px / ${r / sy}px` : '0px';
+        img.style.transform = `translate3d(${(P.L + x + P.ox * (1 - s) - tx) / sx - P.L}px, ${(P.T + y + P.oy * (1 - s) - ty) / sy - P.T}px, 0) scale(${s / sx}, ${s / sy})`;
+        shade.style.transform = `translate3d(${-tx / sx}px, ${-ty / sy}px, 0) scale(${1 / sx}, ${1 / sy})`;
+      };
+      paint();
 
       this.ctx = gsap.context(() => {
         gsap.set(bits, { autoAlpha: 0, y: 36 });
-        gsap.set(img, { transformOrigin: () => `${P.ox}px ${P.oy}px` });
         const tl = gsap.timeline({
           defaults: { ease: 'none' },
           scrollTrigger: {
             trigger: stage, start: 'top top', end: () => '+=' + window.innerHeight * (mob ? 1.5 : 1.8),
             pin: pin, scrub: 0.7, invalidateOnRefresh: true,
-            onRefreshInit: () => { P = push(); gsap.set(img, { transformOrigin: `${P.ox}px ${P.oy}px` }); },
+            onRefreshInit: () => { P = push(); },
+            onRefresh: paint,
             onUpdate: (self) => {
               about.classList.toggle('is-on', self.progress > 0.55);
               pin.classList.toggle('is-about', self.progress > 0.3);
@@ -278,8 +289,7 @@
         });
         tl.fromTo(copy, { y: 0, autoAlpha: 1 }, { y: -70, autoAlpha: 0, duration: 0.24, ease: 'power1.in' }, 0)
           .fromTo(qbw, { y: 0, autoAlpha: 1 }, { y: 50, autoAlpha: 0, duration: 0.2, ease: 'power1.in' }, 0)
-          .fromTo(media, { clipPath: 'inset(0px 0px 0px 0px round 0px)' }, { clipPath: frameClip, duration: 0.48, ease: 'power2.inOut' }, 0.06)
-          .fromTo(img, { scale: 1, x: 0, y: 0 }, { scale: () => P.s, x: () => P.dx, y: () => P.dy, duration: 0.48, ease: 'power2.inOut' }, 0.06)
+          .fromTo(V, { q: 0 }, { q: 1, duration: 0.48, ease: 'power2.inOut', onUpdate: paint }, 0.06)
           .fromTo(shade, { opacity: 1 }, { opacity: 0, duration: 0.3 }, 0.12)
           .to(bits, { autoAlpha: 1, y: 0, duration: 0.2, stagger: 0.04, ease: 'power2.out' }, 0.52)
           .to({}, { duration: 0.12 }, 0.88);
@@ -301,33 +311,74 @@
   const Reel = {
     ctx: null,
     build() {
-      if (!window.Flip) return;
       const wrap = $('#reel'), row = $('.reel__row', wrap);
-      const items = $$('.reel__item', row), cap = $('.reel__cap', row);
       const center = $('.reel__item--center', row);
-      const inner = $('.reel__inner', center), shade = $('.reel__shade', center), intro = $('.reel__intro', wrap);
+      const tiles = $$('.reel__item', row).filter((el) => el !== center);
+      const inner = $('.reel__inner', center), img = $('img', inner), shade = $('.reel__shade', center);
+      const cap = $('.reel__cap', row), intro = $('.reel__intro', wrap);
       const kids = Array.from(cap.children);
       const mob = isMob();
-      this.ctx = gsap.context(() => {
+      /* چیدمان بسته و باز را یک بار اندازه می‌گیریم و بعد فقط clip و transform را حرکت می‌دهیم؛
+         هیچ اندازه‌ای در طول اسکرول عوض نمی‌شود، پس عکس بزرگ هر فریم دوباره رسم نمی‌شود */
+      let M = null;
+      const measure = () => {
+        row.classList.remove('is-fx');
+        const base = row.getBoundingClientRect();
+        const rel = (el) => { const r = el.getBoundingClientRect(); return { x: r.left - base.left, y: r.top - base.top, w: r.width, h: r.height }; };
+        const closed = tiles.map(rel), cc = rel(center);
         row.classList.add('is-open');
-        const state = Flip.getState([items, cap], { props: 'opacity,borderRadius' });
+        const open = tiles.map(rel), co = rel(center);
         row.classList.remove('is-open');
+        row.classList.add('is-fx');
+        row.style.setProperty('--ox', co.x + 'px'); row.style.setProperty('--oy', co.y + 'px');
+        row.style.setProperty('--ow', co.w + 'px'); row.style.setProperty('--oh', co.h + 'px');
+        const O = { x: cc.x + cc.w / 2 - co.x, y: cc.y + cc.h / 2 - co.y };
+        const s0 = Math.max(cc.w / 2 / O.x, cc.w / 2 / (co.w - O.x), cc.h / 2 / O.y, cc.h / 2 / (co.h - O.y)) * 1.01;
+        M = { closed, open, O, s0, cc, co, capY: wrap.clientHeight * 0.6 };
+      };
+      measure();
+      /* قاب عکس وسط با transform از اندازه‌ی کاشی تا تمام‌صفحه باز می‌شود و عکس و سایه با transform معکوس
+         درست سر جایشان می‌مانند؛ بدون clip-path، پس هیچ فریمی دوباره رسم نمی‌شود */
+      const V = { q: 0 };
+      const paint = () => {
+        const q = V.q, cc = M.cc, co = M.co;
+        const tx = (cc.x - co.x) * (1 - q), ty = (cc.y - co.y) * (1 - q);
+        const sx = (cc.w + (co.w - cc.w) * q) / co.w, sy = (cc.h + (co.h - cc.h) * q) / co.h;
+        const s = M.s0 + (1 - M.s0) * q, r = 8 * (1 - ease01(q / 0.2));
+        inner.style.transform = `translate3d(${tx}px, ${ty}px, 0) scale(${sx}, ${sy})`;
+        inner.style.borderRadius = r > 0.05 ? `${r / sx}px / ${r / sy}px` : '0px';
+        img.style.transform = `translate3d(${(M.O.x * (1 - s) - tx) / sx}px, ${(M.O.y * (1 - s) - ty) / sy}px, 0) scale(${s / sx}, ${s / sy})`;
+        shade.style.transform = `translate3d(${-tx / sx}px, ${-ty / sy}px, 0) scale(${1 / sx}, ${1 / sy})`;
+      };
+      paint();
+      this.ctx = gsap.context(() => {
         const tl = gsap.timeline({
           defaults: { ease: 'none' },
-          scrollTrigger: { trigger: wrap, start: 'top top', end: () => '+=' + window.innerHeight * (mob ? 1.6 : 2.1), pin: wrap, scrub: 0.6, invalidateOnRefresh: true }
+          scrollTrigger: {
+            trigger: wrap, start: 'top top', end: () => '+=' + window.innerHeight * (mob ? 1.6 : 2.1), pin: wrap, scrub: 0.6, invalidateOnRefresh: true,
+            onRefreshInit: () => { gsap.set(tiles, { clearProps: 'transform' }); measure(); },
+            onRefresh: paint
+          }
         });
-        tl.add(Flip.to(state, { ease: 'none', absoluteOnLeave: true, scale: false, simple: true, duration: 1 }), 0)
-          .fromTo(inner, { scale: 1.28 }, { scale: 1, duration: 1 }, 0)
+        tl.fromTo(V, { q: 0 }, { q: 1, duration: 1, ease: 'power1.inOut', onUpdate: paint }, 0)
           .fromTo(intro, { autoAlpha: 1, y: 0 }, { autoAlpha: 0, y: -24, duration: 0.25 }, 0)
           .fromTo(shade, { opacity: 0 }, { opacity: mob ? 0.15 : 1, duration: 0.45 }, 0.5)
+          .fromTo(cap, { y: () => M.capY, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.34, ease: 'power2.out' }, 0.62)
           .from(kids, { y: 40, opacity: 0, duration: 0.22, stagger: 0.05, ease: 'power2.out' }, 0.66);
+        tiles.forEach((t, i) => {
+          tl.fromTo(t, { x: 0, y: 0, scale: 1 }, {
+            x: () => M.open[i].x - M.closed[i].x, y: () => M.open[i].y - M.closed[i].y,
+            scale: () => M.open[i].w / M.closed[i].w, transformOrigin: '0 0', duration: 1, ease: 'power1.inOut'
+          }, 0);
+        });
       });
     },
     kill() {
       if (this.ctx) { this.ctx.revert(); this.ctx = null; }
       const row = $('.reel__row');
-      row.classList.remove('is-open');
-      gsap.set([...$$('.reel__item', row), $('.reel__cap', row), $('.reel__inner', row), $('.reel__shade', row), $('.reel__intro'), ...$('.reel__cap', row).children], { clearProps: 'all' });
+      row.classList.remove('is-open', 'is-fx');
+      ['--ox', '--oy', '--ow', '--oh'].forEach((v) => row.style.removeProperty(v));
+      gsap.set([...$$('.reel__item', row), $('.reel__cap', row), $('.reel__inner', row), $('.reel__inner img', row), $('.reel__shade', row), $('.reel__intro'), ...$('.reel__cap', row).children], { clearProps: 'all' });
     }
   };
 
@@ -412,7 +463,6 @@
       const sec = $('#journey'); if (!sec) return;
       const jr = $('.jr', sec), frames = $$('.jr-frame__img', sec), steps = $$('.jr-step', sec), dots = $$('.jr-dots li', sec);
       const desk = window.matchMedia('(min-width: 900px)').matches;
-      const tints = ['#F3F6FA', '#EAF2FB', '#EDF5F3', '#FBF1F4'];
       const n = frames.length;
       this.ctx = gsap.context(() => {
         gsap.from(sec.querySelectorAll('.sec-head > *'), { y: 26, autoAlpha: 0, duration: 0.9, ease: 'expo.out', stagger: 0.08, scrollTrigger: { trigger: sec, start: 'top 78%' } });
@@ -433,10 +483,10 @@
           frames.forEach((el, i) => {
             if (i === n - 1) return;
             const nextImg = $('img', frames[i + 1]);
-            tl.fromTo(el, { clipPath: 'inset(0% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 100% 0%)', duration: 1, ease: 'power1.inOut' }, i)
-              .fromTo($('img', el), { yPercent: 0 }, { yPercent: -7, duration: 1 }, i)
-              .fromTo(nextImg, { yPercent: 7, scale: 1.08 }, { yPercent: 0, scale: 1, duration: 1 }, i)
-              .fromTo(sec, { backgroundColor: tints[i] }, { backgroundColor: tints[i + 1], duration: 1, ease: 'power1.inOut' }, i);
+            /* پرده‌ی بالا رونده بدون clip-path: قاب بالا می‌رود (قاب مادر برشش می‌دهد) و عکس به همان اندازه پایین می‌آید تا سر جایش بماند */
+            tl.fromTo(el, { yPercent: 0 }, { yPercent: -100, duration: 1, ease: 'power1.inOut' }, i)
+              .fromTo($('img', el), { yPercent: 0, y: 0 }, { yPercent: -7, y: () => el.offsetHeight, duration: 1, ease: 'power1.inOut' }, i)
+              .fromTo(nextImg, { yPercent: 7, scale: 1.08 }, { yPercent: 0, scale: 1, duration: 1 }, i);
           });
           steps.forEach((st) => ScrollTrigger.create({ trigger: st, start: 'top 55%', end: 'bottom 55%', onToggle: (self) => st.classList.toggle('is-active', self.isActive) }));
           gsap.from($('.jr-side', sec), { y: 40, autoAlpha: 0, duration: 1.1, ease: 'expo.out', scrollTrigger: { trigger: jr, start: 'top 80%' } });
@@ -446,7 +496,6 @@
             gsap.fromTo(im, { yPercent: -5 }, { yPercent: 5, ease: 'none', scrollTrigger: { trigger: fig, start: 'top bottom', end: 'bottom top', scrub: true } });
             gsap.from(fig, { clipPath: 'inset(10% 6% 10% 6% round 12px)', duration: 1.2, ease: 'expo.out', scrollTrigger: { trigger: fig, start: 'top 85%' } });
             gsap.from(st.querySelectorAll('.jr-step__txt > *'), { y: 22, autoAlpha: 0, duration: 0.8, ease: 'expo.out', stagger: 0.06, scrollTrigger: { trigger: st, start: 'top 70%' } });
-            ScrollTrigger.create({ trigger: st, start: 'top 55%', end: 'bottom 55%', onToggle: (self) => { if (self.isActive) gsap.to(sec, { backgroundColor: tints[i], duration: 0.6, overwrite: 'auto' }); } });
           });
         }
       });
@@ -490,48 +539,53 @@
       const sec = $('#services'), stage = $('.depts__stage', sec), deck = $('#deck', sec);
       const cards = $$('.pcard', deck), head = $('.depts__head', sec);
       const mob = isMob();
-      const R = 6;
-      const joined = mob ? [[R, R, 0, 0], [0, 0, 0, 0], [0, 0, R, R]] : [[0, R, R, 0], [0, 0, 0, 0], [R, 0, 0, R]];
-      const corners = (c) => ({ borderTopLeftRadius: c[0], borderTopRightRadius: c[1], borderBottomRightRadius: c[2], borderBottomLeftRadius: c[3] });
+      const axis = mob ? 'rotationX' : 'rotationY';
       let gapOn = false, flipOn = false;
+      /* پشت و روی کارت را خودمان نشان می‌دهیم یا پنهان می‌کنیم؛ روی بعضی کارت‌های گرافیک backface-visibility
+         برای لایه‌های متحرک داخل کارت کار نمی‌کند و پشت کارت از روی عکس پیدا می‌شد */
+      const cull = (c) => { c.classList.toggle('is-back', Math.abs(gsap.getProperty(c, axis)) > 90); };
+      cards.forEach(cull);
 
       this.ctx = gsap.context(() => {
+        /* فاصله و بادبزن هر کارت در یک transform جمع می‌شوند؛ عکس یکپارچه همان لحظه‌ی باز شدن کنار می‌رود
+           و موقع بسته شدن، بعد از جفت شدن دوباره‌ی کارت‌ها برمی‌گردد (CSS) */
+        const st = this.st = cards.map(() => ({ gx: 0, gy: 0, fx: 0, fy: 0, rz: 0 }));
+        const put = (i) => { const o = st[i]; gsap.set(cards[i], { x: o.gx + o.fx, y: o.gy + o.fy, rotationZ: o.rz }); };
+        const GAP = mob ? [[0, -12], [0, 0], [0, 12]] : [[22, 0], [0, 0], [-22, 0]];
         const setGap = (on) => {
           if (on === gapOn) return; gapOn = on;
-          gsap.to(deck, { gap: on ? (mob ? 12 : 20) : 0, duration: 0.7, ease: 'power3.out', overwrite: 'auto' });
-          cards.forEach((c, i) => gsap.to(c, { ...corners(on ? [R, R, R, R] : joined[i]), duration: 0.7, ease: 'power3.out', overwrite: 'auto' }));
+          deck.classList.toggle('is-open', on);
+          cards.forEach((c, i) => gsap.to(st[i], { gx: on ? GAP[i][0] : 0, gy: on ? GAP[i][1] : 0, duration: 0.9, ease: 'expo.out', overwrite: 'auto', onUpdate: () => put(i) }));
         };
         const setFlip = (on) => {
           if (on === flipOn) return; flipOn = on; this.flipped = on;
           deck.classList.toggle('is-flipped', on);
-          if (mob) {
-            gsap.to(cards, { rotationX: on ? -180 : 0, duration: 0.95, ease: 'power3.inOut', stagger: on ? 0.09 : -0.09, overwrite: 'auto' });
-            gsap.to([cards[0], cards[2]], { rotationZ: (i) => (on ? [-2, 2][i] : 0), x: (i) => (on ? [5, -5][i] : 0), duration: 0.95, ease: 'power3.inOut' });
-          } else {
-            gsap.to(cards, { rotationY: on ? 180 : 0, duration: 0.95, ease: 'power3.inOut', stagger: on ? 0.09 : -0.09, overwrite: 'auto' });
-            gsap.to([cards[0], cards[2]], { y: on ? 24 : 0, x: (i) => (on ? [26, -26][i] : 0), rotationZ: (i) => (on ? [8, -8][i] : 0), duration: 0.95, ease: 'power3.inOut' });
-          }
+          /* مثل نمونه: کارت‌ها یکی‌یکی و آرام برمی‌گردند */
+          const order = on ? cards : cards.slice().reverse();
+          order.forEach((c, k) => {
+            const i = cards.indexOf(c), side = i === 0 ? 0 : i === 2 ? 1 : -1;
+            const fan = !on || side < 0 ? { fx: 0, fy: 0, rz: 0 } : mob ? { fx: [5, -5][side], fy: 0, rz: [-2, 2][side] } : { fx: [26, -26][side], fy: 24, rz: [8, -8][side] };
+            gsap.to(c, { [axis]: on ? (mob ? -180 : 180) : 0, ...(mob ? {} : { rotationX: 0 }), duration: 1.05, ease: 'power3.inOut', delay: k * 0.17, overwrite: 'auto', onUpdate: () => cull(c), onComplete: () => cull(c) });
+            gsap.to(st[i], { ...fan, duration: 1.05, ease: 'power3.inOut', delay: k * 0.17, overwrite: 'auto', onUpdate: () => put(i) });
+          });
         };
         this.setGap = setGap; this.setFlip = setFlip;
 
+        const SKY = Aurora.SKY;
         const tl = gsap.timeline({
           defaults: { ease: 'none' },
           scrollTrigger: {
-            trigger: sec, start: 'top top', end: () => '+=' + window.innerHeight * (mob ? 1.9 : 2.2),
+            trigger: sec, start: 'top top', end: () => '+=' + window.innerHeight * (mob ? 2.4 : 3.2),
             pin: stage, scrub: 0.6, invalidateOnRefresh: true,
-            onUpdate: (self) => { setGap(self.progress >= 0.28); setFlip(self.progress >= 0.48); }
+            onUpdate: (self) => { setGap(self.progress >= 0.34); setFlip(self.progress >= 0.64); }
           }
         });
-        tl.fromTo(deck, { scale: mob ? 1.05 : 1.14, y: mob ? 14 : 50 }, { scale: 1, y: 0, duration: 0.26 }, 0)
-          .to({}, { duration: 0.74 }, 0.26);
+        /* اول یک عکس یکپارچه که آرام کوچک می‌شود تا در قاب بنشیند (مثل نمونه) */
+        tl.fromTo(deck, { scale: mob ? 1.06 : 1.16, y: mob ? 14 : 50 }, { scale: 1, y: 0, duration: 0.3 }, 0)
+          .to({}, { duration: 0.7 }, 0.3);
         /* آسمان بخش: آبی و بنفش ← بنفش و صورتی ← فیروزه‌ای و سبزآبی */
-        const sky = $$('.dsky__l', sec);
-        if (sky.length === 3) {
-          tl.to(sky[1], { opacity: 1, duration: 0.24 }, 0.24)
-            .to(sky[0], { opacity: 0.2, duration: 0.24 }, 0.3)
-            .to(sky[2], { opacity: 1, duration: 0.26 }, 0.6)
-            .to(sky[1], { opacity: 0.3, duration: 0.26 }, 0.66);
-        }
+        tl.fromTo(SKY, { a: 1, b: 0 }, { a: 0.2, b: 1, duration: 0.26 }, 0.3)
+          .fromTo(SKY, { c: 0 }, { c: 1, b: 0.3, duration: 0.26, immediateRender: false }, 0.62);
 
         /* تیتر بخش هنگام نزدیک شدن ظاهر می‌شود */
         gsap.fromTo(head.querySelectorAll('.kicker, .depts__title, .depts__sub, .link-arrow'), { autoAlpha: 0, y: 30 }, {
@@ -543,9 +597,12 @@
     kill() {
       if (this.ctx) { this.ctx.revert(); this.ctx = null; }
       const deck = $('#deck'), cards = $$('.pcard', deck);
-      gsap.killTweensOf([deck, ...cards]);
+      gsap.killTweensOf([deck, ...cards, ...(this.st || [])]);
+      this.st = null;
       gsap.set([deck, ...cards, ...$$('.depts__head .kicker, .depts__title, .depts__sub, .depts__head .link-arrow')], { clearProps: 'all' });
-      deck.classList.remove('is-flipped');
+      deck.classList.remove('is-flipped', 'is-open');
+      cards.forEach((c) => c.classList.remove('is-back'));
+      Object.assign(Aurora.SKY, { a: 1, b: 0, c: 0, hover: 0 });
       this.flipped = false; this.setGap = this.setFlip = null;
     },
     reveal() { if (this.setGap) { this.setGap(true); this.setFlip(true); } }
@@ -557,21 +614,24 @@
     const on = () => {
       if (!Depts.flipped) return;
       const r = c.getBoundingClientRect(), sr = deptsSec.getBoundingClientRect();
-      deptsSec.style.setProperty('--hx', `${((r.left + r.width / 2 - sr.left) / sr.width * 100).toFixed(1)}%`);
-      deptsSec.style.setProperty('--hc', getComputedStyle(c).getPropertyValue('--a1').trim());
-      deptsSec.classList.add('is-hover');
+      Aurora.SKY.hx = (r.left + r.width / 2 - sr.left) / sr.width;
+      Aurora.SKY.hc = getComputedStyle(c).getPropertyValue('--a1').trim().split(/\s+/).map(Number);
+      gsap.to(Aurora.SKY, { hover: 1, duration: 0.7, ease: 'power2.out', overwrite: 'auto' });
     };
+    const off = () => gsap.to(Aurora.SKY, { hover: 0, duration: 0.7, ease: 'power2.out', overwrite: 'auto' });
     c.addEventListener('pointerenter', on);
     c.addEventListener('focus', on);
-    c.addEventListener('pointerleave', () => deptsSec.classList.remove('is-hover'));
-    c.addEventListener('blur', () => deptsSec.classList.remove('is-hover'));
+    c.addEventListener('pointerleave', off);
+    c.addEventListener('blur', off);
   });
+
 
   /* ==========================================================================
      نمای بخش: از خود کارت باز می‌شود و به همان کارت برمی‌گردد
      ========================================================================== */
   const view = $('#svc');
   const vscroll = $('.svc__scroll', view);
+  vscroll.addEventListener('scroll', () => Aurora.hold(220), { passive: true });
   let current = null, opener = null;
 
   function fill(key) {
@@ -595,72 +655,100 @@
   const morph = document.createElement('div');
   morph.className = 'svc-morph'; morph.hidden = true; morph.setAttribute('aria-hidden', 'true');
   document.body.appendChild(morph);
-  Aurora.mount(morph);
-  Aurora.mount($('.svc__bg', view));
-  $$('.pcard__back').forEach((b) => Aurora.mount(b));
-  Aurora.watch($('#deck')); Aurora.watch($('#services'));
-  /* فوتر پرده‌ای همیشه زیر صفحه چسبیده است؛ پس دیده شدنش را از انتهای محتوا می‌فهمیم */
-  const endProbe = document.createElement('div');
-  endProbe.className = 'end-probe'; endProbe.setAttribute('aria-hidden', 'true');
-  $('main').appendChild(endProbe);
-  Aurora.watch($('.foot'), endProbe);
+  const svcBg = $('.svc__bg', view);
+  Aurora.mount(morph); Aurora.mount(svcBg);
+  Aurora.add(morph, { top: true }); Aurora.add(svcBg, { top: true });
+  /* گرادیان پشت هر کارت فقط وقتی کارت برگشته است زنده می‌ماند */
+  $$('.pcard').forEach((c) => {
+    const back = $('.pcard__back', c);
+    Aurora.mount(back);
+    Aurora.add(back, { probe: c, gate: () => c.classList.contains('is-back') || !root.classList.contains('motion') });
+  });
+  const dsky = $('.dsky'), fsky = $('.fsky');
+  if (dsky) Aurora.add(dsky, { canvas: $('.dsky__cv', dsky), paint: Aurora.paintSky, probe: $('#services') });
+  if (fsky) Aurora.add(fsky, { canvas: $('.fsky__cv', fsky), paint: Aurora.paintFoot, probe: $('.foot') });
+  /* حرکت ستاره‌ها و مدارها فقط وقتی بخش دیده می‌شود */
+  Aurora.watch($('#services')); Aurora.watch($('.foot'));
   const viewParts = () => [$('.svc__top', view), ...$('.svc__hero', view).children, $('.svc__main', view)];
   const isCard = (el) => !!(el && el.classList && el.classList.contains('pcard'));
-  /* قاب کارت بدون x/y/چرخش، به‌اضافه‌ی همان مقدارها */
-  const cardBox = (card) => {
-    const tf = { x: gsap.getProperty(card, 'x'), y: gsap.getProperty(card, 'y'), rotation: gsap.getProperty(card, 'rotationZ') };
+  /* هندسه‌ی دیداری کارت: مرکز، اندازه و چرخش (چرخش و جابه‌جایی GSAP به‌اضافه‌ی translate خود کارت) */
+  const cardGeo = (card) => {
+    const x = gsap.getProperty(card, 'x'), y = gsap.getProperty(card, 'y'), rot = gsap.getProperty(card, 'rotationZ');
     gsap.set(card, { x: 0, y: 0, rotationZ: 0 });
     const r = card.getBoundingClientRect();
-    gsap.set(card, { x: tf.x, y: tf.y, rotationZ: tf.rotation });
-    const cs = getComputedStyle(card);
-    return { left: r.left, top: r.top, width: r.width, height: r.height, ...tf, radius: parseFloat(cs.borderTopLeftRadius) || 6, origin: cs.transformOrigin };
+    gsap.set(card, { x, y, rotationZ: rot });
+    const cs = getComputedStyle(card), o = cs.transformOrigin.split(' ').map(parseFloat);
+    const w = r.width, h = r.height, dx = w / 2 - o[0], dy = h / 2 - o[1], t = rot * Math.PI / 180;
+    return {
+      cx: r.left + o[0] + x + dx * Math.cos(t) - dy * Math.sin(t),
+      cy: r.top + o[1] + y + dx * Math.sin(t) + dy * Math.cos(t),
+      w, h, rot, radius: parseFloat(cs.borderTopLeftRadius) || 6
+    };
   };
-  const onScreen = (b) => b && b.top + b.height > 0 && b.top < window.innerHeight && b.width > 0;
+  const rectGeo = (el) => { const r = el.getBoundingClientRect(); return { cx: r.left + r.width / 2, cy: r.top + r.height / 2, w: r.width, h: r.height, rot: 0, radius: 6 }; };
+  const onScreen = (g) => g && g.cy + g.h / 2 > 0 && g.cy - g.h / 2 < window.innerHeight && g.w > 0;
+  /* لایه‌ی تمام‌صفحه را روی قاب کارت می‌نشاند؛ گوشه‌ها با مقیاس جبران می‌شوند تا گرد بمانند */
+  const M = { p: 0, from: null };
+  const morphAt = (p) => {
+    const g = M.from, W = morph.offsetWidth || window.innerWidth, H = morph.offsetHeight || window.innerHeight;
+    const sx = gsap.utils.interpolate(g.w / W, 1, p), sy = gsap.utils.interpolate(g.h / H, 1, p);
+    const x = gsap.utils.interpolate(g.cx - W / 2, 0, p), y = gsap.utils.interpolate(g.cy - H / 2, 0, p);
+    const rad = g.radius * (1 - ease01(p / 0.3));
+    gsap.set(morph, { x, y, scaleX: sx, scaleY: sy, rotation: g.rot * (1 - p), borderRadius: rad > 0.05 ? `${rad / sx}px / ${rad / sy}px` : 0 });
+  };
+  const morphShow = (key, g, p) => {
+    morph.dataset.k = key; morph.hidden = false;
+    Aurora.refresh(morph); Aurora.now(morph);
+    M.from = g; M.p = p; morphAt(p);
+  };
   /* قفل اسکرول صفحه‌ی زیرین؛ اگر نوار اسکرول واقعی هست، جایش نگه داشته می‌شود تا صفحه تکان نخورد */
   const lockScroll = (on) => {
     const root = document.documentElement;
     if (on) { if (window.innerWidth - root.clientWidth > 0) root.style.scrollbarGutter = 'stable'; document.body.style.overflow = 'hidden'; }
     else { document.body.style.overflow = ''; root.style.scrollbarGutter = ''; }
   };
-  const fullBox = () => ({ left: 0, top: 0, width: window.innerWidth, height: window.innerHeight, x: 0, y: 0, rotation: 0, borderRadius: 0 });
+  const showView = () => {
+    view.hidden = false;
+    Aurora.refresh(svcBg); Aurora.now(svcBg);
+  };
+  /* وقتی صفحه‌ی بخش کل صفحه را پوشانده، صفحه‌ی زیرین نه رسم می‌شود نه ترکیب؛ پیمایش صفحه‌ی بخش سبک می‌ماند */
+  const cover = (on) => root.classList.toggle('svc-open', on);
 
   function openSvc(key, from, push = true) {
     if (!SVC[key]) return;
     current = key; opener = from || null;
     fill(key);
     vscroll.scrollTop = 0;
+    const card = isCard(from) ? from : null;
+    const g = Motion.on && from ? (card ? cardGeo(card) : rectGeo(from)) : null;
     lockScroll(true);
     Motion.pause();
     if (push) { try { history.pushState({ svc: key }, '', '#' + key); } catch (e) { /* محیط محدود */ } }
     const parts = viewParts();
-    gsap.killTweensOf([morph, view, ...parts]);
+    gsap.killTweensOf([morph, M, view, ...parts]);
 
-    if (!Motion.on || !from) {
-      view.hidden = false; morph.hidden = true;
+    if (!g) {
+      showView(); morph.hidden = true; cover(true);
       if (Motion.on) gsap.fromTo(view, { opacity: 0 }, { opacity: 1, duration: 0.45, ease: 'power1.out', clearProps: 'opacity' });
       setTimeout(() => $('#svcBack').focus({ preventScroll: true }), 50);
       return;
     }
 
-    const card = isCard(from) ? from : null;
-    let b;
-    if (card) b = cardBox(card);
-    else { const r = from.getBoundingClientRect(); b = { left: r.left, top: r.top, width: r.width, height: r.height, x: 0, y: 0, rotation: 0, radius: 6, origin: '50% 50%' }; }
-    morph.dataset.k = key; morph.hidden = false;
-    if (card) Aurora.sync(morph, $('.pcard__back', card));
-    gsap.set(morph, { left: b.left, top: b.top, width: b.width, height: b.height, x: b.x, y: b.y, rotation: b.rotation, borderRadius: b.radius, transformOrigin: b.origin, opacity: 0 });
+    Aurora.hold(1400);
+    morphShow(key, g, 0);
+    gsap.set(morph, { opacity: 0 });
+    const art = $$('.aur__art, .aur__sp svg', morph);
     gsap.timeline()
       /* متن پشت کارت آرام زیر گرادیان محو می‌شود، بعد قاب با شتاب نرم تا لبه‌های صفحه باز می‌شود */
-      .to(morph, { opacity: 1, duration: card ? 0.28 : 0.2, ease: 'power1.out' }, 0)
-      .to(morph, { ...fullBox(), duration: 1.05, ease: 'expo.inOut' }, card ? 0.08 : 0)
-      .fromTo($('.aur__art', morph), { opacity: 1 }, { opacity: 0.4, duration: 1.05, ease: 'power1.inOut' }, card ? 0.08 : 0)
-      .fromTo($('.aur', morph), { '--spo': 1 }, { '--spo': 0.4, duration: 1.05, ease: 'power1.inOut' }, card ? 0.08 : 0)
+      .to(morph, { opacity: 1, duration: card ? 0.26 : 0.18, ease: 'power1.out' }, 0)
+      .to(M, { p: 1, duration: 1, ease: 'expo.inOut', onUpdate: () => morphAt(M.p) }, card ? 0.08 : 0)
+      .fromTo(art, { opacity: 1 }, { opacity: 0.4, duration: 1, ease: 'power1.inOut' }, card ? 0.08 : 0)
       .add(() => {
-        view.hidden = false;
-        Aurora.sync($('.svc__bg', view), morph);
+        showView();
         gsap.set(parts, { opacity: 0, y: 24 });
-        morph.hidden = true;
         gsap.to(parts, { opacity: 1, y: 0, duration: 0.8, ease: 'expo.out', stagger: 0.06, clearProps: 'transform,opacity' });
+        /* لایه یک فریم بعد کنار می‌رود تا زمینه‌ی صفحه حتماً رسم شده باشد */
+        requestAnimationFrame(() => { if (current === key) { morph.hidden = true; gsap.set(art, { clearProps: 'opacity' }); cover(true); } });
         $('#svcBack').focus({ preventScroll: true });
       });
   }
@@ -669,34 +757,40 @@
     if (!current) return;
     const key = current; current = null;
     const card = $(`.pcard[data-svc="${key}"]`);
+    cover(false);
     const finish = () => {
       view.hidden = true; morph.hidden = true;
       gsap.set([view, ...viewParts()], { clearProps: 'opacity,transform' });
+      gsap.set($$('.aur__art, .aur__sp svg', morph), { clearProps: 'opacity' });
       lockScroll(false);
       Motion.resume();
       const back = opener && document.contains(opener) && opener.offsetParent !== null ? opener : card;
       if (back) back.focus({ preventScroll: true });
     };
     const parts = viewParts();
-    gsap.killTweensOf([morph, view, ...parts]);
+    gsap.killTweensOf([morph, M, view, ...parts]);
     if (!Motion.on) { finish(); return; }
 
-    const b = card ? cardBox(card) : null;
-    const target = onScreen(b) ? b : null;
+    const g = card ? cardGeo(card) : null;
+    const target = onScreen(g) ? g : null;
     gsap.timeline()
       .to(parts, { opacity: 0, y: 12, duration: 0.24, ease: 'power2.in', stagger: 0.015 })
       .add(() => {
         if (!target) { gsap.to(view, { opacity: 0, duration: 0.4, ease: 'power1.inOut', onComplete: finish }); return; }
         /* لایه دقیقاً جای زمینه‌ی صفحه را می‌گیرد (همان گرادیان در همان اندازه) و به قاب کارت برمی‌گردد */
-        morph.dataset.k = key; morph.hidden = false;
-        Aurora.sync(morph, $('.svc__bg', view));
-        gsap.set(morph, { ...fullBox(), transformOrigin: target.origin, opacity: 1 });
-        view.hidden = true;
-        gsap.timeline({ onComplete: finish })
-          .fromTo($('.aur__art', morph), { opacity: 0.4 }, { opacity: 1, duration: 1, ease: 'power1.inOut' }, 0)
-          .fromTo($('.aur', morph), { '--spo': 0.4 }, { '--spo': 1, duration: 1, ease: 'power1.inOut' }, 0)
-          .to(morph, { left: target.left, top: target.top, width: target.width, height: target.height, x: target.x, y: target.y, rotation: target.rotation, borderRadius: target.radius, duration: 1, ease: 'expo.inOut' })
-          .to(morph, { opacity: 0, duration: 0.35, ease: 'power1.inOut' }, '-=0.12');
+        const art = $$('.aur__art, .aur__sp svg', morph);
+        Aurora.hold(1300);
+        morphShow(key, target, 1);
+        gsap.set(morph, { opacity: 1 });
+        gsap.set(art, { opacity: 0.4 });
+        requestAnimationFrame(() => {
+          if (current) return;
+          view.hidden = true;
+          gsap.timeline({ onComplete: finish })
+            .to(art, { opacity: 1, duration: 1, ease: 'power1.inOut' }, 0)
+            .to(M, { p: 0, duration: 1, ease: 'expo.inOut', onUpdate: () => morphAt(M.p) }, 0)
+            .to(morph, { opacity: 0, duration: 0.32, ease: 'power1.inOut' }, 0.8);
+        });
       });
   }
 
@@ -914,6 +1008,21 @@
       Motion.rebuild();
     }, 220);
   });
+
+  /* عکس‌های بخش‌های پایین‌تر در زمان بیکاری از قبل رمزگشایی می‌شوند تا اولین نمایششان وسط اسکرول فریمی را نگیرد */
+  const idle = (fn) => (window.requestIdleCallback ? requestIdleCallback(fn, { timeout: 1200 }) : setTimeout(fn, 120));
+  const warm = () => {
+    const list = [...$$('#glance img, .jr-step__img img, .jr-frame__img img')];
+    ['img/team.webp'].forEach((src) => { const im = new Image(); im.src = src; list.unshift(im); });
+    let i = 0;
+    const next = () => {
+      const im = list[i++]; if (!im) return;
+      if (im.loading === 'lazy' && !im.complete) { idle(next); return; }
+      (im.decode ? im.decode() : Promise.resolve()).catch(() => {}).then(() => idle(next));
+    };
+    idle(next);
+  };
+  if (document.readyState === 'complete') warm(); else window.addEventListener('load', warm, { once: true });
 
   document.addEventListener('DOMContentLoaded', () => {
     brandIntro(intro);

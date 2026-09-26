@@ -18,14 +18,17 @@
     const prog = document.createElement('i');
     prog.className = 'bar__prog'; prog.setAttribute('aria-hidden', 'true');
     bar.appendChild(prog);
-    let ticking = false;
+    let ticking = false, max = 0;
+    /* ارتفاع صفحه فقط بعد از تغییر اندازه یا اندازه‌گیری دوباره خوانده می‌شود، نه در هر فریم اسکرول */
+    const measure = () => { max = document.documentElement.scrollHeight - window.innerHeight; };
     const paint = () => {
       ticking = false;
-      const max = document.documentElement.scrollHeight - window.innerHeight;
       prog.style.transform = `scaleX(${max > 0 ? Math.min(1, window.scrollY / max).toFixed(4) : 0})`;
     };
     window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(paint); } }, { passive: true });
-    paint();
+    window.addEventListener('resize', measure);
+    if (window.ScrollTrigger) ScrollTrigger.addEventListener('refresh', () => { measure(); paint(); });
+    measure(); paint();
   }
 
   /* ---------- نور دنبال‌کننده‌ی نشانگر و لبه‌ی روشن روی کارت‌ها ---------- */
@@ -130,6 +133,7 @@
     },
     kill() {
       if (this.io) { this.io.disconnect(); this.io = null; }
+      (this.tws || []).forEach((t) => t.kill()); this.tws = [];
       (this.items || []).forEach((el) => {
         gsap.killTweensOf($$('.wi', el));
         gsap.set($$('.wi', el), { clearProps: 'transform' });
@@ -204,42 +208,89 @@
     gsap.set(pv, { scale: 0.85, transformOrigin: '50% 60%' });
   }
 
-  /* ---------- نمونه‌ی درمان‌ها (مدل ۵۳): هر عکس در شبکه‌ی ۳×۳ کاشی‌به‌کاشی، از گوشه‌ی بالا-راست باز می‌شود ---------- */
-  const CELL = (c, r, g) => `polygon(${c}% ${r}%, ${c + g}% ${r}%, ${c + g}% ${r + g}%, ${c}% ${r + g}%)`;
+  /* ---------- نمونه‌ی درمان‌ها (مدل ۵۳): هر عکس در شبکه‌ی ۳×۳ کاشی‌به‌کاشی، از گوشه‌ی بالا-راست باز می‌شود ----------
+     همه‌ی کاشی‌ها روی یک بوم رسم می‌شوند (نه ۹ لایه‌ی جدا)، و پخش فقط وقتی شروع می‌شود که عکس کامل رسیده و رمزگشایی شده باشد */
+  const easeOut3 = (x) => 1 - Math.pow(1 - x, 3);
+  const TILES = [];
+  for (let r = 0; r < 3; r++) for (let c = 2; c >= 0; c--) TILES.push({ r, c, d: (2 - c) + r });
+  TILES.forEach((t) => { t.k = TILES.filter((u) => u.d === t.d).indexOf(t); });
+  const TILE_DUR = 0.6;
+  const ready = (img) => {
+    if (img.loading === 'lazy') img.loading = 'eager';
+    const loaded = img.complete && img.naturalWidth ? Promise.resolve() : new Promise((res) => { img.addEventListener('load', res, { once: true }); img.addEventListener('error', res, { once: true }); });
+    return loaded.then(() => (img.decode ? img.decode().catch(() => {}) : null));
+  };
   const Cases = {
     build() {
       const sec = $('#cases');
       if (!sec || !window.ScrollTrigger) return;
       const toFa = S.toFa;
+      const imgs = $$('.cs__img img', sec);
+      this.tws = [];
+      /* عکس‌ها کمی زودتر از رسیدن به بخش بارگیری و رمزگشایی می‌شوند */
+      if ('IntersectionObserver' in window) {
+        this.io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { imgs.forEach(ready); this.io.disconnect(); } }, { rootMargin: '150% 0px' });
+        this.io.observe(sec);
+      } else imgs.forEach(ready);
       this.ctx = gsap.context(() => {
         $$('.cs', sec).forEach((cs) => {
           const media = $('.cs__media', cs);
-          const figs = $$('.cs__img', cs);
-          const tl = gsap.timeline({ paused: true });
-          figs.forEach((fig, fi) => {
+          /* نمونه‌ای که یک بار باز شده، بعد از ساخت دوباره (مثلاً تغییر اندازه‌ی پنجره) دیگر پنهان نمی‌شود */
+          const shown = cs.dataset.shown === '1';
+          const figs = shown ? [] : $$('.cs__img', cs).map((fig, fi) => {
             const img = $('img', fig);
-            const src = img.currentSrc || img.getAttribute('src');
-            const masks = [];
-            for (let r = 0; r < 3; r++) {
-              for (let c = 2; c >= 0; c--) {
-                const m = document.createElement('span');
-                m.className = 'mk'; m.setAttribute('aria-hidden', 'true');
-                m.style.backgroundImage = `url("${src}")`;
-                const cx = c * 33.333, cy = r * 33.333;
-                m.style.clipPath = CELL(cx + 16.66, cy + 16.66, 0);
-                m.dataset.d = String((2 - c) + r);
-                m._to = CELL(cx - 0.2, cy - 0.2, 33.8);
-                fig.appendChild(m); masks.push(m);
-              }
-            }
+            const cv = document.createElement('canvas');
+            cv.className = 'cs__cv'; cv.setAttribute('aria-hidden', 'true');
+            fig.appendChild(cv);
             gsap.set(img, { opacity: 0 });
-            for (let d = 0; d <= 4; d++) {
-              const group = masks.filter((m) => +m.dataset.d === d);
-              tl.to(group, { clipPath: (i, el) => el._to, duration: 0.6, ease: 'power3.out', stagger: 0.07 }, fi * 0.22 + d * 0.11);
-            }
-            tl.add(() => { gsap.set(img, { opacity: 1 }); masks.forEach((m) => m.remove()); }, '>');
+            return { fig, img, cv, ctx: cv.getContext('2d'), fi, w: 0, h: 0 };
           });
-          ScrollTrigger.create({ trigger: media, start: 'top 78%', once: true, onEnter: () => tl.play() });
+          const size = (F) => {
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            F.w = F.fig.clientWidth; F.h = F.fig.clientHeight;
+            F.cv.width = Math.round(F.w * dpr); F.cv.height = Math.round(F.h * dpr);
+            F.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            F.ctx.imageSmoothingQuality = 'high';
+          };
+          /* هر کاشی مربعی است که از مرکز خانه‌اش بزرگ می‌شود و همان تکه‌ی عکس (با برش cover) را نشان می‌دهد */
+          const draw = (F, t) => {
+            const { ctx, img, w, h } = F, iw = img.naturalWidth, ih = img.naturalHeight;
+            if (!iw || !w) return;
+            ctx.clearRect(0, 0, w, h);
+            const sc = Math.max(w / iw, h / ih), ox = (w - iw * sc) / 2, oy = (h - ih * sc) / 2;
+            TILES.forEach((T) => {
+              const p = easeOut3(Math.min(1, Math.max(0, (t - (F.fi * 0.22 + T.d * 0.11 + T.k * 0.07)) / TILE_DUR)));
+              if (p <= 0) return;
+              const hw = (w / 6) * p * 1.08, hh = (h / 6) * p * 1.08;
+              const cx = (T.c + 0.5) * w / 3, cy = (T.r + 0.5) * h / 3;
+              const x0 = Math.max(0, cx - hw), y0 = Math.max(0, cy - hh), x1 = Math.min(w, cx + hw), y1 = Math.min(h, cy + hh);
+              ctx.drawImage(img, (x0 - ox) / sc, (y0 - oy) / sc, (x1 - x0) / sc, (y1 - y0) / sc, x0, y0, x1 - x0, y1 - y0);
+            });
+          };
+          const total = (figs.length - 1) * 0.22 + 4 * 0.11 + 2 * 0.07 + TILE_DUR;
+          const clock = { t: 0 };
+          let played = false;
+          const play = () => {
+            if (played) return; played = true;
+            /* تا عکس‌ها آماده نشده‌اند شروع نمی‌کنیم (حداکثر ۱٫۵ ثانیه صبر) */
+            const wait = Promise.race([Promise.all(figs.map((F) => ready(F.img))), new Promise((r) => setTimeout(r, 1500))]);
+            wait.then(() => {
+              if (!this.ctx) return;
+              figs.forEach(size);
+              this.tws.push(gsap.to(clock, {
+                t: total, duration: total, ease: 'none',
+                onUpdate: () => figs.forEach((F) => draw(F, clock.t)),
+                onComplete: () => { cs.dataset.shown = '1'; figs.forEach((F) => { gsap.set(F.img, { opacity: 1 }); F.cv.remove(); }); }
+              }));
+            });
+          };
+          if (!shown) {
+            ScrollTrigger.create({
+              trigger: media, start: 'top 78%', once: true, onEnter: play,
+              /* اگر صفحه از قبل از این نقطه گذشته باشد (بازسازی وسط صفحه)، همان لحظه پخش می‌شود */
+              onRefresh: (self) => { if (self.scroll() > self.start) play(); }
+            });
+          }
           /* عکس کوچک کمی کندتر از صفحه حرکت می‌کند */
           const b = $('.cs__img--b', cs);
           if (b) gsap.fromTo(b, { yPercent: 14 }, { yPercent: -10, ease: 'none', scrollTrigger: { trigger: cs, start: 'top bottom', end: 'bottom top', scrub: true } });
@@ -256,8 +307,12 @@
       });
     },
     kill() {
+      if (this.io) { this.io.disconnect(); this.io = null; }
+      (this.tws || []).forEach((t) => t.kill()); this.tws = [];
+      const had = !!this.ctx;
       if (this.ctx) { this.ctx.revert(); this.ctx = null; }
-      $$('#cases .mk').forEach((m) => m.remove());
+      if (!had) return;
+      $$('#cases .cs__cv').forEach((c) => c.remove());
       $$('#cases .cs__img img, #cases .cs__img--b').forEach((el) => gsap.set(el, { clearProps: 'opacity,transform' }));
       $$('#cases .cs__stats b[data-count]').forEach((n) => { n.textContent = S.toFa(n.dataset.count).replace('.', '٫'); });
     }

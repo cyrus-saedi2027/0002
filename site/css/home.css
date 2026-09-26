@@ -64,7 +64,8 @@ html.intro [data-intro] { opacity: 0; }
 
 /* حالت متحرک: یک صحنه‌ی پین‌شده؛ عکس هیرو در قاب «درباره‌ی ما» جمع می‌شود */
 html.motion .stage__pin { height: 100svh; min-height: 640px; overflow: hidden; }
-html.motion .stage__media { height: 100%; will-change: clip-path; }
+html.motion .stage__media { height: 100%; background: none; transform-origin: 0 0; will-change: transform; }
+html.motion .stage__img, html.motion .stage__shade { transform-origin: 0 0; will-change: transform; }
 html.motion .hero { position: absolute; inset: 0; height: auto; z-index: 2; }
 html.motion .about { position: absolute; inset: 0; padding: calc(var(--bar-gap) + var(--bar-h) + clamp(24px, 5vh, 56px)) 0 clamp(28px, 6vh, 64px); display: flex; z-index: 1; pointer-events: none; }
 html.motion .about.is-on { pointer-events: auto; }
@@ -129,6 +130,12 @@ html.motion .reel__row.is-open .reel__item--m,
 html.motion .reel__row.is-open .reel__item--l { height: var(--u); }
 html.motion .reel__row.is-open .reel__item--center { width: 100%; height: 100%; aspect-ratio: auto; border-radius: 0; }
 html.motion .reel__row.is-open .reel__cap { bottom: 0; opacity: 1; }
+/* حالت حرکتی: عکس وسط از اول به اندازه‌ی حالت باز است و فقط با clip و بزرگ‌نمایی باز می‌شود */
+html.motion .reel__row.is-fx .reel__item--center { position: static; }
+html.motion .reel__row.is-fx .reel__inner { position: absolute; inset: auto; left: var(--ox); top: var(--oy); width: var(--ow); height: var(--oh); z-index: 3; overflow: hidden; transform-origin: 0 0; will-change: transform; }
+html.motion .reel__row.is-fx .reel__inner img, html.motion .reel__row.is-fx .reel__shade { transform-origin: 0 0; will-change: transform; }
+html.motion .reel__row.is-fx .reel__cap { bottom: 0; z-index: 5; opacity: 1; }
+html.motion .reel__row.is-fx .reel__item:not(.reel__item--center) { will-change: transform; }
 
 /* ==========================================================================
    سه بخش اصلی
@@ -139,21 +146,11 @@ html.motion .reel__row.is-open .reel__cap { bottom: 0; opacity: 1; }
 .depts__stage { position: relative; }
 .depts__stage > :not(.dsky) { position: relative; z-index: 1; }
 .dsky { position: absolute; inset: 0; z-index: 0; overflow: hidden; background: #070A1E; pointer-events: none; }
-.dsky__l, .dsky__h { position: absolute; inset: -18%; display: block; will-change: opacity, transform; }
-.dsky__l--1 { background: radial-gradient(38% 44% at 80% 20%, rgba(30, 68, 242, .6), rgba(30, 68, 242, 0) 70%), radial-gradient(36% 42% at 18% 82%, rgba(110, 18, 210, .5), rgba(110, 18, 210, 0) 70%); animation: dskyA 26s ease-in-out infinite alternate; }
-.dsky__l--2 { opacity: 0; background: radial-gradient(38% 44% at 74% 24%, rgba(123, 97, 255, .55), rgba(123, 97, 255, 0) 70%), radial-gradient(40% 44% at 22% 78%, rgba(232, 67, 111, .46), rgba(232, 67, 111, 0) 70%), radial-gradient(28% 30% at 50% 56%, rgba(203, 141, 255, .2), rgba(203, 141, 255, 0) 70%); animation: dskyB 30s ease-in-out infinite alternate; }
-.dsky__l--3 { opacity: 0; background: radial-gradient(38% 44% at 84% 18%, rgba(45, 212, 240, .42), rgba(45, 212, 240, 0) 70%), radial-gradient(40% 44% at 14% 84%, rgba(18, 170, 140, .5), rgba(18, 170, 140, 0) 70%), radial-gradient(30% 30% at 46% 50%, rgba(30, 68, 242, .22), rgba(30, 68, 242, 0) 70%); animation: dskyA 22s ease-in-out -8s infinite alternate-reverse; }
-.dsky__h { opacity: 0; transition: opacity .7s var(--ease-out); background: radial-gradient(26% 34% at var(--hx, 50%) 62%, rgb(var(--hc, 30 68 242) / .5), rgb(var(--hc, 30 68 242) / 0) 70%); }
-.depts.is-hover .dsky__h { opacity: 1; }
-@keyframes dskyA { from { transform: translate(0, 0) scale(1); } to { transform: translate(-4%, 3%) scale(1.08); } }
-@keyframes dskyB { from { transform: translate(0, 0) rotate(0deg); } to { transform: translate(3%, -3%) rotate(4deg); } }
+.dsky__cv { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
 .dsky__orbits { position: absolute; inset: 0; width: 100%; height: 100%; fill: none; stroke: #fff; }
 .dsky__orbits .o { stroke-opacity: .07; stroke-width: 1; }
 .dsky__orbits .o2 { stroke-opacity: .045; }
-.dsky__orbits .c { stroke-opacity: .5; stroke-width: 1.6; stroke-linecap: round; stroke-dasharray: 3 97; animation: aurOrbit 26s linear infinite; }
-.dsky__orbits .c2 { animation-duration: 34s; animation-direction: reverse; stroke-opacity: .35; }
 .dsky__grain { position: absolute; inset: 0; background-image: var(--grain, none); background-size: 180px 180px; opacity: .05; }
-html.rm .dsky__l, html.rm .dsky__orbits .c { animation: none; }
 .depts__stage { display: flex; flex-direction: column; align-items: center; gap: clamp(28px, 5vh, 48px); padding-block: clamp(72px, 11vh, 120px); }
 .depts__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px 48px; flex-wrap: wrap; }
 .depts__headtext { max-width: 720px; }
@@ -192,20 +189,37 @@ html.rm .dsky__l, html.rm .dsky__orbits .c { animation: none; }
 html.motion .depts__stage { height: 100svh; min-height: 600px; padding: calc(var(--bar-gap) + var(--bar-h) + clamp(16px, 3.5vh, 40px)) 0 clamp(20px, 4vh, 44px); justify-content: center; justify-content: safe center; overflow: hidden; gap: clamp(20px, 4vh, 40px); }
 html.motion .deck {
   --dw: min(62vw, calc((100svh - var(--chrome, 400px)) * 15 / 7), 1100px);
-  width: var(--dw); max-width: none; padding: 0;
+  position: relative; width: var(--dw); max-width: none; padding: 0;
   display: flex; gap: 0; perspective: 1500px;
 }
-html.motion .pcard { flex: 1 1 0; min-height: 0; aspect-ratio: 5 / 7; transform-style: preserve-3d; transform-origin: 50% 0; border-radius: 0; transition: translate .6s var(--spring), scale .5s var(--spring); }
-html.motion .pcard:nth-child(1) { border-radius: 0 var(--r2) var(--r2) 0; }
+/* فاصله‌ی کارت‌ها با transform باز می‌شود (در JS)، نه با تغییر اندازه؛ پس هیچ فریمی چیدمان را دوباره حساب نمی‌کند */
+html.motion .pcard {
+  flex: 1 1 0; min-height: 0; aspect-ratio: 5 / 7; transform-style: preserve-3d; transform-origin: 50% 0; border-radius: var(--r2);
+  transition: border-radius .5s var(--ease-out);
+}
+html.motion .pcard__face { transition: translate .6s var(--spring); }
+html.motion .deck:not(.is-open) .pcard:nth-child(1) { border-radius: 0 var(--r2) var(--r2) 0; }
+html.motion .deck:not(.is-open) .pcard:nth-child(2) { border-radius: 0; }
+html.motion .deck:not(.is-open) .pcard:nth-child(3) { border-radius: var(--r2) 0 0 var(--r2); }
 html.motion .pcard:nth-child(2) { z-index: 2; }
-html.motion .pcard:nth-child(3) { border-radius: var(--r2) 0 0 var(--r2); }
+/* تا فاصله باز نشده، یک عکس یکپارچه روی سه کارت است تا هیچ درزی دیده نشود (مثل نمونه) */
+.deck__whole { display: none; }
+html.motion .deck__whole {
+  display: block; position: absolute; inset: 0; z-index: 5; pointer-events: none; border-radius: var(--r2);
+  background: #0E2343 url("../img/team.webp") 50% 50% / auto 100% no-repeat;
+  transition: visibility 0s linear .9s;
+}
+html.motion .deck.is-open .deck__whole { visibility: hidden; transition: none; }
+/* پشت و روی کارت را خودمان نشان می‌دهیم (کلاس is-back)؛ به backface-visibility به‌تنهایی اعتماد نمی‌کنیم */
+html.motion .pcard:not(.is-back) .pcard__back { visibility: hidden; }
+html.motion .pcard.is-back .pcard__front { visibility: hidden; }
 html.motion .pcard__face { -webkit-backface-visibility: hidden; backface-visibility: hidden; }
 html.motion .pcard__front { display: block; background-size: auto 100%; }
 html.motion .pcard:nth-child(1) .pcard__front { background-position: 96% 50%; }
 html.motion .pcard:nth-child(2) .pcard__front { background-position: 50% 50%; }
 html.motion .pcard:nth-child(3) .pcard__front { background-position: 4% 50%; }
 html.motion .pcard__back { transform: rotateY(180deg); container-type: size; }
-html.motion .deck.is-flipped .pcard:hover { translate: 0 -10px; }
+html.motion .deck.is-flipped .pcard:hover .pcard__face { translate: 0 -10px; }
 @container (max-height: 380px) { .pcard__list i:nth-child(n+4) { display: none; } }
 @container (max-height: 340px) { .pcard__desc { display: none; } }
 @container (max-height: 270px) { .pcard__list { display: none; } .pcard__meta { display: none; } }
@@ -253,11 +267,11 @@ html.motion .deck.is-flipped .pcard:hover { translate: 0 -10px; }
 
 /* آسمان روشن مسیر درمان: لایه‌ی چسبان تمام‌صفحه با چهار رنگ ملایم */
 .jsky { position: sticky; top: 0; height: 100svh; margin-bottom: -100svh; z-index: -1; overflow: hidden; pointer-events: none; }
-.jsky__l { position: absolute; inset: -10%; display: block; }
-.jsky__l--1 { background: radial-gradient(40% 46% at 82% 22%, rgba(30, 68, 242, .13), rgba(30, 68, 242, 0) 70%), radial-gradient(40% 44% at 12% 80%, rgba(157, 217, 238, .42), rgba(157, 217, 238, 0) 70%); }
-.jsky__l--2 { opacity: 0; background: radial-gradient(40% 46% at 80% 26%, rgba(45, 212, 240, .2), rgba(45, 212, 240, 0) 70%), radial-gradient(40% 44% at 14% 78%, rgba(85, 216, 191, .24), rgba(85, 216, 191, 0) 70%); }
-.jsky__l--3 { opacity: 0; background: radial-gradient(40% 46% at 78% 24%, rgba(123, 97, 255, .16), rgba(123, 97, 255, 0) 70%), radial-gradient(40% 44% at 16% 80%, rgba(165, 175, 255, .3), rgba(165, 175, 255, 0) 70%); }
-.jsky__l--4 { opacity: 0; background: radial-gradient(40% 46% at 82% 22%, rgba(232, 67, 111, .12), rgba(232, 67, 111, 0) 70%), radial-gradient(40% 44% at 12% 82%, rgba(255, 116, 70, .14), rgba(255, 116, 70, 0) 70%); }
+.jsky__l { position: absolute; inset: 0; display: block; will-change: opacity; }
+.jsky__l--1 { background: radial-gradient(40% 46% at 82% 22%, rgba(30, 68, 242, .13), rgba(30, 68, 242, 0) 70%), radial-gradient(40% 44% at 12% 80%, rgba(157, 217, 238, .42), rgba(157, 217, 238, 0) 70%), #F3F6FA; }
+.jsky__l--2 { opacity: 0; background: radial-gradient(40% 46% at 80% 26%, rgba(45, 212, 240, .2), rgba(45, 212, 240, 0) 70%), radial-gradient(40% 44% at 14% 78%, rgba(85, 216, 191, .24), rgba(85, 216, 191, 0) 70%), #EDF5F3; }
+.jsky__l--3 { opacity: 0; background: radial-gradient(40% 46% at 78% 24%, rgba(123, 97, 255, .16), rgba(123, 97, 255, 0) 70%), radial-gradient(40% 44% at 16% 80%, rgba(165, 175, 255, .3), rgba(165, 175, 255, 0) 70%), #F1F0FB; }
+.jsky__l--4 { opacity: 0; background: radial-gradient(40% 46% at 82% 22%, rgba(232, 67, 111, .12), rgba(232, 67, 111, 0) 70%), radial-gradient(40% 44% at 12% 82%, rgba(255, 116, 70, .14), rgba(255, 116, 70, 0) 70%), #FBF1F4; }
 html.hc .jsky { display: none; }
 /* کاشی‌های «در یک نگاه»: عکس آرام نزدیک می‌شود و برچسب بالا می‌آید */
 .tile img { transition: transform 1.1s var(--ease-out); }
@@ -282,7 +296,7 @@ html.hc .jsky { display: none; }
 .cs__img--b { position: absolute; bottom: 0; inset-inline-start: 0; width: 36%; aspect-ratio: 1; border: 6px solid #fff; border-radius: 14px; box-shadow: 0 24px 50px -24px rgba(13, 27, 48, .45); }
 .cs:nth-child(even) .cs__img--a { margin-inline: 0 auto; }
 .cs:nth-child(even) .cs__img--b { inset-inline: auto 0; }
-.cs:nth-child(even) .cs__img .mk { position: absolute; inset: 0; background-position: center; background-size: cover; background-repeat: no-repeat; will-change: clip-path; }
+.cs__cv { position: absolute; inset: 0; display: block; width: 100%; height: 100%; pointer-events: none; }
 .cs__tag { display: inline-flex; padding: 2px 10px; border-radius: var(--r1); font-family: var(--f-ui); font-size: .75rem; font-weight: 600; line-height: 1.8; }
 .cs[data-k="dental"] .cs__tag { background: #E7F2FC; color: #0D4F97; }
 .cs[data-k="beauty"] .cs__tag { background: #FBEAF0; color: #8C2452; }
@@ -514,13 +528,18 @@ html.motion .vmap__pulse { animation: vpulse 2.4s var(--ease-out) infinite; }
    نمای هر بخش
    ========================================================================== */
 .svc { position: fixed; inset: 0; z-index: 100; }
+html.svc-open main, html.svc-open .hdr, html.svc-open .foot { visibility: hidden; }
+html.svc-open main *, html.svc-open .foot * { animation-play-state: paused !important; }
 .svc[data-k="dental"], .svc-morph[data-k="dental"], .pcard--dental { --a0: 6 12 46; --a0h: 14 30 104; --a1: 30 68 242; --a2: 45 212 240; --a3: 123 97 255; --a4: 165 175 255; --tone: #1E44F2; }
 .svc[data-k="beauty"], .svc-morph[data-k="beauty"], .pcard--beauty { --a0: 34 7 44; --a0h: 88 16 78; --a1: 232 67 111; --a2: 203 141 255; --a3: 116 25 214; --a4: 255 116 70; --tone: #C2315D; }
 .svc[data-k="medicine"], .svc-morph[data-k="medicine"], .pcard--med { --a0: 3 30 30; --a0h: 8 74 70; --a1: 18 170 140; --a2: 85 216 191; --a3: 30 68 242; --a4: 167 243 228; --tone: #0E8C73; }
-.svc-morph { position: fixed; z-index: 101; left: 0; top: 0; width: 0; height: 0; overflow: hidden; border-radius: var(--r2); background: var(--aur-fallback); transform-origin: 50% 0; pointer-events: none; will-change: left, top, width, height, transform; }
+/* لایه‌ی انتقال همیشه اندازه‌ی کل صفحه است و فقط با transform کوچک و بزرگ می‌شود */
+.svc-morph { position: fixed; z-index: 101; inset: 0; overflow: hidden; background: rgb(var(--a0)); transform-origin: 50% 50%; pointer-events: none; will-change: transform, opacity; contain: strict; }
+.svc-morph .aur { background: none; border-radius: 0; }
+.svc-morph .aur__cv, .svc__bg .aur__cv, .dsky__cv, .fsky__cv { will-change: transform; }
 .svc__bg { position: absolute; inset: 0; overflow: hidden; background: var(--aur-fallback); }
 .svc__bg .aur__art { opacity: .4; }
-.svc__bg .aur { --spo: .4; }
+.svc__bg .aur__sp svg { opacity: .4; }
 .svc__main { background: var(--mist); min-height: 60vh; }
 .svc__scroll { position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; }
 .svc__main { flex: 1; }
@@ -623,20 +642,23 @@ html.motion .vmap__pulse { animation: vpulse 2.4s var(--ease-out) infinite; }
     flex-direction: column; width: var(--dw);
   }
   html.motion .pcard { flex: none; aspect-ratio: auto; height: var(--sh); transform-origin: 50% 50%; }
-  html.motion .pcard:nth-child(1) { border-radius: var(--r2) var(--r2) 0 0; }
-  html.motion .pcard:nth-child(3) { border-radius: 0 0 var(--r2) var(--r2); }
+  html.motion .deck:not(.is-open) .pcard:nth-child(1) { border-radius: var(--r2) var(--r2) 0 0; }
+  html.motion .deck:not(.is-open) .pcard:nth-child(3) { border-radius: 0 0 var(--r2) var(--r2); }
   html.motion .pcard__front { background-size: auto 300%; }
   html.motion .pcard:nth-child(1) .pcard__front { background-position: 50% 0%; }
   html.motion .pcard:nth-child(2) .pcard__front { background-position: 50% 50%; }
   html.motion .pcard:nth-child(3) .pcard__front { background-position: 50% 100%; }
   html.motion .pcard__back { position: absolute; transform: rotateX(180deg); display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-rows: auto 1fr; column-gap: 14px; row-gap: 2px; align-items: center; padding: 14px 16px; }
-  html.motion .deck.is-flipped .pcard:hover { translate: none; }
+  html.motion .deck.is-flipped .pcard:hover .pcard__face { translate: none; }
   html.motion .pcard__top { grid-column: 1; grid-row: 1 / 3; }
   html.motion .pcard__meta, html.motion .pcard__list, html.motion .pcard__slot { display: none; }
   html.motion .pcard__title { grid-column: 2; grid-row: 1; margin: 0; align-self: end; font-size: 1.25rem; }
   html.motion .pcard__desc { grid-column: 2; grid-row: 2; align-self: start; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; font-size: .875rem; line-height: 1.7; }
   html.motion .pcard__foot { grid-column: 3; grid-row: 1 / 3; border: 0; padding: 0; }
   html.motion .pcard__mark { width: 46%; left: -6%; bottom: -30%; }
+  /* کارت‌های کوتاه موبایل: ستاره‌ها از روی تیتر کنار می‌روند */
+  .pcard .aur__sp--2, .pcard .aur__sp--3 { display: none; }
+  .pcard .aur__sp--1 { right: auto; left: 7%; top: 9%; width: 14px; }
   html.motion .depts__head { gap: 12px; }
   html.motion .depts__sub, html.motion .depts__head .link-arrow { display: none; }
   html.motion .depts__title { font-size: clamp(1.45rem, 1.05rem + 2.4vw, 1.9rem); }
@@ -647,7 +669,7 @@ html.motion .vmap__pulse { animation: vpulse 2.4s var(--ease-out) infinite; }
   /* موبایل: عکس اتاق درمان بالای صفحه می‌ماند و متن زیرش روی زمینه‌ی روشن */
   html.motion .reel__row.is-open .reel__item--center { height: 56%; align-self: flex-start; }
   html.motion .reel__cap { padding: 18px var(--gutter) 22px; color: var(--ink); }
-  html.motion .reel__row.is-open .reel__cap { bottom: 0; height: 44%; display: flex; flex-direction: column; justify-content: center; }
+  html.motion .reel__row.is-open .reel__cap, html.motion .reel__row.is-fx .reel__cap { bottom: 0; height: 44%; display: flex; flex-direction: column; justify-content: center; }
   html.motion .reel__cap .kicker--light { color: var(--blue); }
   html.motion .reel__cap .reel__text { color: var(--ink-2); font-size: .9375rem; line-height: 1.85; }
   html.motion .reel__cap .link-arrow--light { color: var(--blue); text-decoration-color: rgba(30, 94, 235, .35); }

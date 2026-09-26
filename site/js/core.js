@@ -48,7 +48,29 @@
   const hasGsap = !!(window.gsap && window.ScrollTrigger);
   if (hasGsap) {
     gsap.registerPlugin(ScrollTrigger);
-    ScrollTrigger.config({ ignoreMobileResize: true });
+    /* بعد از load و رسیدن فونت‌ها خودمان تصمیم می‌گیریم؛ اندازه‌گیری دوباره‌ی کل صفحه وسط اسکرول همان «ایست و پرش» است */
+    ScrollTrigger.config({ ignoreMobileResize: true, autoRefreshEvents: 'visibilitychange,DOMContentLoaded,resize' });
+  }
+
+  /* اسکرول نرم با فنر بحرانی: حرکت آرام شروع می‌شود، وسط روان است و آرام می‌نشیند (منحنی S)؛
+     سرعت و مقدار اسکرول همان مقدار عادی است و هیچ برگشت و لرزشی ندارد */
+  const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+  function springify(lenis) {
+    const A = lenis && lenis.animate;
+    if (!A || typeof A.advance !== 'function') return;
+    const base = A.advance.bind(A);
+    const W = 9.5, K = W * W, C = 2 * W;
+    let v = 0;
+    A.advance = function (dt) {
+      if (!this.isRunning) { v = 0; return; }
+      if (this.duration || !this.lerp) { v = 0; base(dt); return; }
+      dt = Math.min(dt, 0.064);
+      const n = Math.max(1, Math.ceil(dt / 0.004)), h = dt / n;
+      for (let i = 0; i < n; i++) { v += (K * (this.to - this.value) - C * v) * h; this.value += v * h; }
+      let done = false;
+      if (Math.abs(this.to - this.value) < 0.4 && Math.abs(v) < 6) { this.value = this.to; v = 0; done = true; this.stop(); }
+      if (this.onUpdate) this.onUpdate(this.value, done);
+    };
   }
 
   const Motion = {
@@ -63,7 +85,9 @@
       root.classList.add('motion');
       if (window.Lenis) {
         this.lenis = new Lenis({ lerp: 0.1, smoothWheel: true, wheelMultiplier: 1 });
+        springify(this.lenis);
         this.lenis.on('scroll', ScrollTrigger.update);
+        this.lenis.on('scroll', () => Aurora.hold(220));
         this._raf = (t) => this.lenis && this.lenis.raf(t * 1000);
         gsap.ticker.add(this._raf);
         gsap.ticker.lagSmoothing(0);
@@ -88,7 +112,7 @@
       if (this.lenis) this.lenis.scrollTo(y, { immediate: true, force: true });
     },
     scrollTo(target, offset = 0) {
-      if (this.lenis) this.lenis.scrollTo(target, { offset, duration: 1.4, easing: (t) => 1 - Math.pow(1 - t, 4) });
+      if (this.lenis) this.lenis.scrollTo(target, { offset, duration: 1.5, easing: easeInOut });
       else {
         const el = typeof target === 'string' ? $(target) : target;
         const y = (typeof target === 'number') ? target : el.getBoundingClientRect().top + window.scrollY + offset;
@@ -385,25 +409,133 @@
   } catch (e) { /* بدون دانه هم درست دیده می‌شود */ }
 
   const STAR = '<svg viewBox="1322 -1 290 334"><use href="#lgp-star-l"/></svg>';
-  const AUR = '<span class="aur" aria-hidden="true">'
-    + '<i class="aur__b aur__b--1"></i><i class="aur__b aur__b--2"></i><i class="aur__b aur__b--3"></i><i class="aur__b aur__b--4"></i>'
+  const AUR = '<span class="aur" aria-hidden="true"><canvas class="aur__cv"></canvas>'
     + '<svg class="aur__art" viewBox="0 0 100 100" preserveAspectRatio="none">'
-    + '<g transform="rotate(-10 60 8)"><ellipse class="o" cx="60" cy="8" rx="64" ry="5"/><ellipse class="c" cx="60" cy="8" rx="64" ry="5" pathLength="100"/></g>'
-    + '<g transform="rotate(-6 44 13)"><ellipse class="o o2" cx="44" cy="13" rx="88" ry="6.5"/><ellipse class="c c2" cx="44" cy="13" rx="88" ry="6.5" pathLength="100"/></g>'
+    + '<ellipse class="o" cx="60" cy="8" rx="64" ry="5" transform="rotate(-10 60 8)"/>'
+    + '<ellipse class="o o2" cx="44" cy="13" rx="88" ry="6.5" transform="rotate(-6 44 13)"/>'
     + '<ellipse class="o o2" cx="84" cy="4" rx="28" ry="3" transform="rotate(-18 84 4)"/>'
     + '</svg>'
     + `<i class="aur__sp aur__sp--1">${STAR}</i><i class="aur__sp aur__sp--2">${STAR}</i><i class="aur__sp aur__sp--3">${STAR}</i>`
-    + '<i class="aur__grain"></i></span>';
-  const isAur = (a) => /^(aur|dsky)/.test(a.animationName || '');
+    + '</span>';
+
+  /* ---------- رسم آئورا روی بوم کوچک (یک‌ششم اندازه) که کارت گرافیک بزرگش می‌کند ---------- */
+  const TAU = Math.PI * 2;
+  const wave = (t, p, ph = 0) => (1 - Math.cos(TAU * t / p + ph)) / 2;
+  const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a < 0 ? 0 : a})`;
+  const blob = (x, cx, cy, rx, ry, c, a, rot = 0) => {
+    if (a <= 0.004) return;
+    x.save(); x.translate(cx, cy); if (rot) x.rotate(rot); x.scale(1, ry / rx);
+    const g = x.createRadialGradient(0, 0, 0, 0, 0, rx);
+    g.addColorStop(0, rgba(c, a)); g.addColorStop(0.52, rgba(c, a * 0.38)); g.addColorStop(1, rgba(c, 0));
+    x.fillStyle = g; x.fillRect(-rx, -rx, rx * 2, rx * 2); x.restore();
+  };
+  const readPal = (el) => {
+    const cs = getComputedStyle(el);
+    return ['--a0', '--a0h', '--a1', '--a2', '--a3', '--a4'].map((k) => (cs.getPropertyValue(k).trim() || '0 0 0').split(/\s+/).map(Number));
+  };
+  /* کارت‌ها و صفحه‌ی هر بخش: زمینه‌ی مورب و چهار لکه‌ی رنگی که آرام جابه‌جا می‌شوند */
+  const paintCard = (x, W, H, P, t) => {
+    const [a0, a0h, a1, a2, a3, a4] = P, M = Math.max(W, H);
+    const lg = x.createLinearGradient(W * 0.25, 0, W * 0.75, H);
+    lg.addColorStop(0, rgba(a0h, 1)); lg.addColorStop(0.72, rgba(a0, 1)); lg.addColorStop(1, rgba(a0, 1));
+    x.globalCompositeOperation = 'source-over'; x.fillStyle = lg; x.fillRect(0, 0, W, H);
+    x.globalCompositeOperation = 'screen';
+    const u1 = wave(t, 38), u2 = wave(t, 46, 1.3), u3 = wave(t, 32, 2.1), u4 = wave(t, 26, 0.7);
+    blob(x, W * (0.86 - 0.16 * u1), H * (0.03 + 0.12 * u1), M * 0.6 * (1 + 0.16 * u1), M * 0.6 * (1 + 0.16 * u1), a1, 0.95);
+    blob(x, W * (0.1 + 0.18 * u2), H * (0.97 - 0.14 * u2), M * 0.56 * (1.06 - 0.14 * u2), M * 0.56 * (1.06 - 0.14 * u2), a3, 0.9);
+    blob(x, W * 0.5, H * (0.46 - 0.12 * u3), M * 0.82, M * 0.24, a2, 0.72, (-24 + 15 * u3) * Math.PI / 180);
+    blob(x, W * (0.3 + 0.32 * u4), H * (0.04 + 0.24 * u4), M * 0.32, M * 0.32, a4, 0.4 + 0.22 * u4);
+    x.globalCompositeOperation = 'source-over';
+    /* سایه‌ی پایین برای خوانایی متن روی کارت */
+    const sg = x.createLinearGradient(0, H, 0, 0);
+    sg.addColorStop(0, rgba(a0, 0.8)); sg.addColorStop(0.4, rgba(a0, 0.34)); sg.addColorStop(0.66, rgba(a0, 0));
+    x.fillStyle = sg; x.fillRect(0, 0, W, H);
+  };
+  /* آسمان بخش خدمات: سه صحنه‌ی رنگی که با اسکرول جای هم را می‌گیرند، به‌اضافه‌ی رنگ کارت زیر نشانگر */
+  const SKY = { a: 1, b: 0, c: 0, hover: 0, hx: 0.5, hc: [30, 68, 242] };
+  const SKY_SCENES = [
+    [[30, 68, 242, 0.6, 0.8, 0.2], [110, 18, 210, 0.5, 0.18, 0.82]],
+    [[123, 97, 255, 0.55, 0.74, 0.24], [232, 67, 111, 0.46, 0.22, 0.78], [203, 141, 255, 0.2, 0.5, 0.56]],
+    [[45, 212, 240, 0.42, 0.84, 0.18], [18, 170, 140, 0.5, 0.14, 0.84], [30, 68, 242, 0.22, 0.46, 0.5]]
+  ];
+  const paintScenes = (x, W, H, t, scenes, weights, base) => {
+    x.globalCompositeOperation = 'source-over'; x.fillStyle = base; x.fillRect(0, 0, W, H);
+    x.globalCompositeOperation = 'screen';
+    scenes.forEach((sc, i) => {
+      const w = weights[i]; if (w <= 0.004) return;
+      sc.forEach((b, k) => {
+        const u = wave(t, 30 + k * 7 + i * 5, k + i);
+        blob(x, W * (b[4] + (k % 2 ? 0.04 : -0.04) * u), H * (b[5] + (k % 2 ? -0.03 : 0.03) * u), W * 0.52 * (1 + 0.08 * u), H * 0.6 * (1 + 0.08 * u), b, b[3] * w);
+      });
+    });
+    x.globalCompositeOperation = 'source-over';
+  };
+  const paintSky = (x, W, H, P, t) => {
+    paintScenes(x, W, H, t, SKY_SCENES, [SKY.a, SKY.b, SKY.c], '#070A1E');
+    if (SKY.hover > 0.004) { x.globalCompositeOperation = 'screen'; blob(x, W * SKY.hx, H * 0.62, W * 0.3, H * 0.4, SKY.hc, 0.5 * SKY.hover); x.globalCompositeOperation = 'source-over'; }
+  };
+  const FOOT_SCENE = [[[30, 68, 242, 0.5, 0.82, 0.16], [45, 212, 240, 0.18, 0.12, 0.3], [110, 18, 210, 0.5, 0.2, 0.9], [232, 67, 111, 0.26, 0.72, 0.94]]];
+  const paintFoot = (x, W, H, P, t) => paintScenes(x, W, H, t, FOOT_SCENE, [1], '#070A1E');
+
+  const hosts = new Set();
+  const RES = 1 / 6;
+  /* اندازه‌ی بوم را از ResizeObserver می‌گیریم تا خواندنش وسط فریم چیدمان را مجبور به محاسبه نکند */
+  const size = (h) => { h.cw = h.cv.clientWidth; h.ch = h.cv.clientHeight; };
+  const ro = 'ResizeObserver' in window ? new ResizeObserver((es) => es.forEach((e) => {
+    hosts.forEach((h) => { if (h.cv === e.target) { h.cw = e.contentRect.width; h.ch = e.contentRect.height; h.drawn = false; } });
+  })) : null;
+  let last = 0, holdUntil = 0;
+  const frame = () => {
+    const now = performance.now();
+    if (now - last < 32) return;
+    last = now;
+    /* هنگام اسکرول یا انتقال، رانش آهسته‌ی آئورا دیده نمی‌شود؛ پس فقط تغییرهای وابسته به اسکرول رسم می‌شوند */
+    const held = now < holdUntil;
+    const t = now / 1000, still = root.classList.contains('rm');
+    const skyKey = SKY.a + SKY.b * 7 + SKY.c * 49 + SKY.hover * 343 + SKY.hx;
+    const covered = root.classList.contains('svc-open');
+    hosts.forEach((h) => {
+      if (covered && !h.top) return;
+      /* هر بوم دست‌کم یک بار رسم می‌شود؛ بعد فقط وقتی دیده می‌شود و شرطش برقرار است */
+      if (!h.live || (h.drawn && ((h.gate && !h.gate()) || still))) return;
+      /* حرکت خود آئورا خیلی آهسته است؛ ۱۵ فریم در ثانیه کافی است، مگر رنگ‌ها با اسکرول در حال تغییر باشند */
+      const k = h.paint === paintSky ? skyKey : 0;
+      if (h.drawn && k === h.key && (held || (h.n = (h.n + 1) % 2))) return;
+      h.key = k;
+      if (!h.cw) size(h);
+      const w = Math.max(8, Math.round(h.cw * RES)), hh = Math.max(8, Math.round(h.ch * RES));
+      if (h.cv.width !== w || h.cv.height !== hh) { h.cv.width = w; h.cv.height = hh; }
+      h.paint(h.ctx, w, hh, h.pal, still ? 0 : t);
+      h.drawn = true;
+    });
+  };
+  let ticking = false;
+  const startTick = () => {
+    if (ticking) return; ticking = true;
+    if (window.gsap) gsap.ticker.add(frame);
+    else { const loop = () => { frame(); requestAnimationFrame(loop); }; requestAnimationFrame(loop); }
+  };
   const Aurora = {
+    SKY,
     mount(el) { if (el && !el.querySelector(':scope > .aur')) el.insertAdjacentHTML('afterbegin', AUR); return el; },
-    /* لایه‌ی مقصد را دقیقاً هم‌فاز لایه‌ی مبدأ می‌کند (کارت ← لایه‌ی انتقال ← صفحه‌ی بخش) */
-    sync(target, source) {
-      if (!target || !source || typeof target.getAnimations !== 'function') return;
-      const a = target.getAnimations({ subtree: true }).filter(isAur), b = source.getAnimations({ subtree: true }).filter(isAur);
-      a.forEach((x, i) => { const y = b[i]; if (y && y.animationName === x.animationName) { try { x.currentTime = y.currentTime; } catch (e) { /* قدیمی */ } } });
+    /* یک بوم را ثبت می‌کند؛ فقط وقتی در صفحه است رسم می‌شود */
+    add(host, { canvas, paint = paintCard, gate = null, probe = host, top = false } = {}) {
+      const cv = canvas || host.querySelector('.aur__cv');
+      if (!cv || !cv.getContext) return null;
+      const h = { host, cv, ctx: cv.getContext('2d'), paint, gate, pal: readPal(host), live: false, drawn: false, cw: 0, ch: 0, n: 0, key: 0, top };
+      hosts.add(h);
+      if (ro) ro.observe(cv);
+      if ('IntersectionObserver' in window) new IntersectionObserver((es) => es.forEach((e) => { h.live = e.isIntersecting; }), { rootMargin: '160px 0px' }).observe(probe);
+      else h.live = true;
+      startTick();
+      return h;
     },
-    /* حرکت آئورا فقط وقتی بخش در صفحه دیده می‌شود */
+    refresh(host) { hosts.forEach((h) => { if (h.host === host) { h.pal = readPal(host); h.drawn = false; } }); },
+    /* فوراً یک فریم تازه رسم می‌کند (برای لحظه‌ی باز شدن یک لایه) */
+    now(host) { last = 0; hosts.forEach((h) => { if (h.host === host) { h.live = true; h.drawn = false; } }); frame(); },
+    hold(ms) { holdUntil = Math.max(holdUntil, performance.now() + ms); },
+    paintSky, paintFoot,
+    /* حرکت ستاره‌ها و مدارها فقط وقتی بخش دیده می‌شود */
     watch(host, probe = host) {
       if (!host || !probe) return;
       host.classList.add('aur-host');
@@ -417,7 +549,19 @@
   document.addEventListener('DOMContentLoaded', () => {
     if (!root.classList.contains('rm')) Motion.start();
     onScroll();
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (Motion.on) ScrollTrigger.refresh(); });
+    /* اگر فونت یا عکسی دیر رسید و چیدمان واقعاً عوض شد، فقط وقتی اسکرول آرام گرفته دوباره اندازه می‌گیریم */
+    const sig = () => [document.body.scrollHeight, ...$$('main > section, footer').map((el) => el.offsetHeight)].join(',');
+    let base = sig(), wait = null;
+    const settle = () => {
+      if (!Motion.on) return;
+      const l = Motion.lenis;
+      if (l && (l.isScrolling || Math.abs(l.targetScroll - l.animatedScroll) > 1)) { clearTimeout(wait); wait = setTimeout(settle, 250); return; }
+      const now = sig();
+      if (now !== base) { ScrollTrigger.refresh(); base = sig(); }
+    };
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(settle);
+    window.addEventListener('load', settle);
+    if (hasGsap) ScrollTrigger.addEventListener('refresh', () => { base = sig(); });
   });
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 })();
