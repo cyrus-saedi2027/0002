@@ -204,6 +204,66 @@
     gsap.set(pv, { scale: 0.85, transformOrigin: '50% 60%' });
   }
 
+  /* ---------- نمونه‌ی درمان‌ها (مدل ۵۳): هر عکس در شبکه‌ی ۳×۳ کاشی‌به‌کاشی، از گوشه‌ی بالا-راست باز می‌شود ---------- */
+  const CELL = (c, r, g) => `polygon(${c}% ${r}%, ${c + g}% ${r}%, ${c + g}% ${r + g}%, ${c}% ${r + g}%)`;
+  const Cases = {
+    build() {
+      const sec = $('#cases');
+      if (!sec || !window.ScrollTrigger) return;
+      const toFa = S.toFa;
+      this.ctx = gsap.context(() => {
+        $$('.cs', sec).forEach((cs) => {
+          const media = $('.cs__media', cs);
+          const figs = $$('.cs__img', cs);
+          const tl = gsap.timeline({ paused: true });
+          figs.forEach((fig, fi) => {
+            const img = $('img', fig);
+            const src = img.currentSrc || img.getAttribute('src');
+            const masks = [];
+            for (let r = 0; r < 3; r++) {
+              for (let c = 2; c >= 0; c--) {
+                const m = document.createElement('span');
+                m.className = 'mk'; m.setAttribute('aria-hidden', 'true');
+                m.style.backgroundImage = `url("${src}")`;
+                const cx = c * 33.333, cy = r * 33.333;
+                m.style.clipPath = CELL(cx + 16.66, cy + 16.66, 0);
+                m.dataset.d = String((2 - c) + r);
+                m._to = CELL(cx - 0.2, cy - 0.2, 33.8);
+                fig.appendChild(m); masks.push(m);
+              }
+            }
+            gsap.set(img, { opacity: 0 });
+            for (let d = 0; d <= 4; d++) {
+              const group = masks.filter((m) => +m.dataset.d === d);
+              tl.to(group, { clipPath: (i, el) => el._to, duration: 0.6, ease: 'power3.out', stagger: 0.07 }, fi * 0.22 + d * 0.11);
+            }
+            tl.add(() => { gsap.set(img, { opacity: 1 }); masks.forEach((m) => m.remove()); }, '>');
+          });
+          ScrollTrigger.create({ trigger: media, start: 'top 78%', once: true, onEnter: () => tl.play() });
+          /* عکس کوچک کمی کندتر از صفحه حرکت می‌کند */
+          const b = $('.cs__img--b', cs);
+          if (b) gsap.fromTo(b, { yPercent: 14 }, { yPercent: -10, ease: 'none', scrollTrigger: { trigger: cs, start: 'top bottom', end: 'bottom top', scrub: true } });
+          /* عددهای نتیجه شمرده می‌شوند */
+          const nums = $$('.cs__stats b[data-count]', cs);
+          ScrollTrigger.create({
+            trigger: $('.cs__stats', cs), start: 'top 88%', once: true,
+            onEnter: () => nums.forEach((n) => {
+              const to = parseFloat(n.dataset.count), dec = n.dataset.dec ? 1 : 0, o = { v: 0 };
+              gsap.to(o, { v: to, duration: 1.4, ease: 'power3.out', onUpdate: () => { n.textContent = toFa(o.v.toFixed(dec)).replace('.', '٫'); } });
+            })
+          });
+        });
+      });
+    },
+    kill() {
+      if (this.ctx) { this.ctx.revert(); this.ctx = null; }
+      $$('#cases .mk').forEach((m) => m.remove());
+      $$('#cases .cs__img img, #cases .cs__img--b').forEach((el) => gsap.set(el, { clearProps: 'opacity,transform' }));
+      $$('#cases .cs__stats b[data-count]').forEach((n) => { n.textContent = S.toFa(n.dataset.count).replace('.', '٫'); });
+    }
+  };
+
   Motion.add(Titles);
+  Motion.add(Cases);
   Motion.add(JSky);
 })();

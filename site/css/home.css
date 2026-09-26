@@ -268,9 +268,55 @@ html.hc .jsky { display: none; }
 @media (hover: hover) { .deck.is-flipped .pcard:hover .pcard__back::after { opacity: 1; } }
 
 /* ==========================================================================
+   نمونه‌ی درمان‌ها (مدل ۵۳): هر عکس در یک شبکه‌ی ۳×۳ کاشی‌به‌کاشی باز می‌شود
+   ========================================================================== */
+.cases { background: #fff; color: var(--ink); padding-block: clamp(72px, 11vh, 120px); border-top: 1px solid var(--line); }
+.cs-list { display: grid; gap: clamp(72px, 12vh, 140px); margin-top: clamp(20px, 4vh, 40px); }
+.cs { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(28px, 5vw, 88px); align-items: center; }
+.cs:nth-child(even) .cs__media { order: -1; }
+.cs__media { position: relative; padding-bottom: 14%; }
+.cs__img { position: relative; margin: 0; border-radius: 12px; overflow: hidden; background: var(--mist-2); }
+.cs__img img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.cs__img--a { width: 86%; aspect-ratio: var(--ar, 4 / 3); margin-inline-start: auto; box-shadow: var(--sh-2); }
+.cs--tall .cs__img--a { width: 62%; }
+.cs__img--b { position: absolute; bottom: 0; inset-inline-start: 0; width: 36%; aspect-ratio: 1; border: 6px solid #fff; border-radius: 14px; box-shadow: 0 24px 50px -24px rgba(13, 27, 48, .45); }
+.cs:nth-child(even) .cs__img--a { margin-inline: 0 auto; }
+.cs:nth-child(even) .cs__img--b { inset-inline: auto 0; }
+.cs:nth-child(even) .cs__img .mk { position: absolute; inset: 0; background-position: center; background-size: cover; background-repeat: no-repeat; will-change: clip-path; }
+.cs__tag { display: inline-flex; padding: 2px 10px; border-radius: var(--r1); font-family: var(--f-ui); font-size: .75rem; font-weight: 600; line-height: 1.8; }
+.cs[data-k="dental"] .cs__tag { background: #E7F2FC; color: #0D4F97; }
+.cs[data-k="beauty"] .cs__tag { background: #FBEAF0; color: #8C2452; }
+.cs[data-k="medicine"] .cs__tag { background: #E5F5EF; color: #0C6C53; }
+.cs__title { margin-top: 14px; font-size: clamp(1.35rem, 1.05rem + 1vw, 1.95rem); line-height: 1.45; }
+.cs__who { margin-top: 8px; font-family: var(--f-ui); font-size: .875rem; color: var(--ink-3); }
+.cs__p { margin-top: 14px; color: var(--ink-2); line-height: 1.95; max-width: 52ch; }
+.cs__steps { margin-top: 18px; display: grid; gap: 10px; counter-reset: st; }
+.cs__steps li { position: relative; padding-inline-start: 34px; font-size: .9375rem; line-height: 1.8; counter-increment: st; }
+.cs__steps li::before { content: counter(st, persian); position: absolute; inset-inline-start: 0; top: 2px; width: 24px; height: 24px; border-radius: var(--r1); display: grid; place-items: center; background: var(--mist); border: 1px solid var(--line); font-family: var(--f-ui); font-size: .75rem; font-weight: 700; color: var(--navy-800); }
+.cs__stats { margin-top: 24px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-block: 1px solid var(--line); }
+.cs__stats li { display: grid; gap: 2px; padding: 14px 0; padding-inline-end: 14px; }
+.cs__stats li + li { padding-inline-start: 16px; border-inline-start: 1px solid var(--line); }
+.cs__stats b { font-family: var(--f-ui); font-size: clamp(1.6rem, 1.2rem + 1vw, 2.2rem); font-weight: 700; line-height: 1.15; color: var(--navy-800); font-variant-numeric: tabular-nums; }
+.cs__stats span { font-size: .8125rem; line-height: 1.5; color: var(--ink-3); }
+.cs__doc { display: flex; align-items: center; gap: 8px; margin-top: 16px; font-size: .875rem; font-weight: 600; color: var(--ink-2); }
+.cs__doc .ic { width: 18px; height: 18px; color: var(--blue); }
+.cs-note { display: flex; align-items: flex-start; gap: 10px; margin-top: clamp(48px, 8vh, 80px); padding: 14px 16px; border-radius: var(--r2); background: var(--mist); border: 1px solid var(--line); font-size: .875rem; line-height: 1.85; color: var(--ink-2); }
+.cs-note .ic { flex: none; width: 18px; height: 18px; margin-top: 3px; color: var(--ok); }
+@media (max-width: 899.98px) {
+  .cs { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .cs .cs__media, .cs:nth-child(even) .cs__media { order: -1; }
+  .cs__media { padding-bottom: 18%; }
+  .cs__img--a, .cs--tall .cs__img--a { width: 84%; }
+  .cs--tall .cs__img--a { aspect-ratio: 4 / 3; }
+  .cs__img--b { width: 40%; border-width: 4px; }
+}
+html.hc .cs__img--b { border-color: #000; }
+html.hc .cs__who, html.hc .cs__p, html.hc .cs__stats span, html.hc .cs-note { color: #000; }
+
+/* ==========================================================================
    نظر بیماران
    ========================================================================== */
-.reviews { background: #fff; color: var(--ink); padding-block: clamp(72px, 11vh, 120px); }
+.reviews { background: var(--mist); color: var(--ink); padding-block: clamp(72px, 11vh, 120px); border-top: 1px solid var(--line); }
 .sec-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px 40px; flex-wrap: wrap; margin-bottom: clamp(28px, 4vh, 40px); }
 .sec-title { margin-top: 12px; font-size: var(--fs-h2); line-height: 1.3; }
 .rv { display: grid; grid-template-columns: minmax(260px, 320px) minmax(0, 1fr); gap: clamp(20px, 3vw, 40px); align-items: start; }
