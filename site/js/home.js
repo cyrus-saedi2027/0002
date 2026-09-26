@@ -10,6 +10,7 @@
   const { $, $$, toFa, Motion, Clinic } = S;
   const root = document.documentElement;
   const isMob = () => window.matchMedia('(max-width: 699.98px)').matches;
+  if (window.gsap && window.Flip) gsap.registerPlugin(Flip);
 
   /* ==========================================================================
      داده‌ی بخش‌ها
@@ -118,7 +119,8 @@
   function counters(scope, animate) {
     $$('[data-count]', scope).forEach((el) => {
       const to = parseFloat(el.dataset.count), dec = +(el.dataset.dec || 0);
-      const out = (v) => { el.textContent = toFa(v.toFixed(dec)); };
+      const sep = !!el.dataset.sep;
+      const out = (v) => { let t = v.toFixed(dec); if (sep) t = t.replace(/\B(?=(\d{3})+(?!\d))/g, '٬'); el.textContent = toFa(t); };
       if (!animate) { out(to); return; }
       const o = { v: 0 }; out(0);
       gsap.to(o, { v: to, duration: 1.6, ease: 'expo.out', onUpdate: () => out(o.v) });
@@ -190,9 +192,22 @@
         const px = ox + SUBJECT.x * rw, py = oy + SUBJECT.y * rh;
         const p = pin.getBoundingClientRect(), r = frame.getBoundingClientRect();
         const fw = r.width, fh = r.height, fx = r.left - p.left + fw / 2, fy = r.top - p.top + fh / 2;
-        const fit = Math.min(1.16, 0.8 * fh / (SUBJECT.h * rh), 0.8 * fw / (SUBJECT.w * rw));
-        const cover = Math.max((fw / 2) / (px - ox), (fw / 2) / (ox + rw - px), (fh / 2) / (py - oy), (fh / 2) / (oy + rh - py)) * 1.02;
-        return { ox: px - ox, oy: py - oy, dx: fx - px, dy: fy - py, s: Math.max(cover, fit) };
+        const clamp = (v, a, b) => Math.min(Math.max(v, a), b);
+        if (window.innerWidth >= 1061) {
+          /* دسکتاپ: دندان وسط قاب و کمی بزرگ‌تر */
+          const fit = Math.min(1.16, 0.8 * fh / (SUBJECT.h * rh), 0.8 * fw / (SUBJECT.w * rw));
+          const cover = Math.max((fw / 2) / (px - ox), (fw / 2) / (ox + rw - px), (fh / 2) / (py - oy), (fh / 2) / (oy + rh - py)) * 1.02;
+          return { ox: px - ox, oy: py - oy, dx: fx - px, dy: fy - py, s: Math.max(cover, fit) };
+        }
+        /* تبلت و موبایل: عکس کوچک‌تر می‌شود تا بیشتر صحنه دیده شود؛
+           دندان حدود ۴۰٪ ارتفاع قاب را می‌گیرد و قاب همیشه پر می‌ماند */
+        const sMin = Math.max(fw / rw, fh / rh) * 1.03;
+        const sc = Math.max(sMin, Math.min(1, 0.4 * fh / (SUBJECT.h * rh)));
+        const fL = fx - fw / 2, fR = fx + fw / 2, fT = fy - fh / 2, fB = fy + fh / 2;
+        const lx = px - ox, ly = py - oy;
+        const tx = clamp(fx, fR - (rw - lx) * sc, fL + lx * sc);
+        const ty = clamp(fy, fB - (rh - ly) * sc, fT + ly * sc);
+        return { ox: lx, oy: ly, dx: tx - px, dy: ty - py, s: sc };
       };
       let P = push();
 
@@ -228,6 +243,132 @@
       $('.stage__pin').classList.remove('is-about');
       gsap.set([$('.stage__media'), $('.stage__img'), $('.stage__shade'), $('.hero__copy'), $('.qbook-wrap'), ...$$('.about .kicker, .about__title, .about__p, .figures, .about .link-arrow')], { clearProps: 'all' });
       counters($('.figures'), false);
+    }
+  };
+
+  /* ==========================================================================
+     کلینیک در یک نگاه (مدل ۲۱): ردیف کاشی‌ها؛ عکس تیم وسط ردیف با اسکرول تمام‌صفحه می‌شود
+     ========================================================================== */
+  const Reel = {
+    ctx: null,
+    build() {
+      if (!window.Flip) return;
+      const wrap = $('#reel'), row = $('.reel__row', wrap);
+      const items = $$('.reel__item', row), cap = $('.reel__cap', row);
+      const center = $('.reel__item--center', row);
+      const inner = $('.reel__inner', center), shade = $('.reel__shade', center), intro = $('.reel__intro', wrap);
+      const kids = Array.from(cap.children);
+      const mob = isMob();
+      this.ctx = gsap.context(() => {
+        row.classList.add('is-open');
+        const state = Flip.getState([items, cap], { props: 'opacity,borderRadius' });
+        row.classList.remove('is-open');
+        const tl = gsap.timeline({
+          defaults: { ease: 'none' },
+          scrollTrigger: { trigger: wrap, start: 'top top', end: () => '+=' + window.innerHeight * (mob ? 1.6 : 2.1), pin: wrap, scrub: 0.6, invalidateOnRefresh: true }
+        });
+        tl.add(Flip.to(state, { ease: 'none', absoluteOnLeave: true, scale: false, simple: true, duration: 1 }), 0)
+          .fromTo(inner, { scale: 1.28 }, { scale: 1, duration: 1 }, 0)
+          .fromTo(intro, { autoAlpha: 1, y: 0 }, { autoAlpha: 0, y: -24, duration: 0.25 }, 0)
+          .fromTo(shade, { opacity: 0 }, { opacity: mob ? 0.15 : 1, duration: 0.45 }, 0.5)
+          .from(kids, { y: 40, opacity: 0, duration: 0.22, stagger: 0.05, ease: 'power2.out' }, 0.66);
+      });
+    },
+    kill() {
+      if (this.ctx) { this.ctx.revert(); this.ctx = null; }
+      const row = $('.reel__row');
+      row.classList.remove('is-open');
+      gsap.set([...$$('.reel__item', row), $('.reel__cap', row), $('.reel__inner', row), $('.reel__shade', row), $('.reel__intro'), ...$('.reel__cap', row).children], { clearProps: 'all' });
+    }
+  };
+
+  /* ==========================================================================
+     نظر بیماران: فیلتر بخش، کشیدن با ماوس، دکمه‌ها و نوار پیشرفت
+     ========================================================================== */
+  const rvTrack = $('#rvTrack');
+  if (rvTrack) {
+    const cardsAll = $$('.rv-card', rvTrack);
+    const prog = $('.rv-progress i');
+    const btnPrev = $('.rv-btn[data-dir="prev"]'), btnNext = $('.rv-btn[data-dir="next"]');
+    const maxScroll = () => Math.max(0, rvTrack.scrollWidth - rvTrack.clientWidth);
+    const pos = () => Math.abs(rvTrack.scrollLeft);
+    const sync = () => {
+      const m = maxScroll(), p = m ? pos() / m : 0;
+      const vis = rvTrack.clientWidth / Math.max(1, rvTrack.scrollWidth);
+      prog.style.setProperty('--p', m ? (vis + p * (1 - vis)).toFixed(3) : 1);
+      if (btnPrev) btnPrev.disabled = pos() < 4;
+      if (btnNext) btnNext.disabled = pos() > m - 4;
+    };
+    const step = () => { const c = cardsAll.find((x) => !x.hidden); return c ? c.getBoundingClientRect().width + 16 : 300; };
+    /* در راست‌به‌چپ، جلو رفتن یعنی scrollLeft منفی‌تر */
+    const dirSign = getComputedStyle(rvTrack).direction === 'rtl' ? -1 : 1;
+    const go = (d) => rvTrack.scrollBy({ left: dirSign * d * step(), behavior: root.classList.contains('rm') ? 'auto' : 'smooth' });
+    btnNext && btnNext.addEventListener('click', () => go(1));
+    btnPrev && btnPrev.addEventListener('click', () => go(-1));
+    rvTrack.addEventListener('scroll', sync, { passive: true });
+    window.addEventListener('resize', sync);
+    rvTrack.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') { e.preventDefault(); go(dirSign === -1 ? 1 : -1); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); go(dirSign === -1 ? -1 : 1); }
+    });
+
+    /* کشیدن با ماوس (لمس خودش اسکرول می‌کند) */
+    let drag = null;
+    rvTrack.addEventListener('pointerdown', (e) => {
+      if (e.pointerType !== 'mouse' || e.button !== 0) return;
+      drag = { x: e.clientX, left: rvTrack.scrollLeft, moved: false };
+    });
+    window.addEventListener('pointermove', (e) => {
+      if (!drag) return;
+      const dx = e.clientX - drag.x;
+      if (!drag.moved && Math.abs(dx) > 4) { drag.moved = true; rvTrack.classList.add('is-drag'); }
+      if (drag.moved) rvTrack.scrollLeft = drag.left - dx;
+    });
+    window.addEventListener('pointerup', () => {
+      if (!drag) return;
+      const moved = drag.moved; drag = null;
+      if (!moved) return;
+      rvTrack.classList.remove('is-drag');
+      const st = step(), target = Math.round(pos() / st) * st;
+      rvTrack.scrollTo({ left: dirSign * target, behavior: 'smooth' });
+      rvTrack.addEventListener('click', (ev) => ev.preventDefault(), { capture: true, once: true });
+    });
+
+    /* فیلتر بخش */
+    $$('.rv-tabs [role="tab"]').forEach((tab) => tab.addEventListener('click', () => {
+      const f = tab.dataset.f;
+      $$('.rv-tabs [role="tab"]').forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
+      const apply = () => {
+        cardsAll.forEach((c) => { c.hidden = !(f === 'all' || c.dataset.k === f); });
+        rvTrack.scrollLeft = 0; sync();
+      };
+      if (!Motion.on) { apply(); return; }
+      const visible = cardsAll.filter((c) => !c.hidden);
+      gsap.to(visible, { opacity: 0, y: 12, duration: 0.18, stagger: 0.02, ease: 'power2.in', onComplete: () => {
+        apply();
+        const shown = cardsAll.filter((c) => !c.hidden);
+        gsap.fromTo(shown, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.05, ease: 'expo.out', clearProps: 'transform,opacity' });
+      } });
+    }));
+    sync();
+  }
+
+  const Reviews = {
+    ctx: null,
+    build() {
+      const sec = $('#reviews'); if (!sec) return;
+      this.ctx = gsap.context(() => {
+        gsap.from(sec.querySelectorAll('.sec-head .kicker, .sec-title, .rv-nav'), { y: 26, autoAlpha: 0, duration: 0.9, ease: 'expo.out', stagger: 0.08, scrollTrigger: { trigger: sec, start: 'top 78%' } });
+        gsap.from('.rv-sum', { y: 30, autoAlpha: 0, duration: 1, ease: 'expo.out', scrollTrigger: { trigger: '.rv', start: 'top 82%' } });
+        gsap.fromTo('.rv-bars i', { '--grow': 0 }, { '--grow': 1, duration: 1.3, ease: 'expo.out', stagger: 0.08, scrollTrigger: { trigger: '.rv-bars', start: 'top 88%' } });
+        gsap.from('.rv-tabs button', { y: 14, autoAlpha: 0, duration: 0.6, ease: 'expo.out', stagger: 0.05, scrollTrigger: { trigger: '.rv', start: 'top 82%' } });
+        gsap.from('.rv-card', { x: -40, autoAlpha: 0, duration: 1, ease: 'expo.out', stagger: 0.08, scrollTrigger: { trigger: '.rv-track', start: 'top 85%' } });
+        ScrollTrigger.create({ trigger: '.rv-sum', start: 'top 85%', once: true, onEnter: () => counters($('.rv-sum'), true) });
+      });
+    },
+    kill() {
+      if (this.ctx) { this.ctx.revert(); this.ctx = null; }
+      counters($('.rv-sum'), false);
     }
   };
 
@@ -385,7 +526,9 @@
 
   /* ---------- ثبت ماژول‌ها ---------- */
   Motion.add(Stage);
+  Motion.add(Reel);
   Motion.add(Depts);
+  Motion.add(Reviews);
 
   let lastW = window.innerWidth, rt = 0;
   window.addEventListener('resize', () => {
