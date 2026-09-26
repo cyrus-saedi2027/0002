@@ -353,6 +353,63 @@
     sync();
   }
 
+  /* ==========================================================================
+     مسیر درمان (مدل ۲۹): روی دسکتاپ قاب عکس ثابت می‌ماند و با رسیدن هر مرحله
+     عکس فعلی رو به بالا کنار می‌رود و عکس بعدی نمایان می‌شود
+     ========================================================================== */
+  const Journey = {
+    ctx: null,
+    build() {
+      const sec = $('#journey'); if (!sec) return;
+      const jr = $('.jr', sec), frames = $$('.jr-frame__img', sec), steps = $$('.jr-step', sec), dots = $$('.jr-dots li', sec);
+      const desk = window.matchMedia('(min-width: 900px)').matches;
+      const tints = ['#F3F6FA', '#EAF2FB', '#EDF5F3', '#FBF1F4'];
+      const n = frames.length;
+      this.ctx = gsap.context(() => {
+        gsap.from(sec.querySelectorAll('.sec-head > *'), { y: 26, autoAlpha: 0, duration: 0.9, ease: 'expo.out', stagger: 0.08, scrollTrigger: { trigger: sec, start: 'top 78%' } });
+        if (desk) {
+          frames.forEach((el, i) => gsap.set(el, { zIndex: n - i }));
+          const setDots = (p) => {
+            const v = p * (n - 1);
+            dots.forEach((d, k) => {
+              d.style.setProperty('--f', k === 0 ? 1 : Math.min(1, Math.max(0, v - (k - 1))).toFixed(3));
+              d.classList.toggle('is-on', Math.round(v) === k);
+            });
+          };
+          setDots(0);
+          const tl = gsap.timeline({
+            defaults: { ease: 'none' },
+            scrollTrigger: { trigger: jr, start: 'top top', end: 'bottom bottom', scrub: 0.6, onUpdate: (self) => setDots(self.progress) }
+          });
+          frames.forEach((el, i) => {
+            if (i === n - 1) return;
+            const nextImg = $('img', frames[i + 1]);
+            tl.fromTo(el, { clipPath: 'inset(0% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 100% 0%)', duration: 1, ease: 'power1.inOut' }, i)
+              .fromTo($('img', el), { yPercent: 0 }, { yPercent: -7, duration: 1 }, i)
+              .fromTo(nextImg, { yPercent: 7, scale: 1.08 }, { yPercent: 0, scale: 1, duration: 1 }, i)
+              .fromTo(sec, { backgroundColor: tints[i] }, { backgroundColor: tints[i + 1], duration: 1, ease: 'power1.inOut' }, i);
+          });
+          steps.forEach((st) => ScrollTrigger.create({ trigger: st, start: 'top 55%', end: 'bottom 55%', onToggle: (self) => st.classList.toggle('is-active', self.isActive) }));
+          gsap.from($('.jr-side', sec), { y: 40, autoAlpha: 0, duration: 1.1, ease: 'expo.out', scrollTrigger: { trigger: jr, start: 'top 80%' } });
+        } else {
+          steps.forEach((st, i) => {
+            const fig = $('.jr-step__img', st), im = $('img', fig);
+            gsap.fromTo(im, { yPercent: -5 }, { yPercent: 5, ease: 'none', scrollTrigger: { trigger: fig, start: 'top bottom', end: 'bottom top', scrub: true } });
+            gsap.from(fig, { clipPath: 'inset(10% 6% 10% 6% round 12px)', duration: 1.2, ease: 'expo.out', scrollTrigger: { trigger: fig, start: 'top 85%' } });
+            gsap.from(st.querySelectorAll('.jr-step__txt > *'), { y: 22, autoAlpha: 0, duration: 0.8, ease: 'expo.out', stagger: 0.06, scrollTrigger: { trigger: st, start: 'top 70%' } });
+            ScrollTrigger.create({ trigger: st, start: 'top 55%', end: 'bottom 55%', onToggle: (self) => { if (self.isActive) gsap.to(sec, { backgroundColor: tints[i], duration: 0.6, overwrite: 'auto' }); } });
+          });
+        }
+      });
+    },
+    kill() {
+      if (this.ctx) { this.ctx.revert(); this.ctx = null; }
+      const sec = $('#journey'); if (!sec) return;
+      gsap.set([sec, ...$$('.jr-frame__img, .jr-frame__img img, .jr-step__img, .jr-step__img img, .jr-side', sec)], { clearProps: 'all' });
+      $$('.jr-step', sec).forEach((st) => st.classList.remove('is-active'));
+    }
+  };
+
   const Reviews = {
     ctx: null,
     build() {
@@ -528,6 +585,7 @@
   Motion.add(Stage);
   Motion.add(Reel);
   Motion.add(Depts);
+  Motion.add(Journey);
   Motion.add(Reviews);
 
   let lastW = window.innerWidth, rt = 0;
