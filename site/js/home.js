@@ -518,47 +518,98 @@
         <span class="svc__dur"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>${it[2]}</span>
       </article>`).join('');
   }
-  const rectClip = (r, rad) => `inset(${Math.max(0, r.top)}px ${Math.max(0, window.innerWidth - r.right)}px ${Math.max(0, window.innerHeight - r.bottom)}px ${Math.max(0, r.left)}px round ${rad}px)`;
+  /* لایه‌ی انتقال: از قاب کارت تا تمام صفحه بزرگ می‌شود و برعکس. گرادیانش همان گرادیان پشت کارت و زمینه‌ی صفحه است،
+     و چرخش و جابه‌جایی کارت را هم کپی می‌کند؛ پس خود کارت تکان نمی‌خورد و رنگ هیچ‌جا نمی‌پرد */
+  const morph = document.createElement('div');
+  morph.className = 'svc-morph'; morph.hidden = true; morph.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(morph);
+  const viewParts = () => [$('.svc__top', view), ...$('.svc__hero', view).children, $('.svc__main', view)];
+  const isCard = (el) => !!(el && el.classList && el.classList.contains('pcard'));
+  /* قاب کارت بدون x/y/چرخش، به‌اضافه‌ی همان مقدارها */
+  const cardBox = (card) => {
+    const tf = { x: gsap.getProperty(card, 'x'), y: gsap.getProperty(card, 'y'), rotation: gsap.getProperty(card, 'rotationZ') };
+    gsap.set(card, { x: 0, y: 0, rotationZ: 0 });
+    const r = card.getBoundingClientRect();
+    gsap.set(card, { x: tf.x, y: tf.y, rotationZ: tf.rotation });
+    const cs = getComputedStyle(card);
+    return { left: r.left, top: r.top, width: r.width, height: r.height, ...tf, radius: parseFloat(cs.borderTopLeftRadius) || 6, origin: cs.transformOrigin };
+  };
+  const onScreen = (b) => b && b.top + b.height > 0 && b.top < window.innerHeight && b.width > 0;
+  /* قفل اسکرول صفحه‌ی زیرین؛ اگر نوار اسکرول واقعی هست، جایش نگه داشته می‌شود تا صفحه تکان نخورد */
+  const lockScroll = (on) => {
+    const root = document.documentElement;
+    if (on) { if (window.innerWidth - root.clientWidth > 0) root.style.scrollbarGutter = 'stable'; document.body.style.overflow = 'hidden'; }
+    else { document.body.style.overflow = ''; root.style.scrollbarGutter = ''; }
+  };
+  const fullBox = () => ({ left: 0, top: 0, width: window.innerWidth, height: window.innerHeight, x: 0, y: 0, rotation: 0, borderRadius: 0 });
 
   function openSvc(key, from, push = true) {
     if (!SVC[key]) return;
     current = key; opener = from || null;
     fill(key);
-    view.hidden = false;
     vscroll.scrollTop = 0;
-    document.body.style.overflow = 'hidden';
+    lockScroll(true);
     Motion.pause();
-    const parts = [$('.svc__top', view), ...$('.svc__hero', view).children, $('.svc__main', view)];
-    if (Motion.on && from) {
-      const r = from.getBoundingClientRect();
-      gsap.killTweensOf([view, ...parts]);
-      gsap.fromTo(view, { clipPath: rectClip(r, 6) }, { clipPath: 'inset(0px 0px 0px 0px round 0px)', duration: 0.8, ease: 'expo.inOut' });
-      gsap.fromTo(parts, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.8, ease: 'expo.out', stagger: 0.05, delay: 0.4, clearProps: 'transform,opacity' });
-    } else if (Motion.on) {
-      gsap.fromTo(view, { opacity: 0 }, { opacity: 1, duration: 0.35, clearProps: 'opacity' });
-    }
     if (push) { try { history.pushState({ svc: key }, '', '#' + key); } catch (e) { /* محیط محدود */ } }
-    setTimeout(() => $('#svcBack').focus({ preventScroll: true }), 50);
+    const parts = viewParts();
+    gsap.killTweensOf([morph, view, ...parts]);
+
+    if (!Motion.on || !from) {
+      view.hidden = false; morph.hidden = true;
+      if (Motion.on) gsap.fromTo(view, { opacity: 0 }, { opacity: 1, duration: 0.45, ease: 'power1.out', clearProps: 'opacity' });
+      setTimeout(() => $('#svcBack').focus({ preventScroll: true }), 50);
+      return;
+    }
+
+    const card = isCard(from) ? from : null;
+    let b;
+    if (card) b = cardBox(card);
+    else { const r = from.getBoundingClientRect(); b = { left: r.left, top: r.top, width: r.width, height: r.height, x: 0, y: 0, rotation: 0, radius: 6, origin: '50% 50%' }; }
+    morph.dataset.k = key; morph.hidden = false;
+    gsap.set(morph, { left: b.left, top: b.top, width: b.width, height: b.height, x: b.x, y: b.y, rotation: b.rotation, borderRadius: b.radius, transformOrigin: b.origin, opacity: 0 });
+    gsap.timeline()
+      /* متن پشت کارت آرام زیر گرادیان محو می‌شود، بعد قاب با شتاب نرم تا لبه‌های صفحه باز می‌شود */
+      .to(morph, { opacity: 1, duration: card ? 0.28 : 0.2, ease: 'power1.out' }, 0)
+      .to(morph, { ...fullBox(), duration: 1.05, ease: 'expo.inOut' }, card ? 0.08 : 0)
+      .add(() => {
+        view.hidden = false;
+        gsap.set(parts, { opacity: 0, y: 24 });
+        morph.hidden = true;
+        gsap.to(parts, { opacity: 1, y: 0, duration: 0.8, ease: 'expo.out', stagger: 0.06, clearProps: 'transform,opacity' });
+        $('#svcBack').focus({ preventScroll: true });
+      });
   }
 
   function closeSvc() {
     if (!current) return;
     const key = current; current = null;
     const card = $(`.pcard[data-svc="${key}"]`);
-    const done = () => {
-      view.hidden = true;
-      if (Motion.on) gsap.set(view, { clearProps: 'clipPath,opacity' });
-      document.body.style.overflow = '';
+    const finish = () => {
+      view.hidden = true; morph.hidden = true;
+      gsap.set([view, ...viewParts()], { clearProps: 'opacity,transform' });
+      lockScroll(false);
       Motion.resume();
       const back = opener && document.contains(opener) && opener.offsetParent !== null ? opener : card;
       if (back) back.focus({ preventScroll: true });
     };
-    if (Motion.on) {
-      const r = card ? card.getBoundingClientRect() : null;
-      const visible = r && r.bottom > 0 && r.top < window.innerHeight;
-      if (visible) gsap.to(view, { clipPath: rectClip(r, 6), duration: 0.7, ease: 'expo.inOut', onComplete: done });
-      else gsap.to(view, { opacity: 0, duration: 0.3, onComplete: done });
-    } else done();
+    const parts = viewParts();
+    gsap.killTweensOf([morph, view, ...parts]);
+    if (!Motion.on) { finish(); return; }
+
+    const b = card ? cardBox(card) : null;
+    const target = onScreen(b) ? b : null;
+    gsap.timeline()
+      .to(parts, { opacity: 0, y: 12, duration: 0.24, ease: 'power2.in', stagger: 0.015 })
+      .add(() => {
+        if (!target) { gsap.to(view, { opacity: 0, duration: 0.4, ease: 'power1.inOut', onComplete: finish }); return; }
+        /* لایه دقیقاً جای زمینه‌ی صفحه را می‌گیرد (همان گرادیان در همان اندازه) و به قاب کارت برمی‌گردد */
+        morph.dataset.k = key; morph.hidden = false;
+        gsap.set(morph, { ...fullBox(), transformOrigin: target.origin, opacity: 1 });
+        view.hidden = true;
+        gsap.timeline({ onComplete: finish })
+          .to(morph, { left: target.left, top: target.top, width: target.width, height: target.height, x: target.x, y: target.y, rotation: target.rotation, borderRadius: target.radius, duration: 1, ease: 'expo.inOut' })
+          .to(morph, { opacity: 0, duration: 0.35, ease: 'power1.inOut' }, '-=0.12');
+      });
   }
 
   const clearHash = () => { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* محیط محدود */ } };
