@@ -69,6 +69,8 @@
     KEYS.forEach((k) => { const s = SLOTS[k]; if (s && (!best || s.off * 1440 + s.t < best.s.off * 1440 + best.s.t)) best = { k, s }; });
     const live = $('#qbookLive');
     if (live && best) live.textContent = `نزدیک‌ترین نوبت خالی: ${best.s.label}، ${SVC[best.k].title}`;
+    const fs = $('#footSlot');
+    if (fs && best) fs.textContent = best.s.label;
   }
   fillSlots();
 
@@ -632,12 +634,168 @@
     openSvc(a.dataset.svc, a);
   });
 
+  /* ==========================================================================
+     سؤال‌های پرتکرار: فیلتر دسته‌ها و باز و بسته شدن نرم
+     ========================================================================== */
+  const faqList = $('#faqList');
+  if (faqList) {
+    const items = $$('.faq-item', faqList);
+    const canAnim = () => Motion.on && typeof Element.prototype.animate === 'function';
+    const setOpen = (d, open) => {
+      const a = $('.faq-item__a', d);
+      if (d._anim) { d._anim.cancel(); d._anim = null; }
+      d.classList.toggle('is-closing', !open);
+      if (!canAnim()) { d.open = open; d.classList.remove('is-closing'); return; }
+      if (open) {
+        d.open = true;
+        d._anim = a.animate([{ height: '0px', opacity: 0 }, { height: a.scrollHeight + 'px', opacity: 1 }], { duration: 560, easing: 'cubic-bezier(.22, 1, .36, 1)' });
+        d._anim.onfinish = () => { d._anim = null; };
+      } else {
+        d._anim = a.animate([{ height: a.offsetHeight + 'px', opacity: 1 }, { height: '0px', opacity: 0 }], { duration: 380, easing: 'cubic-bezier(.65, 0, .35, 1)', fill: 'forwards' });
+        d._anim.onfinish = () => { d.open = false; d.classList.remove('is-closing'); if (d._anim) d._anim.cancel(); d._anim = null; };
+      }
+    };
+    items.forEach((d) => {
+      $('summary', d).addEventListener('click', (e) => {
+        e.preventDefault();
+        setOpen(d, !d.open || d.classList.contains('is-closing'));
+      });
+    });
+    const tabs = $$('.faq-tabs button');
+    tabs.forEach((b) => b.addEventListener('click', () => {
+      const f = b.dataset.f;
+      tabs.forEach((t) => t.setAttribute('aria-pressed', String(t === b)));
+      faqList.dataset.f = f;
+      const show = items.filter((d) => f === 'all' || d.dataset.k === f);
+      items.forEach((d) => { d.hidden = !show.includes(d); });
+      show.forEach((d) => { d.classList.remove('is-pre'); if (Reveal.io) Reveal.io.unobserve(d); });
+      if (Motion.on && window.gsap) gsap.fromTo(show, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out', stagger: 0.045, overwrite: true, clearProps: 'opacity,transform' });
+    }));
+  }
+
+  /* ==========================================================================
+     مسیر و تماس: وضعیت باز/بسته، روز جاری، کپی نشانی، فرم تماس
+     ========================================================================== */
+  const vs = $('#visitStatus');
+  if (vs) {
+    const st = Clinic.status();
+    if (st.text) { $('.visit__status-text', vs).textContent = st.text; $('.dot', vs).classList.toggle('is-closed', !st.open); }
+  }
+  const hoursEl = $('#hours');
+  if (hoursEl) { const d = Clinic.today(); $$('li', hoursEl).forEach((li) => li.classList.toggle('is-today', +li.dataset.d === d)); }
+
+  $$('[data-copy]').forEach((b) => b.addEventListener('click', async () => {
+    const lab = $('span', b), use = $('use', b);
+    b._old = b._old || lab.textContent;
+    let ok = false;
+    try { await navigator.clipboard.writeText(b.dataset.copy); ok = true; } catch (e) { /* دسترسی به کلیپ‌بورد نیست */ }
+    if (!ok) {
+      try {
+        const t = document.createElement('textarea');
+        t.value = b.dataset.copy; t.setAttribute('readonly', ''); t.style.cssText = 'position:fixed;opacity:0';
+        document.body.appendChild(t); t.select(); ok = document.execCommand('copy'); t.remove();
+      } catch (e) { /* مرورگر اجازه نداد */ }
+    }
+    lab.textContent = ok ? 'کپی شد' : 'کپی نشد؛ نشانی را دستی بردارید';
+    b.classList.toggle('is-done', ok);
+    use.setAttribute('href', ok ? '#i-check' : '#i-copy');
+    clearTimeout(b._t);
+    b._t = setTimeout(() => { lab.textContent = b._old; b.classList.remove('is-done'); use.setAttribute('href', '#i-copy'); }, 2400);
+  }));
+
+  const cb = $('#callback');
+  if (cb) {
+    const fName = $('[name="name"]', cb), fTel = $('[name="tel"]', cb), msg = $('#callbackMsg');
+    const digits = (v) => v.replace(/[۰-۹]/g, (c) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(c)).replace(/[٠-٩]/g, (c) => '٠١٢٣٤٥٦٧٨٩'.indexOf(c));
+    const normTel = (v) => digits(v).replace(/[\s\-().]/g, '').replace(/^(\+98|0098)/, '0');
+    const mark = (f, bad) => { f.closest('.field').classList.toggle('is-bad', bad); f.setAttribute('aria-invalid', String(bad)); };
+    [fName, fTel].forEach((f) => f.addEventListener('input', () => mark(f, false)));
+    cb.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const n = fName.value.trim(), t = normTel(fTel.value);
+      const badName = n.length < 2, badTel = !/^09\d{9}$/.test(t);
+      mark(fName, badName); mark(fTel, badTel);
+      msg.hidden = false;
+      msg.classList.toggle('is-bad', badName || badTel);
+      if (badName || badTel) {
+        msg.textContent = badName ? 'نامتان را بنویسید تا پذیرش بداند با چه کسی صحبت می‌کند.' : 'شماره‌ی موبایل را کامل و با ۰۹ بنویسید؛ مثلاً ۰۹۱۲ ۱۲۳ ۴۵۶۷.';
+        (badName ? fName : fTel).focus();
+        return;
+      }
+      const st = Clinic.status();
+      const next = (st.text.split('·')[1] || '').trim();
+      const when = st.open ? 'تا یک ساعت دیگر' : next ? `اول وقت کاری (${next})` : 'اول وقت کاری بعد';
+      const pretty = toFa(`${t.slice(0, 4)} ${t.slice(4, 7)} ${t.slice(7)}`);
+      msg.textContent = `ممنون ${n}؛ درخواستتان ثبت شد. ${when} با شماره‌ی ${pretty} تماس می‌گیریم.`;
+      cb.reset();
+    });
+  }
+
+  /* نقشه: مسیر از میدان کاج کشیده می‌شود و نشانگر کلینیک پایین می‌آید */
+  const MapAnim = {
+    build() {
+      const map = $('#vmap');
+      if (!map || !window.gsap || !('IntersectionObserver' in window)) return;
+      const route = $('.vmap__route', map), drop = $('.vmap__drop', map), park = $('.vmap__park-in', map), cap = $('.vmap__cap', map);
+      const len = route.getTotalLength();
+      this.ctx = gsap.context(() => {
+        gsap.set(route, { strokeDasharray: len, strokeDashoffset: len });
+        gsap.set(drop, { y: -46, opacity: 0 });
+        gsap.set(park, { scale: 0, transformOrigin: '50% 50%' });
+        gsap.set(cap, { opacity: 0, y: 10 });
+        this.tl = gsap.timeline({ paused: true })
+          .to(route, { strokeDashoffset: 0, duration: 1.5, ease: 'power2.inOut' })
+          .to(drop, { y: 0, opacity: 1, duration: 0.8, ease: 'bounce.out' }, '-=0.45')
+          .to(park, { scale: 1, duration: 0.5, ease: 'back.out(2)' }, '-=0.5')
+          .to(cap, { opacity: 1, y: 0, duration: 0.55, ease: 'power2.out' }, '-=0.3');
+      });
+      this.io = new IntersectionObserver((ents) => {
+        if (ents.some((en) => en.isIntersecting)) { this.tl.play(); this.io.disconnect(); }
+      }, { threshold: 0.45 });
+      this.io.observe(map);
+    },
+    kill() {
+      if (this.io) { this.io.disconnect(); this.io = null; }
+      if (this.ctx) { this.ctx.revert(); this.ctx = null; }
+      this.tl = null;
+    }
+  };
+
+  /* ورود نرم کارت‌های پایین صفحه، فقط برای چیزهایی که هنوز دیده نشده‌اند */
+  const Reveal = {
+    build() {
+      if (!window.gsap || !('IntersectionObserver' in window)) return;
+      const els = $$('[data-rv]');
+      const vh = window.innerHeight;
+      const pending = els.filter((el) => el.getClientRects().length && el.getBoundingClientRect().top > vh * 0.9);
+      pending.forEach((el) => el.classList.add('is-pre'));
+      this.io = new IntersectionObserver((ents) => {
+        let k = 0;
+        ents.forEach((en) => {
+          if (!en.isIntersecting) return;
+          const el = en.target;
+          this.io.unobserve(el);
+          gsap.fromTo(el, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.9, ease: 'expo.out', delay: 0.07 * k++, clearProps: 'opacity,transform', onStart: () => el.classList.remove('is-pre') });
+        });
+      }, { rootMargin: '0px 0px -10% 0px' });
+      pending.forEach((el) => this.io.observe(el));
+    },
+    kill() {
+      if (this.io) { this.io.disconnect(); this.io = null; }
+      const els = $$('[data-rv]');
+      if (window.gsap) { gsap.killTweensOf(els); gsap.set(els, { clearProps: 'opacity,transform' }); }
+      els.forEach((el) => el.classList.remove('is-pre'));
+    }
+  };
+
   /* ---------- ثبت ماژول‌ها ---------- */
   Motion.add(Stage);
   Motion.add(Reel);
   Motion.add(Depts);
   Motion.add(Journey);
   Motion.add(Reviews);
+  Motion.add(MapAnim);
+  Motion.add(Reveal);
 
   let lastW = window.innerWidth, rt = 0;
   window.addEventListener('resize', () => {

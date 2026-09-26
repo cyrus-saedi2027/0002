@@ -279,8 +279,10 @@
     if (!a || a.hasAttribute('data-svc') || e.defaultPrevented) return;
     const id = a.getAttribute('href');
     if (id === '#' || id.length < 2) return;
-    const target = document.getElementById(id.slice(1));
+    let target = document.getElementById(id.slice(1));
     if (!target) return;
+    /* اگر مقصد در این اندازه‌ی صفحه دیده نمی‌شود (مثل فرم نوبت روی موبایل)، جایگزینش */
+    if (!target.getClientRects().length && target.dataset.fallback) target = document.getElementById(target.dataset.fallback) || target;
     e.preventDefault();
     if (id === '#top') Motion.scrollTo(0);
     else Motion.scrollTo(target, -20);
@@ -307,6 +309,8 @@
   function hash(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; }
 
   const Clinic = {
+    DAYS, HOURS,
+    today() { return tehranNow().d; },
     status() {
       const n = tehranNow(), hrs = HOURS[n.d];
       if (hrs && n.min >= hrs[0] * 60 && n.min < hrs[1] * 60) return { open: true, text: `الان باز هستیم · تا ساعت ${toFa(hrs[1])}` };
@@ -340,6 +344,13 @@
     const s = Clinic.status();
     if (s.text) { $('.util__status-text', st).textContent = s.text; $('.dot', st).classList.toggle('is-closed', !s.open); }
   }
+
+  /* فوتر پرده‌ای فقط وقتی که کامل در صفحه جا می‌شود */
+  const foot = $('.foot');
+  const footFit = () => { if (foot) root.classList.toggle('foot-reveal', window.innerWidth >= 1000 && foot.offsetHeight < window.innerHeight - 60); };
+  footFit();
+  window.addEventListener('resize', footFit);
+  if (foot && window.ResizeObserver) new ResizeObserver(footFit).observe(foot);
 
   /* ---------- راه‌اندازی ---------- */
   window.Sasan = { $, $$, clamp, lerp, toFa, Spring, Motion, Prefs, Clinic, store, finePointer };
