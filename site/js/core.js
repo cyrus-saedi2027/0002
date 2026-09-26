@@ -216,7 +216,11 @@
       h = panel.getBoundingClientRect().height;
       spring.snap(h);
       Motion.pause();
-      if (root.classList.contains('rm')) spring.snap(0); else spring.to(0);
+      if (root.classList.contains('rm')) spring.snap(0); else {
+        spring.to(0);
+        /* آیتم‌های منو پله‌پله با فنر بالا می‌آیند */
+        if (window.gsap) gsap.fromTo(body.querySelectorAll('.sheet__label, .sheet__svc, .sheet__nav a, .sheet__a11y > *, .sheet__foot > *'), { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.6, ease: 'back.out(1.6)', stagger: 0.03, delay: 0.08, clearProps: 'opacity,transform' });
+      }
       setTimeout(() => { const f = $('a, button', body); if (f) f.focus({ preventScroll: true }); }, 60);
     };
     const close = (returnFocus = true) => {
@@ -339,21 +343,77 @@
     }
   };
 
-  const st = $('#openStatus');
-  if (st) {
-    const s = Clinic.status();
-    if (s.text) { $('.util__status-text', st).textContent = s.text; $('.dot', st).classList.toggle('is-closed', !s.open); }
+
+
+  /* ==========================================================================
+     تنظیمات نمایش: پنجره‌ی کوچک زیر دکمه‌ی هدر
+     ========================================================================== */
+  const pBtn = $('.prefs__btn'), pPop = $('#prefsPop');
+  if (pBtn && pPop) {
+    let pAnim = null;
+    const setPrefs = (open, focusBack = true) => {
+      if (open === !pPop.hidden) return;
+      pBtn.setAttribute('aria-expanded', String(open));
+      if (pAnim) pAnim.cancel();
+      const calm = !root.classList.contains('motion') || typeof pPop.animate !== 'function';
+      if (open) {
+        pPop.hidden = false;
+        if (!calm) pAnim = pPop.animate([{ opacity: 0, transform: 'translateY(-8px) scale(.96)' }, { opacity: 1, transform: 'none' }], { duration: 420, easing: 'cubic-bezier(.22, 1.2, .36, 1)' });
+        const first = $('[aria-checked="true"], .seg__btn', pPop);
+        if (first) first.focus({ preventScroll: true });
+      } else {
+        const done = () => { pPop.hidden = true; pAnim = null; };
+        if (calm) done();
+        else { pAnim = pPop.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(-6px) scale(.97)' }], { duration: 200, easing: 'ease-in' }); pAnim.onfinish = done; }
+        if (focusBack) pBtn.focus({ preventScroll: true });
+      }
+    };
+    pBtn.addEventListener('click', () => setPrefs(pPop.hidden));
+    document.addEventListener('pointerdown', (e) => { if (!pPop.hidden && !e.target.closest('.prefs')) setPrefs(false, false); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !pPop.hidden) setPrefs(false); });
   }
 
-  /* فوتر پرده‌ای فقط وقتی که کامل در صفحه جا می‌شود */
-  const foot = $('.foot');
-  const footFit = () => { if (foot) root.classList.toggle('foot-reveal', window.innerWidth >= 1000 && foot.offsetHeight < window.innerHeight - 60); };
-  footFit();
-  window.addEventListener('resize', footFit);
-  if (foot && window.ResizeObserver) new ResizeObserver(footFit).observe(foot);
+  /* ==========================================================================
+     آئورا: دانه‌ی فیلم، ساختن لایه‌ها و هم‌زمان کردن حرکتشان
+     ========================================================================== */
+  try {
+    const c = document.createElement('canvas'); c.width = c.height = 180;
+    const x = c.getContext('2d'), d = x.createImageData(180, 180);
+    for (let i = 0; i < d.data.length; i += 4) { const v = (Math.random() * 255) | 0; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 255; }
+    x.putImageData(d, 0, 0);
+    root.style.setProperty('--grain', `url(${c.toDataURL('image/png')})`);
+  } catch (e) { /* بدون دانه هم درست دیده می‌شود */ }
+
+  const STAR = '<svg viewBox="1322 -1 290 334"><use href="#lgp-star-l"/></svg>';
+  const AUR = '<span class="aur" aria-hidden="true">'
+    + '<i class="aur__b aur__b--1"></i><i class="aur__b aur__b--2"></i><i class="aur__b aur__b--3"></i><i class="aur__b aur__b--4"></i>'
+    + '<svg class="aur__art" viewBox="0 0 100 100" preserveAspectRatio="none">'
+    + '<g transform="rotate(-10 60 8)"><ellipse class="o" cx="60" cy="8" rx="64" ry="5"/><ellipse class="c" cx="60" cy="8" rx="64" ry="5" pathLength="100"/></g>'
+    + '<g transform="rotate(-6 44 13)"><ellipse class="o o2" cx="44" cy="13" rx="88" ry="6.5"/><ellipse class="c c2" cx="44" cy="13" rx="88" ry="6.5" pathLength="100"/></g>'
+    + '<ellipse class="o o2" cx="84" cy="4" rx="28" ry="3" transform="rotate(-18 84 4)"/>'
+    + '</svg>'
+    + `<i class="aur__sp aur__sp--1">${STAR}</i><i class="aur__sp aur__sp--2">${STAR}</i><i class="aur__sp aur__sp--3">${STAR}</i>`
+    + '<i class="aur__grain"></i></span>';
+  const isAur = (a) => /^(aur|dsky)/.test(a.animationName || '');
+  const Aurora = {
+    mount(el) { if (el && !el.querySelector(':scope > .aur')) el.insertAdjacentHTML('afterbegin', AUR); return el; },
+    /* لایه‌ی مقصد را دقیقاً هم‌فاز لایه‌ی مبدأ می‌کند (کارت ← لایه‌ی انتقال ← صفحه‌ی بخش) */
+    sync(target, source) {
+      if (!target || !source || typeof target.getAnimations !== 'function') return;
+      const a = target.getAnimations({ subtree: true }).filter(isAur), b = source.getAnimations({ subtree: true }).filter(isAur);
+      a.forEach((x, i) => { const y = b[i]; if (y && y.animationName === x.animationName) { try { x.currentTime = y.currentTime; } catch (e) { /* قدیمی */ } } });
+    },
+    /* حرکت آئورا فقط وقتی بخش در صفحه دیده می‌شود */
+    watch(host, probe = host) {
+      if (!host || !probe) return;
+      host.classList.add('aur-host');
+      if (!('IntersectionObserver' in window)) { host.classList.add('is-live'); return; }
+      new IntersectionObserver((es) => es.forEach((e) => host.classList.toggle('is-live', e.isIntersecting)), { rootMargin: '120px 0px' }).observe(probe);
+    }
+  };
 
   /* ---------- راه‌اندازی ---------- */
-  window.Sasan = { $, $$, clamp, lerp, toFa, Spring, Motion, Prefs, Clinic, store, finePointer };
+  window.Sasan = { $, $$, clamp, lerp, toFa, Spring, Motion, Prefs, Clinic, store, finePointer, Aurora };
   document.addEventListener('DOMContentLoaded', () => {
     if (!root.classList.contains('rm')) Motion.start();
     onScroll();

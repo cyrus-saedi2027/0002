@@ -7,7 +7,7 @@
 
   const S = window.Sasan;
   if (!S) return;
-  const { $, $$, toFa, Motion, Clinic } = S;
+  const { $, $$, toFa, Motion, Clinic, Aurora } = S;
   const root = document.documentElement;
   const isMob = () => window.matchMedia('(max-width: 699.98px)').matches;
   if (window.gsap && window.Flip) gsap.registerPlugin(Flip);
@@ -158,6 +158,53 @@
       .to(ctas, { opacity: 1, y: 0, duration: 1 }, 0.8)
       .to(qbw, { opacity: 1, y: 0, duration: 1.1 }, 0.95)
       .add(() => gsap.set([lead, ctas, qbw, kicker], { clearProps: 'transform,opacity' }));
+  }
+
+  /* ==========================================================================
+     معرفی لوگو: مدار و خط دور دندان می‌چرخد، آبی پر می‌شود، ستاره‌ها می‌درخشند،
+     «Sasan Clinic» نوشته می‌شود؛ بعد پرده بالا می‌رود و لوگو در هدر می‌نشیند
+     ========================================================================== */
+  function brandIntro(done) {
+    const ov = $('#brandIntro');
+    if (!root.classList.contains('bi') || !ov || !window.gsap || !Motion.on) {
+      root.classList.remove('bi'); if (ov) ov.remove(); done(); return;
+    }
+    window.__sasanBI = true;
+    try { sessionStorage.setItem('sasan:bi', '1'); } catch (e) { /* حالت خصوصی */ }
+    const bg = $('.bi-ov__bg', ov), mark = $('.bi-mark', ov), word = $('.bi-word', ov);
+    const sweep = $('.bi-sweep', ov), blue = $('.bi-blue', ov), fill = $('.bi-fill', ov), stars = [$('.bi-star--l', ov), $('.bi-star--s', ov)];
+    const target = $('.hdr .brand__mark');
+    root.style.overflow = 'hidden';
+    Motion.pause();
+    let started = false;
+    const start = () => { if (started) return; started = true; root.style.overflow = ''; Motion.resume(); done(); };
+    const finish = () => { start(); root.classList.remove('bi'); ov.remove(); };
+
+    const tl = gsap.timeline({ onComplete: finish });
+    gsap.set(stars, { scale: 0, rotation: -140, transformOrigin: '50% 50%', opacity: 1 });
+    tl.to(fill, { opacity: 1, duration: 0.6, ease: 'power1.out' }, 0.1)
+      .to(sweep, { attr: { 'stroke-dashoffset': 0 }, duration: 1.15, ease: 'power2.inOut' }, 0.12)
+      .to(blue, { opacity: 1, duration: 0.7, ease: 'power1.out' }, 0.55)
+      .to(stars, { scale: 1, rotation: 0, duration: 0.85, ease: 'back.out(2.4)', stagger: 0.12 }, 0.95)
+      .to(word, { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.95, ease: 'power2.inOut' }, 1.05)
+      .to(stars, { scale: 1.28, duration: 0.2, yoyo: true, repeat: 1, ease: 'sine.inOut', stagger: 0.09 }, 1.85)
+      .addLabel('exit', 2.25)
+      .to(word, { opacity: 0, y: -14, duration: 0.4, ease: 'power2.in' }, 'exit')
+      .add(start, 'exit+=0.2')
+      .to(bg, { clipPath: 'inset(0% 0% 100% 0%)', duration: 1.1, ease: 'expo.inOut' }, 'exit+=0.08')
+      .add(() => {
+        if (!target) { gsap.to(mark, { opacity: 0, duration: 0.5 }); return; }
+        const r0 = mark.getBoundingClientRect(), r1 = target.getBoundingClientRect();
+        gsap.to(mark, {
+          x: r1.left + r1.width / 2 - (r0.left + r0.width / 2), y: r1.top + r1.height / 2 - (r0.top + r0.height / 2),
+          scale: r1.width / r0.width, duration: 1.1, ease: 'expo.inOut'
+        });
+      }, 'exit+=0.08')
+      .to({}, { duration: 1.1 }, 'exit+=0.08');
+    /* هر کلیک یا کلید، معرفی را سریع جلو می‌برد */
+    const skip = () => { tl.timeScale(3.5); };
+    ov.addEventListener('pointerdown', skip, { once: true });
+    document.addEventListener('keydown', skip, { once: true });
   }
 
   /* ==========================================================================
@@ -477,6 +524,14 @@
         });
         tl.fromTo(deck, { scale: mob ? 1.05 : 1.14, y: mob ? 14 : 50 }, { scale: 1, y: 0, duration: 0.26 }, 0)
           .to({}, { duration: 0.74 }, 0.26);
+        /* آسمان بخش: آبی و بنفش ← بنفش و صورتی ← فیروزه‌ای و سبزآبی */
+        const sky = $$('.dsky__l', sec);
+        if (sky.length === 3) {
+          tl.to(sky[1], { opacity: 1, duration: 0.24 }, 0.24)
+            .to(sky[0], { opacity: 0.2, duration: 0.24 }, 0.3)
+            .to(sky[2], { opacity: 1, duration: 0.26 }, 0.6)
+            .to(sky[1], { opacity: 0.3, duration: 0.26 }, 0.66);
+        }
 
         /* تیتر بخش هنگام نزدیک شدن ظاهر می‌شود */
         gsap.fromTo(head.querySelectorAll('.kicker, .depts__title, .depts__sub, .link-arrow'), { autoAlpha: 0, y: 30 }, {
@@ -496,6 +551,21 @@
     reveal() { if (this.setGap) { this.setGap(true); this.setFlip(true); } }
   };
   $$('.pcard').forEach((c) => c.addEventListener('focus', () => { if (!Depts.flipped) Depts.reveal(); }));
+  /* رنگ کارتی که زیر نشانگر است آرام در آسمان پشت کارت‌ها پخش می‌شود */
+  const deptsSec = $('#services');
+  $$('.pcard').forEach((c) => {
+    const on = () => {
+      if (!Depts.flipped) return;
+      const r = c.getBoundingClientRect(), sr = deptsSec.getBoundingClientRect();
+      deptsSec.style.setProperty('--hx', `${((r.left + r.width / 2 - sr.left) / sr.width * 100).toFixed(1)}%`);
+      deptsSec.style.setProperty('--hc', getComputedStyle(c).getPropertyValue('--a1').trim());
+      deptsSec.classList.add('is-hover');
+    };
+    c.addEventListener('pointerenter', on);
+    c.addEventListener('focus', on);
+    c.addEventListener('pointerleave', () => deptsSec.classList.remove('is-hover'));
+    c.addEventListener('blur', () => deptsSec.classList.remove('is-hover'));
+  });
 
   /* ==========================================================================
      نمای بخش: از خود کارت باز می‌شود و به همان کارت برمی‌گردد
@@ -525,6 +595,15 @@
   const morph = document.createElement('div');
   morph.className = 'svc-morph'; morph.hidden = true; morph.setAttribute('aria-hidden', 'true');
   document.body.appendChild(morph);
+  Aurora.mount(morph);
+  Aurora.mount($('.svc__bg', view));
+  $$('.pcard__back').forEach((b) => Aurora.mount(b));
+  Aurora.watch($('#deck')); Aurora.watch($('#services'));
+  /* فوتر پرده‌ای همیشه زیر صفحه چسبیده است؛ پس دیده شدنش را از انتهای محتوا می‌فهمیم */
+  const endProbe = document.createElement('div');
+  endProbe.className = 'end-probe'; endProbe.setAttribute('aria-hidden', 'true');
+  $('main').appendChild(endProbe);
+  Aurora.watch($('.foot'), endProbe);
   const viewParts = () => [$('.svc__top', view), ...$('.svc__hero', view).children, $('.svc__main', view)];
   const isCard = (el) => !!(el && el.classList && el.classList.contains('pcard'));
   /* قاب کارت بدون x/y/چرخش، به‌اضافه‌ی همان مقدارها */
@@ -568,13 +647,17 @@
     if (card) b = cardBox(card);
     else { const r = from.getBoundingClientRect(); b = { left: r.left, top: r.top, width: r.width, height: r.height, x: 0, y: 0, rotation: 0, radius: 6, origin: '50% 50%' }; }
     morph.dataset.k = key; morph.hidden = false;
+    if (card) Aurora.sync(morph, $('.pcard__back', card));
     gsap.set(morph, { left: b.left, top: b.top, width: b.width, height: b.height, x: b.x, y: b.y, rotation: b.rotation, borderRadius: b.radius, transformOrigin: b.origin, opacity: 0 });
     gsap.timeline()
       /* متن پشت کارت آرام زیر گرادیان محو می‌شود، بعد قاب با شتاب نرم تا لبه‌های صفحه باز می‌شود */
       .to(morph, { opacity: 1, duration: card ? 0.28 : 0.2, ease: 'power1.out' }, 0)
       .to(morph, { ...fullBox(), duration: 1.05, ease: 'expo.inOut' }, card ? 0.08 : 0)
+      .fromTo($('.aur__art', morph), { opacity: 1 }, { opacity: 0.4, duration: 1.05, ease: 'power1.inOut' }, card ? 0.08 : 0)
+      .fromTo($('.aur', morph), { '--spo': 1 }, { '--spo': 0.4, duration: 1.05, ease: 'power1.inOut' }, card ? 0.08 : 0)
       .add(() => {
         view.hidden = false;
+        Aurora.sync($('.svc__bg', view), morph);
         gsap.set(parts, { opacity: 0, y: 24 });
         morph.hidden = true;
         gsap.to(parts, { opacity: 1, y: 0, duration: 0.8, ease: 'expo.out', stagger: 0.06, clearProps: 'transform,opacity' });
@@ -606,9 +689,12 @@
         if (!target) { gsap.to(view, { opacity: 0, duration: 0.4, ease: 'power1.inOut', onComplete: finish }); return; }
         /* لایه دقیقاً جای زمینه‌ی صفحه را می‌گیرد (همان گرادیان در همان اندازه) و به قاب کارت برمی‌گردد */
         morph.dataset.k = key; morph.hidden = false;
+        Aurora.sync(morph, $('.svc__bg', view));
         gsap.set(morph, { ...fullBox(), transformOrigin: target.origin, opacity: 1 });
         view.hidden = true;
         gsap.timeline({ onComplete: finish })
+          .fromTo($('.aur__art', morph), { opacity: 0.4 }, { opacity: 1, duration: 1, ease: 'power1.inOut' }, 0)
+          .fromTo($('.aur', morph), { '--spo': 0.4 }, { '--spo': 1, duration: 1, ease: 'power1.inOut' }, 0)
           .to(morph, { left: target.left, top: target.top, width: target.width, height: target.height, x: target.x, y: target.y, rotation: target.rotation, borderRadius: target.radius, duration: 1, ease: 'expo.inOut' })
           .to(morph, { opacity: 0, duration: 0.35, ease: 'power1.inOut' }, '-=0.12');
       });
@@ -761,6 +847,27 @@
     }
   };
 
+  /* فوتر: محتوا از زیر صفحه بالا می‌آید و «Sasan Clinic» با اسکرول، اول خط‌به‌خط کشیده و بعد با گرادیان آئورا پر می‌شود */
+  const FootFx = {
+    build() {
+      const foot = $('.foot'), main = $('main'), line = $('.fword__line'), wipe = $('.fword__wipe'), src = $('#lgp-word');
+      if (!foot || !main || !line || !wipe || !src || !window.ScrollTrigger) return;
+      const len = src.getTotalLength();
+      this.ctx = gsap.context(() => {
+        gsap.set(line, { strokeDasharray: len, strokeDashoffset: len });
+        gsap.set(wipe, { attr: { width: 0 } });
+        const inner = $('.foot__in', foot), sky = $('.fsky', foot);
+        gsap.timeline({ scrollTrigger: { trigger: main, start: 'bottom bottom', end: () => '+=' + foot.offsetHeight, scrub: true, invalidateOnRefresh: true } })
+          .fromTo(inner, { yPercent: -28 }, { yPercent: 0, ease: 'none', duration: 1 }, 0)
+          .fromTo(sky, { yPercent: -12, opacity: 0.4 }, { yPercent: 0, opacity: 1, ease: 'none', duration: 1 }, 0);
+        gsap.timeline({ scrollTrigger: { trigger: main, start: 'bottom bottom', end: () => '+=' + foot.offsetHeight, scrub: 0.8, invalidateOnRefresh: true } })
+          .to(line, { strokeDashoffset: 0, duration: 0.62, ease: 'none' }, 0)
+          .to(wipe, { attr: { width: 1427 }, duration: 0.5, ease: 'power1.inOut' }, 0.42);
+      });
+    },
+    kill() { if (this.ctx) { this.ctx.revert(); this.ctx = null; } }
+  };
+
   /* ورود نرم کارت‌های پایین صفحه، فقط برای چیزهایی که هنوز دیده نشده‌اند */
   const Reveal = {
     build() {
@@ -796,6 +903,7 @@
   Motion.add(Reviews);
   Motion.add(MapAnim);
   Motion.add(Reveal);
+  Motion.add(FootFx);
 
   let lastW = window.innerWidth, rt = 0;
   window.addEventListener('resize', () => {
@@ -808,7 +916,7 @@
   });
 
   document.addEventListener('DOMContentLoaded', () => {
-    intro();
+    brandIntro(intro);
     if (!Motion.on) counters(document, false);
     const k = location.hash.slice(1);
     if (SVC[k]) openSvc(k, null, false);
