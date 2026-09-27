@@ -1,0 +1,7 @@
+# کلیدها و داده‌های سرور هرگز وارد مخزن نمی‌شوند
+server/.env
+server/.env.*
+!server/.env.example
+server/data/
+node_modules/
+.DS_Store
