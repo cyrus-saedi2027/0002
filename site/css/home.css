@@ -45,16 +45,6 @@ html.intro [data-intro] { opacity: 0; }
 .qbook__submit { height: 48px; }
 .qbook__submit .ic { width: 19px; height: 19px; }
 .qbook .field.is-bad input { border-color: #C23A32; box-shadow: 0 0 0 4px rgba(194, 58, 50, .12); }
-/* خط زیر فرم: پذیرش زمان را هماهنگ می‌کند و بازه‌ی تماس با ساعت همین حالا */
-.qbook__note { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line-2); font-size: .875rem; line-height: 1.7; color: var(--ink-2); }
-.qbook__note b { margin-inline-start: auto; font-family: var(--f-ui); font-size: .8125rem; font-weight: 700; color: var(--navy-800); font-variant-numeric: tabular-nums; }
-.qbook__ring { position: relative; flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--blue-50); color: var(--blue); }
-.qbook__ring .ic { width: 15px; height: 15px; }
-/* دو موج آرام دور گوشی، سه بار و بعد آرام می‌گیرد (فقط transform و opacity) */
-.qbook__ring::before, .qbook__ring::after { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 1.5px solid var(--blue); opacity: 0; animation: qbRing 1.8s cubic-bezier(.16, 1, .3, 1) 2.4s 3; }
-.qbook__ring::after { animation-delay: 2.75s; }
-@keyframes qbRing { 0% { transform: scale(1); opacity: .55; } 100% { transform: scale(1.75); opacity: 0; } }
-html.rm .qbook__ring::before, html.rm .qbook__ring::after { animation: none; }
 .qbook__result { margin-top: 14px; padding: 12px 14px; border-radius: var(--r1); background: var(--blue-50); border-inline-start: 3px solid var(--blue); display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; font-size: .96875rem; }
 .qbook__result b { font-weight: 800; }
 .qbook__result a { margin-inline-start: auto; }
@@ -324,6 +314,8 @@ html.hc .jsky { display: none; }
 .docs[data-k="medicine"] { --tone: #7FE6CB; }
 .docs .sec-title { color: #fff; }
 .docs .sec-sub { max-width: 44ch; margin-top: 0; color: rgba(217, 226, 241, .72); }
+.docs__side { max-width: 44ch; }
+.docs__more { margin-top: 14px; }
 /* جای صورت در هر عکس (برای برش‌های افقی و قاب بزرگ) */
 .doc { --fy: 14%; }
 .doc[data-i="4"] { --fy: 42%; }
@@ -509,87 +501,6 @@ html:not(.motion) .sf .sf__txt span, html.rm .sf .sf__txt span { color: var(--in
   .sfx__node .ic { width: 19px; height: 19px; }
 }
 html.hc .safe { background: #fff; }
-/* ==========================================================================
-   ساعت ساسان (js: Clock): ساعت ۲۴ ساعته؛ آسمان پشت بخش با ساعت انتخاب‌شده روز و شب می‌شود
-   ========================================================================== */
-.clk { position: relative; overflow: clip; isolation: isolate; color: #fff; background: #070A1E; padding-block: clamp(80px, 12vh, 130px); }
-.clk__sky { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
-.clk__sky > i { position: absolute; inset: 0; will-change: opacity; }
-.clk__night { background: radial-gradient(70% 60% at 78% 18%, rgba(52, 62, 150, .55), rgba(52, 62, 150, 0) 70%), linear-gradient(180deg, #050817 0%, #0B1233 100%); }
-.clk__stars { opacity: 1; background-image: radial-gradient(1.2px 1.2px at 20px 30px, #fff, transparent), radial-gradient(1px 1px at 120px 80px, rgba(255, 255, 255, .8), transparent), radial-gradient(1.4px 1.4px at 60px 150px, #fff, transparent), radial-gradient(1px 1px at 170px 170px, rgba(255, 255, 255, .7), transparent), radial-gradient(1.2px 1.2px at 230px 40px, rgba(255, 255, 255, .9), transparent), radial-gradient(1px 1px at 90px 230px, rgba(255, 255, 255, .6), transparent); background-size: 260px 260px; }
-.clk__day { opacity: 0; background: radial-gradient(60% 55% at 80% 10%, rgba(255, 244, 214, .35), rgba(255, 244, 214, 0) 70%), linear-gradient(180deg, #164BB8 0%, #2A6CD6 55%, #4E8FE6 100%); }
-.clk__glow { opacity: 0; background: radial-gradient(70% 55% at 50% 105%, rgba(255, 138, 76, .7), rgba(255, 138, 76, 0) 70%), radial-gradient(40% 40% at 15% 90%, rgba(255, 96, 128, .35), rgba(255, 96, 128, 0) 70%); }
-.clk__in { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(40px, 6vw, 96px); align-items: center; }
-.clk__title { color: #fff; max-width: 18ch; }
-.clk .kicker--light { transition: color .6s; }
-.clk[data-part="day"] .kicker--light { color: #fff; }
-.clk__sub { max-width: 46ch; margin-top: 14px; font-size: var(--fs-lead, 1.0625rem); line-height: 1.95; color: rgba(229, 236, 250, .8); }
-.clk__days { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 26px; }
-.clk__days button { position: relative; height: 40px; padding-inline: 13px; border-radius: 999px; background: rgba(255, 255, 255, .08); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14); font-family: var(--f-ui); font-size: .8125rem; font-weight: 600; color: rgba(255, 255, 255, .82); transition: background-color .3s, color .3s, box-shadow .3s, scale .5s var(--spring); }
-.clk__days button:hover { background: rgba(255, 255, 255, .16); }
-.clk__days button:active { scale: .94; transition-duration: .1s; }
-.clk__days button[aria-pressed="true"] { background: #fff; color: var(--navy-800); box-shadow: 0 10px 24px -12px rgba(0, 0, 0, .6); }
-.clk__days button.is-today::after { content: "امروز"; position: absolute; top: -9px; inset-inline-end: 6px; padding: 0 6px; border-radius: 999px; background: #3EE0AE; color: #04261C; font-size: .625rem; font-weight: 800; line-height: 1.6; }
-.clk__ds { display: none; }
-.clk__dd { position: absolute; bottom: 5px; left: 50%; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: #6EA8FF; opacity: 0; }
-.clk__days button.is-dental .clk__dd { opacity: 1; }
-.clk__list { display: grid; gap: 10px; margin: 22px 0 0; padding: 0; list-style: none; }
-.clk__row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 14px; background: rgba(255, 255, 255, .07); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .1); transition: opacity .45s, background-color .45s; }
-.clk__row.is-off { opacity: .55; background: rgba(255, 255, 255, .03); }
-.clk__rt { display: grid; gap: 1px; min-width: 0; }
-.clk__rt b { font-size: 1rem; font-weight: 800; }
-.clk__rs { font-family: var(--f-ui); font-size: .8125rem; color: rgba(229, 236, 250, .78); }
-.clk__dot { position: relative; flex: none; width: 12px; height: 12px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 4px color-mix(in srgb, var(--c) 22%, transparent), 0 0 18px var(--c); transition: background-color .4s, box-shadow .4s; }
-.clk__row[data-k="medicine"] { --c: #3EE0AE; }
-.clk__row[data-k="dental"] { --c: #6EA8FF; }
-.clk__row[data-k="beauty"] { --c: #FF8FB6; }
-.clk__row.is-off .clk__dot { background: transparent; box-shadow: inset 0 0 0 2px var(--c); }
-.clk__can { max-width: 52ch; margin-top: 16px; font-size: .9375rem; line-height: 1.95; color: rgba(229, 236, 250, .86); }
-.clk__can b { color: #fff; }
-.clk__acts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
-.clk__acts .btn[hidden] { display: none; }
-
-/* صفحه‌ی ساعت: حلقه‌ها روی بوم؛ عقربه فقط transform می‌گیرد */
-/* لمسی: صفحه روی ساعت هم اسکرول می‌شود؛ ضربه ساعت را عوض می‌کند و فقط دکمه‌ی گرد عقربه کشیدنی است */
-.clk__dial { position: relative; justify-self: center; width: min(520px, 100%); aspect-ratio: 1; touch-action: pan-y; cursor: grab; user-select: none; -webkit-user-select: none; }
-.clk__dial.is-drag { cursor: grabbing; }
-.clk__cv { position: absolute; inset: 0; width: 100%; height: 100%; }
-.clk__hand { position: absolute; inset: 0; transform: rotate(var(--a, 180deg)); transition: transform .9s cubic-bezier(.22, 1.1, .36, 1); pointer-events: none; will-change: transform; }
-.clk__dial.is-drag .clk__hand, .clk__dial.is-intro .clk__hand { transition: none; }
-.clk__arm { position: absolute; left: calc(50% - 1.5px); top: 71.5%; width: 3px; height: 16%; border-radius: 3px; background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, .95)); }
-.clk__knob { position: absolute; left: calc(50% - 14px); top: calc(94% - 14px); width: 28px; height: 28px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 7px rgba(255, 255, 255, .16), 0 0 28px rgba(255, 255, 255, .75); pointer-events: auto; touch-action: none; }
-.clk__knob::before { content: ""; position: absolute; inset: -14px; border-radius: 50%; }
-.clk__center { position: absolute; inset: 30%; display: grid; place-content: center; justify-items: center; gap: 2px; text-align: center; pointer-events: none; }
-.clk__orb { position: relative; width: 40px; height: 40px; margin-bottom: 4px; }
-.clk__orb svg { position: absolute; inset: 0; width: 100%; height: 100%; fill: none; stroke: #fff; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-.clk__sun circle { fill: #FFD76A; stroke: #FFD76A; }
-.clk__sun path { stroke: #FFD76A; }
-.clk__moon path { fill: #E9EEFF; stroke: #E9EEFF; }
-.clk__time { font-family: var(--f-ui); font-size: clamp(2.2rem, 1.6rem + 2.2vw, 3.4rem); font-weight: 800; line-height: 1.1; letter-spacing: .01em; font-variant-numeric: tabular-nums; }
-.clk__part { font-family: var(--f-ui); font-size: .875rem; color: rgba(229, 236, 250, .78); }
-.clk__range-l { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
-.clk__range { width: 100%; }
-.clk__dial:has(.clk__range:focus-visible) { outline: 3px solid #fff; outline-offset: 6px; border-radius: 50%; }
-.clk__lg { position: absolute; left: 50%; bottom: -34px; translate: -50% 0; display: flex; align-items: center; gap: 6px; white-space: nowrap; font-family: var(--f-ui); font-size: .75rem; color: rgba(229, 236, 250, .7); }
-.clk__lg i { width: 8px; height: 8px; border-radius: 50%; margin-inline-start: 10px; }
-.clk__lg i:first-child { margin-inline-start: 0; }
-.clk__lg i[data-k="medicine"] { background: #3EE0AE; }
-.clk__lg i[data-k="dental"] { background: #6EA8FF; }
-@media (max-width: 999.98px) {
-  .clk__in { grid-template-columns: minmax(0, 1fr); gap: 64px; }
-  .clk__dial { order: -1; width: min(420px, 88vw); }
-  .clk__title { max-width: none; }
-}
-@media (max-width: 699.98px) {
-  .clk__days { gap: 5px; }
-  .clk__days button { width: 40px; padding: 0; }
-  .clk__dl { display: none; }
-  .clk__ds { display: inline; font-size: .875rem; }
-  .clk__days button.is-today::after { inset-inline-end: 50%; translate: -50% 0; }
-  .clk__lg { font-size: .6875rem; }
-}
-html.hc .clk__sky { display: none; }
-html.hc .clk { background: #000; }
 
 html.hc .sfx__node { box-shadow: 0 0 0 2px #000; }
 html.hc .sf.is-on .sf__btn { box-shadow: inset 0 0 0 3px #000; }

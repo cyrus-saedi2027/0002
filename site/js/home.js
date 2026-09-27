@@ -259,23 +259,12 @@
 
 
   /* ---------- درخواست سریع نوبت (هیرو): بخش، نوع مراجعه و موبایل؛ کپسول نوبت با همین‌ها باز می‌شود.
-     بیمار زمان انتخاب نمی‌کند؛ بازه‌ی تماس پذیرش (۳۰ دقیقه تا ۴ ساعت بعد) با ساعت همین حالا نشان داده می‌شود ---------- */
+     بیمار زمان انتخاب نمی‌کند؛ پذیرش روز، ساعت و پزشک را تلفنی هماهنگ می‌کند (این در کپسول نوبت گفته می‌شود) ---------- */
   const qb = $('#qbook');
   if (qb) {
-    const qTel = $('#qbTel'), qCall = $('#qbCall'), out = $('#qbResult');
+    const qTel = $('#qbTel'), out = $('#qbResult');
     const digitsEn = (v) => v.replace(/[۰-۹]/g, (c) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(c)).replace(/[٠-٩]/g, (c) => '٠١٢٣٤٥٦٧٨٩'.indexOf(c));
     const normTel = (v) => digitsEn(v).replace(/[\s\-().]/g, '').replace(/^(\+98|0098|98(?=9\d{9}$))/, '0').replace(/^9(?=\d{9}$)/, '09');
-    const hm = (d) => '\u2066' + toFa(`${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`) + '\u2069';
-    const paintCall = () => {
-      if (!qCall) return;
-      /* به ده دقیقه‌ی بعد گرد می‌شود */
-      const t0 = new Date(Date.now() + 30 * 60e3); t0.setMinutes(Math.ceil(t0.getMinutes() / 10) * 10, 0, 0);
-      const t1 = new Date(t0.getTime() + 210 * 60e3);
-      const day = t1.getDate() !== new Date().getDate() ? (t0.getDate() !== new Date().getDate() ? 'فردا ' : '') : '';
-      qCall.textContent = `اگر همین حالا ثبت کنید: حدود ${day}${hm(t0)} تا ${t1.getDate() !== t0.getDate() ? 'فردا ' : ''}${hm(t1)}`;
-    };
-    paintCall();
-    setInterval(paintCall, 60e3);
     const markTel = (bad) => { qTel.closest('.field').classList.toggle('is-bad', bad); qTel.setAttribute('aria-invalid', String(bad)); };
     qTel.addEventListener('input', () => { markTel(false); if (!out.hidden) { out.hidden = true; out.innerHTML = ''; } });
     qb.addEventListener('submit', (e) => {
@@ -341,6 +330,7 @@
     window.__sasanIntro = true;
     if (!Motion.on) { root.classList.remove('intro'); return; }
     const title = $('.hero__title');
+    if (!title) { root.classList.remove('intro'); return; }
     const words = splitWords(title);
     const kicker = $('.hero .kicker'), lead = $('.hero__lead'), ctas = $('.hero__ctas'), qbw = $('.qbook');
     const zoom = $('.stage__zoom'), shade = $('.stage__shade');
@@ -2458,235 +2448,11 @@
     else if (!e.shiftKey && a === last) { e.preventDefault(); first.focus(); }
   });
 
-  /* ==========================================================================
-     ساعت ساسان: ساعت ۲۴ ساعته. حلقه‌ی سبز پزشک عمومی (شبانه‌روزی)، حلقه‌ی آبی دندانپزشکی (۱۰ تا ۲۰ در روزهای پذیرش)،
-     لبه‌ی بیرونی رنگ آسمان همان ساعت. عقربه با کشیدن، کلیدهای جهت یا روزهای هفته عوض می‌شود و آسمان پشت بخش روز و شب می‌شود.
-     حلقه‌ها فقط وقتی روز عوض می‌شود دوباره کشیده می‌شوند؛ عقربه و آسمان فقط transform و opacity می‌گیرند.
-     با اولین دیده شدن، عقربه یک شبانه‌روز کامل می‌چرخد و روی همین حالا می‌ایستد (یک بار)
-     ========================================================================== */
-  const clkSec = $('#clock');
-  if (clkSec) {
-    const dial = $('.clk__dial', clkSec), cv = $('.clk__cv', clkSec), ctx = cv.getContext ? cv.getContext('2d') : null;
-    const hand = $('.clk__hand', clkSec), range = $('.clk__range', clkSec), dayBtns = $$('.clk__days button', clkSec);
-    const tEl = $('#clkTime'), pEl = $('#clkPart'), canEl = $('#clkCan'), nowBtn = $('.clk__now', clkSec);
-    const rows = { medicine: $('.clk__row[data-k="medicine"]', clkSec), dental: $('.clk__row[data-k="dental"]', clkSec), beauty: $('.clk__row[data-k="beauty"]', clkSec) };
-    const sky = { night: $('.clk__night', clkSec), stars: $('.clk__stars', clkSec), day: $('.clk__day', clkSec), glow: $('.clk__glow', clkSec) };
-    const sun = $('.clk__sun', clkSec), moon = $('.clk__moon', clkSec);
-    const { DAYS, DENTAL, hourFa } = Clinic;
-    const canAnim = () => Motion.on && !root.classList.contains('rm');
-    const st = { d: -1, m: 720, ang: 180, p: 1, dp: 1 };
-    let S = 0, dpr = 1;
-    const TAU = Math.PI * 2, A0 = Math.PI / 2; /* نیمه‌شب پایین، ظهر بالا؛ ساعتگرد */
-    const angOf = (h) => A0 + (h / 24) * TAU;
-    const smooth = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
-    const dayness = (m) => smooth(330, 450, m) * (1 - smooth(1050, 1170, m));
-    const warm = (m) => Math.max(Math.exp(-(((m - 380) / 75) ** 2)), Math.exp(-(((m - 1110) / 75) ** 2)));
-    const partOf = (m) => (m < 300 ? 'بامداد' : m < 720 ? 'صبح' : m < 780 ? 'ظهر' : m < 1020 ? 'بعدازظهر' : m < 1200 ? 'عصر' : 'شب');
-    const hhmm = (m) => toFa(`${String(Math.floor(m / 60) % 24).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`);
-    const dentalOpen = (d, m) => { const h = DENTAL[d]; return !!h && m >= h[0] * 60 && m < h[1] * 60; };
-    const dentalNext = (d, m) => {
-      for (let off = 0; off < 8; off++) {
-        const di = (d + off) % 7, h = DENTAL[di];
-        if (!h || (off === 0 && m >= h[0] * 60)) continue;
-        return `پذیرش بعدی: ${DAYS[di]}، ${hourFa(h[0])}`;
-      }
-      return '';
-    };
-
-    /* ---------- بوم: لبه‌ی آسمان، خط‌های ساعت، حلقه‌ها (p = پیشرفت کشیده شدن در ورود) ---------- */
-    const draw = () => {
-      if (!ctx || !S) return;
-      st.dirty = false;
-      const c = S / 2, p = st.p;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.clearRect(0, 0, S, S);
-      ctx.lineCap = 'round';
-      /* لبه‌ی بیرونی: رنگ آسمان هر ساعت (شب، سپیده، روز، غروب) */
-      const R0 = S * 0.47, w0 = S * 0.018;
-      let sg = '#3B4FA8';
-      if (ctx.createConicGradient) {
-        sg = ctx.createConicGradient(A0, c, c);
-        [[0, '#1B2466'], [4.8, '#3A2F7C'], [6, '#FF9A5A'], [7.4, '#5AA8FF'], [12, '#9ED8FF'], [16.6, '#5AA8FF'], [18.3, '#FF7F58'], [19.6, '#3A2F7C'], [24, '#1B2466']].forEach(([h, col]) => sg.addColorStop(h / 24, col));
-      }
-      ctx.beginPath(); ctx.arc(c, c, R0, A0, A0 + TAU * p); ctx.strokeStyle = sg; ctx.lineWidth = w0; ctx.stroke();
-      /* خط‌های ربع‌ساعت و ساعت، و عدد هر سه ساعت */
-      const R1 = S * 0.425;
-      for (let k = 0; k < 96; k++) {
-        if (k / 96 > p) break;
-        const a = A0 + (k / 96) * TAU, hr = k % 4 === 0, len = hr ? S * 0.022 : S * 0.009;
-        ctx.beginPath(); ctx.moveTo(c + Math.cos(a) * R1, c + Math.sin(a) * R1); ctx.lineTo(c + Math.cos(a) * (R1 - len), c + Math.sin(a) * (R1 - len));
-        ctx.strokeStyle = hr ? 'rgba(255, 255, 255, .55)' : 'rgba(255, 255, 255, .22)'; ctx.lineWidth = hr ? 1.6 : 1; ctx.stroke();
-      }
-      ctx.fillStyle = 'rgba(229, 236, 250, .75)'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.font = `600 ${Math.round(S * 0.032)}px ${getComputedStyle(clkSec).getPropertyValue('--f-ui') || 'sans-serif'}`;
-      for (let h = 0; h < 24; h += 3) {
-        if (h / 24 > p) break;
-        const a = angOf(h), r = R1 - S * 0.058;
-        ctx.fillText(toFa(h === 0 ? 24 : h), c + Math.cos(a) * r, c + Math.sin(a) * r);
-      }
-      /* حلقه‌ی پزشک عمومی: کامل (شبانه‌روزی) */
-      const Rg = S * 0.33, wr = S * 0.03;
-      ctx.beginPath(); ctx.arc(c, c, Rg, 0, TAU); ctx.strokeStyle = 'rgba(255, 255, 255, .07)'; ctx.lineWidth = wr; ctx.stroke();
-      let gg = '#3EE0AE';
-      if (ctx.createConicGradient) { gg = ctx.createConicGradient(A0, c, c); gg.addColorStop(0, '#15A07C'); gg.addColorStop(0.5, '#3EE0AE'); gg.addColorStop(1, '#15A07C'); }
-      ctx.beginPath(); ctx.arc(c, c, Rg, A0, A0 + TAU * p); ctx.strokeStyle = gg; ctx.lineWidth = wr; ctx.stroke();
-      /* حلقه‌ی دندانپزشکی: فقط ۱۰ تا ۲۰ روزهای پذیرش */
-      const Rd = S * 0.265;
-      ctx.beginPath(); ctx.arc(c, c, Rd, 0, TAU); ctx.strokeStyle = 'rgba(255, 255, 255, .07)'; ctx.lineWidth = wr; ctx.stroke();
-      const h = DENTAL[st.d];
-      if (h) {
-        const a0 = angOf(h[0]), a1 = angOf(h[0] + (h[1] - h[0]) * st.dp);
-        if (a1 > a0 + 0.001) {
-          let dg = '#6EA8FF';
-          if (ctx.createLinearGradient) { dg = ctx.createLinearGradient(c - Rd, c, c + Rd, c); dg.addColorStop(0, '#3E7BFF'); dg.addColorStop(1, '#8FC0FF'); }
-          ctx.beginPath(); ctx.arc(c, c, Rd, a0, a1); ctx.strokeStyle = dg; ctx.lineWidth = wr; ctx.stroke();
-        }
-      } else {
-        ctx.save(); ctx.setLineDash([2, S * 0.022]);
-        ctx.beginPath(); ctx.arc(c, c, Rd, angOf(10), angOf(20)); ctx.strokeStyle = 'rgba(110, 168, 255, .45)'; ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
-      }
-      /* نقطه‌ی «همین حالا» روی لبه، فقط برای امروز */
-      const n = Clinic.now();
-      if (n.d === st.d && p >= 1) {
-        const a = angOf(n.min / 60);
-        ctx.beginPath(); ctx.arc(c + Math.cos(a) * R0, c + Math.sin(a) * R0, S * 0.013, 0, TAU); ctx.fillStyle = '#fff'; ctx.fill();
-      }
-    };
-    st.dp = 1;
-    const size = () => {
-      S = dial.clientWidth; dpr = Math.min(2, window.devicePixelRatio || 1);
-      if (!S || !ctx) return;
-      cv.width = Math.round(S * dpr); cv.height = Math.round(S * dpr);
-      draw();
-    };
-
-    /* ---------- خوانش: ساعت وسط صفحه، وضعیت بخش‌ها، آسمان ---------- */
-    let lastKey = '';
-    const paint = () => {
-      const m = ((Math.round(st.m) % 1440) + 1440) % 1440, q = m - (m % 15);
-      const dn = dayness(m), wm = warm(m) * (1 - Math.abs(dn - 0.5) * 0.6);
-      sky.day.style.opacity = dn.toFixed(3);
-      sky.stars.style.opacity = (1 - dn).toFixed(3);
-      sky.glow.style.opacity = wm.toFixed(3);
-      sun.style.opacity = dn.toFixed(3); moon.style.opacity = (1 - dn).toFixed(3);
-      const key = st.d + ':' + q;
-      if (key === lastKey) return;
-      lastKey = key;
-      tEl.textContent = hhmm(q);
-      pEl.textContent = `${partOf(q)} · ${DAYS[st.d]}`;
-      clkSec.dataset.part = dn > 0.5 ? 'day' : 'night';
-      range.value = q;
-      range.setAttribute('aria-valuetext', `${DAYS[st.d]} ساعت ${hhmm(q)} ${partOf(q)}`);
-      const dOpen = dentalOpen(st.d, q), hh = DENTAL[st.d];
-      $('.clk__rs', rows.dental).textContent = dOpen ? `پذیرش دارد تا ${hourFa(hh[1])}` : (hh && q < hh[0] * 60 ? `بسته؛ از ${hourFa(hh[0])} پذیرش دارد` : `بسته؛ ${dentalNext(st.d, q)}`);
-      rows.dental.classList.toggle('is-off', !dOpen);
-      canEl.innerHTML = dOpen
-        ? '<b>در این ساعت هر سه بخش پذیرش دارند:</b> ویزیت پزشک عمومی، تزریقات و سرم، بخیه و نوار قلب؛ و دندانپزشکی از جرم‌گیری و ترمیم تا عصب‌کشی و ایمپلنت.'
-        : '<b>در این ساعت پزشک عمومی در کلینیک است:</b> برای ویزیت، تزریقات، سرم‌تراپی، بخیه، شست‌وشوی گوش و نوار قلب مستقیم بیایید.';
-      const n = Clinic.now();
-      nowBtn.hidden = n.d === st.d && Math.abs(n.min - q) < 15;
-    };
-    /* زاویه‌ی عقربه پیوسته می‌ماند (از ۲۳:۴۵ به ۰۰:۱۵ نیم‌دور برعکس نمی‌چرخد) */
-    const setHand = (m) => {
-      const target = (m / 1440) * 360;
-      let a = target + Math.round((st.ang - target) / 360) * 360;
-      st.ang = a;
-      hand.style.setProperty('--a', a.toFixed(2) + 'deg');
-    };
-    const setM = (m, instant) => {
-      st.m = ((m % 1440) + 1440) % 1440;
-      if (instant) { dial.classList.add('is-drag'); setHand(st.m); void hand.offsetWidth; dial.classList.remove('is-drag'); }
-      else setHand(st.m);
-      paint();
-    };
-    let dpT = null;
-    const setDay = (d) => {
-      if (d === st.d) return;
-      st.d = d;
-      dayBtns.forEach((b, k) => b.setAttribute('aria-pressed', String(k === d)));
-      lastKey = '';
-      if (dpT) { dpT.kill(); dpT = null; }
-      /* قوس دندانپزشکی دوباره کشیده می‌شود */
-      if (canAnim() && window.gsap && DENTAL[d]) { st.dp = 0; dpT = gsap.to(st, { dp: 1, duration: 0.8, ease: 'expo.out', onUpdate: draw }); } else st.dp = 1;
-      draw(); paint();
-    };
-    const markDays = () => {
-      const today = Clinic.today();
-      dayBtns.forEach((b, k) => { b.classList.toggle('is-today', k === today); b.classList.toggle('is-dental', !!DENTAL[k]); });
-    };
-    const goNow = (instant) => { const n = Clinic.now(); setDay(n.d); setM(n.min, instant); };
-
-    /* ---------- کشیدن عقربه ---------- */
-    let drag = false, tap = null;
-    const mFromEvent = (e) => {
-      const r = dial.getBoundingClientRect(), x = e.clientX - (r.left + r.width / 2), y = e.clientY - (r.top + r.height / 2);
-      let a = Math.atan2(y, x) - A0; a = ((a % TAU) + TAU) % TAU;
-      return Math.round((a / TAU) * 1440 / 15) * 15 % 1440;
-    };
-    dial.addEventListener('pointerdown', (e) => {
-      if (e.button > 0) return;
-      /* لمس بیرون از دکمه‌ی عقربه: شاید کاربر می‌خواهد صفحه را اسکرول کند؛ فقط ضربه‌ی کوتاه ساعت را عوض می‌کند */
-      if (e.pointerType === 'touch' && !e.target.closest('.clk__knob')) { tap = { x: e.clientX, y: e.clientY }; return; }
-      stopIntro();
-      drag = true; dial.classList.add('is-drag');
-      try { dial.setPointerCapture(e.pointerId); } catch (err) { /* قدیمی */ }
-      dial.classList.remove('is-drag'); setM(mFromEvent(e)); dial.classList.add('is-drag');
-    });
-    dial.addEventListener('pointermove', (e) => { if (drag) setM(mFromEvent(e)); });
-    const end = () => { if (!drag) return; drag = false; dial.classList.remove('is-drag'); };
-    dial.addEventListener('pointerup', (e) => {
-      if (tap) { const t = tap; tap = null; if (Math.hypot(e.clientX - t.x, e.clientY - t.y) < 10) { stopIntro(); setM(mFromEvent(e)); } return; }
-      end();
-    });
-    dial.addEventListener('pointercancel', () => { tap = null; end(); });
-    range.addEventListener('input', () => { stopIntro(); setM(+range.value); });
-    /* کلیدهای جهت: راست‌به‌چپ؛ چپ یعنی جلو */
-    range.addEventListener('keydown', (e) => {
-      const d = { ArrowLeft: 15, ArrowUp: 15, ArrowRight: -15, ArrowDown: -15, PageUp: 60, PageDown: -60 }[e.key];
-      if (d === undefined) return;
-      e.preventDefault(); stopIntro(); setM(st.m + d);
-    });
-    dial.addEventListener('click', () => range.focus({ preventScroll: true }));
-    dayBtns.forEach((b, k) => b.addEventListener('click', () => { stopIntro(); setDay(k); }));
-    nowBtn.addEventListener('click', () => { stopIntro(); goNow(false); });
-
-    /* ---------- ورود: حلقه‌ها کشیده می‌شوند و عقربه یک شبانه‌روز می‌چرخد تا روی همین حالا بایستد ---------- */
-    let intro = null, played = false;
-    function stopIntro() {
-      if (!intro) return;
-      intro.kill(); intro = null;
-      dial.classList.remove('is-intro');
-      st.p = 1; st.dp = 1; draw();
-    }
-    const playIntro = () => {
-      if (played) return; played = true;
-      const n = Clinic.now();
-      if (!canAnim() || !window.gsap) { goNow(true); return; }
-      setDay(n.d); st.p = 0; st.dp = 1;
-      dial.classList.add('is-intro');
-      const o = { m: 0 };
-      setM(0, true);
-      intro = gsap.timeline({ onComplete: () => { intro = null; dial.classList.remove('is-intro'); paint(); } })
-        .to(st, { p: 1, duration: 1.5, ease: 'power2.inOut', onUpdate: draw }, 0)
-        .to(o, { m: 1440 + n.min, duration: 3.4, ease: 'power3.inOut', onUpdate: () => { st.m = o.m % 1440; setHand(o.m); paint(); } }, 0.35);
-    };
-    markDays();
-    goNow(true);
-    size();
-    if ('ResizeObserver' in window) new ResizeObserver(size).observe(dial);
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
-    if ('IntersectionObserver' in window) {
-      const io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { io.disconnect(); playIntro(); } }, { threshold: 0.4 });
-      io.observe(dial);
-    } else playIntro();
-    /* هر دقیقه: نقطه‌ی «همین حالا» و روز امروز */
-    setInterval(() => { markDays(); if (!intro) { draw(); lastKey = ''; paint(); } }, 60e3);
-  }
-
   /* ---------- ثبت ماژول‌ها ---------- */
-  Motion.add(Stage);
-  Motion.add(Reel);
-  Motion.add(Depts);
+  /* ماژول‌های صفحه‌ی اصلی فقط وقتی بخششان در همین صفحه هست ثبت می‌شوند (صفحه‌های دیگر هدر، فوتر و برگه‌ها را مشترک دارند) */
+  if ($('.stage')) Motion.add(Stage);
+  if ($('#reel')) Motion.add(Reel);
+  if ($('#services')) Motion.add(Depts);
   Motion.add(Journey);
   Motion.add(Docs);
   Motion.add(Safe);

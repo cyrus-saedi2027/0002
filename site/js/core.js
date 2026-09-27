@@ -305,21 +305,25 @@
     sheet.addEventListener('click', (e) => { const a = e.target.closest('a'); if (a) close(false); });
 
     /* کشیدن */
-    let startY = 0, lastY = 0, lastT = 0, vel = 0, dragging = false;
+    /* اشاره‌گر فقط وقتی واقعاً کشیده شد گرفته می‌شود؛ اگر روی فشار اول گرفته شود، کلیک ماوس روی لینک‌های منو به خود برگه می‌رسد و لینک باز نمی‌شود */
+    let startY = 0, lastY = 0, lastT = 0, vel = 0, dragging = false, captured = false;
     panel.addEventListener('pointerdown', (e) => {
       const onGrab = !!e.target.closest('.sheet__grab');
       if (!onGrab && body.scrollTop > 0) return;
-      dragging = true; startY = lastY = e.clientY; lastT = performance.now(); vel = 0;
-      panel.setPointerCapture(e.pointerId);
+      dragging = true; captured = false; startY = lastY = e.clientY; lastT = performance.now(); vel = 0;
     });
     panel.addEventListener('pointermove', (e) => {
       if (!dragging) return;
       const dy = Math.max(0, e.clientY - startY);
       const now = performance.now(); vel = (e.clientY - lastY) / Math.max(1, now - lastT); lastY = e.clientY; lastT = now;
-      if (dy > 4) { spring.snap(dy * (dy > h ? 0.5 : 1)); }
+      if (dy > 4) {
+        if (!captured) { captured = true; try { panel.setPointerCapture(e.pointerId); } catch (err) { /* اشاره‌گر دیگر فعال نیست */ } }
+        spring.snap(dy * (dy > h ? 0.5 : 1));
+      }
     });
     const end = (e) => {
       if (!dragging) return; dragging = false;
+      if (!captured) return;
       const dy = Math.max(0, e.clientY - startY);
       if (dy > h * 0.28 || vel > 0.7) close(); else spring.to(0);
     };
@@ -348,18 +352,21 @@
   /* ==========================================================================
      لینک‌های داخل صفحه
      ========================================================================== */
+  /* لینک به همین صفحه (#x یا index.html#x وقتی همین صفحه‌ی اصلی باز است) نرم اسکرول می‌شود؛ لینک به صفحه‌ی دیگر عادی باز می‌شود */
+  const pagePath = (p) => p.replace(/\/index\.html$/, '/').replace(/\/$/, '/');
+  const samePage = (a) => { try { const u = new URL(a.href, location.href); return u.origin === location.origin && pagePath(u.pathname) === pagePath(location.pathname) && u.search === location.search; } catch (e) { return false; } };
   document.addEventListener('click', (e) => {
-    const a = e.target.closest('a[href^="#"]');
-    if (!a || a.hasAttribute('data-svc') || a.hasAttribute('data-article') || e.defaultPrevented) return;
-    const id = a.getAttribute('href');
-    if (id === '#' || id.length < 2) return;
-    let target = document.getElementById(id.slice(1));
+    const a = e.target.closest('a[href*="#"]');
+    if (!a || a.hasAttribute('data-svc') || a.hasAttribute('data-article') || e.defaultPrevented || !samePage(a)) return;
+    const id = '#' + (a.hash || '').slice(1);
+    if (id.length < 2) return;
+    if (id === '#top') { e.preventDefault(); Motion.scrollTo(0); return; }
+    let target = document.getElementById(decodeURIComponent(id.slice(1)));
     if (!target) return;
     /* اگر مقصد در این اندازه‌ی صفحه دیده نمی‌شود (مثل فرم نوبت روی موبایل)، جایگزینش */
     if (!target.getClientRects().length && target.dataset.fallback) target = document.getElementById(target.dataset.fallback) || target;
     e.preventDefault();
-    if (id === '#top') Motion.scrollTo(0);
-    else Motion.scrollTo(target, -20);
+    Motion.scrollTo(target, -20);
     if (id === '#main') { target.setAttribute('tabindex', '-1'); target.focus({ preventScroll: true }); }
   });
 
@@ -596,6 +603,18 @@
     Motion.ready = true;
     if (!root.classList.contains('rm')) Motion.start(); else Motion.statics(true);
     onScroll();
+    /* آمدن از صفحه‌ی دیگر با نشانی بخش (مثلاً index.html#cases): جای بخش بعد از ساخته شدن پین‌ها عوض می‌شود،
+       پس دوباره و یک بار دیگر بعد از بارگیری کامل به همان بخش می‌رویم. برگه‌ها (#mag-…، #dental…) خودشان باز می‌شوند */
+    const hashJump = () => {
+      const h = decodeURIComponent(location.hash.slice(1));
+      if (!h || /^(mag-|services-all$|dental$|beauty$|medicine$|book$)/.test(h)) return;
+      const t = h === 'top' ? null : document.getElementById(h);
+      if (h !== 'top' && !t) return;
+      const y = t ? Math.max(0, t.getBoundingClientRect().top + window.scrollY - 20) : 0;
+      window.scrollTo(0, y);
+      if (Motion.lenis) Motion.lenis.scrollTo(y, { immediate: true, force: true });
+    };
+    if (location.hash) { requestAnimationFrame(hashJump); window.addEventListener('load', () => requestAnimationFrame(hashJump), { once: true }); }
     /* اگر فونت یا عکسی دیر رسید و چیدمان واقعاً عوض شد، فقط وقتی اسکرول آرام گرفته دوباره اندازه می‌گیریم */
     const sig = () => [document.body.scrollHeight, ...$$('main > section, footer').map((el) => el.offsetHeight)].join(',');
     let base = sig(), wait = null;

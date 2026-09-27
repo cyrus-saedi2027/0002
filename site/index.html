@@ -1,12 +1,14 @@
 <!doctype html>
-<html lang="fa" dir="rtl" class="no-js">
+<html lang="fa" dir="rtl" class="no-js" data-page="home">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>کلینیک ساسان | سلمان‌شهر</title>
+<meta name="description" content="کلینیک (درمانگاه شبانه‌روزی) ساسان در سلمان‌شهر، روبه‌روی شهرداری: پزشک عمومی شبانه‌روزی، دندانپزشکی، زیبایی و لیزر. تلفن ۰۱۱۵۴۶۱۱۵۶۰.">
+<link rel="preload" as="image" href="img/hero-dental.webp" fetchpriority="high">
+<!-- LAYOUT:head (مشترک همه‌ی صفحه‌ها؛ فقط در index.html ویرایش کنید و بعد: python3 tools/sync-layout.py) -->
 <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<meta name="description" content="کلینیک (درمانگاه شبانه‌روزی) ساسان در سلمان‌شهر، روبه‌روی شهرداری: پزشک عمومی شبانه‌روزی، دندانپزشکی، زیبایی و لیزر. تلفن ۰۱۱۵۴۶۱۱۵۶۰.">
 <meta name="theme-color" content="#081427">
 <script>
   /* تنظیمات نمایش را قبل از اولین رنگ‌آمیزی اعمال می‌کند */
@@ -17,7 +19,8 @@
     if (get('sasan:hc') === '1') d.classList.add('hc');
     var rm = get('sasan:rm');
     if (rm === '1' || (rm === null && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) d.classList.add('rm');
-    if (!d.classList.contains('rm')) {
+    /* معرفی لوگو و ورود هیرو فقط در صفحه‌ی اصلی */
+    if (!d.classList.contains('rm') && d.getAttribute('data-page') === 'home') {
       d.classList.add('intro');
       /* معرفی لوگو فقط بار اول هر بازدید و وقتی مستقیم به بخشی لینک نشده */
       var seen = '1'; try { seen = sessionStorage.getItem('sasan:bi'); } catch (e) {}
@@ -30,10 +33,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300..900&amp;family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;display=swap">
-<link rel="preload" as="image" href="img/hero-dental.webp" fetchpriority="high">
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/home.css">
 <link rel="stylesheet" href="css/book.css">
+<!-- /LAYOUT:head -->
 </head>
 <body>
 <div class="bi-ov" id="brandIntro" aria-hidden="true">
@@ -55,6 +58,7 @@
   </div>
 </div>
 
+<!-- LAYOUT:top -->
 <svg class="sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
   <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 5h16" /> <path d="M4 12h16" /> <path d="M4 19h16" /></symbol>
   <symbol id="i-text" viewBox="0 0 24 24"><path d="m15 16 2.536-7.328a1.02 1.02 1 0 1 1.928 0L22 16" /> <path d="M15.697 14h5.606" /> <path d="m2 16 4.039-9.69a.5.5 0 0 1 .923 0L11 16" /> <path d="M3.304 13h6.392" /></symbol>
@@ -101,6 +105,7 @@
   <symbol id="i-mail" viewBox="0 0 24 24"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7" /> <rect x="2" y="4" width="20" height="16" rx="2" /></symbol>
   <symbol id="i-send" viewBox="0 0 24 24"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z" /> <path d="m21.854 2.147-10.94 10.939" /></symbol>
   <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /> <path d="M12 17h.01" /></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <path d="M12 16v-4" /> <path d="M12 8h.01" /></symbol>
   <symbol id="i-access" viewBox="0 0 24 24"><circle cx="16" cy="4" r="1" /> <path d="m18 19 1-7-6 1" /> <path d="m5 8 3-3 5.5 3-2.36 3.5" /> <path d="M4.24 14.5a5 5 0 0 0 6.88 6" /> <path d="M13.76 17.5a5 5 0 0 0-6.88-6" /></symbol>
   <symbol id="i-building" viewBox="0 0 24 24"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" /> <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" /> <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2" /> <path d="M10 6h4" /> <path d="M10 10h4" /> <path d="M10 14h4" /> <path d="M10 18h4" /></symbol>
   <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="19" r="3" /> <path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" /> <circle cx="18" cy="5" r="3" /></symbol>
@@ -119,7 +124,7 @@
   <div class="wrap bar-wrap">
    <div class="bar">
     <div class="bar__in">
-      <a class="brand" href="#top" aria-label="کلینیک ساسان، صفحه‌ی اصلی">
+      <a class="brand" href="index.html#top" aria-label="کلینیک ساسان، صفحه‌ی اصلی">
         <svg class="brand__mark" aria-hidden="true"><use href="#logo-mark"/></svg>
         <span class="brand__txt"><b>کلینیک ساسان</b><small>دندانپزشکی · زیبایی و لیزر · پزشکی شبانه‌روزی</small></span>
       </a>
@@ -127,11 +132,11 @@
       <nav class="nav" aria-label="منوی اصلی">
         <span class="nav__ind" aria-hidden="true"></span>
         <button type="button" class="nav__link nav__link--menu" aria-expanded="false" aria-controls="mega">خدمات<svg class="ic ic--s" aria-hidden="true"><use href="#i-chev-d"/></svg></button>
-        <a class="nav__link" href="#doctors">پزشکان</a>
-        <a class="nav__link" href="#cases">نمونه‌کارها</a>
-        <a class="nav__link" href="#articles">مقالات</a>
-        <a class="nav__link" href="#about">درباره‌ی ما</a>
-        <a class="nav__link" href="#contact">تماس</a>
+        <a class="nav__link" href="doctors.html">پزشکان</a>
+        <a class="nav__link" href="index.html#cases">نمونه‌کارها</a>
+        <a class="nav__link" href="index.html#mag-all" data-article="all">مقالات</a>
+        <a class="nav__link" href="about.html">درباره‌ی ما</a>
+        <a class="nav__link" href="index.html#contact">تماس</a>
       </nav>
 
       <div class="bar__end">
@@ -212,11 +217,11 @@
         <a href="#medicine" data-svc="medicine" class="sheet__svc sheet__svc--med"><svg class="ic" aria-hidden="true"><use href="#i-steth"/></svg>پزشکی شبانه‌روزی</a>
       </div>
       <nav class="sheet__nav" aria-label="منوی موبایل">
-        <a href="#doctors">پزشکان<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
-        <a href="#cases">نمونه‌کارها<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
-        <a href="#articles">مقالات<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
-        <a href="#about">درباره‌ی ما<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
-        <a href="#contact">تماس و آدرس<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
+        <a href="doctors.html">پزشکان<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
+        <a href="index.html#cases">نمونه‌کارها<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
+        <a href="index.html#mag-all" data-article="all">مقالات<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
+        <a href="about.html">درباره‌ی ما<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
+        <a href="index.html#contact">تماس و آدرس<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
       </nav>
       <div class="sheet__a11y">
         <p class="sheet__label">نمایش</p>
@@ -237,6 +242,8 @@
     </div>
   </div>
 </div>
+
+<!-- /LAYOUT:top -->
 
 <main id="main">
 
@@ -290,7 +297,6 @@
               </label>
               <button class="btn btn--primary qbook__submit" type="submit"><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg>درخواست نوبت</button>
             </div>
-            <p class="qbook__note"><span class="qbook__ring" aria-hidden="true"><svg class="ic"><use href="#i-phone"/></svg></span><span>روز، ساعت و پزشک را پذیرش تلفنی با شما هماهنگ می‌کند.</span><b id="qbCall">بین ۳۰ دقیقه تا ۴ ساعت بعد تماس می‌گیریم</b></p>
             <p class="qbook__result" id="qbResult" role="status" aria-live="polite" hidden></p>
           </form>
         </div>
@@ -496,7 +502,10 @@
           <p class="kicker kicker--light">پزشکان ساسان</p>
           <h2 class="sec-title" id="docs-title">پزشکانی که برایتان وقت می‌گذارند</h2>
         </div>
-        <p class="sec-sub">سه بخش و یک پرونده‌ی مشترک؛ پزشکان هر جا لازم باشد درباره‌ی درمان شما با هم مشورت می‌کنند.</p>
+        <div class="docs__side">
+          <p class="sec-sub">سه بخش و یک پرونده‌ی مشترک؛ پزشکان هر جا لازم باشد درباره‌ی درمان شما با هم مشورت می‌کنند.</p>
+          <a class="link-arrow link-arrow--light docs__more" href="doctors.html">پروفایل کامل پزشکان و برنامه‌ی هفتگی<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        </div>
       </header>
       <div class="docs__in">
         <div class="docs__stage" aria-hidden="true">
@@ -638,40 +647,6 @@
         <li data-rv><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg><span><b>ضدعفونی بین هر دو بیمار</b>یونیت، سطوح و دسته‌ی چراغ</span></li>
         <li data-rv><svg class="ic" aria-hidden="true"><use href="#i-file"/></svg><span><b>ثبت در پرونده</b>هر درمان با تاریخ و نام پزشک در پرونده‌تان می‌ماند</span></li>
       </ul>
-    </div>
-  </section>
-
-  <!-- ========== بخش ۴٫۷: ساعت ساسان؛ شبانه‌روز در کلینیک (موشن‌گرافیک ساعت ۲۴ ساعته) ========== -->
-  <section class="clk" id="clock" aria-labelledby="clk-title" data-part="day">
-    <div class="clk__sky" aria-hidden="true"><i class="clk__night"></i><i class="clk__stars"></i><i class="clk__day"></i><i class="clk__glow"></i></div>
-    <div class="wrap clk__in">
-      <div class="clk__txt">
-        <p class="kicker kicker--light">شبانه‌روزی</p>
-        <h2 class="sec-title clk__title" id="clk-title">هر ساعتی از شبانه‌روز، پزشک در کلینیک است</h2>
-        <p class="clk__sub">عقربه را بچرخانید یا روز هفته را عوض کنید تا ببینید آن ساعت کدام بخش پذیرش دارد و برای چه کارهایی می‌توانید بیایید.</p>
-        <div class="clk__days" role="group" aria-label="روز هفته"><button type="button" data-d="0" aria-pressed="false" aria-label="شنبه"><span class="clk__dl">شنبه</span><span class="clk__ds" aria-hidden="true">ش</span><i class="clk__dd" aria-hidden="true"></i></button><button type="button" data-d="1" aria-pressed="false" aria-label="یکشنبه"><span class="clk__dl">یکشنبه</span><span class="clk__ds" aria-hidden="true">ی</span><i class="clk__dd" aria-hidden="true"></i></button><button type="button" data-d="2" aria-pressed="false" aria-label="دوشنبه"><span class="clk__dl">دوشنبه</span><span class="clk__ds" aria-hidden="true">د</span><i class="clk__dd" aria-hidden="true"></i></button><button type="button" data-d="3" aria-pressed="false" aria-label="سه‌شنبه"><span class="clk__dl">سه‌شنبه</span><span class="clk__ds" aria-hidden="true">س</span><i class="clk__dd" aria-hidden="true"></i></button><button type="button" data-d="4" aria-pressed="false" aria-label="چهارشنبه"><span class="clk__dl">چهارشنبه</span><span class="clk__ds" aria-hidden="true">چ</span><i class="clk__dd" aria-hidden="true"></i></button><button type="button" data-d="5" aria-pressed="false" aria-label="پنجشنبه"><span class="clk__dl">پنجشنبه</span><span class="clk__ds" aria-hidden="true">پ</span><i class="clk__dd" aria-hidden="true"></i></button><button type="button" data-d="6" aria-pressed="false" aria-label="جمعه"><span class="clk__dl">جمعه</span><span class="clk__ds" aria-hidden="true">ج</span><i class="clk__dd" aria-hidden="true"></i></button></div>
-        <ul class="clk__list" aria-live="polite">
-          <li class="clk__row" data-k="medicine"><i class="clk__dot" aria-hidden="true"></i><span class="clk__rt"><b>پزشک عمومی</b><span class="clk__rs">در کلینیک است</span></span></li>
-          <li class="clk__row" data-k="dental"><i class="clk__dot" aria-hidden="true"></i><span class="clk__rt"><b>دندانپزشکی</b><span class="clk__rs">پذیرش دارد</span></span></li>
-          <li class="clk__row" data-k="beauty"><i class="clk__dot" aria-hidden="true"></i><span class="clk__rt"><b>زیبایی و لیزر</b><span class="clk__rs">همه‌روزه، با هماهنگی قبلی</span></span></li>
-        </ul>
-        <p class="clk__can" id="clkCan"></p>
-        <div class="clk__acts">
-          <button type="button" class="btn btn--light clk__now" hidden><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>برگشت به همین حالا</button>
-          <a class="btn btn--outline-light" href="#book"><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg>درخواست نوبت</a>
-        </div>
-      </div>
-      <div class="clk__dial">
-        <canvas class="clk__cv" aria-hidden="true"></canvas>
-        <div class="clk__hand" aria-hidden="true"><i class="clk__arm"></i><i class="clk__knob"></i></div>
-        <div class="clk__center" aria-hidden="true">
-          <span class="clk__orb"><svg class="clk__sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg><svg class="clk__moon" viewBox="0 0 24 24"><path d="M20 14.6A8.2 8.2 0 0 1 9.4 4a8.2 8.2 0 1 0 10.6 10.6z"/></svg></span>
-          <b class="clk__time" id="clkTime">۱۲:۰۰</b>
-          <span class="clk__part" id="clkPart">ظهر · شنبه</span>
-        </div>
-        <label class="clk__range-l"><span class="sr-only">ساعت</span><input class="clk__range" type="range" min="0" max="1425" step="15" value="720"></label>
-        <span class="clk__lg" aria-hidden="true"><i data-k="medicine"></i>پزشک عمومی · ۲۴ ساعت<i data-k="dental"></i>دندانپزشکی · ۱۰ تا ۲۰</span>
-      </div>
     </div>
   </section>
 
@@ -1175,6 +1150,7 @@
   </section>
 </main>
 
+<!-- LAYOUT:bottom -->
 <footer class="foot" id="footer">
   <div class="fsky" aria-hidden="true"><canvas class="fsky__cv"></canvas><i class="dsky__grain"></i></div>
   <div class="foot__in">
@@ -1191,7 +1167,7 @@
   </div>
   <div class="wrap foot__grid">
     <div class="foot__brand">
-      <a class="brand brand--light" href="#top" aria-label="کلینیک ساسان، بالای صفحه">
+      <a class="brand brand--light" href="index.html#top" aria-label="کلینیک ساسان، صفحه‌ی اصلی">
         <svg class="brand__mark" aria-hidden="true"><use href="#logo-mark"/></svg>
         <span class="brand__txt"><b>کلینیک ساسان</b><small>دندانپزشکی · زیبایی و لیزر · پزشکی شبانه‌روزی</small></span>
       </a>
@@ -1207,19 +1183,20 @@
         <li><a href="#dental" data-svc="dental">دندانپزشکی</a></li>
         <li><a href="#beauty" data-svc="beauty">زیبایی و لیزر</a></li>
         <li><a href="#medicine" data-svc="medicine">پزشکی شبانه‌روزی</a></li>
-        <li><a href="#services">همه‌ی خدمات</a></li>
+        <li><a href="#services-all" data-svc="all">همه‌ی خدمات</a></li>
       </ul>
     </nav>
     <nav class="foot__col" aria-label="دسترسی سریع">
       <h3>کلینیک</h3>
       <ul>
-        <li><a href="#about">درباره‌ی ما</a></li>
-        <li><a href="#journey">مسیر درمان</a></li>
-        <li><a href="#cases">نمونه‌ی درمان‌ها</a></li>
-        <li><a href="#reviews">نظر بیماران</a></li>
-        <li><a href="#articles">مجله‌ی سلامت</a></li>
-        <li><a href="#faq">سؤال‌های پرتکرار</a></li>
-        <li><a href="#contact">مسیر و تماس</a></li>
+        <li><a href="about.html">درباره‌ی ما</a></li>
+        <li><a href="doctors.html">پزشکان</a></li>
+        <li><a href="index.html#journey">مسیر درمان</a></li>
+        <li><a href="index.html#cases">نمونه‌ی درمان‌ها</a></li>
+        <li><a href="index.html#reviews">نظر بیماران</a></li>
+        <li><a href="index.html#mag-all" data-article="all">مجله‌ی سلامت</a></li>
+        <li><a href="index.html#faq">سؤال‌های پرتکرار</a></li>
+        <li><a href="index.html#contact">مسیر و تماس</a></li>
       </ul>
     </nav>
     <div class="foot__col">
@@ -1427,5 +1404,6 @@
 <script src="js/home.js"></script>
 <script src="js/fx.js"></script>
 <script src="js/book.js"></script>
+<!-- /LAYOUT:bottom -->
 </body>
 </html>
