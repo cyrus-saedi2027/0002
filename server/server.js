@@ -232,7 +232,11 @@ if (require.main === module) {
   cfg.warn.forEach((w) => console.warn('هشدار:', w));
   const app = createApp(cfg);
   http.createServer(app).listen(cfg.port, cfg.host, () => {
-    console.log(`سرور کلینیک ساسان: http://${cfg.host}:${cfg.port}  (پیامک: ${cfg.sms.mode === 'live' ? 'اصلی' : 'آزمایشی / Sandbox'})`);
+    const any = cfg.host === '0.0.0.0' || cfg.host === '::';
+    console.log(`سرور کلینیک ساسان روشن شد (پیامک: ${cfg.sms.mode === 'live' ? 'اصلی' : 'آزمایشی / Sandbox؛ کد در همین‌جا چاپ می‌شود'})`);
+    console.log(`  سایت: http://${any ? '127.0.0.1' : cfg.host}:${cfg.port}`);
+    /* با HOST=0.0.0.0 از گوشیِ همان شبکه هم باز می‌شود */
+    if (any) Object.values(require('os').networkInterfaces()).flat().filter((i) => i && i.family === 'IPv4' && !i.internal).forEach((i) => console.log(`  از گوشی: http://${i.address}:${cfg.port}`));
   });
 }
 

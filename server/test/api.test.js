@@ -15,7 +15,7 @@ function setup(extra = {}) {
   const cfg = {
     siteDir: path.resolve(__dirname, '..', '..', 'site'), dataDir, trustProxy: false, allowedOrigin: '', hsts: false,
     adminToken: 'test-admin-token-0123456789abcdef', otpSecret: 'x'.repeat(40),
-    sms: { mode: 'sandbox', templateId: 123456, param: 'Code', confirmTemplateId: 0, receptionTemplateId: 0, receptionMobile: '' }
+    sms: { mode: 'sandbox', templateId: 123456, param: 'CODE', confirmTemplateId: 0, receptionTemplateId: 0, receptionMobile: '' }
   };
   const app = createApp(cfg, { sms, log: () => {} });
   const srv = http.createServer(app);
@@ -46,16 +46,16 @@ test('ارسال کد: شماره‌ی نادرست، فاصله‌ی ارسال
   const s = await setup();
   assert.strictEqual((await s.req('POST', '/api/otp/send', { mobile: '12345' })).body.error, 'mobile');
   const r = await s.req('POST', '/api/otp/send', { mobile: '۰۹۱۲۱۲۳۴۵۶۷' });
-  assert.deepStrictEqual(r.body, { ok: true, ttl: 120, resend: 60 });
+  assert.deepStrictEqual(r.body, { ok: true, ttl: 120, resend: 120 });
   assert.strictEqual(s.sent.length, 1);
   assert.strictEqual(s.sent[0].mobile, '09121234567');
   assert.strictEqual(s.sent[0].templateId, 123456);
-  assert.match(s.sent[0].params.Code, /^\d{5}$/);
-  assert.ok(!JSON.stringify(r.body).includes(s.sent[0].params.Code), 'code must not be in the response');
+  assert.match(s.sent[0].params.CODE, /^\d{5}$/);
+  assert.ok(!JSON.stringify(r.body).includes(s.sent[0].params.CODE), 'code must not be in the response');
   const again = await s.req('POST', '/api/otp/send', { mobile: '09121234567' });
   assert.strictEqual(again.status, 429);
   assert.strictEqual(again.body.error, 'rate');
-  assert.ok(again.body.wait > 0 && again.body.wait <= 60);
+  assert.ok(again.body.wait > 60 && again.body.wait <= 120, "resend waits for the whole code lifetime");
   s.done();
 });
 
@@ -63,7 +63,7 @@ test('ثبت درخواست: کد اشتباه، کد درست، یک‌بارم
   const s = await setup();
   const base = { mobile: '09121234567', name: 'مریم احمدی', dept: 'dental', type: 'ویزیت اول', note: '<b>x</b>', date: '2030-01-01', time: 600, doctor: 'doc-1' };
   await s.req('POST', '/api/otp/send', { mobile: base.mobile });
-  const code = s.sent[0].params.Code;
+  const code = s.sent[0].params.CODE;
   const wrong = code === '11111' ? '22222' : '11111';
   const bad = await s.req('POST', '/api/booking', Object.assign({ code: wrong }, base));
   assert.strictEqual(bad.status, 401); assert.strictEqual(bad.body.left, 4);
@@ -90,12 +90,12 @@ test('ثبت درخواست: ورودی نادرست و درخواست تکرا�
   for (let i = 0; i < 2; i++) {
     s.app.otp.map.delete(base.mobile);
     await s.req('POST', '/api/otp/send', { mobile: base.mobile });
-    const r = await s.req('POST', '/api/booking', Object.assign({}, base, { code: s.sent[s.sent.length - 1].params.Code }));
+    const r = await s.req('POST', '/api/booking', Object.assign({}, base, { code: s.sent[s.sent.length - 1].params.CODE }));
     assert.strictEqual(r.status, 200);
   }
   s.app.otp.map.delete(base.mobile);
   await s.req('POST', '/api/otp/send', { mobile: base.mobile });
-  const third = await s.req('POST', '/api/booking', Object.assign({}, base, { code: s.sent[s.sent.length - 1].params.Code }));
+  const third = await s.req('POST', '/api/booking', Object.assign({}, base, { code: s.sent[s.sent.length - 1].params.CODE }));
   assert.strictEqual(third.status, 429); assert.strictEqual(third.body.error, 'many');
   s.done();
 });
@@ -104,7 +104,7 @@ test('پذیرش: بعد از تماس، روز و ساعت و پزشک را ث�
   const s = await setup();
   const auth = { authorization: 'Bearer ' + s.cfg.adminToken };
   await s.req('POST', '/api/otp/send', { mobile: '09121234567' });
-  const ok = await s.req('POST', '/api/booking', { mobile: '09121234567', code: s.sent[0].params.Code, name: 'مریم', dept: 'dental', type: 'مشاوره' });
+  const ok = await s.req('POST', '/api/booking', { mobile: '09121234567', code: s.sent[0].params.CODE, name: 'مریم', dept: 'dental', type: 'مشاوره' });
   const ref = ok.body.ref;
   assert.strictEqual((await s.req('PATCH', '/api/bookings/' + ref, { status: 'called' }, auth)).body.booking.status, 'called');
   const sch = await s.req('PATCH', '/api/bookings/' + ref, { status: 'scheduled', date: '2030-01-05', time: 630, doctor: 'doc-2' }, auth);
@@ -123,7 +123,7 @@ test('پنج بار کد اشتباه کد را باطل می‌کند', async (
   const s = await setup();
   const base = { mobile: '09121234567', name: 'علی رضایی', dept: 'medicine', type: 'ویزیت اول' };
   await s.req('POST', '/api/otp/send', { mobile: base.mobile });
-  const code = s.sent[0].params.Code;
+  const code = s.sent[0].params.CODE;
   const wrong = code === '11111' ? '22222' : '11111';
   let last;
   for (let i = 0; i < 5; i++) last = await s.req('POST', '/api/booking', Object.assign({ code: wrong }, base));

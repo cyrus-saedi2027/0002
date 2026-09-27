@@ -51,7 +51,8 @@ function load(env = process.env) {
       apiKey: apiKey || '',
       baseUrl: (env.SMSIR_BASE_URL || 'https://api.sms.ir/v1').replace(/\/$/, ''),
       templateId,
-      param: env.SMSIR_TEMPLATE_PARAM || (mode === 'live' ? 'CODE' : 'Code'),
+      /* متغیر قالب؛ قالب پیش‌فرض Sandbox (123456) و قالبی که npm run setup می‌سازد هر دو CODE دارند */
+      param: env.SMSIR_TEMPLATE_PARAM || 'CODE',
       confirmTemplateId: Number(env.SMSIR_CONFIRM_TEMPLATE_ID || 0),
       receptionTemplateId: Number(env.SMSIR_RECEPTION_TEMPLATE_ID || 0),
       receptionMobile: env.RECEPTION_MOBILE || ''
