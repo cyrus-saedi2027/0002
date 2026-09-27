@@ -79,20 +79,14 @@
 .bk-dept.is-on .bk-dept__ic { background: #fff; }
 .bk-dept.is-on .bk-ok { background: var(--t); box-shadow: none; }
 .bk-dept.is-on .bk-ok .ic { scale: 1; }
-.bk-dept:has(input:focus-visible), .bk-doc:has(input:focus-visible), .bk-seg label:has(input:focus-visible), .bk-day:has(input:focus-visible), .bk-slot:has(input:focus-visible) { outline: 3px solid var(--focus); outline-offset: 2px; }
+.bk-dept:has(input:focus-visible), .bk-seg label:has(input:focus-visible) { outline: 3px solid var(--focus); outline-offset: 2px; }
 
-/* پزشک‌ها */
-.bk-docs__row { display: flex; flex-wrap: wrap; gap: 8px; }
-.bk-doc { position: relative; display: inline-flex; align-items: center; gap: 10px; padding: 6px 14px 6px 6px; border-radius: 999px; box-shadow: inset 0 0 0 1.5px var(--line); cursor: pointer; transition: box-shadow .25s, background-color .25s, scale .5s var(--spring); }
-.bk-doc:hover { box-shadow: inset 0 0 0 1.5px var(--line-2); }
-.bk-doc:active { scale: .97; transition-duration: .1s; }
-.bk-doc__av { width: 36px; height: 36px; border-radius: 50%; overflow: hidden; display: grid; place-items: center; background: var(--mist); color: var(--ink-2); }
-.bk-doc__av img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 14%; scale: 1.5; transform-origin: 50% 20%; }
-.bk-doc__av .ic { width: 18px; height: 18px; }
-.bk-doc__t { display: grid; line-height: 1.35; }
-.bk-doc__t b { font-size: .875rem; font-weight: 800; color: var(--navy-800); }
-.bk-doc__t small { font-size: .75rem; color: var(--ink-3); }
-.bk-doc.is-on { background: var(--tone-bg, var(--blue-50)); box-shadow: inset 0 0 0 2px var(--tone, var(--blue)); }
+/* روند درخواست: پذیرش تماس می‌گیرد */
+.bk-how { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border-radius: 14px; background: linear-gradient(270deg, var(--tone-bg, var(--blue-50)), #F7F9FC); box-shadow: inset 0 0 0 1px rgba(13, 27, 48, .06); }
+.bk-how__ic { flex: none; width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; background: #fff; color: var(--tone, var(--blue)); box-shadow: 0 6px 14px -8px rgba(13, 27, 48, .35); }
+.bk-how__ic .ic { width: 18px; height: 18px; }
+.bk-how p { display: grid; gap: 2px; font-size: .875rem; line-height: 1.8; color: var(--ink-2); }
+.bk-how b { font-size: .9375rem; color: var(--navy-800); }
 
 /* خلاصه‌ی انتخاب‌ها بالای مرحله */
 .bk-ctx { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 10px 12px; border-radius: 12px; background: var(--mist); font-size: .875rem; color: var(--ink-2); }
@@ -106,32 +100,6 @@
 .bk-seg label { position: relative; display: grid; place-items: center; min-height: 42px; padding: 4px 6px; border-radius: 9px; font-size: .875rem; font-weight: 700; color: var(--ink-2); text-align: center; cursor: pointer; transition: color .25s, background-color .25s, box-shadow .25s, scale .5s var(--spring); }
 .bk-seg label:active { scale: .96; transition-duration: .1s; }
 .bk-seg label.is-on { background: #fff; color: var(--navy-800); box-shadow: 0 1px 2px rgba(13, 27, 48, .08), 0 4px 12px -4px rgba(13, 27, 48, .18); }
-
-/* روزها: ردیف افقی */
-.bk-days { display: flex; gap: 8px; overflow-x: auto; margin-inline: -20px; padding: 2px 20px 8px; scroll-padding-inline: 20px; scrollbar-width: none; overscroll-behavior-x: contain; }
-.bk-days::-webkit-scrollbar { display: none; }
-.bk-day { position: relative; flex: 0 0 64px; display: grid; justify-items: center; gap: 1px; padding: 9px 4px 10px; border-radius: 14px; box-shadow: inset 0 0 0 1.5px var(--line); cursor: pointer; transition: box-shadow .25s, background-color .25s, color .25s, scale .5s var(--spring); }
-.bk-day:hover { box-shadow: inset 0 0 0 1.5px var(--line-2); }
-.bk-day:active { scale: .95; transition-duration: .1s; }
-.bk-day small { font-size: .6875rem; font-weight: 600; color: var(--ink-3); white-space: nowrap; transition: color .25s; }
-.bk-day b { font-family: var(--f-ui); font-size: 1.3rem; font-weight: 700; line-height: 1.35; color: var(--navy-800); transition: color .25s; }
-.bk-day.is-on { background: var(--navy-800); box-shadow: 0 10px 22px -10px rgba(11, 26, 51, .7); }
-.bk-day.is-on small, .bk-day.is-on b { color: #fff; }
-.bk-day.is-off { cursor: not-allowed; background: repeating-linear-gradient(135deg, rgba(13, 27, 48, .025) 0 6px, transparent 6px 12px); box-shadow: inset 0 0 0 1px var(--line); }
-.bk-day.is-off b, .bk-day.is-off small { color: #A6B1C2; }
-
-/* ساعت‌ها */
-.bk-slots { display: grid; gap: 14px; }
-.bk-slots__g > span { display: block; margin-bottom: 8px; font-size: .75rem; font-weight: 600; color: var(--ink-3); }
-.bk-slots__row { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 6px; }
-.bk-slot { position: relative; display: grid; place-items: center; height: 42px; border-radius: 10px; box-shadow: inset 0 0 0 1.5px var(--line); font-family: var(--f-ui); font-size: .9375rem; font-weight: 600; color: var(--navy-800); cursor: pointer; transition: box-shadow .25s, background-color .25s, color .25s, scale .5s var(--spring); }
-.bk-slot:hover { box-shadow: inset 0 0 0 1.5px var(--tone, var(--blue)); }
-.bk-slot:active { scale: .94; transition-duration: .1s; }
-.bk-slot.is-on { background: var(--tone, var(--blue)); color: #fff; box-shadow: 0 8px 18px -8px var(--tone, var(--blue)); }
-.bk-slot.is-full, .bk-slot.is-full:hover { cursor: not-allowed; color: #A6B1C2; text-decoration: line-through; background: repeating-linear-gradient(135deg, rgba(13, 27, 48, .025) 0 6px, transparent 6px 12px); box-shadow: inset 0 0 0 1px var(--line); }
-.bk-note { margin-top: 12px; font-size: .8125rem; line-height: 1.8; color: var(--ink-3); }
-.bk-note:empty { display: none; }
-.bk-empty { padding: 18px; border-radius: 12px; background: var(--mist); font-size: .875rem; color: var(--ink-2); text-align: center; }
 
 /* مشخصات */
 .bk-form { display: grid; gap: 14px; }
@@ -185,6 +153,21 @@
 .bk-ticket .is-ref dd { font-family: var(--f-ui); letter-spacing: .04em; color: var(--tone, var(--blue)); direction: ltr; text-align: end; }
 .bk-done__acts { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 8px; }
 
+/* نشان «تماس پذیرش» در صفحه‌ی ثبت: گوشی چند بار زنگ می‌خورد (تعداد محدود) */
+.bk-call { position: relative; display: inline-flex; align-items: center; gap: 12px; padding-block: 8px; padding-inline: 8px 18px; border-radius: 999px; background: var(--navy-800); color: #fff; }
+.bk-call__ic { position: relative; z-index: 1; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: #3DDC97; color: #0B1A33; }
+.bk-call__ic .ic { width: 19px; height: 19px; stroke-width: 2.2; }
+.bk-call__ring { position: absolute; inset-inline-start: 8px; top: 50%; width: 40px; height: 40px; margin-top: -20px; border-radius: 50%; border: 2px solid #3DDC97; opacity: 0; pointer-events: none; }
+.bk-call__t { display: grid; text-align: start; line-height: 1.5; }
+.bk-call__t b { font-size: .875rem; }
+.bk-call__t span { font-family: var(--f-ui); font-size: .75rem; color: rgba(255, 255, 255, .72); }
+html.motion .bk-call.is-ring .bk-call__ic { animation: bkBuzz 1.6s ease-in-out .9s 3 both; }
+html.motion .bk-call.is-ring .bk-call__ring { animation: bkRing 1.6s var(--ease-out) .9s 3 both; }
+html.motion .bk-call.is-ring .bk-call__ring + .bk-call__ring { animation-delay: 1.2s; }
+@keyframes bkBuzz { 0%, 40%, 100% { transform: none; } 5%, 15%, 25% { transform: rotate(-14deg); } 10%, 20%, 30% { transform: rotate(14deg); } }
+@keyframes bkRing { 0% { transform: scale(1); opacity: .6; } 70%, 100% { transform: scale(1.9); opacity: 0; } }
+html.rm .bk-call__ic, html.rm .bk-call__ring { animation: none !important; }
+
 /* پایین برگه */
 .bk__foot { position: relative; flex: none; padding: 12px 20px 16px; border-top: 1px solid var(--line); background: #fff; }
 .bk__foot[hidden] { display: none; }
@@ -220,7 +203,6 @@
   .bk__top { padding: 16px 16px 4px; }
   .bk__prog { margin-inline: 16px; }
   .bk__view { padding: 16px 16px 20px; }
-  .bk-days { margin-inline: -16px; padding-inline: 16px; }
   .bk__foot { padding: 10px 16px 14px; }
   .bk__foot-in { flex-direction: column; align-items: stretch; gap: 10px; }
   .bk__sum:empty { display: none; }
@@ -234,6 +216,5 @@
 html.bk-open main *, html.bk-open .foot * { animation-play-state: paused !important; }
 html.hc .bk__panel { box-shadow: 0 0 0 3px #000; }
 html.hc .bk__glow, html.hc .bk__skin { display: none; }
-html.hc .bk-dept, html.hc .bk-doc, html.hc .bk-day, html.hc .bk-slot, html.hc .bk-code__cells i { box-shadow: inset 0 0 0 2px #000; }
-html.hc .bk-dept.is-on, html.hc .bk-doc.is-on, html.hc .bk-seg label.is-on { background: #FFF6C2; box-shadow: inset 0 0 0 3px #000; }
-html.hc .bk-day.is-on, html.hc .bk-slot.is-on { background: #000; color: #fff; }
+html.hc .bk-dept, html.hc .bk-code__cells i, html.hc .bk-how { box-shadow: inset 0 0 0 2px #000; }
+html.hc .bk-dept.is-on, html.hc .bk-seg label.is-on { background: #FFF6C2; box-shadow: inset 0 0 0 3px #000; }

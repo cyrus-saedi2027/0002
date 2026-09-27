@@ -7,7 +7,6 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { createApp } = require('../server');
-const B = require('../lib/bookings');
 
 function setup(extra = {}) {
   const sent = [];
@@ -27,16 +26,6 @@ function setup(extra = {}) {
     res({ srv, app, sent, req, cfg, done: () => { app.close(); srv.closeAllConnections(); srv.close(); } });
   }));
 }
-/* اولین روز و ساعت مجاز دندانپزشکی در دو هفته‌ی آینده */
-function slot(dept = 'dental', doctor = '') {
-  const now = B.tehranNow();
-  for (let off = 1; off < 14; off++) {
-    const d = new Date(Date.parse(now.iso + 'T12:00:00Z') + off * 864e5).toISOString().slice(0, 10);
-    for (let t = 8 * 60; t < 24 * 60; t += 30) if (B.slotOk(dept, doctor, d, t, now)) return { date: d, time: t };
-  }
-  throw new Error('no slot');
-}
-
 test('health و فایل‌های سایت با متای API و سربرگ‌های امنیتی', async () => {
   const s = await setup();
   const h = await s.req('GET', '/api/health');
@@ -70,10 +59,9 @@ test('ارسال کد: شماره‌ی نادرست، فاصله‌ی ارسال
   s.done();
 });
 
-test('ثبت نوبت: کد اشتباه، کد درست، یک‌بارمصرف بودن کد، پر بودن ساعت', async () => {
+test('ثبت درخواست: کد اشتباه، کد درست، یک‌بارمصرف بودن کد؛ روز و ساعت و پزشک از بیمار پذیرفته نمی‌شود', async () => {
   const s = await setup();
-  const at = slot('dental', 'doc-1');
-  const base = { mobile: '09121234567', name: 'مریم احمدی', dept: 'dental', doctor: 'doc-1', type: 'ویزیت اول', date: at.date, time: at.time, note: '<b>x</b>' };
+  const base = { mobile: '09121234567', name: 'مریم احمدی', dept: 'dental', type: 'ویزیت اول', note: '<b>x</b>', date: '2030-01-01', time: 600, doctor: 'doc-1' };
   await s.req('POST', '/api/otp/send', { mobile: base.mobile });
   const code = s.sent[0].params.Code;
   const wrong = code === '11111' ? '22222' : '11111';
@@ -81,41 +69,59 @@ test('ثبت نوبت: کد اشتباه، کد درست، یک‌بارمصرف
   assert.strictEqual(bad.status, 401); assert.strictEqual(bad.body.left, 4);
   const ok = await s.req('POST', '/api/booking', Object.assign({ code }, base));
   assert.strictEqual(ok.status, 200); assert.match(ok.body.ref, /^SS-\d{5}$/);
-  const reuse = await s.req('POST', '/api/booking', Object.assign({ code }, base, { time: at.time + 30 }));
+  const reuse = await s.req('POST', '/api/booking', Object.assign({ code }, base));
   assert.strictEqual(reuse.status, 410);
   const saved = JSON.parse(fs.readFileSync(path.join(s.cfg.dataDir, 'bookings.json'), 'utf8'));
   assert.strictEqual(saved.length, 1);
+  assert.strictEqual(saved[0].status, 'new');
+  assert.ok(!('date' in saved[0]) && !('time' in saved[0]) && !('doctor' in saved[0]), 'patient cannot set day, time or doctor');
   assert.ok(!saved[0].note.includes('<'), 'note is cleaned');
-  /* همان پزشک و همان ساعت برای شماره‌ی دیگر: پر است و کدش مصرف نمی‌شود */
-  await s.req('POST', '/api/otp/send', { mobile: '09351112233' });
-  const code2 = s.sent[1].params.Code;
-  const taken = await s.req('POST', '/api/booking', Object.assign({}, base, { mobile: '09351112233', code: code2 }));
-  assert.strictEqual(taken.status, 409); assert.strictEqual(taken.body.error, 'slot');
-  const other = await s.req('POST', '/api/booking', Object.assign({}, base, { mobile: '09351112233', code: code2, time: at.time + 30 }));
-  assert.strictEqual(other.status, 200);
-  const full = await s.req('GET', `/api/slots?dept=dental&date=${at.date}&doctor=doc-1`);
-  assert.deepStrictEqual(full.body, { ok: true, full: [at.time, at.time + 30] });
-  assert.ok(!JSON.stringify(full.body).includes('0912'), 'no patient data');
-  assert.strictEqual((await s.req('GET', '/api/slots?dept=x&date=1')).status, 400);
   s.done();
 });
 
-test('ثبت نوبت: ساعت یا روز خارج از برنامه رد می‌شود', async () => {
+test('ثبت درخواست: ورودی نادرست و درخواست تکراری پیگیری‌نشده', async () => {
   const s = await setup();
-  const at = slot('dental');
-  const base = { mobile: '09121234567', code: '12345', name: 'علی', dept: 'dental', doctor: '', type: 'ویزیت اول', date: at.date, time: at.time };
-  assert.strictEqual((await s.req('POST', '/api/booking', Object.assign({}, base, { time: 9 * 60 }))).body.error, 'input');
-  assert.strictEqual((await s.req('POST', '/api/booking', Object.assign({}, base, { time: at.time + 7 }))).body.error, 'input');
-  assert.strictEqual((await s.req('POST', '/api/booking', Object.assign({}, base, { doctor: 'doc-5' }))).body.error, 'input');
+  const base = { mobile: '09121234567', code: '12345', name: 'علی', dept: 'dental', type: 'ویزیت اول' };
+  assert.strictEqual((await s.req('POST', '/api/booking', Object.assign({}, base, { dept: 'x' }))).body.error, 'input');
   assert.strictEqual((await s.req('POST', '/api/booking', Object.assign({}, base, { type: 'x' }))).body.error, 'input');
-  assert.strictEqual((await s.req('POST', '/api/booking', Object.assign({}, base, { date: '2020-01-01' }))).body.error, 'input');
+  assert.strictEqual((await s.req('POST', '/api/booking', Object.assign({}, base, { name: 'ع' }))).body.error, 'input');
+  assert.strictEqual((await s.req('POST', '/api/booking', Object.assign({}, base, { mobile: '0912' }))).body.error, 'input');
+  /* دو درخواست باز برای یک شماره؛ سومی رد می‌شود و کدش مصرف نمی‌شود */
+  for (let i = 0; i < 2; i++) {
+    s.app.otp.map.delete(base.mobile);
+    await s.req('POST', '/api/otp/send', { mobile: base.mobile });
+    const r = await s.req('POST', '/api/booking', Object.assign({}, base, { code: s.sent[s.sent.length - 1].params.Code }));
+    assert.strictEqual(r.status, 200);
+  }
+  s.app.otp.map.delete(base.mobile);
+  await s.req('POST', '/api/otp/send', { mobile: base.mobile });
+  const third = await s.req('POST', '/api/booking', Object.assign({}, base, { code: s.sent[s.sent.length - 1].params.Code }));
+  assert.strictEqual(third.status, 429); assert.strictEqual(third.body.error, 'many');
+  s.done();
+});
+
+test('پذیرش: بعد از تماس، روز و ساعت و پزشک را ثبت می‌کند', async () => {
+  const s = await setup();
+  const auth = { authorization: 'Bearer ' + s.cfg.adminToken };
+  await s.req('POST', '/api/otp/send', { mobile: '09121234567' });
+  const ok = await s.req('POST', '/api/booking', { mobile: '09121234567', code: s.sent[0].params.Code, name: 'مریم', dept: 'dental', type: 'مشاوره' });
+  const ref = ok.body.ref;
+  assert.strictEqual((await s.req('PATCH', '/api/bookings/' + ref, { status: 'called' }, auth)).body.booking.status, 'called');
+  const sch = await s.req('PATCH', '/api/bookings/' + ref, { status: 'scheduled', date: '2030-01-05', time: 630, doctor: 'doc-2' }, auth);
+  assert.strictEqual(sch.status, 200);
+  assert.deepStrictEqual([sch.body.booking.date, sch.body.booking.time, sch.body.booking.doctor], ['2030-01-05', 630, 'doc-2']);
+  assert.strictEqual((await s.req('PATCH', '/api/bookings/' + ref, { doctor: 'doc-5' }, auth)).status, 400, 'doctor from another department');
+  assert.strictEqual((await s.req('PATCH', '/api/bookings/' + ref, { status: 'x' }, auth)).status, 400);
+  assert.strictEqual((await s.req('PATCH', '/api/bookings/' + ref, { status: 'done' })).status, 401);
+  assert.strictEqual((await s.req('PATCH', '/api/bookings/SS-00000', { status: 'done' }, auth)).status, 404);
+  const list = await s.req('GET', '/api/bookings?status=scheduled', null, auth);
+  assert.strictEqual(list.body.bookings.length, 1);
   s.done();
 });
 
 test('پنج بار کد اشتباه کد را باطل می‌کند', async () => {
   const s = await setup();
-  const at = slot('medicine');
-  const base = { mobile: '09121234567', name: 'علی رضایی', dept: 'medicine', doctor: '', type: 'ویزیت اول', date: at.date, time: at.time };
+  const base = { mobile: '09121234567', name: 'علی رضایی', dept: 'medicine', type: 'ویزیت اول' };
   await s.req('POST', '/api/otp/send', { mobile: base.mobile });
   const code = s.sent[0].params.Code;
   const wrong = code === '11111' ? '22222' : '11111';

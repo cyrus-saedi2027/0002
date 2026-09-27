@@ -291,7 +291,7 @@
       }
       await busy(btn, 420);
       const type = $('#qbType').value;
-      swap(out, `${html} <span class="qbook__acts"><button type="button" class="btn btn--primary qbook__go" data-book="${k}" data-type="${type === 'مشاوره پیش از درمان' ? 'مشاوره' : type}" data-pref="${pref}"><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg>رزرو آنلاین</button><a class="link-arrow" href="tel:+981154611560">تماس با پذیرش: <span dir="ltr">${TEL}</span><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a></span>`);
+      swap(out, `${html} <span class="qbook__acts"><button type="button" class="btn btn--primary qbook__go" data-book="${k}" data-type="${type === 'مشاوره پیش از درمان' ? 'مشاوره' : type}"><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg>درخواست نوبت</button><a class="link-arrow" href="tel:+981154611560">تماس با پذیرش: <span dir="ltr">${TEL}</span><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a></span>`);
     });
   }
 
@@ -934,6 +934,121 @@
     };
   }
 
+  /* ==========================================================================
+     ایمنی و استریل: چرخه‌ی چهارمرحله‌ای. با دیده شدن بخش یک بار پخش می‌شود (و با برگشتن دوباره):
+     نقطه‌ی نورانی روی حلقه از هر ایستگاه به ایستگاه بعد می‌رود، ایستگاه‌ها روشن می‌شوند و متن وسط عوض می‌شود.
+     حلقه روی بوم کشیده می‌شود تا حرکتش کل صفحه را دوباره رسم نکند؛ مرحله‌ها قابل کلیک‌اند
+     ========================================================================== */
+  const SAFE_T = [['شست‌وشو', 'بعد از هر بیمار'], ['بسته‌بندی', 'پاکت استریل با تاریخ'], ['اتوکلاو', 'بخار داغ و فشار'], ['جلوی شما', 'بسته همان‌جا باز می‌شود']];
+  const Safe = {
+    always: true,
+    build() {
+      const sec = $('#safety'); if (!sec) return;
+      const fx = $('.sfx', sec), cv = $('.sfx__cv', sec), ctx = cv && cv.getContext ? cv.getContext('2d') : null;
+      const nodes = $$('.sfx__node', sec), items = $$('.sf', sec), bars = $$('.sf__bar i', sec);
+      const mid = { no: $('.sfx__no', sec), t: $('.sfx__t', sec), s: $('.sfx__s', sec) };
+      const anim = Motion.on && !root.classList.contains('rm') && !!window.gsap;
+      const st = { p: anim ? 0 : 4 };
+      let W = 0, dpr = 1, cur = -2;
+      const draw = () => {
+        if (!ctx || !W) return;
+        const c = W / 2, R = W * 0.375, lw = Math.max(7, W * 0.024), TAU = Math.PI * 2;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, W, W);
+        ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.arc(c, c, R, 0, TAU); ctx.strokeStyle = '#E3EAF2'; ctx.lineWidth = lw; ctx.stroke();
+        /* خط‌های ریز دور حلقه، مثل صفحه‌ی ساعت دستگاه */
+        ctx.strokeStyle = '#D5DEEA'; ctx.lineWidth = 1.5;
+        for (let k = 0; k < 48; k++) { if (k % 12 === 0) continue; const a = k / 48 * TAU, r1 = R + lw * 1.3, r2 = r1 + (k % 4 ? 4 : 8); ctx.beginPath(); ctx.moveTo(c + r1 * Math.cos(a), c + r1 * Math.sin(a)); ctx.lineTo(c + r2 * Math.cos(a), c + r2 * Math.sin(a)); ctx.stroke(); }
+        const f = Math.max(0, Math.min(1, st.p / 4)), a0 = -Math.PI / 2, a1 = a0 + f * TAU;
+        if (f <= 0) return;
+        let g = '#0FA58F';
+        if (ctx.createConicGradient) { g = ctx.createConicGradient(a0, c, c); g.addColorStop(0, '#1E5EEB'); g.addColorStop(0.5, '#2AA7D6'); g.addColorStop(1, '#0FA58F'); }
+        ctx.beginPath(); ctx.arc(c, c, R, a0, a1); ctx.strokeStyle = g; ctx.lineWidth = lw; ctx.stroke();
+        if (f < 1) {
+          const hx = c + R * Math.cos(a1), hy = c + R * Math.sin(a1);
+          ctx.save(); ctx.shadowColor = 'rgba(30, 94, 235, .55)'; ctx.shadowBlur = 18; ctx.fillStyle = '#fff';
+          ctx.beginPath(); ctx.arc(hx, hy, lw * 0.95, 0, TAU); ctx.fill(); ctx.restore();
+          ctx.beginPath(); ctx.arc(hx, hy, lw * 0.42, 0, TAU); ctx.fillStyle = '#1E5EEB'; ctx.fill();
+        }
+      };
+      const size = () => {
+        W = cv.clientWidth; dpr = Math.min(2, window.devicePixelRatio || 1);
+        if (!W || !ctx) return;
+        cv.width = Math.round(W * dpr); cv.height = Math.round(W * dpr);
+        draw();
+      };
+      const swapMid = (i) => {
+        const txt = i >= 4 ? ['۴ مرحله', 'برای هر ست ابزار', 'بعد از هر بیمار'] : [toFa(String(i + 1).padStart(2, '0')), SAFE_T[i][0], SAFE_T[i][1]];
+        const put = () => { mid.no.textContent = txt[0]; mid.t.textContent = txt[1]; mid.s.textContent = txt[2]; };
+        if (!anim || typeof mid.no.animate !== 'function') { put(); return; }
+        const els = [mid.no, mid.t, mid.s];
+        els.forEach((el, k) => el.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translate3d(0, -8px, 0)' }], { duration: 160, delay: k * 25, easing: 'ease-in', fill: 'forwards' }));
+        setTimeout(() => {
+          put();
+          els.forEach((el, k) => { el.getAnimations().forEach((a) => a.cancel()); el.animate([{ opacity: 0, transform: 'translate3d(0, 12px, 0)' }, { opacity: 1, transform: 'none' }], { duration: 520, delay: k * 50, easing: 'cubic-bezier(.16, 1, .3, 1)', fill: 'backwards' }); });
+        }, 220);
+      };
+      /* مرحله‌ی i فعال است وقتی p بین i و i+1 است؛ p = ۴ یعنی چرخه کامل شد */
+      const stage = () => {
+        const i = st.p >= 4 ? 4 : Math.floor(st.p + 1e-6);
+        if (i === cur) return;
+        cur = i;
+        nodes.forEach((n, k) => { n.classList.toggle('is-on', k === i); n.classList.toggle('is-done', k < i); });
+        items.forEach((it, k) => {
+          it.classList.toggle('is-on', k === i || (i === 4 && !anim));
+          it.classList.toggle('is-done', k < i);
+          const b = $('.sf__btn', it);
+          if (k === i) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
+        });
+        swapMid(i);
+      };
+      this.draw = draw;
+      size();
+      this.ro = 'ResizeObserver' in window ? new ResizeObserver(size) : null;
+      if (this.ro) this.ro.observe(fx);
+      if (!anim) { st.p = 4; cur = -2; stage(); draw(); items.forEach((it) => it.classList.remove('is-on')); return; }
+      stage();
+
+      /* ایستادن کوتاه روی هر ایستگاه، بعد رفتن به ایستگاه بعد؛ نوار زیر مرحله هم‌زمان پر می‌شود */
+      const HOLD = 1, MOVE = 1.15;
+      let lastP = -1;
+      const tl = gsap.timeline({ paused: true, onUpdate: () => { if (st.p !== lastP) { lastP = st.p; draw(); } stage(); } });
+      for (let i = 0; i < 4; i++) {
+        tl.addLabel('s' + i)
+          .set(bars, { scaleX: (k) => (k < i ? 1 : 0), opacity: 1 }, 's' + i)
+          .to(bars[i], { scaleX: 1, duration: HOLD + MOVE, ease: 'none' }, 's' + i)
+          .to(st, { p: i + 1, duration: MOVE, ease: 'power2.inOut' }, `s${i}+=${HOLD}`);
+      }
+      /* چرخه کامل شد: نوارها آرام محو می‌شوند */
+      tl.to(bars, { opacity: 0, duration: 0.6, ease: 'power1.out' }, '+=0.3').set(bars, { scaleX: 0, opacity: 1 });
+      this.tl = tl;
+      items.forEach((it, i) => $('.sf__btn', it).addEventListener('click', () => {
+        tl.pause(); st.p = i; draw(); stage();
+        tl.seek('s' + i, false); tl.play();
+      }));
+      let visible = false;
+      this.io = new IntersectionObserver((es) => {
+        const on = es.some((e) => e.isIntersecting);
+        if (on === visible) return;
+        visible = on;
+        if (!on) { tl.pause(); return; }
+        if (tl.progress() === 0 || tl.progress() === 1) { st.p = 0; tl.restart(); } else tl.resume();
+      }, { threshold: 0.35 });
+      this.io.observe(fx);
+      gsap.set(bars, { scaleX: 0 });
+    },
+    kill() {
+      if (this.io) { this.io.disconnect(); this.io = null; }
+      if (this.ro) { this.ro.disconnect(); this.ro = null; }
+      if (this.tl) { this.tl.kill(); this.tl = null; }
+      const sec = $('#safety'); if (!sec) return;
+      if (window.gsap) gsap.set($$('.sf__bar i', sec), { clearProps: 'transform' });
+      $$('.sfx__node, .sf', sec).forEach((el) => el.classList.remove('is-on', 'is-done'));
+      $$('.sfx__mid > *', sec).forEach((el) => el.getAnimations().forEach((a) => a.cancel()));
+    }
+  };
+
   const Reviews = {
     ctx: null,
     build() {
@@ -1269,7 +1384,7 @@
     <b>${ct}</b><p>${cp}</p>
     <div class="ar-cta__acts">
       <a class="btn btn--light" href="tel:+981154611560"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg><span dir="ltr">${TEL}</span></a>
-      <a class="btn btn--outline-light" href="#book" data-ar-book><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg>زمان مراجعه</a>
+      <a class="btn btn--outline-light" href="#book" data-ar-book><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg>درخواست نوبت</a>
     </div>
   </section>
   <p class="ar-note">این مطلب را پزشکان کلینیک ساسان برای آگاهی عمومی نوشته‌اند و جای معاینه را نمی‌گیرد.</p>
@@ -1428,7 +1543,7 @@
     $('#arBack').addEventListener('click', goBackAr);
     scrim.addEventListener('click', goBackAr);
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && isOpen) goBackAr(); });
-    /* «زمان مراجعه»: برگه بسته می‌شود و صفحه تا فرم نوبت (یا جایگزینش روی موبایل) می‌رود */
+    /* «درخواست نوبت»: برگه بسته می‌شود و کپسول نوبت با همان بخش باز می‌شود */
     page.addEventListener('click', (e) => {
       if (!e.target.closest('[data-ar-book]')) return;
       e.preventDefault();
@@ -1571,7 +1686,7 @@
         return;
       }
       const pretty = toFa(`${t.slice(0, 4)} ${t.slice(4, 7)} ${t.slice(7)}`);
-      swap(msg, `<b>ممنون ${n}؛ درخواستتان ثبت شد.</b><span>پذیرش برای هماهنگی با شماره‌ی <bdi dir="ltr">${pretty}</bdi> تماس می‌گیرد. اگر عجله دارید، همین حالا با <a href="tel:+981154611560" dir="ltr">${TEL}</a> تماس بگیرید.</span>`);
+      swap(msg, `<b>ممنون ${n}؛ درخواستتان ثبت شد.</b><span>پذیرش بین ۳۰ دقیقه تا ۴ ساعت بعد با شماره‌ی <bdi dir="ltr">${pretty}</bdi> تماس می‌گیرد و زمان مراجعه را هماهنگ می‌کند. اگر عجله دارید، همین حالا با <a href="tel:+981154611560" dir="ltr">${TEL}</a> تماس بگیرید.</span>`);
       if (anim()) {
         const old = cbBtn.innerHTML;
         cbBtn.classList.add('is-ok');
@@ -2073,6 +2188,7 @@
   Motion.add(Depts);
   Motion.add(Journey);
   Motion.add(Docs);
+  Motion.add(Safe);
   Motion.add(Reviews);
   Motion.add(MapFx);
   Motion.add(AppsFx);

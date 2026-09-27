@@ -1,8 +1,9 @@
 /* ==========================================================================
-   book.js: کپسول نوبت آنلاین
+   book.js: کپسول درخواست نوبت
    با هر دکمه‌ی «نوبت بگیرید» یک کپسول کوچک وسط صفحه (روی موبایل پایین صفحه) ظاهر می‌شود،
-   اول پهن و بعد بلند می‌شود و به برگه‌ی نوبت تبدیل می‌شود: بخش ← زمان ← مشخصات ← کد تأیید ← ثبت.
-   ارسال کد و ثبت نوبت با سرور کلینیک (پوشه‌ی server/) انجام می‌شود. اگر سرور در دسترس نباشد
+   اول پهن و بعد بلند می‌شود و به برگه‌ی درخواست تبدیل می‌شود: بخش ← مشخصات ← کد تأیید ← ثبت.
+   بیمار روز، ساعت و پزشک را انتخاب نمی‌کند؛ پذیرش بین ۳۰ دقیقه تا ۴ ساعت بعد تماس می‌گیرد و هماهنگ می‌کند.
+   ارسال کد و ثبت درخواست با سرور کلینیک (پوشه‌ی server/) انجام می‌شود. اگر سرور در دسترس نباشد
    (مثل پیش‌نمایش ایستا)، همان مسیر به‌شکل نمایشی و بدون ارسال پیامک اجرا می‌شود.
    ========================================================================== */
 (function () {
@@ -48,73 +49,32 @@
     .then((r) => r.json().catch(() => ({ ok: false, error: 'server' })))
     .catch(() => ({ ok: false, error: 'network' }));
 
-  /* ---------- بخش‌ها و پزشکان ---------- */
-  const ALL = [0, 1, 2, 3, 4, 5, 6];
+  /* ---------- بخش‌ها ---------- */
   const DEPT = {
-    dental: { t: 'دندانپزشکی', ic: 'i-tooth', days: ALL.filter((d) => Clinic.DENTAL[d]), hours: [[10, 14, 'صبح'], [14, 20, 'بعدازظهر و عصر']] },
-    beauty: { t: 'زیبایی و لیزر', ic: 'i-sparkles', days: ALL, hours: [[10, 14, 'صبح'], [14, 20, 'بعدازظهر و عصر']], note: 'بخش زیبایی و لیزر همه‌روزه با هماهنگی قبلی کار می‌کند؛ پذیرش پیش از مراجعه زمان را با شما قطعی می‌کند.' },
-    medicine: { t: 'پزشک عمومی', ic: 'i-steth', days: ALL, hours: [[8, 14, 'صبح'], [14, 20, 'بعدازظهر و عصر'], [20, 24, 'شب']], note: 'پزشک عمومی شبانه‌روزی است؛ بعد از نیمه‌شب هم بدون نوبت پذیرش داریم.' }
+    dental: { t: 'دندانپزشکی', ic: 'i-tooth' },
+    beauty: { t: 'زیبایی و لیزر', ic: 'i-sparkles' },
+    medicine: { t: 'پزشک عمومی', ic: 'i-steth' }
   };
-  /* روزهای کاری هر پزشک (شنبه = ۰) و ساعت شیفت */
-  const SCHED = { 'doc-1': { days: [0, 2, 5] }, 'doc-2': { days: [0, 1, 2] }, 'doc-5': {}, 'doc-3': { from: 8, to: 20 }, 'doc-4': { from: 20, to: 24 } };
-  const DOCS = $$('.doc__book[data-doc]').map((b) => {
-    const li = b.closest('.doc'), id = b.dataset.doc;
-    return Object.assign({ id, k: b.dataset.book, name: li ? $('.doc__name', li).textContent.trim() : '', role: li ? $('.doc__role', li).textContent.split('·').pop().trim() : '', img: `img/${id}.webp` }, SCHED[id] || {});
-  });
-  const docOf = (id) => DOCS.find((d) => d.id === id) || null;
-
-  /* ---------- تاریخ به وقت تهران و تقویم شمسی ---------- */
-  let fDay = null, fMon = null;
-  try {
-    fDay = new Intl.DateTimeFormat('fa-IR-u-ca-persian', { timeZone: 'UTC', day: 'numeric' });
-    fMon = new Intl.DateTimeFormat('fa-IR-u-ca-persian', { timeZone: 'UTC', month: 'long' });
-  } catch (e) { /* مرورگر قدیمی: فقط نام روز هفته */ }
-  const tehranYMD = () => {
-    try {
-      const p = {};
-      new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Tehran', year: 'numeric', month: 'numeric', day: 'numeric' }).formatToParts(new Date()).forEach((x) => { p[x.type] = x.value; });
-      return [+p.year, +p.month, +p.day];
-    } catch (e) { const n = new Date(); return [n.getFullYear(), n.getMonth() + 1, n.getDate()]; }
-  };
-  const dayList = () => {
-    const [y, m, d] = tehranYMD();
-    return Array.from({ length: 14 }, (_, off) => {
-      const dt = new Date(Date.UTC(y, m - 1, d + off, 12));
-      return { off, di: (dt.getUTCDay() + 1) % 7, iso: dt.toISOString().slice(0, 10), dt };
-    });
-  };
-  const dayNum = (x) => (fDay ? fDay.format(x.dt) : toFa(x.dt.getUTCDate()));
-  const monName = (x) => (fMon ? fMon.format(x.dt) : '');
-  const dayName = (x) => (x.off === 0 ? 'امروز' : x.off === 1 ? 'فردا' : Clinic.DAYS[x.di]);
-  const hhmm = (t) => toFa(`${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}`);
-
-  /* ساعت‌های آزاد یک روز؛ امروز فقط از نیم ساعت بعد */
-  const slotsFor = (k, doc, x) => {
-    if (!DEPT[k] || !DEPT[k].days.includes(x.di)) return [];
-    if (doc && doc.days && !doc.days.includes(x.di)) return [];
-    const lead = x.off === 0 ? Clinic.now().min + 30 : -1;
-    return DEPT[k].hours.map(([a, b, label]) => {
-      let from = a, to = b;
-      if (doc && doc.from != null) { from = Math.max(from, doc.from); to = Math.min(to, doc.to); }
-      const list = [];
-      for (let t = from * 60; t < to * 60; t += 30) if (t >= lead) list.push(t);
-      return { label, from, to, list };
-    }).filter((g) => g.list.length);
-  };
+  /* پذیرش در این بازه تماس می‌گیرد و روز، ساعت و پزشک را با بیمار هماهنگ می‌کند */
+  const CALL = 'بین ۳۰ دقیقه تا ۴ ساعت بعد';
 
   /* ---------- وضعیت ---------- */
-  const st = { step: 0, k: null, doc: '', type: 'ویزیت اول', day: null, time: null, name: '', tel: '', note: '', pref: null, sentAt: 0, ttl: 120, resend: 60, demo: null, ref: null, busy: false };
-  const TITLES = ['بخش و پزشک را انتخاب کنید', 'نوع مراجعه، روز و ساعت', 'نام و شماره‌ی موبایل', 'کد تأیید پیامک‌شده را وارد کنید', 'نوبت شما ثبت شد'];
-  const NEXT = ['ادامه', 'ادامه', 'دریافت کد تأیید', 'تأیید و ثبت نوبت'];
+  const fresh = () => ({ step: 0, k: null, type: 'ویزیت اول', name: '', tel: '', note: '', sentAt: 0, ttl: 120, resend: 60, demo: null, ref: null, smsOk: false, busy: false });
+  const st = fresh();
+  const reset = () => { const keep = { name: st.name, tel: st.tel }; Object.assign(st, fresh(), keep); };
+  const TITLES = ['بخش را انتخاب کنید', 'نام و شماره‌ی موبایل', 'کد تأیید پیامک‌شده را وارد کنید', 'درخواست شما ثبت شد'];
+  const NEXT = ['ادامه', 'دریافت کد تأیید', 'تأیید و ثبت درخواست'];
+  const LAST = 3;
 
-  /* ---------- مرحله‌ی ۱: بخش و پزشک ---------- */
-  const deptLabels = $$('.bk-dept', bk), docsGrp = $('.bk-docs', bk), docsRow = $('#bkDocs');
+  /* ---------- مرحله‌ی ۱: بخش ---------- */
+  const deptLabels = $$('.bk-dept', bk);
   const availText = (k) => {
     if (k === 'medicine') return 'شبانه‌روزی؛ همین حالا هم پذیرش دارد';
     if (k === 'beauty') return 'همه‌روزه با هماهنگی قبلی';
     const d = Clinic.dental();
     return d.open ? `امروز باز است · ${d.text}` : `نزدیک‌ترین زمان: ${d.when}`;
   };
+  const tone = () => { if (st.k) bk.dataset.k = st.k; else bk.removeAttribute('data-k'); };
   const paintDepts = () => {
     deptLabels.forEach((l) => {
       const k = l.dataset.k, on = k === st.k;
@@ -124,135 +84,36 @@
     });
     tone();
   };
-  const tone = () => { if (st.k) bk.dataset.k = st.k; else bk.removeAttribute('data-k'); };
-  const paintDocs = (animate) => {
-    const list = DOCS.filter((d) => d.k === st.k);
-    docsGrp.hidden = !st.k || !list.length;
-    if (docsGrp.hidden) return;
-    docsRow.innerHTML = [`<label class="bk-doc${st.doc ? '' : ' is-on'}"><input type="radio" name="bkDoc" value=""${st.doc ? '' : ' checked'}><span class="bk-doc__av"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg></span><span class="bk-doc__t"><b>فرقی نمی‌کند</b><small>اولین پزشک آزاد</small></span></label>`]
-      .concat(list.map((d) => `<label class="bk-doc${st.doc === d.id ? ' is-on' : ''}"><input type="radio" name="bkDoc" value="${d.id}"${st.doc === d.id ? ' checked' : ''}><span class="bk-doc__av"><img src="${d.img}" alt="" width="72" height="90" loading="lazy" decoding="async"></span><span class="bk-doc__t"><b>${esc(d.name)}</b><small>${esc(d.role)}</small></span></label>`)).join('');
-    if (animate && can()) gsap.fromTo(docsGrp.querySelectorAll('.bk-lbl, .bk-doc'), { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, stagger: 0.04, ease: 'expo.out', clearProps: 'transform,opacity' });
-  };
+  const pop = (el) => { if (el && can()) gsap.fromTo(el, { scale: 0.96 }, { scale: 1, duration: 0.6, ease: 'back.out(3)', clearProps: 'transform' }); };
   bk.addEventListener('change', (e) => {
     const t = e.target;
     if (t.name === 'bkDept') {
-      const changed = st.k !== t.value;
       st.k = t.value;
-      if (changed) { st.doc = ''; st.day = null; st.time = null; }
-      paintDepts(); paintDocs(changed); paintSum(); say('');
+      paintDepts(); paintSum(); say('');
       pop(t.closest('.bk-dept'));
-    } else if (t.name === 'bkDoc') {
-      if (st.doc !== t.value) { st.doc = t.value; st.day = null; st.time = null; }
-      $$('.bk-doc', docsRow).forEach((l) => l.classList.toggle('is-on', $('input', l).checked));
-      paintSum();
     } else if (t.name === 'bkType') {
       st.type = t.value;
       $$('.bk-seg label', bk).forEach((l) => l.classList.toggle('is-on', $('input', l).checked));
       paintSum();
-    } else if (t.name === 'bkDay') {
-      st.day = t.value; st.time = null;
-      $$('.bk-day', bk).forEach((l) => l.classList.toggle('is-on', $('input', l).checked));
-      paintSlots(true); paintSum(); say('');
-    } else if (t.name === 'bkTime') {
-      st.time = +t.value;
-      $$('.bk-slot', bk).forEach((l) => l.classList.toggle('is-on', $('input', l).checked));
-      pop(t.closest('.bk-slot'));
-      paintSum(); say('');
     }
   });
-  const pop = (el) => { if (el && can()) gsap.fromTo(el, { scale: 0.96 }, { scale: 1, duration: 0.6, ease: 'back.out(3)', clearProps: 'transform' }); };
+  /* با دوبار زدن روی یک بخش (یا Enter) مستقیم به مرحله‌ی بعد */
+  deptLabels.forEach((l) => l.addEventListener('dblclick', () => { if (st.step === 0 && st.k) next(); }));
 
-  /* ---------- مرحله‌ی ۲: نوع مراجعه، روز، ساعت ---------- */
-  const daysRow = $('#bkDays'), slotsBox = $('#bkSlots'), noteEl = $('#bkNote'), monthEl = $('#bkMonth');
-  let days = [];
-  const ctxHTML = () => {
-    if (!st.k) return '';
-    const d = docOf(st.doc);
-    return `<svg class="ic" aria-hidden="true"><use href="#${DEPT[st.k].ic}"/></svg><b>${DEPT[st.k].t}</b><span>${d ? esc(d.name) : 'اولین پزشک آزاد'}</span><button type="button" class="bk-link" data-bk-go="0">تغییر</button>`;
-  };
-  const paintDays = () => {
-    days = dayList();
-    const doc = docOf(st.doc);
-    const open = days.map((x) => slotsFor(st.k, doc, x).length > 0);
-    if (!st.day || !open[days.findIndex((x) => x.iso === st.day)]) {
-      /* روز پیشنهادی: اولین روزی که در بازه‌ی دلخواه (صبح/عصر/شب) ساعت آزاد دارد */
-      const want = st.pref && { am: [0, 14], pm: [14, 20], night: [20, 24] }[st.pref];
-      const fits = (x) => slotsFor(st.k, doc, x).some((g) => g.list.some((t) => !want || (t >= want[0] * 60 && t < want[1] * 60)));
-      const first = days.find((x, i) => open[i] && fits(x)) || days.find((x, i) => open[i]);
-      st.day = first ? first.iso : null; st.time = null;
-    }
-    let lastMon = '';
-    daysRow.innerHTML = days.map((x, i) => {
-      const mon = monName(x), on = st.day === x.iso;
-      const lab = open[i] ? '' : (x.off === 0 && DEPT[st.k].days.includes(x.di) ? ' · تمام شده' : ' · تعطیل');
-      const html = `<label class="bk-day${on ? ' is-on' : ''}${open[i] ? '' : ' is-off'}"${mon !== lastMon && i ? ` data-mon="${mon}"` : ''}><input type="radio" name="bkDay" value="${x.iso}"${on ? ' checked' : ''}${open[i] ? '' : ' disabled'} aria-label="${dayName(x)} ${dayNum(x)} ${mon}${lab}"><small>${dayName(x)}</small><b>${dayNum(x)}</b><small>${open[i] ? mon : 'تعطیل'}</small></label>`;
-      lastMon = mon;
-      return html;
-    }).join('');
-    const sel = days.find((x) => x.iso === st.day);
-    monthEl.textContent = sel ? `${dayNum(sel)} ${monName(sel)}` : '';
-    requestAnimationFrame(centerDay);
-  };
-  /* روز انتخاب‌شده وسط ردیف می‌نشیند (در راست‌به‌چپ هم درست، چون از خود مستطیل‌ها حساب می‌شود) */
-  const centerDay = () => {
-    const onEl = $('.bk-day.is-on', daysRow);
-    if (!onEl) return;
-    const a = onEl.getBoundingClientRect(), b = daysRow.getBoundingClientRect();
-    daysRow.scrollLeft += (a.left + a.width / 2) - (b.left + b.width / 2);
-  };
-  const paintSlots = (animate) => {
-    const x = days.find((d) => d.iso === st.day);
-    const doc = docOf(st.doc);
-    if (x) monthEl.textContent = `${dayNum(x)} ${monName(x)}`;
-    const gs = x ? slotsFor(st.k, doc, x) : [];
-    slotsBox.innerHTML = gs.length ? gs.map((g) => `<div class="bk-slots__g" role="radiogroup" aria-label="${g.label}"><span>${g.label} · ${hhmm(g.from * 60)} تا ${hhmm(g.to * 60)}</span><div class="bk-slots__row">${g.list.map((t) => `<label class="bk-slot${st.time === t ? ' is-on' : ''}"><input type="radio" name="bkTime" value="${t}"${st.time === t ? ' checked' : ''} aria-label="ساعت ${hhmm(t)}">${hhmm(t)}</label>`).join('')}</div></div>`).join('')
-      : '<p class="bk-empty">برای این روز زمان آزادی نمانده؛ روز دیگری را انتخاب کنید.</p>';
-    const d = DEPT[st.k];
-    noteEl.textContent = (doc && doc.id === 'doc-4') ? 'شیفت شب تا ۸ صبح ادامه دارد؛ بعد از نیمه‌شب بدون نوبت هم می‌توانید بیایید.' : (d && d.note) || '';
-    probe().then((l) => { if (l) markFull(); });
-    if (animate && can()) gsap.fromTo(slotsBox.querySelectorAll('.bk-slots__g > span, .bk-slot'), { y: 10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, stagger: { each: 0.012, from: 'start' }, ease: 'expo.out', clearProps: 'transform,opacity' });
-    /* بازه‌ی دلخواه فرم «زمان مراجعه» به چشم بیاید */
-    if (st.pref && !st.time) {
-      const want = { am: 0, pm: 1, night: 2 }[st.pref];
-      const g = $$('.bk-slots__g', slotsBox)[want];
-      if (g) requestAnimationFrame(() => { view.scrollTop = Math.max(0, g.offsetTop - 12); });
-    }
-  };
-  /* با سرور: ساعت‌هایی که دیگر جا ندارند غیرفعال می‌شوند (فقط ساعت؛ هیچ اطلاعاتی از بیماران نمی‌آید) */
-  const fullCache = new Map();
-  const markFull = () => {
-    if (!live || !st.k || !st.day) return;
-    const key = `${st.k}|${st.doc}|${st.day}`, c = fullCache.get(key);
-    const apply = (full) => {
-      if (`${st.k}|${st.doc}|${st.day}` !== key) return;
-      $$('.bk-slot', slotsBox).forEach((l) => {
-        const i = $('input', l), f = full.includes(+i.value);
-        l.classList.toggle('is-full', f); i.disabled = f;
-        i.setAttribute('aria-label', `ساعت ${hhmm(+i.value)}${f ? ' · پر شده' : ''}`);
-        if (f && i.checked) { i.checked = false; l.classList.remove('is-on'); st.time = null; paintSum(); }
-      });
-    };
-    if (c && Date.now() - c.at < 30e3) { apply(c.full); return; }
-    fetch(`${API}/slots?dept=${st.k}&date=${st.day}${st.doc ? '&doctor=' + st.doc : ''}`, { credentials: 'same-origin', headers: { accept: 'application/json' } })
-      .then((r) => r.json()).then((j) => { if (j && j.ok && Array.isArray(j.full)) { fullCache.set(key, { at: Date.now(), full: j.full }); apply(j.full); } })
-      .catch(() => {});
-  };
-  const paintStep1 = () => {
-    $('#bkCtx').innerHTML = ctxHTML();
-    $$('.bk-seg label', bk).forEach((l) => { const i = $('input', l); i.checked = i.value === st.type; l.classList.toggle('is-on', i.checked); });
-    paintDays(); paintSlots(false);
-  };
-
-  /* ---------- مرحله‌ی ۳: مشخصات ---------- */
+  /* ---------- مرحله‌ی ۲: نوع مراجعه و مشخصات ---------- */
   const fName = $('#bkName'), fTel = $('#bkTel'), fNote = $('#bkNoteIn');
   const mark = (f, bad) => { f.closest('.field').classList.toggle('is-bad', bad); f.setAttribute('aria-invalid', String(bad)); };
   [fName, fTel].forEach((f) => f.addEventListener('input', () => { mark(f, false); say(''); }));
-  const paintStep2 = () => {
-    const x = days.find((d) => d.iso === st.day);
-    $('#bkCtx2').innerHTML = x ? `<svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg><b>${dayName(x)} ${dayNum(x)} ${monName(x)} · ساعت ${hhmm(st.time)}</b><span>${DEPT[st.k].t}</span><button type="button" class="bk-link" data-bk-go="1">تغییر</button>` : '';
+  const faTel = (t) => toFa(`${t.slice(0, 4)} ${t.slice(4, 7)} ${t.slice(7)}`);
+  const paintStep1 = () => {
+    $('#bkCtx').innerHTML = st.k ? `<svg class="ic" aria-hidden="true"><use href="#${DEPT[st.k].ic}"/></svg><b>${DEPT[st.k].t}</b><span>روز و ساعت را پذیرش هماهنگ می‌کند</span><button type="button" class="bk-link" data-bk-go="0">تغییر</button>` : '';
+    $$('.bk-seg label', bk).forEach((l) => { const i = $('input', l); i.checked = i.value === st.type; l.classList.toggle('is-on', i.checked); });
+    fName.value = st.name;
+    if (st.tel) fTel.value = faTel(st.tel);
+    fNote.value = st.note;
   };
 
-  /* ---------- مرحله‌ی ۴: کد تأیید ---------- */
+  /* ---------- مرحله‌ی ۳: کد تأیید ---------- */
   const codeIn = $('#bkCode'), codeBox = $('.bk-code', bk), cells = $$('.bk-code__cells i', bk), timerEl = $('#bkTimer'), timerRow = $('#bkTimerRow'), resendBtn = $('#bkResend'), tbar = $('.bk-timer__bar i', bk);
   const sms = $('#bkSms');
   let tmr = 0, smsT = 0;
@@ -287,7 +148,7 @@
   };
   const startTimer = () => { clearInterval(tmr); tick(); tmr = setInterval(tick, 1000); };
   const showSms = (code) => {
-    $('#bkSmsText').textContent = `کد تأیید نوبت شما: ${toFa(code)}`;
+    $('#bkSmsText').textContent = `کد تأیید درخواست نوبت: ${toFa(code)}`;
     sms.hidden = false;
     if (can()) gsap.fromTo(sms, { yPercent: -140, opacity: 0, scale: 0.9 }, { yPercent: 0, opacity: 1, scale: 1, duration: 0.8, ease: 'back.out(1.6)' });
     clearTimeout(smsT); smsT = setTimeout(hideSms, 9000);
@@ -311,9 +172,8 @@
     code: 'کد درست نیست؛ دوباره نگاه کنید.',
     expired: 'اعتبار این کد تمام شده؛ «ارسال دوباره» را بزنید.',
     attempts: 'چند بار کد اشتباه وارد شد؛ یک کد تازه بگیرید.',
-    slot: 'این زمان همین حالا پر شد؛ لطفاً ساعت دیگری انتخاب کنید.',
-    input: 'بعضی اطلاعات نوبت کامل نیست؛ یک بار دیگر مرحله‌ها را نگاه کنید.',
-    many: `برای این شماره چند نوبت باز ثبت شده؛ برای نوبت بیشتر با پذیرش تماس بگیرید: ${TEL}`
+    input: 'بعضی اطلاعات درخواست کامل نیست؛ یک بار دیگر مرحله‌ها را نگاه کنید.',
+    many: `برای این شماره درخواستی ثبت شده که هنوز پیگیری نشده؛ پذیرش به‌زودی تماس می‌گیرد. اگر عجله دارید: ${TEL}`
   };
   const errText = (r) => {
     if (r.error === 'rate') return `برای این شماره تازه کد فرستاده شده؛ ${r.wait ? toFa(r.wait) + ' ثانیه‌ی دیگر' : 'کمی بعد'} دوباره امتحان کنید.`;
@@ -328,8 +188,8 @@
     } else {
       st.demo = String(Math.floor(10000 + Math.random() * 90000));
       st.ttl = 120; st.resend = 60;
-      /* ارسال دوباره (مرحله‌ی کد)؛ بار اول ورود به مرحله‌ی کد خودش پیامک را نشان می‌دهد */
-      if (st.step === 3) setTimeout(() => { if (isOpen && st.step === 3 && st.demo) showSms(st.demo); }, 1300);
+      /* ارسال دوباره (در مرحله‌ی کد)؛ بار اول ورود به مرحله‌ی کد خودش پیامک را نشان می‌دهد */
+      if (st.step === 2) setTimeout(() => { if (isOpen && st.step === 2 && st.demo) showSms(st.demo); }, 1300);
     }
     st.sentAt = Date.now();
     return true;
@@ -350,62 +210,36 @@
     st.busy = true; nextBtn.classList.add('is-busy');
     let r;
     if (live) {
-      r = await post('/booking', { mobile: st.tel, code, name: st.name, note: st.note, dept: st.k, doctor: st.doc, type: st.type, date: st.day, time: st.time });
+      r = await post('/booking', { mobile: st.tel, code, name: st.name, note: st.note, dept: st.k, type: st.type });
     } else {
       await new Promise((res) => setTimeout(res, 650));
       r = code === st.demo ? { ok: true, ref: 'SS-' + String(Date.now()).slice(-5) } : { ok: false, error: 'code' };
     }
     st.busy = false; nextBtn.classList.remove('is-busy');
-    if (!r.ok) {
-      codeBox.classList.add('is-bad'); shake(codeBox); say(errText(r));
-      if (r.error === 'slot') { fullCache.clear(); st.time = null; setTimeout(() => { go(1, -1); say(ERR.slot); }, 900); return; }
-      codeIn.select();
-      return;
-    }
+    if (!r.ok) { codeBox.classList.add('is-bad'); shake(codeBox); say(errText(r)); codeIn.select(); return; }
     codeBox.classList.add('is-ok');
     st.ref = r.ref; st.smsOk = !!r.sms; st.demo = null; clearInterval(tmr); hideSms();
-    setTimeout(() => go(4, 1), can() ? 380 : 0);
+    setTimeout(() => go(LAST, 1), can() ? 380 : 0);
   }
 
-  /* ---------- مرحله‌ی ۵: ثبت شد ---------- */
+  /* ---------- مرحله‌ی آخر: ثبت شد ---------- */
   const paintDone = () => {
-    const x = days.find((d) => d.iso === st.day), d = docOf(st.doc);
-    const when = x ? `${dayName(x)} ${dayNum(x)} ${monName(x)}` : '';
-    $('#bkDoneP').textContent = st.smsOk
-      ? `پیامک تأیید برای ${prettyTel(st.tel)} فرستاده می‌شود. اگر برنامه‌تان عوض شد، با پذیرش تماس بگیرید: ${TEL}`
-      : `پذیرش برای قطعی کردن زمان با ${prettyTel(st.tel)} تماس می‌گیرد. اگر برنامه‌تان عوض شد، با پذیرش تماس بگیرید: ${TEL}`;
-    const rows = [['بخش', DEPT[st.k].t], ['پزشک', d ? d.name : 'اولین پزشک آزاد'], ['روز', when], ['ساعت', hhmm(st.time)], ['نوع مراجعه', st.type], ['به نام', st.name]];
+    $('#bkDoneP').textContent = `پذیرش ${CALL} با شماره‌ی ${prettyTel(st.tel)} تماس می‌گیرد و روز، ساعت و پزشک را با خودتان هماهنگ می‌کند.${st.smsOk ? ' پیامک ثبت درخواست هم برایتان فرستاده شد.' : ''} اگر عجله دارید، با پذیرش تماس بگیرید: ${TEL}`;
+    const rows = [['بخش', DEPT[st.k].t], ['نوع مراجعه', st.type], ['به نام', st.name], ['شماره', ltr(faTel(st.tel))]];
     $('#bkTicket').innerHTML = rows.map(([a, b]) => `<div><dt>${a}</dt><dd>${esc(b)}</dd></div>`).join('') + `<div class="is-wide is-ref"><dt>کد پیگیری</dt><dd>${esc(st.ref)}</dd></div>`;
   };
   const playDone = () => {
     if (!can()) return;
-    const mark = $('.bk-done__mark', bk), c = $('circle', mark), p = $('path', mark), rings = $$('.bk-done__mark > i', bk);
+    const markEl = $('.bk-done__mark', bk), c = $('circle', markEl), p = $('path', markEl), rings = $$('.bk-done__mark > i', bk);
     const len = p.getTotalLength ? p.getTotalLength() : 40;
     gsap.fromTo(c, { scale: 0, transformOrigin: '50% 50%' }, { scale: 1, duration: 0.7, ease: 'back.out(2.2)' });
     gsap.fromTo(p, { strokeDasharray: len, strokeDashoffset: len }, { strokeDashoffset: 0, duration: 0.55, ease: 'power2.out', delay: 0.3 });
     rings.forEach((r, i) => gsap.fromTo(r, { scale: 0.7, opacity: 0.55 }, { scale: 1.9, opacity: 0, duration: 1.3, ease: 'expo.out', delay: 0.35 + i * 0.18 }));
-    gsap.fromTo($$('.bk-done__t, .bk-done__p, .bk-ticket > div, .bk-done__acts', bk), { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, stagger: 0.05, delay: 0.35, ease: 'expo.out', clearProps: 'transform,opacity' });
+    gsap.fromTo($$('.bk-done__t, .bk-done__p, .bk-call, .bk-ticket > div, .bk-done__acts', bk), { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, stagger: 0.05, delay: 0.35, ease: 'expo.out', clearProps: 'transform,opacity' });
+    /* گوشی پذیرش چند بار زنگ می‌خورد (تعداد محدود؛ حلقه‌ی بی‌پایان نداریم) */
+    const call = $('.bk-call', bk);
+    call.classList.remove('is-ring'); void call.offsetWidth; call.classList.add('is-ring');
   };
-  $('.bk-ics', bk).addEventListener('click', () => {
-    if (!st.day || st.time == null) return;
-    const [y, mo, d] = st.day.split('-').map(Number);
-    const start = new Date(Date.UTC(y, mo - 1, d, 0, st.time) - 210 * 60000); /* تهران: ساعت جهانی + ۳:۳۰ */
-    const end = new Date(start.getTime() + 30 * 60000);
-    const f = (x) => x.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
-    const doc = docOf(st.doc);
-    const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Sasan Clinic//Booking//FA', 'CALSCALE:GREGORIAN', 'BEGIN:VEVENT',
-      `UID:${st.ref}@sasan-clinic`, `DTSTAMP:${f(new Date())}`, `DTSTART:${f(start)}`, `DTEND:${f(end)}`,
-      `SUMMARY:نوبت ${DEPT[st.k].t}${doc ? ' · ' + doc.name : ''} · کلینیک ساسان`,
-      'LOCATION:سلمان‌شهر\\, روبه‌روی شهرداری\\, بالای داروخانه‌ی شبانه‌روزی\\, طبقه‌ی اول',
-      `DESCRIPTION:کد پیگیری ${st.ref} · تلفن پذیرش 011-5461-1560`,
-      'BEGIN:VALARM', 'TRIGGER:-PT2H', 'ACTION:DISPLAY', 'DESCRIPTION:نوبت کلینیک ساسان', 'END:VALARM',
-      'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([ics], { type: 'text/calendar;charset=utf-8' }));
-    a.download = 'sasan-nobat.ics';
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-  });
 
   /* ---------- پیام خطا، لرزش، خلاصه ---------- */
   const say = (t) => { if (msg.textContent !== t) msg.textContent = t; };
@@ -413,10 +247,7 @@
   const paintSum = () => {
     const parts = [];
     if (st.k) parts.push(DEPT[st.k].t);
-    const d = docOf(st.doc); if (d) parts.push(d.name.replace(/^دکتر\s+/, 'دکتر '));
-    const x = days.find((y) => y.iso === st.day);
-    if (st.step >= 1 && x) parts.push(`${dayName(x)} ${dayNum(x)}`);
-    if (st.step >= 1 && st.time != null) parts.push(hhmm(st.time));
+    if (st.step >= 1) parts.push(st.type);
     const html = parts.map((p) => `<span>${esc(p)}</span>`).join('');
     if (sumEl.innerHTML !== html) {
       sumEl.innerHTML = html;
@@ -430,39 +261,38 @@
   function paintChrome(n) {
     tone();
     subEl.textContent = TITLES[n];
-    backBtn.hidden = n === 0 || n === 4;
-    progLis.forEach((li, i) => { li.classList.toggle('is-on', i === Math.min(n, 3)); li.classList.toggle('is-done', i < n); });
-    bar.style.setProperty('--p', Math.min(1, (n + 1) / 4).toFixed(3));
-    foot.hidden = n === 4;
+    backBtn.hidden = n === 0 || n === LAST;
+    progLis.forEach((li, i) => { li.classList.toggle('is-on', i === Math.min(n, LAST - 1)); li.classList.toggle('is-done', i < n); });
+    bar.style.setProperty('--p', Math.min(1, (n + 1) / LAST).toFixed(3));
+    foot.hidden = n === LAST;
     $('span', nextBtn).textContent = NEXT[n] || '';
   }
   function enter(n) {
-    if (n === 0) { paintDepts(); paintDocs(false); }
+    if (n === 0) paintDepts();
     if (n === 1) paintStep1();
-    if (n === 2) { paintStep2(); fName.value = st.name; fTel.value = st.tel ? toFa(`${st.tel.slice(0, 4)} ${st.tel.slice(4, 7)} ${st.tel.slice(7)}`) : fTel.value; fNote.value = st.note; }
-    if (n === 3) { $('#bkTelShow').textContent = toFa(`${st.tel.slice(0, 4)} ${st.tel.slice(4, 7)} ${st.tel.slice(7)}`); codeIn.value = ''; codeBox.classList.remove('is-bad', 'is-ok'); paintCode(); startTimer(); if (st.demo && sms.hidden) setTimeout(() => { if (isOpen && st.step === 3 && st.demo) showSms(st.demo); }, 700); }
-    if (n === 4) paintDone();
+    if (n === 2) { $('#bkTelShow').textContent = faTel(st.tel); codeIn.value = ''; codeBox.classList.remove('is-bad', 'is-ok'); paintCode(); startTimer(); if (st.demo && sms.hidden) setTimeout(() => { if (isOpen && st.step === 2 && st.demo) showSms(st.demo); }, 700); }
+    if (n === LAST) paintDone();
   }
   function focusStep(n) {
     const s = steps[n];
-    const f = n === 3 ? codeIn : n === 2 ? (st.name ? fTel : fName) : n === 4 ? $('.bk-done__t', s) : ($('input:checked:not(:disabled)', s) || $('input:not(:disabled)', s));
+    const f = n === 2 ? codeIn : n === 1 ? (st.name ? fTel : fName) : n === LAST ? $('.bk-done__t', s) : ($('input:checked:not(:disabled)', s) || $('input:not(:disabled)', s));
     if (f) f.focus({ preventScroll: true });
   }
   function go(n, dir = 1) {
     if (n === st.step && !steps[n].hidden) return;
     const from = steps[st.step], to = steps[n];
     say('');
-    if (st.step === 3 && n !== 4) { clearInterval(tmr); hideSms(); }
+    if (st.step === 2 && n !== LAST) { clearInterval(tmr); hideSms(); }
     st.step = n;
     enter(n); paintChrome(n); paintSum();
-    const swap = () => { steps.forEach((s) => { s.hidden = s !== to; }); view.scrollTop = 0; if (n === 1) centerDay(); };
-    if (!can() || from === to) { swap(); focusStep(n); if (n === 4) playDone(); return; }
+    const swap = () => { steps.forEach((s) => { s.hidden = s !== to; }); view.scrollTop = 0; };
+    if (!can() || from === to) { swap(); focusStep(n); if (n === LAST) playDone(); return; }
     /* راست‌به‌چپ: مرحله‌ی بعد از چپ می‌آید و مرحله‌ی فعلی به راست می‌رود */
     gsap.killTweensOf([from, to, ...partsOf(to)]);
     gsap.to(from, { x: 36 * dir, opacity: 0, duration: 0.22, ease: 'power2.in', onComplete: () => {
       gsap.set(from, { clearProps: 'transform,opacity' });
       swap();
-      if (n === 4) { playDone(); focusStep(n); return; }
+      if (n === LAST) { playDone(); focusStep(n); return; }
       gsap.fromTo(partsOf(to), { x: -40 * dir, opacity: 0 }, { x: 0, opacity: 1, duration: 0.65, stagger: 0.05, ease: 'expo.out', clearProps: 'transform,opacity' });
       focusStep(n);
     } });
@@ -473,10 +303,6 @@
       if (!st.k) { say('یکی از سه بخش را انتخاب کنید.'); shake($('.bk-depts', bk)); return; }
       go(1, 1);
     } else if (st.step === 1) {
-      if (!st.day) { say('یک روز کاری را انتخاب کنید.'); shake(daysRow); return; }
-      if (st.time == null) { say('ساعت مراجعه را انتخاب کنید.'); shake(slotsBox); const f = $('.bk-slot input', slotsBox); if (f) f.focus({ preventScroll: false }); return; }
-      go(2, 1);
-    } else if (st.step === 2) {
       const n = fName.value.trim().replace(/\s+/g, ' '), t = normTel(fTel.value);
       const badName = n.length < 2, badTel = !/^09\d{9}$/.test(t);
       mark(fName, badName); mark(fTel, badTel);
@@ -488,24 +314,24 @@
       /* همان شماره و کدی که هنوز اعتبار دارد: دوباره پیامک نمی‌شود */
       const reuse = t === st.tel && st.sentAt && Date.now() - st.sentAt < (st.ttl - 15) * 1000;
       st.name = n; st.tel = t; st.note = fNote.value.trim().slice(0, 300);
-      if (reuse) { go(3, 1); return; }
+      if (reuse) { go(2, 1); return; }
       st.busy = true; nextBtn.classList.add('is-busy');
       const ok = await sendCode();
       st.busy = false; nextBtn.classList.remove('is-busy');
-      if (ok) go(3, 1);
-    } else if (st.step === 3) confirmCode();
+      if (ok) go(2, 1);
+    } else if (st.step === 2) confirmCode();
   }
   nextBtn.addEventListener('click', next);
-  backBtn.addEventListener('click', () => { if (st.step > 0 && st.step < 4) go(st.step - 1, -1); });
+  backBtn.addEventListener('click', () => { if (st.step > 0 && st.step < LAST) go(st.step - 1, -1); });
   bk.addEventListener('click', (e) => {
     const g = e.target.closest('[data-bk-go]');
     if (g) { go(+g.dataset.bkGo, -1); return; }
-    if (e.target.closest('[data-bk-edit]')) { go(2, -1); setTimeout(() => fTel.select(), 50); return; }
+    if (e.target.closest('[data-bk-edit]')) { go(1, -1); setTimeout(() => fTel.select(), 50); return; }
     if (e.target.closest('[data-bk-close]')) close();
   });
-  /* Enter در فیلدها یعنی «ادامه» */
+  /* Enter روی بخش یا در فیلدها یعنی «ادامه» */
   bk.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && e.target.matches('#bkName, #bkTel')) { e.preventDefault(); next(); }
+    if (e.key === 'Enter' && e.target.matches('#bkName, #bkTel, [name="bkDept"]')) { e.preventDefault(); next(); }
   });
 
   /* ---------- باز و بسته شدن کپسول ---------- */
@@ -534,18 +360,15 @@
     else if (!panel.contains(document.activeElement)) { e.preventDefault(); first.focus(); }
   });
 
-  /* پیش‌پر کردن از دکمه‌ای که کپسول را باز کرد */
+  /* پیش‌پر کردن از دکمه‌ای که کپسول را باز کرد (بخش و نوع مراجعه؛ روز، ساعت و پزشک را پذیرش هماهنگ می‌کند) */
   function apply(o) {
-    if (st.step === 4) Object.assign(st, { step: 0, k: null, doc: '', day: null, time: null, ref: null, pref: null });
+    if (st.step === LAST) reset();
     if (o.k && DEPT[o.k]) {
-      if (st.k !== o.k || (o.doc && o.doc !== st.doc)) { st.day = null; st.time = null; }
       st.k = o.k;
-      st.doc = o.doc && docOf(o.doc) ? o.doc : (o.doc === undefined ? st.doc : '');
-      if (st.doc && docOf(st.doc).k !== st.k) st.doc = '';
       if (o.type) st.type = o.type;
-      st.pref = o.pref || null;
-      st.step = 1;
-    } else if (st.step === 3) st.step = 2;
+      if (st.step === 0) st.step = 1;
+    }
+    if (st.step === 2) st.step = 1;
     steps.forEach((s, i) => { s.hidden = i !== st.step; });
     enter(st.step); paintChrome(st.step); paintSum();
   }
@@ -561,7 +384,6 @@
     lockScroll(true); Motion.pause();
     try { history.pushState({ bk: 1 }, ''); pushed = true; } catch (e) { pushed = false; }
     Aurora.hold(36e5);
-    if (st.step === 1) requestAnimationFrame(centerDay);
     if (tl) tl.kill();
     if (!can()) {
       if (typeof panel.animate === 'function' && !root.classList.contains('rm')) panel.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200 });
@@ -598,7 +420,7 @@
       root.classList.remove('bk-open');
       gsap && gsap.set([panel, skin, pill, scrim], { clearProps: 'all' });
       lockScroll(false); Motion.resume(); Aurora.release();
-      if (st.step === 4) Object.assign(st, { step: 0, k: null, doc: '', day: null, time: null, ref: null, pref: null });
+      if (st.step === LAST) reset();
       if (opener && document.contains(opener) && opener.getClientRects().length) opener.focus({ preventScroll: true });
       tl = null;
     };
@@ -626,7 +448,7 @@
     e.preventDefault();
     const box = t.closest('#svc, #sheet');
     const k = t.dataset.book || (box && box.id === 'svc' ? box.dataset.k : null) || null;
-    const o = { k, doc: t.hasAttribute('data-doc') ? t.dataset.doc : undefined, type: t.dataset.type, pref: t.dataset.pref, from: box ? null : t };
+    const o = { k, type: t.dataset.type, from: box ? null : t };
     if (box) setTimeout(() => open(o), box.id === 'svc' ? 320 : 180);
     else open(o);
   }, true);

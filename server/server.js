@@ -3,11 +3,14 @@
    - فایل‌های سایت (پوشه‌ی site/) را می‌فرستد و متای sasan-api را به صفحه اضافه می‌کند
      تا کپسول نوبت بداند سرور هست و کد واقعی پیامک شود
    - POST /api/otp/send      ارسال کد ۵ رقمی با متد Verify سامانه‌ی sms.ir
-   - POST /api/booking       بررسی کد و ثبت نوبت (در صورت تنظیم: پیامک تأیید به بیمار و خبر به پذیرش)
+   - POST /api/booking       بررسی کد و ثبت درخواست نوبت (بخش، نوع مراجعه، نام، موبایل)؛
+                             روز، ساعت و پزشک را پذیرش تلفنی هماهنگ می‌کند
+                             (در صورت تنظیم: پیامک ثبت درخواست به بیمار و خبر به پذیرش)
    - POST /api/callback      درخواست تماس پذیرش
    - GET  /api/health        وضعیت
-   - GET  /api/bookings      فهرست نوبت‌ها برای پنل مدیریت (فقط با ADMIN_TOKEN)
-   - PATCH /api/bookings/:ref وضعیت نوبت (confirmed, done, cancelled, no-show)
+   - GET  /api/bookings      فهرست درخواست‌ها برای پنل مدیریت (فقط با ADMIN_TOKEN)
+   - PATCH /api/bookings/:ref پذیرش: وضعیت (called, scheduled, done, cancelled, no-show)
+                             و بعد از تماس، روز و ساعت و پزشک
    اجرا: node server/server.js   (تنظیمات: server/.env.example)
    ========================================================================== */
 'use strict';
@@ -113,21 +116,19 @@ function createApp(cfg, deps = {}) {
     const body = await readBody(req);
     const v = B.validate(body);
     if (!v) return json(res, 400, { ok: false, error: 'input' });
-    /* اول ظرفیت (کد مصرف نمی‌شود تا بیمار بتواند ساعت دیگری بگیرد)، بعد کد؛ بین این دو و ثبت هیچ await نیست */
-    const clash = store.conflict(v);
-    if (clash === 'slot') return json(res, 409, { ok: false, error: 'slot' });
-    if (clash === 'many') return json(res, 429, { ok: false, error: 'many' });
+    /* درخواست پیگیری‌نشده‌ی تکراری پیش از مصرف کد رد می‌شود؛ بین این بررسی و ثبت هیچ await نیست */
+    if (store.conflict(v) === 'many') return json(res, 429, { ok: false, error: 'many' });
     const code = String(body.code || '').replace(/[۰-۹]/g, (c) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(c));
     const c = otp.check(v.mobile, code);
     if (c.r === 'none' || c.r === 'expired') return json(res, 410, { ok: false, error: 'expired' });
     if (c.r === 'attempts') return json(res, 429, { ok: false, error: 'attempts' });
     if (c.r === 'code') return json(res, 401, { ok: false, error: 'code', left: c.left });
     const b = await store.add(v);
-    log('booking', b.ref, b.dept, b.date, b.time, mask(b.mobile));
-    /* پیامک‌های بعد از ثبت (اختیاری)؛ شکستشان نوبت را باطل نمی‌کند */
-    const L = B.labels(b);
-    if (cfg.sms.confirmTemplateId) sms.verify(b.mobile, cfg.sms.confirmTemplateId, { DEPT: L.dept, DAY: L.day, TIME: L.time, REF: b.ref }).then((r) => { if (!r.ok) log('confirm sms failed', r.status); });
-    if (cfg.sms.receptionTemplateId && B.validMobile(cfg.sms.receptionMobile)) sms.verify(cfg.sms.receptionMobile, cfg.sms.receptionTemplateId, { NAME: b.name, DEPT: L.dept, DAY: L.day, TIME: L.time }).then((r) => { if (!r.ok) log('reception sms failed', r.status); });
+    log('request', b.ref, b.dept, mask(b.mobile));
+    /* پیامک‌های بعد از ثبت (اختیاری)؛ شکستشان درخواست را باطل نمی‌کند */
+    const dept = B.DEPT[b.dept].t;
+    if (cfg.sms.confirmTemplateId) sms.verify(b.mobile, cfg.sms.confirmTemplateId, { DEPT: dept, REF: b.ref }).then((r) => { if (!r.ok) log('confirm sms failed', r.status); });
+    if (cfg.sms.receptionTemplateId && B.validMobile(cfg.sms.receptionMobile)) sms.verify(cfg.sms.receptionMobile, cfg.sms.receptionTemplateId, { NAME: b.name, DEPT: dept, MOBILE: b.mobile }).then((r) => { if (!r.ok) log('reception sms failed', r.status); });
     return json(res, 200, { ok: true, ref: b.ref, sms: !!cfg.sms.confirmTemplateId });
   }
 
@@ -152,14 +153,6 @@ function createApp(cfg, deps = {}) {
     }
     if (cfg.allowedOrigin && req.headers.origin === cfg.allowedOrigin) { res.setHeader('Access-Control-Allow-Origin', cfg.allowedOrigin); res.setHeader('Vary', 'Origin'); }
     if (p === '/api/health' && req.method === 'GET') return json(res, 200, { ok: true, service: 'sasan-booking', mode: cfg.sms.mode });
-    /* ساعت‌های پرشده‌ی یک روز (فقط ساعت، بدون هیچ اطلاعاتی از بیماران) */
-    if (p === '/api/slots' && req.method === 'GET') {
-      const w = lim.take('slots:ip:' + ipOf(req), 120, 60e3);
-      if (w) return json(res, 429, { ok: false, error: 'rate', wait: w });
-      const dept = url.searchParams.get('dept') || '', date = url.searchParams.get('date') || '', doctor = url.searchParams.get('doctor') || '';
-      if (!B.DEPT[dept] || !/^\d{4}-\d{2}-\d{2}$/.test(date) || (doctor && !B.DOCTORS[doctor])) return json(res, 400, { ok: false, error: 'input' });
-      return json(res, 200, { ok: true, full: store.fullTimes(dept, date, doctor) });
-    }
     if (req.method === 'POST') {
       if (!originOk(req)) return json(res, 403, { ok: false, error: 'origin' });
       if (p === '/api/otp/send') return sendOtp(req, res);
@@ -170,15 +163,18 @@ function createApp(cfg, deps = {}) {
       if (!cfg.adminToken) return json(res, 404, { ok: false, error: 'not-found' });
       if (!isAdmin(req)) { lim.take('admin:bad:' + ipOf(req), 1000, 600e3); return json(res, 401, { ok: false, error: 'auth' }); }
       if (req.method === 'GET' && p === '/api/bookings') {
-        const from = url.searchParams.get('from') || '';
-        return json(res, 200, { ok: true, bookings: store.list.filter((b) => !from || b.date >= from) });
+        const status = url.searchParams.get('status') || '';
+        return json(res, 200, { ok: true, bookings: store.list.filter((b) => !status || b.status === status) });
       }
       if (req.method === 'GET' && p === '/api/callbacks') return json(res, 200, { ok: true, callbacks: store.callbacks });
       if (req.method === 'PATCH' && p.startsWith('/api/bookings/')) {
-        const body = await readBody(req, 1024);
-        if (!['new', 'confirmed', 'done', 'cancelled', 'no-show'].includes(body.status)) return json(res, 400, { ok: false, error: 'input' });
-        const b = await store.setStatus(decodeURIComponent(p.slice('/api/bookings/'.length)), body.status);
-        return b ? json(res, 200, { ok: true, booking: b }) : json(res, 404, { ok: false, error: 'not-found' });
+        const body = await readBody(req, 2048);
+        const ref = decodeURIComponent(p.slice('/api/bookings/'.length));
+        const cur = store.list.find((x) => x.ref === ref);
+        if (!cur) return json(res, 404, { ok: false, error: 'not-found' });
+        const patch = B.validatePatch(body, cur);
+        if (!patch) return json(res, 400, { ok: false, error: 'input' });
+        return json(res, 200, { ok: true, booking: await store.update(ref, patch) });
       }
     }
     return json(res, 404, { ok: false, error: 'not-found' });
