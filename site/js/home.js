@@ -1645,16 +1645,65 @@
           r.tag.style.setProperty('--y', ((p.y + ny * off - WORLD.y) / WORLD.h * 100) + '%');
         });
       };
+      /* مسیرها روی بوم: تغییر stroke-dashoffset روی SVG هر فریم کل صفحه را دوباره رسم و لایه‌بندی می‌کرد
+         (کندی نقشه)؛ بوم فقط لایه‌ی خودش را عوض می‌کند. بوم به اندازه‌ی قاب دیده‌شده است، نه کل نقشه */
+      const cv = $('.vmap__cv', map), ctx = cv && cv.getContext ? cv.getContext('2d') : null;
+      const cs = getComputedStyle(map), COL = { a: cs.getPropertyValue('--ca').trim() || '#1E5EEB', b: cs.getPropertyValue('--cb').trim() || '#0B9F87', c: cs.getPropertyValue('--cc').trim() || '#7B55F5' };
+      const DOT = 0.034;
+      let dpr = 1, queued = false;
+      if (ctx) {
+        map.classList.add('vmap--cv');
+        Object.values(R).forEach((r) => {
+          r.q = 0; r.alpha = 1;
+          r.p2d = new Path2D(r.line.getAttribute('d'));
+          r.dots = r.k === 'b' ? Array.from({ length: Math.floor(1 / DOT) + 1 }, (_, i) => { const d = Math.min(r.len, i * DOT * r.len); const pt = r.line.getPointAtLength(d); return [pt.x, pt.y, d / r.len]; }) : null;
+        });
+      }
+      const render = () => {
+        queued = false;
+        if (!ctx) return;
+        const s = cam.s;
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, cv.width, cv.height);
+        ctx.setTransform(dpr * s, 0, 0, dpr * s, dpr * (cam.tx - WORLD.x * s), dpr * (cam.ty - WORLD.y * s));
+        ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+        Object.values(R).forEach((r) => {
+          if (r.q <= 0 || r.alpha <= 0) return;
+          const L = r.len, part = r.q >= 1 ? [] : [r.q * L, L * 2];
+          ctx.strokeStyle = COL[r.k]; ctx.fillStyle = COL[r.k];
+          ctx.globalAlpha = r.alpha * 0.16; ctx.lineWidth = 15 / s; ctx.setLineDash(part); ctx.stroke(r.p2d);
+          ctx.globalAlpha = r.alpha;
+          if (r.dots) {
+            const rad = 3 / s;
+            ctx.beginPath();
+            r.dots.forEach(([x, y, f]) => { if (f <= r.q + 1e-6) { ctx.moveTo(x + rad, y); ctx.arc(x, y, rad, 0, Math.PI * 2); } });
+            ctx.fill();
+          } else { ctx.lineWidth = 5 / s; ctx.setLineDash(part); ctx.stroke(r.p2d); }
+        });
+        ctx.globalAlpha = 1;
+      };
+      /* چند تغییر در یک فریم فقط یک بار کشیده می‌شوند، ولی در همان فریم (هم‌زمان با نقطه‌ی نورانی) */
+      const paint = () => { if (!ctx || queued) return; queued = true; queueMicrotask(render); };
+      const sizeCv = () => {
+        if (!ctx) return;
+        const bw = view.clientWidth, bh = view.clientHeight;
+        dpr = Math.min(2, window.devicePixelRatio || 1);
+        cv.width = Math.max(1, Math.round(bw * dpr)); cv.height = Math.max(1, Math.round(bh * dpr));
+        cv.style.width = bw + 'px'; cv.style.height = bh + 'px';
+        cv.style.transform = `translate3d(${-cam.tx}px, ${-cam.ty}px, 0)`;
+        render();
+      };
       layout();
+      sizeCv();
       this.layout = layout;
-      const ro = 'ResizeObserver' in window ? new ResizeObserver(() => layout()) : null;
+      const ro = 'ResizeObserver' in window ? new ResizeObserver(() => { layout(); sizeCv(); }) : null;
       if (ro) ro.observe(view);
       this.ro = ro;
 
       /* کشیدن مسیر تا p (۰ تا ۱)؛ مسیر ساحل نقطه‌چین (قدم‌ها) است */
-      const DOT = 0.034;
       const draw = (r, p) => {
         const q = Math.max(0, Math.min(1, p));
+        if (ctx) { r.q = q; paint(); return; }
         r.glow.style.strokeDashoffset = 1 - q;
         if (r.k === 'b') {
           if (q >= 1) { r.line.style.strokeDasharray = `0 ${DOT}`; r.line.style.strokeDashoffset = 0; }
@@ -1667,7 +1716,7 @@
         r.head.style.transform = `translate3d(${x}px, ${y}px, 0)`;
         if (o !== undefined) r.head.style.opacity = o;
       };
-      this.R = R; this.draw = draw;
+      this.R = R; this.draw = draw; this.ctx = ctx; this.cv = cv;
 
       const still = !Motion.on || root.classList.contains('rm');
       if (still) {
@@ -1746,6 +1795,7 @@
           const on = r.k === k;
           r.g.classList.toggle('is-hot', on); r.btn.classList.toggle('is-hot', on);
           gsap.to([r.org, r.tag], { autoAlpha: !k || on ? 1 : 0.25, duration: 0.35, overwrite: 'auto' });
+          if (ctx) gsap.to(r, { alpha: !k || on ? 1 : 0.2, duration: 0.45, ease: 'power2.out', overwrite: 'auto', onUpdate: paint });
         });
       };
       Object.values(R).forEach((r) => {
@@ -1776,6 +1826,8 @@
       /* فقط ویژگی‌های حرکت پاک می‌شود؛ جای برچسب‌ها (--x و --y) در style خودشان است و باید بماند */
       gsap.set($$('.vorg, .vtag, .vhead, .vpin__badge, .vpin__cap, .vmap__base', map), { clearProps: 'transform,opacity,visibility' });
       $$('.rt path', map).forEach((p) => { p.style.strokeDasharray = ''; p.style.strokeDashoffset = ''; });
+      if (this.R) { gsap.killTweensOf(Object.values(this.R)); Object.values(this.R).forEach((r) => { r.q = 0; r.alpha = 1; }); }
+      if (this.ctx && this.cv) { this.ctx.setTransform(1, 0, 0, 1, 0, 0); this.ctx.clearRect(0, 0, this.cv.width, this.cv.height); }
       map.classList.remove('is-focus');
       $('.vpin', map).classList.remove('is-live');
       if (this.R) Object.values(this.R).forEach((r) => { r.g.classList.remove('is-hot'); r.btn.classList.remove('is-hot'); });
@@ -1854,7 +1906,8 @@
   const vmap = $('#vmap');
   if (vmap) {
     const tabs = $$('.vtabs__btn', vmap), ind = $('.vtabs__ind', vmap), gl = $('#vgmap'), view = $('.vmap__view', vmap);
-    let frame = null, loaded = false, busy = false;
+    let frame = null, loaded = false, busy = false, viewAnim = null;
+    const EXPO_IO = 'cubic-bezier(.87, 0, .13, 1)';
     const setInd = () => {
       const on = tabs.find((t) => t.classList.contains('is-on'));
       if (!on || !ind) return;
@@ -1897,20 +1950,25 @@
         vmap.dataset.view = 'google';
         await ensure();
         btn.classList.remove('is-busy');
-        if (anim) {
-          const o = { r: 0 };
-          gsap.timeline({ onComplete: () => { gl.style.clipPath = ''; busy = false; } })
-            .to(o, { r: rmax, duration: 1.05, ease: 'expo.inOut', onUpdate: () => { gl.style.clipPath = `circle(${o.r}px at ${x}px ${y}px)`; } }, 0)
-            .to(view, { scale: 1.08, opacity: 0.55, duration: 1.05, ease: 'expo.inOut', transformOrigin: `${x}px ${y + 30}px` }, 0);
-        } else busy = false;
+        if (anim && typeof gl.animate === 'function') {
+          /* انیمیشن بومی (نه تغییر clip-path از جاوااسکریپت در هر فریم): مرورگر می‌تواند آن را روی کامپوزیتور ببرد،
+             هم‌زمان با بالا آمدن خود نقشه‌ی گوگل */
+          const opt = { duration: 1050, easing: EXPO_IO, fill: 'forwards' };
+          gl.style.clipPath = '';
+          const a = gl.animate([{ clipPath: `circle(0px at ${x}px ${y}px)` }, { clipPath: `circle(${rmax}px at ${x}px ${y}px)` }], opt);
+          view.style.transformOrigin = `${x}px ${y + 30}px`;
+          viewAnim = view.animate([{ transform: 'none', opacity: 1 }, { transform: 'scale(1.08)', opacity: 0.55 }], opt);
+          a.onfinish = () => { a.cancel(); busy = false; };
+        } else { gl.style.clipPath = ''; busy = false; }
       } else {
         vmap.dataset.view = 'route';
-        if (anim) {
-          const o = { r: rmax };
-          gsap.timeline({ onComplete: () => { gl.hidden = true; gl.style.clipPath = ''; busy = false; if (MapFx.loop && MapFx.visible && MapFx.intro && MapFx.intro.progress() === 1) MapFx.loop.resume(); } })
-            .to(o, { r: 0, duration: 0.9, ease: 'expo.inOut', onUpdate: () => { gl.style.clipPath = `circle(${o.r}px at ${x}px ${y}px)`; } }, 0)
-            .to(view, { scale: 1, opacity: 1, duration: 0.9, ease: 'expo.inOut', clearProps: 'transform,opacity' }, 0);
-        } else { gl.hidden = true; busy = false; }
+        const back = () => { gl.hidden = true; gl.style.clipPath = ''; if (viewAnim) { viewAnim.cancel(); viewAnim = null; } view.style.transformOrigin = ''; busy = false; if (MapFx.loop && MapFx.visible && MapFx.intro && MapFx.intro.progress() === 1) MapFx.loop.resume(); };
+        if (anim && typeof gl.animate === 'function') {
+          const opt = { duration: 900, easing: EXPO_IO, fill: 'forwards' };
+          gl.animate([{ clipPath: `circle(${rmax}px at ${x}px ${y}px)` }, { clipPath: `circle(0px at ${x}px ${y}px)` }], opt).onfinish = back;
+          if (viewAnim) { viewAnim.cancel(); viewAnim = null; }
+          view.animate([{ transform: 'scale(1.08)', opacity: 0.55 }, { transform: 'none', opacity: 1 }], { duration: 900, easing: EXPO_IO });
+        } else back();
       }
     };
     tabs.forEach((t) => {

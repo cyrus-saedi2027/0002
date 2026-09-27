@@ -693,7 +693,12 @@ html.motion [data-rv].is-pre { opacity: 0; }
 .vmap__frame { position: relative; aspect-ratio: 2.3 / 1; border-radius: var(--r2); overflow: hidden; background: #F1F3F7; border: 1px solid var(--line); isolation: isolate; }
 .vmap__view { position: absolute; inset: 0; overflow: hidden; }
 .vmap__world { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
-.vmap__base { position: absolute; inset: 0; display: block; width: 100%; height: 100%; max-width: none; user-select: none; -webkit-user-drag: none; }
+.vmap__base { position: absolute; inset: 0; display: block; width: 100%; height: 100%; max-width: none; user-select: none; -webkit-user-drag: none; will-change: transform; }
+/* نقشه‌ی پایه لایه‌ی جدای خودش را دارد تا کشیده شدن مسیرها آن را دوباره رسم (raster) نکند.
+   مسیرها روی بوم کشیده می‌شوند (js: MapFx)؛ SVG فقط برای هندسه می‌ماند */
+.vmap__cv { position: absolute; left: 0; top: 0; display: none; pointer-events: none; will-change: transform; }
+.vmap--cv .vmap__cv { display: block; }
+.vmap--cv .vmap__routes { visibility: hidden; }
 .vmap__routes { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
 .rt path { fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; stroke-dasharray: 1 1; stroke-dashoffset: 1; }
 .rt__line { stroke-width: 5px; }
