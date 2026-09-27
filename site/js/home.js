@@ -71,6 +71,192 @@
   }
   fillSlots();
 
+  /* ==========================================================================
+     فهرست انتخاب: select واقعی سر جایش می‌ماند (مقدار فرم، بدون جاوااسکریپت هم کار می‌کند)
+     و رویش یک دکمه و فهرست متحرک ساخته می‌شود؛ الگوی combobox فقط‌انتخابی (ARIA APG).
+     فهرست داخل body و با position: fixed است تا قاب‌های overflow هیرو برشش ندهند
+     ========================================================================== */
+  const anim = () => Motion.on && !!window.gsap;
+  let pickN = 0, pickOpen = null;
+  function Pick(sel) {
+    const field = sel.closest('.field'), lab = field && $('.field__label', field);
+    if (!field || sel.dataset.pick) return null;
+    sel.dataset.pick = '1';
+    const id = 'pk' + (++pickN), opts = [...sel.options];
+    if (lab && !lab.id) lab.id = id + 'l';
+    const ic = (o) => o.dataset.ic || 'i-check';
+    const tone = (o) => (o.dataset.tone ? ` data-tone="${o.dataset.tone}"` : '');
+
+    const btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'pick'; btn.id = id + 'b';
+    btn.setAttribute('role', 'combobox'); btn.setAttribute('aria-haspopup', 'listbox');
+    btn.setAttribute('aria-expanded', 'false'); btn.setAttribute('aria-controls', id + 'p');
+    btn.innerHTML = `<span class="pick__val"><span class="pick__txt" id="${id}v"></span></span><svg class="ic pick__chev" aria-hidden="true"><use href="#i-chev-d"/></svg>`;
+    if (lab) btn.setAttribute('aria-labelledby', `${lab.id} ${id}v`);
+    sel.classList.add('is-picked'); sel.tabIndex = -1; sel.setAttribute('aria-hidden', 'true');
+    sel.insertAdjacentElement('beforebegin', btn);
+
+    const pop = document.createElement('div');
+    pop.className = 'pick-pop'; pop.id = id + 'p'; pop.hidden = true;
+    pop.setAttribute('role', 'listbox'); pop.setAttribute('data-lenis-prevent', '');
+    if (lab) pop.setAttribute('aria-labelledby', lab.id);
+    pop.innerHTML = '<i class="pick-pop__hl" aria-hidden="true"></i>' + opts.map((o, i) => `<div class="pick-opt" role="option" id="${id}o${i}" aria-selected="false"${tone(o)}><span class="pick-opt__ic" aria-hidden="true"><svg class="ic"><use href="#${ic(o)}"/></svg></span><span class="pick-opt__txt"><b>${o.textContent}</b>${o.dataset.hint ? `<small>${o.dataset.hint}</small>` : ''}</span><svg class="ic pick-opt__ok" aria-hidden="true"><use href="#i-check"/></svg></div>`).join('');
+    document.body.appendChild(pop);
+    const rows = $$('.pick-opt', pop), hl = $('.pick-pop__hl', pop), val = $('.pick__val', btn);
+    let txt = $('.pick__txt', btn), active = -1, open = false, raf = 0;
+
+    const face = (o) => `<svg class="ic" aria-hidden="true"><use href="#${ic(o)}"/></svg><span>${o.textContent}</span>`;
+    const paint = (roll) => {
+      const o = opts[sel.selectedIndex] || opts[0];
+      rows.forEach((r, i) => r.setAttribute('aria-selected', String(i === sel.selectedIndex)));
+      btn.dataset.tone = o.dataset.tone || '';
+      if (!roll || !anim()) { txt.innerHTML = face(o); return; }
+      /* مقدار قبلی بالا می‌رود و مقدار تازه از پایین می‌آید */
+      const old = txt; txt = old.cloneNode(false); txt.innerHTML = face(o); val.appendChild(txt);
+      old.removeAttribute('id'); txt.id = id + 'v';
+      gsap.to(old, { yPercent: -110, opacity: 0, duration: 0.32, ease: 'power2.in', onComplete: () => old.remove() });
+      gsap.fromTo(txt, { yPercent: 110, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.55, ease: 'expo.out', delay: 0.06 });
+    };
+    const light = (i, instant) => {
+      active = i;
+      rows.forEach((r, k) => r.classList.toggle('is-active', k === i));
+      if (i < 0) { pop.classList.remove('has-hl'); btn.removeAttribute('aria-activedescendant'); return; }
+      const r = rows[i];
+      btn.setAttribute('aria-activedescendant', r.id);
+      if (instant) hl.style.transition = 'none';
+      hl.style.setProperty('--y', r.offsetTop + 'px'); hl.style.height = r.offsetHeight + 'px';
+      pop.classList.add('has-hl');
+      if (instant) { void hl.offsetWidth; hl.style.transition = ''; }
+    };
+    const place = () => {
+      const r = btn.getBoundingClientRect(), vh = window.innerHeight, vw = document.documentElement.clientWidth;
+      if (r.bottom < 0 || r.top > vh) { close(false); return; }
+      const w = Math.max(r.width, Math.min(280, vw - 24)), h = pop.offsetHeight;
+      const up = r.bottom + 8 + h > vh - 8 && r.top - 8 - h > 8;
+      pop.dataset.side = up ? 'top' : 'bottom';
+      let x = r.right - w; x = Math.max(12, Math.min(x, vw - w - 12));
+      pop.style.width = w + 'px'; pop.style.left = x + 'px';
+      pop.style.top = (up ? r.top - 8 - h : r.bottom + 8) + 'px';
+    };
+    const follow = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(place); };
+
+    function show() {
+      if (open) return;
+      if (pickOpen && pickOpen !== api) pickOpen.close(false);
+      open = true; pickOpen = api;
+      pop.hidden = false; btn.setAttribute('aria-expanded', 'true'); field.classList.add('is-open');
+      place(); light(Math.max(0, sel.selectedIndex), true);
+      window.addEventListener('scroll', follow, { passive: true }); window.addEventListener('resize', follow);
+      if (anim()) {
+        gsap.killTweensOf([pop, ...rows]);
+        const up = pop.dataset.side === 'top';
+        gsap.fromTo(pop, { opacity: 0, y: up ? 10 : -10, scale: 0.94 }, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: 'expo.out' });
+        gsap.fromTo(rows, { opacity: 0, y: up ? 8 : -8 }, { opacity: 1, y: 0, duration: 0.42, ease: 'expo.out', stagger: up ? -0.04 : 0.04, delay: 0.05, clearProps: 'transform,opacity' });
+      }
+    }
+    function close(focus = true) {
+      if (!open) return;
+      open = false; if (pickOpen === api) pickOpen = null;
+      btn.setAttribute('aria-expanded', 'false'); field.classList.remove('is-open'); light(-1);
+      window.removeEventListener('scroll', follow); window.removeEventListener('resize', follow); cancelAnimationFrame(raf);
+      if (focus) btn.focus({ preventScroll: true });
+      if (anim()) {
+        gsap.killTweensOf(rows); gsap.set(rows, { clearProps: 'transform,opacity' });
+        gsap.to(pop, { opacity: 0, y: pop.dataset.side === 'top' ? 6 : -6, scale: 0.97, duration: 0.2, ease: 'power2.in', overwrite: true, onComplete: () => { if (!open) pop.hidden = true; } });
+      } else pop.hidden = true;
+    }
+    function choose(i) {
+      const changed = i !== sel.selectedIndex;
+      sel.selectedIndex = i;
+      if (changed) { paint(true); sel.dispatchEvent(new Event('change', { bubbles: true })); }
+      close();
+      if (changed && anim()) gsap.fromTo(btn, { scale: 0.985 }, { scale: 1, duration: 0.6, ease: 'elastic.out(1, .5)', clearProps: 'transform' });
+    }
+
+    btn.addEventListener('click', (e) => { e.preventDefault(); if (open) close(); else show(); });
+    btn.addEventListener('keydown', (e) => {
+      const n = rows.length, k = e.key;
+      if (!open) {
+        if (k === 'ArrowDown' || k === 'ArrowUp' || k === 'Enter' || k === ' ') { e.preventDefault(); show(); if (k === 'ArrowUp') light(n - 1); }
+        return;
+      }
+      if (k === 'ArrowDown') { e.preventDefault(); light(Math.min(n - 1, active + 1)); }
+      else if (k === 'ArrowUp') { e.preventDefault(); light(Math.max(0, active - 1)); }
+      else if (k === 'Home') { e.preventDefault(); light(0); }
+      else if (k === 'End') { e.preventDefault(); light(n - 1); }
+      else if (k === 'Enter' || k === ' ') { e.preventDefault(); if (active >= 0) choose(active); }
+      else if (k === 'Escape') { e.preventDefault(); close(); }
+      else if (k === 'Tab') close(false);
+      else if (k.length === 1) {
+        const j = opts.findIndex((o, idx) => idx > active && o.textContent.trim().startsWith(k));
+        const f = j >= 0 ? j : opts.findIndex((o) => o.textContent.trim().startsWith(k));
+        if (f >= 0) light(f);
+      }
+    });
+    rows.forEach((r, i) => {
+      r.addEventListener('pointermove', () => { if (active !== i) light(i); });
+      r.addEventListener('click', () => choose(i));
+    });
+    pop.addEventListener('pointerdown', (e) => e.preventDefault());
+    document.addEventListener('pointerdown', (e) => { if (open && !btn.contains(e.target) && !pop.contains(e.target)) close(false); });
+    if (sel.form) sel.form.addEventListener('reset', () => setTimeout(() => paint(false)));
+
+    const api = { close, sync: () => paint(false) };
+    paint(false);
+    return api;
+  }
+  $$('.field select').forEach((sel) => Pick(sel));
+
+  /* ---------- زبانه‌ها: نشانگر تیره با فنر زیر زبانه‌ی انتخاب‌شده می‌لغزد ---------- */
+  function Pill(box, attr) {
+    const btns = box ? $$(':scope > button', box) : [];
+    if (!btns.length) return;
+    const ind = document.createElement('i'); ind.className = 'pill'; ind.setAttribute('aria-hidden', 'true');
+    box.prepend(ind); box.classList.add('has-pill');
+    const put = (instant) => {
+      const b = btns.find((x) => x.getAttribute(attr) === 'true'); if (!b) return;
+      if (instant) ind.style.transition = 'none';
+      ind.style.setProperty('--x', b.offsetLeft + 'px'); ind.style.setProperty('--y', b.offsetTop + 'px');
+      ind.style.setProperty('--w', b.offsetWidth + 'px'); ind.style.setProperty('--h', b.offsetHeight + 'px');
+      if (instant) { void ind.offsetWidth; ind.style.transition = ''; }
+    };
+    btns.forEach((b) => b.addEventListener('click', () => {
+      requestAnimationFrame(() => put(false));
+      /* اگر زبانه‌ها روی موبایل افقی اسکرول می‌شوند، زبانه‌ی انتخاب‌شده به وسط می‌آید */
+      if (box.scrollWidth > box.clientWidth + 2) {
+        const to = b.offsetLeft - (box.clientWidth - b.offsetWidth) / 2;
+        box.scrollTo({ left: to, behavior: anim() ? 'smooth' : 'auto' });
+      }
+    }));
+    if ('ResizeObserver' in window) new ResizeObserver(() => put(true)).observe(box);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => put(true));
+    put(true);
+  }
+  Pill($('.rv-tabs'), 'aria-selected');
+  Pill($('.faq-tabs'), 'aria-pressed');
+
+  /* ---------- فرم‌ها: دکمه‌ی در حال بررسی، باز شدن نرم پاسخ، لرزش فیلد اشتباه ---------- */
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  async function busy(btn, ms) {
+    if (!anim()) return;
+    if (!$('.spin', btn)) btn.insertAdjacentHTML('afterbegin', '<span class="spin" aria-hidden="true"></span>');
+    btn.classList.add('is-busy'); btn.setAttribute('aria-busy', 'true');
+    await wait(ms);
+    btn.classList.remove('is-busy'); btn.removeAttribute('aria-busy');
+  }
+  function swap(out, html) {
+    const was = !out.hidden;
+    if (!anim()) { out.innerHTML = html; out.hidden = false; return; }
+    const h0 = was ? out.offsetHeight : 0;
+    out.innerHTML = html; out.hidden = false;
+    const mt = parseFloat(getComputedStyle(out).marginTop) || 0;
+    gsap.killTweensOf(out);
+    gsap.fromTo(out, { height: h0, marginTop: was ? mt : 0, opacity: was ? 1 : 0 }, { height: 'auto', marginTop: mt, opacity: 1, duration: 0.65, ease: 'expo.out', clearProps: 'height,marginTop,opacity' });
+    gsap.fromTo([...out.children], { y: 10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, ease: 'expo.out', stagger: 0.07, delay: 0.1, clearProps: 'transform,opacity' });
+  }
+  const shake = (el) => { if (anim()) gsap.fromTo(el, { x: 0 }, { keyframes: { x: [0, -7, 6, -4, 3, 0] }, duration: 0.45, ease: 'power1.out', clearProps: 'transform' }); };
+
+
   /* ---------- فرم نوبت: زمان مراجعه را بر اساس ساعت واقعی هر بخش می‌گوید ---------- */
   const WHEN = { am: [10, 14, 'صبح'], pm: [14, 20, 'عصر'], night: [20, 24, 'شب'] };
   function dentalFor(pref) {
@@ -89,11 +275,12 @@
   }
   const qb = $('#qbook');
   if (qb) {
-    qb.addEventListener('submit', (e) => {
+    qb.addEventListener('submit', async (e) => {
       e.preventDefault();
+      const btn = $('.qbook__submit', qb);
+      if (btn.classList.contains('is-busy')) return;
       const k = $('#qbDept').value, pref = $('#qbWhen').value;
       const out = $('#qbResult');
-      out.hidden = false;
       let html;
       if (k === 'medicine') html = '<b>پزشک عمومی شبانه‌روزی است</b> <span>همین حالا هم می‌توانید بیایید؛ برای تزریقات، سرم‌تراپی، بخیه و نوار قلب هم همین‌طور.</span>';
       else if (k === 'beauty') html = `<b>زیبایی و لیزر: همه‌روزه با هماهنگی قبلی</b> <span>${WHEN[pref] ? 'برای ' + WHEN[pref][2] + '، ' : ''}زمان را تلفنی با پذیرش هماهنگ کنید.</span>`;
@@ -101,8 +288,8 @@
         const w = dentalFor(pref);
         html = w ? `<span>نزدیک‌ترین زمان پذیرش دندانپزشکی:</span> <b>${w}</b>` : '<b>دندانپزشکی شب پذیرش ندارد.</b> <span>شنبه، یکشنبه، دوشنبه و پنجشنبه از ۱۰ صبح تا ۸ شب.</span>';
       }
-      out.innerHTML = `${html} <a class="link-arrow" href="tel:+981154611560">تماس با پذیرش: <span dir="ltr">${TEL}</span><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>`;
-      if (Motion.on) gsap.fromTo(out, { opacity: 0, y: -6 }, { opacity: 1, y: 0, duration: 0.45, ease: 'expo.out' });
+      await busy(btn, 420);
+      swap(out, `${html} <a class="link-arrow" href="tel:+981154611560">تماس با پذیرش: <span dir="ltr">${TEL}</span><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>`);
     });
   }
 
@@ -402,6 +589,59 @@
   /* ==========================================================================
      نظر بیماران: فیلتر بخش، کشیدن با ماوس، دکمه‌ها و نوار پیشرفت
      ========================================================================== */
+  /* ==========================================================================
+     ردیف افقی عمومی (مجله روی تبلت و موبایل): لمس، کشیدن با ماوس، فلش‌ها، کلیدهای جهت و نوار پیشرفت
+     ========================================================================== */
+  function hScroller(track, ctl) {
+    if (!track || !ctl) return;
+    const bar = $('.hctl__bar i', ctl), prev = $('[data-dir="prev"]', ctl), next = $('[data-dir="next"]', ctl);
+    const rtl = getComputedStyle(track).direction === 'rtl' ? -1 : 1;
+    const max = () => Math.max(0, track.scrollWidth - track.clientWidth);
+    const pos = () => Math.abs(track.scrollLeft);
+    const item = () => { const c = track.firstElementChild; return c ? c.getBoundingClientRect().width + parseFloat(getComputedStyle(track).columnGap || 14) : 300; };
+    const sync = () => {
+      const m = max(), vis = track.clientWidth / Math.max(1, track.scrollWidth);
+      bar.style.setProperty('--p', m ? (vis + (pos() / m) * (1 - vis)).toFixed(3) : 1);
+      prev.disabled = pos() < 4; next.disabled = pos() > m - 4;
+    };
+    const go = (d) => track.scrollBy({ left: rtl * d * item(), behavior: root.classList.contains('rm') ? 'auto' : 'smooth' });
+    prev.addEventListener('click', () => go(-1));
+    next.addEventListener('click', () => go(1));
+    track.addEventListener('scroll', sync, { passive: true });
+    window.addEventListener('resize', sync);
+    track.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') { e.preventDefault(); go(rtl === -1 ? 1 : -1); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); go(rtl === -1 ? -1 : 1); }
+    });
+    /* کشیدن با ماوس؛ لمس خودش بومی اسکرول می‌شود */
+    let drag = null;
+    track.addEventListener('pointerdown', (e) => {
+      if (e.pointerType !== 'mouse' || e.button !== 0 || track.scrollWidth <= track.clientWidth) return;
+      drag = { x: e.clientX, left: track.scrollLeft, moved: false, v: 0, t: performance.now(), lx: e.clientX };
+    });
+    window.addEventListener('pointermove', (e) => {
+      if (!drag) return;
+      const dx = e.clientX - drag.x;
+      if (!drag.moved && Math.abs(dx) > 5) { drag.moved = true; track.classList.add('is-drag'); }
+      if (!drag.moved) return;
+      const now = performance.now(); drag.v = (e.clientX - drag.lx) / Math.max(1, now - drag.t); drag.lx = e.clientX; drag.t = now;
+      track.scrollLeft = drag.left - dx;
+    });
+    window.addEventListener('pointerup', () => {
+      if (!drag) return;
+      const d = drag; drag = null;
+      if (!d.moved) return;
+      track.classList.remove('is-drag');
+      /* با کمی شتاب به نزدیک‌ترین کارت می‌نشیند */
+      const st = item(), fling = -d.v * 220 * rtl;
+      const target = Math.min(max(), Math.max(0, Math.round((pos() + fling) / st) * st));
+      track.scrollTo({ left: rtl * target, behavior: 'smooth' });
+      track.addEventListener('click', (ev) => { ev.preventDefault(); ev.stopPropagation(); }, { capture: true, once: true });
+    });
+    sync();
+  }
+  hScroller($('.mag__list'), $('.mag__ctl'));
+
   const rvTrack = $('#rvTrack');
   if (rvTrack) {
     const cardsAll = $$('.rv-card', rvTrack);
@@ -451,10 +691,41 @@
       rvTrack.addEventListener('click', (ev) => ev.preventDefault(), { capture: true, once: true });
     });
 
+    /* خلاصه‌ی امتیاز همیشه از روی همین کارت‌ها حساب می‌شود و با هر فیلتر به عددهای همان بخش می‌رود */
+    const sum = $('.rv-sum');
+    const sumEls = sum && { score: $('.rv-score b', sum), count: $('.rv-count b', sum), stars: $('.rv-stars--lg', sum), scope: $('.rv-scope b', sum), bars: $$('.rv-bars li', sum) };
+    const stats = (f) => {
+      const rs = cardsAll.filter((c) => f === 'all' || c.dataset.k === f).map((c) => +c.dataset.r || 5);
+      const n = rs.length, avg = n ? rs.reduce((a, b) => a + b, 0) / n : 0;
+      return { n, avg, dist: [5, 4, 3, 2, 1].map((k) => (n ? rs.filter((r) => r === k).length / n : 0)) };
+    };
+    const cur = { avg: 0, n: 0, d0: 0, d1: 0, d2: 0, d3: 0, d4: 0 };
+    const distOf = (t) => Object.fromEntries(t.dist.map((v, i) => ['d' + i, v]));
+    const paintSum = () => {
+      sumEls.score.textContent = toFa(cur.avg.toFixed(1));
+      sumEls.count.textContent = toFa(String(Math.round(cur.n)));
+      sumEls.stars.style.setProperty('--r', (cur.avg / 5).toFixed(3));
+      sumEls.bars.forEach((li, i) => { const v = cur['d' + i]; $('i', li).style.setProperty('--v', v.toFixed(3)); $('b', li).textContent = toFa(String(Math.round(v * 100))) + '٪'; });
+    };
+    const setSum = (f, label, animate) => {
+      if (!sumEls) return;
+      const t = stats(f);
+      sumEls.score.dataset.count = t.avg.toFixed(1); sumEls.count.dataset.count = String(t.n);
+      sumEls.stars.setAttribute('aria-label', `میانگین ${toFa(t.avg.toFixed(1))} از ۵`);
+      if (label) sumEls.scope.textContent = label;
+      if (!animate) { Object.assign(cur, { avg: t.avg, n: t.n }, distOf(t)); paintSum(); return; }
+      gsap.to(cur, { avg: t.avg, n: t.n, ...distOf(t), duration: 0.9, ease: 'expo.out', overwrite: true, onUpdate: paintSum });
+      if (label) gsap.fromTo(sumEls.scope, { yPercent: 70, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, duration: 0.55, ease: 'expo.out' });
+      gsap.fromTo(sumEls.score, { scale: 0.9 }, { scale: 1, duration: 0.7, ease: 'back.out(2.2)', clearProps: 'transform' });
+    };
+    setSum('all', '', false);
+
     /* فیلتر بخش */
     $$('.rv-tabs [role="tab"]').forEach((tab) => tab.addEventListener('click', () => {
       const f = tab.dataset.f;
+      if (tab.getAttribute('aria-selected') === 'true') return;
       $$('.rv-tabs [role="tab"]').forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
+      setSum(f, f === 'all' ? 'همه‌ی بخش‌ها' : tab.textContent.trim(), Motion.on);
       const apply = () => {
         cardsAll.forEach((c) => { c.hidden = !(f === 'all' || c.dataset.k === f); });
         rvTrack.scrollLeft = 0; sync();
@@ -508,12 +779,31 @@
           steps.forEach((st) => ScrollTrigger.create({ trigger: st, start: 'top 55%', end: 'bottom 55%', onToggle: (self) => st.classList.toggle('is-active', self.isActive) }));
           gsap.from($('.jr-side', sec), { y: 40, autoAlpha: 0, duration: 1.1, ease: 'expo.out', scrollTrigger: { trigger: jr, start: 'top 80%' } });
         } else {
-          steps.forEach((st, i) => {
-            const fig = $('.jr-step__img', st), im = $('img', fig);
-            gsap.fromTo(im, { yPercent: -5 }, { yPercent: 5, ease: 'none', scrollTrigger: { trigger: fig, start: 'top bottom', end: 'bottom top', scrub: true } });
-            gsap.from(fig, { clipPath: 'inset(10% 6% 10% 6% round 12px)', duration: 1.2, ease: 'expo.out', scrollTrigger: { trigger: fig, start: 'top 85%' } });
-            gsap.from(st.querySelectorAll('.jr-step__txt > *'), { y: 22, autoAlpha: 0, duration: 0.8, ease: 'expo.out', stagger: 0.06, scrollTrigger: { trigger: st, start: 'top 70%' } });
+          /* موبایل: قاب زیر سربرگ می‌چسبد؛ هر مرحله که به خط خواندن (کمی پایین‌تر از قاب) برسد
+             همان پرده‌ی بالا رونده‌ی دسکتاپ عکسش را نمایان می‌کند و نوار استوری بالای قاب پر می‌شود */
+          const side = $('.jr-side', sec);
+          frames.forEach((el, i) => gsap.set(el, { zIndex: n - i }));
+          /* ناحیه‌ی خواندن = زیر قاب تا پایین صفحه؛ مرحله‌ای فعال است که از وسط این ناحیه رد می‌شود */
+          const zone = () => { const b = (parseFloat(getComputedStyle(side).top) || 0) + side.offsetHeight; return [b, window.innerHeight - b]; };
+          const line = (k = 0) => { const [b, h] = zone(); return Math.round(b + h * (0.5 + k)); };
+          dots.forEach((d, k) => d.style.setProperty('--f', k === 0 ? 1 : 0));
+          frames.forEach((el, i) => {
+            if (i === n - 1) return;
+            const d = dots[i + 1];
+            gsap.timeline({
+              defaults: { duration: 1, ease: 'power1.inOut' },
+              scrollTrigger: { trigger: steps[i + 1], start: () => `top ${line(0.32)}px`, end: () => `top ${line(-0.08)}px`, scrub: 0.5, onUpdate: (self) => d && d.style.setProperty('--f', self.progress.toFixed(3)) }
+            })
+              .fromTo(el, { yPercent: 0 }, { yPercent: -100 }, 0)
+              .fromTo($('img', el), { yPercent: 0, y: 0 }, { yPercent: -7, y: () => el.offsetHeight }, 0)
+              .fromTo($('img', frames[i + 1]), { yPercent: 7, scale: 1.08 }, { yPercent: 0, scale: 1, ease: 'none' }, 0);
           });
+          steps.forEach((st, i) => ScrollTrigger.create({
+            trigger: st, start: () => `top ${line()}px`, end: () => `bottom ${line()}px`,
+            onToggle: (self) => { st.classList.toggle('is-active', self.isActive); if (self.isActive) dots.forEach((d, k) => d.classList.toggle('is-on', k === i)); }
+          }));
+          gsap.from(side, { y: 34, scale: 0.94, autoAlpha: 0, duration: 1.1, ease: 'expo.out', scrollTrigger: { trigger: jr, start: 'top 88%' } });
+          steps.forEach((st) => gsap.from(st.querySelectorAll('.jr-step__txt > *'), { y: 22, autoAlpha: 0, duration: 0.8, ease: 'expo.out', stagger: 0.06, scrollTrigger: { trigger: st, start: 'top 88%' } }));
         }
       });
     },
@@ -522,6 +812,7 @@
       const sec = $('#journey'); if (!sec) return;
       gsap.set([sec, ...$$('.jr-frame__img, .jr-frame__img img, .jr-step__img, .jr-step__img img, .jr-side', sec)], { clearProps: 'all' });
       $$('.jr-step', sec).forEach((st) => st.classList.remove('is-active'));
+      $$('.jr-dots li', sec).forEach((d) => { d.style.removeProperty('--f'); d.classList.remove('is-on'); });
     }
   };
 
@@ -533,7 +824,7 @@
         gsap.from(sec.querySelectorAll('.sec-head .kicker, .sec-title, .rv-nav'), { y: 26, autoAlpha: 0, duration: 0.9, ease: 'expo.out', stagger: 0.08, scrollTrigger: { trigger: sec, start: 'top 78%' } });
         gsap.from('.rv-sum', { y: 30, autoAlpha: 0, duration: 1, ease: 'expo.out', scrollTrigger: { trigger: '.rv', start: 'top 82%' } });
         gsap.fromTo('.rv-bars i', { '--grow': 0 }, { '--grow': 1, duration: 1.3, ease: 'expo.out', stagger: 0.08, scrollTrigger: { trigger: '.rv-bars', start: 'top 88%' } });
-        gsap.from('.rv-tabs button', { y: 14, autoAlpha: 0, duration: 0.6, ease: 'expo.out', stagger: 0.05, scrollTrigger: { trigger: '.rv', start: 'top 82%' } });
+        gsap.from('.rv-tabs', { y: 14, autoAlpha: 0, duration: 0.7, ease: 'expo.out', scrollTrigger: { trigger: '.rv', start: 'top 82%' } });
         gsap.from('.rv-card', { x: -40, autoAlpha: 0, duration: 1, ease: 'expo.out', stagger: 0.08, scrollTrigger: { trigger: '.rv-track', start: 'top 85%' } });
         ScrollTrigger.create({ trigger: '.rv-sum', start: 'top 85%', once: true, onEnter: () => counters($('.rv-sum'), true) });
       });
@@ -909,20 +1200,31 @@
     const normTel = (v) => digits(v).replace(/[\s\-().]/g, '').replace(/^(\+98|0098)/, '0');
     const mark = (f, bad) => { f.closest('.field').classList.toggle('is-bad', bad); f.setAttribute('aria-invalid', String(bad)); };
     [fName, fTel].forEach((f) => f.addEventListener('input', () => mark(f, false)));
-    cb.addEventListener('submit', (e) => {
+    const cbBtn = $('.callback__submit', cb);
+    cb.addEventListener('submit', async (e) => {
       e.preventDefault();
+      if (cbBtn.classList.contains('is-busy')) return;
       const n = fName.value.trim(), t = normTel(fTel.value);
       const badName = n.length < 2, badTel = !/^09\d{9}$/.test(t);
       mark(fName, badName); mark(fTel, badTel);
-      msg.hidden = false;
       msg.classList.toggle('is-bad', badName || badTel);
       if (badName || badTel) {
-        msg.textContent = badName ? 'نامتان را بنویسید تا پذیرش بداند با چه کسی صحبت می‌کند.' : 'شماره‌ی موبایل را کامل و با ۰۹ بنویسید؛ مثلاً ۰۹۱۲ ۱۲۳ ۴۵۶۷.';
+        swap(msg, `<b>${badName ? 'نامتان را بنویسید تا پذیرش بداند با چه کسی صحبت می‌کند.' : 'شماره‌ی موبایل را کامل و با ۰۹ بنویسید؛ مثلاً ۰۹۱۲ ۱۲۳ ۴۵۶۷.'}</b>`);
+        if (badName) shake(fName.closest('.field'));
+        if (badTel) shake(fTel.closest('.field'));
         (badName ? fName : fTel).focus();
         return;
       }
+      await busy(cbBtn, 700);
       const pretty = toFa(`${t.slice(0, 4)} ${t.slice(4, 7)} ${t.slice(7)}`);
-      msg.textContent = `ممنون ${n}؛ درخواستتان ثبت شد. پذیرش برای هماهنگی با شماره‌ی ${pretty} تماس می‌گیرد. اگر عجله دارید، همین حالا با ${TEL} تماس بگیرید.`;
+      swap(msg, `<b>ممنون ${n}؛ درخواستتان ثبت شد.</b><span>پذیرش برای هماهنگی با شماره‌ی <bdi dir="ltr">${pretty}</bdi> تماس می‌گیرد. اگر عجله دارید، همین حالا با <a href="tel:+981154611560" dir="ltr">${TEL}</a> تماس بگیرید.</span>`);
+      if (anim()) {
+        const old = cbBtn.innerHTML;
+        cbBtn.classList.add('is-ok');
+        cbBtn.innerHTML = '<svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>درخواست ثبت شد';
+        gsap.fromTo($('.ic', cbBtn), { scale: 0, rotation: -60 }, { scale: 1, rotation: 0, duration: 0.7, ease: 'back.out(3)' });
+        setTimeout(() => { cbBtn.classList.remove('is-ok'); cbBtn.innerHTML = old; }, 2800);
+      }
       cb.reset();
     });
   }

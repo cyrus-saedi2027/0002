@@ -172,6 +172,55 @@ p { text-wrap: pretty; }
 }
 .field select:hover, .field input:hover { border-color: var(--ink-3); }
 .field select:focus-visible, .field input:focus-visible { border-color: var(--navy-900); }
+.field__label { transition: color .25s; }
+.field:focus-within .field__label, .field.is-open .field__label { color: var(--blue); }
+.field input:focus-visible { outline: none; border-color: var(--blue); box-shadow: 0 0 0 4px rgba(30, 94, 235, .14); }
+
+/* ---------- فهرست انتخاب سفارشی (js/home.js → Pick) ---------- */
+.field select.is-picked { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.field { position: relative; }
+[data-tone="dental"] { --tone: #1673D6; }
+[data-tone="beauty"] { --tone: #C2386B; }
+[data-tone="medicine"] { --tone: #0E8F6B; }
+.pick {
+  position: relative; width: 100%; height: 48px; display: flex; align-items: center; gap: 10px; padding: 0 14px;
+  border: 1px solid var(--line-2); border-radius: var(--r1); background: #fff; color: var(--ink); font-size: 1rem; text-align: start; cursor: pointer;
+  transition: border-color .2s, box-shadow .3s var(--ease-out);
+}
+.pick:hover { border-color: var(--ink-3); }
+.pick:focus-visible, .pick[aria-expanded="true"] { outline: none; border-color: var(--blue); box-shadow: 0 0 0 4px rgba(30, 94, 235, .14); }
+.pick__val { position: relative; flex: 1; min-width: 0; height: 26px; overflow: hidden; }
+.pick__txt { position: absolute; inset: 0; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.pick__txt span { overflow: hidden; text-overflow: ellipsis; }
+.pick__txt .ic { width: 18px; height: 18px; flex: none; color: var(--tone, var(--blue)); }
+.pick__chev { width: 16px; height: 16px; flex: none; color: var(--ink-2); transition: transform .5s var(--spring), color .2s; }
+.pick[aria-expanded="true"] .pick__chev { transform: rotate(180deg); color: var(--blue); }
+.pick-pop {
+  position: fixed; z-index: 70; padding: 6px; background: #fff; border: 1px solid var(--line); border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(13, 27, 48, .06), 0 28px 56px -18px rgba(13, 27, 48, .32); transform-origin: 50% 0;
+}
+.pick-pop[data-side="top"] { transform-origin: 50% 100%; }
+.pick-pop[hidden] { display: none; }
+.pick-pop__hl {
+  position: absolute; inset-inline: 6px; top: 0; height: 0; border-radius: 7px; pointer-events: none; opacity: 0;
+  background: linear-gradient(90deg, var(--mist-2), var(--mist)); transform: translateY(var(--y, 0));
+  transition: transform .42s var(--spring), height .3s var(--ease-out), opacity .2s;
+}
+.pick-pop.has-hl .pick-pop__hl { opacity: 1; }
+.pick-opt { position: relative; display: flex; align-items: center; gap: 12px; min-height: 54px; padding: 8px 10px; border-radius: 7px; cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent; }
+.pick-opt__ic { width: 36px; height: 36px; border-radius: 8px; display: grid; place-items: center; flex: none; color: var(--tone, var(--blue)); background: color-mix(in srgb, var(--tone, var(--blue)) 11%, #fff); transition: transform .45s var(--spring); }
+.pick-opt__ic .ic { width: 18px; height: 18px; }
+.pick-opt.is-active .pick-opt__ic { transform: scale(1.08) rotate(-4deg); }
+.pick-opt__txt { flex: 1; min-width: 0; display: grid; line-height: 1.45; }
+.pick-opt__txt b { font-size: .9375rem; font-weight: 600; color: var(--ink); }
+.pick-opt__txt small { font-family: var(--f-ui); font-size: .75rem; color: var(--ink-3); }
+.pick-opt__ok { width: 18px; height: 18px; flex: none; color: var(--blue); stroke-width: 2.6; opacity: 0; transform: scale(.3) rotate(-30deg); transition: opacity .2s, transform .45s var(--spring); }
+.pick-opt[aria-selected="true"] .pick-opt__ok { opacity: 1; transform: none; }
+.pick-opt[aria-selected="true"] .pick-opt__txt b { font-weight: 700; color: var(--navy-800); }
+html.hc .pick { border: 2px solid #000; }
+html.hc .pick-pop { border: 2px solid #000; box-shadow: none; }
+html.hc .pick-opt.is-active { outline: 2px solid #000; }
+html.hc .pick-opt__txt small { color: #000; }
 
 /* ---------- نقطه‌ی وضعیت ---------- */
 .dot { position: relative; width: 8px; height: 8px; border-radius: 50%; background: var(--ok); flex: none; }
@@ -472,3 +521,4 @@ html.rm .btn, html.rm .nav__ind { transition-duration: .001ms !important; }
 .foot__social a.foot__soc { background: #fff; border-color: transparent; transition: transform .45s var(--spring), box-shadow .3s; }
 .foot__social a.foot__soc:hover { background: #fff; transform: translateY(-3px); box-shadow: 0 10px 22px -10px rgba(0, 0, 0, .6); }
 .foot__soc img { display: block; width: 22px; height: 22px; object-fit: contain; }
+html.rm .pick__chev, html.rm .pick-pop__hl, html.rm .pick-opt__ok, html.rm .pick-opt__ic { transition: none; }

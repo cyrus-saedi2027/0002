@@ -270,26 +270,26 @@
               <label class="field">
                 <span class="field__label">بخش</span>
                 <select id="qbDept" name="dept">
-                  <option value="dental">دندانپزشکی</option>
-                  <option value="beauty">زیبایی و لیزر</option>
-                  <option value="medicine">پزشک عمومی (شبانه‌روزی)</option>
+                  <option value="dental" data-ic="i-tooth" data-tone="dental" data-hint="شنبه، یکشنبه، دوشنبه و پنجشنبه · ۱۰ تا ۲۰">دندانپزشکی</option>
+                  <option value="beauty" data-ic="i-sparkles" data-tone="beauty" data-hint="همه‌روزه با هماهنگی قبلی">زیبایی و لیزر</option>
+                  <option value="medicine" data-ic="i-steth" data-tone="medicine" data-hint="شبانه‌روزی؛ همین حالا هم پذیرش دارد">پزشک عمومی (شبانه‌روزی)</option>
                 </select>
               </label>
               <label class="field">
                 <span class="field__label">نوع مراجعه</span>
                 <select id="qbType" name="type">
-                  <option>ویزیت اول</option>
-                  <option>ادامه‌ی درمان</option>
-                  <option>مشاوره پیش از درمان</option>
+                  <option data-ic="i-user-round" data-hint="اولین مراجعه به این بخش">ویزیت اول</option>
+                  <option data-ic="i-file" data-hint="جلسه‌ی بعدی درمان یا کنترل">ادامه‌ی درمان</option>
+                  <option data-ic="i-chat" data-hint="گفت‌وگو درباره‌ی گزینه‌ها و هزینه">مشاوره پیش از درمان</option>
                 </select>
               </label>
               <label class="field">
                 <span class="field__label">زمان مناسب</span>
                 <select id="qbWhen" name="when">
-                  <option value="any">اولین زمان ممکن</option>
-                  <option value="am">صبح</option>
-                  <option value="pm">عصر</option>
-                  <option value="night">شب</option>
+                  <option value="any" data-ic="i-pulse" data-hint="نزدیک‌ترین زمانی که پذیرش دارد">اولین زمان ممکن</option>
+                  <option value="am" data-ic="i-clock" data-hint="۱۰ صبح تا ۲ بعدازظهر">صبح</option>
+                  <option value="pm" data-ic="i-clock" data-hint="۲ بعدازظهر تا ۸ شب">عصر</option>
+                  <option value="night" data-ic="i-clock" data-hint="بعد از ۸ شب؛ فقط پزشک عمومی">شب</option>
                 </select>
               </label>
               <button class="btn btn--primary qbook__submit" type="submit"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>کی می‌توانم بیایم؟</button>
@@ -440,7 +440,7 @@
             <div class="jr-step__txt">
               <p class="jr-step__no">مرحله‌ی ۱ از ۴ · پذیرش و پرونده</p>
               <h3 class="jr-step__title">اول پرونده‌تان را کامل می‌کنیم</h3>
-              <p class="jr-step__p">در پذیرش سابقه‌ی پزشکی، داروها و بیمه‌تان ثبت می‌شود. اگر عکس رادیولوژی یا آزمایش قبلی دارید، همین‌جا اسکن و به پرونده اضافه می‌شود تا لازم نباشد دوباره تکرارشان کنید.</p>
+              <p class="jr-step__p">در پذیرش سابقه‌ی پزشکی و داروهایتان ثبت می‌شود. اگر عکس رادیولوژی یا آزمایش قبلی دارید، همین‌جا اسکن و به پرونده اضافه می‌شود تا لازم نباشد دوباره تکرارشان کنید.</p>
               <ul class="jr-step__facts"><li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>حدود ۱۰ دقیقه</li><li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>یک پرونده برای هر سه بخش</li></ul>
             </div>
           </article>
@@ -581,15 +581,16 @@
 
       <div class="rv">
         <aside class="rv-sum" aria-label="خلاصه‌ی امتیازها">
+          <p class="rv-scope" aria-live="polite"><span>امتیاز</span> <b>همه‌ی بخش‌ها</b></p>
           <p class="rv-score"><b data-count="4.9" data-dec="1">۴٫۹</b><span>از ۵</span></p>
-          <p class="rv-stars rv-stars--lg" aria-hidden="true"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg></p>
-          <p class="rv-count">بر اساس <b data-count="2140" data-sep="1">۲٬۱۴۰</b> نظرسنجی بعد از ویزیت</p>
+          <p class="rv-stars rv-stars--lg" role="img" aria-label="میانگین ۴٫۹ از ۵" style="--r:0.973"><span class="rv-stars__base" aria-hidden="true"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg></span><span class="rv-stars__fill" aria-hidden="true"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg></span></p>
+          <p class="rv-count">بر اساس <b data-count="15">۱۵</b> نظر ثبت‌شده</p>
           <ul class="rv-bars">
-            <li><span>۵ ستاره</span><i style="--v:0.86"></i><b>۸۶٪</b></li>
-            <li><span>۴ ستاره</span><i style="--v:0.1"></i><b>۱۰٪</b></li>
-            <li><span>۳ ستاره</span><i style="--v:0.03"></i><b>۳٪</b></li>
-            <li><span>۲ ستاره</span><i style="--v:0.01"></i><b>۱٪</b></li>
-            <li><span>۱ ستاره</span><i style="--v:0.0"></i><b>۰٪</b></li>
+            <li data-s="5"><span>۵ ستاره</span><i style="--v:0.867"></i><b>۸۷٪</b></li>
+            <li data-s="4"><span>۴ ستاره</span><i style="--v:0.133"></i><b>۱۳٪</b></li>
+            <li data-s="3"><span>۳ ستاره</span><i style="--v:0.000"></i><b>۰٪</b></li>
+            <li data-s="2"><span>۲ ستاره</span><i style="--v:0.000"></i><b>۰٪</b></li>
+            <li data-s="1"><span>۱ ستاره</span><i style="--v:0.000"></i><b>۰٪</b></li>
           </ul>
           <p class="rv-note">این آمار و نظرها نمونه‌ی طراحی‌اند و پیش از انتشار سایت با نظرهای واقعی بیماران کلینیک جایگزین می‌شوند.</p>
         </aside>
@@ -602,50 +603,80 @@
             <button type="button" role="tab" aria-selected="false" data-f="medicine">پزشکی</button>
           </div>
           <div class="rv-track" id="rvTrack" tabindex="0" aria-label="نظرهای بیماران؛ با کلیدهای جهت جابه‌جا شوید">
-          <article class="rv-card" data-k="dental">
-            <div class="rv-card__top"><span class="rv-stars" aria-label="۵ از ۵"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg></span><span class="rv-tag rv-tag--dental">ایمپلنت</span></div>
-            <blockquote>برای ایمپلنت پیش دو جای دیگر هم رفته بودم. این‌جا قبل از حرف زدن درباره‌ی هزینه، عکس را با حوصله بررسی کردند و مرحله‌به‌مرحله توضیح دادند. چهار ماه گذشته و دندانم هیچ مشکلی ندارد.</blockquote>
+          <article class="rv-card" data-k="dental" data-r="5">
+            <div class="rv-card__top"><span class="rv-stars" role="img" aria-label="۵ از ۵"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg></span><span class="rv-tag rv-tag--dental">ایمپلنت</span></div>
+            <blockquote>واسه ایمپلنت خیلی دودل بودم. دکتر اول عکس رو با حوصله نشونم داد، مرحله‌به‌مرحله توضیح داد و هزینه‌ش رو هم از همون اول گفت. الان چند ماه گذشته و انگار نه انگار که دندونم رو از دست داده بودم.</blockquote>
             <footer><span class="rv-av rv-av--dental" aria-hidden="true">م</span><span class="rv-who"><b>مهدی ر.</b><small>شهریور ۱۴۰۵ · متن نمونه</small></span></footer>
           </article>
-          <article class="rv-card" data-k="beauty">
-            <div class="rv-card__top"><span class="rv-stars" aria-label="۵ از ۵"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg></span><span class="rv-tag rv-tag--beauty">جوان‌سازی</span></div>
-            <blockquote>برای بوتاکس رفته بودم، ولی دکتر گفت خطوط صورتم با مزوتراپی بهتر جواب می‌دهد و هزینه‌اش هم کمتر است. همین صداقت باعث شد دوباره برگردم.</blockquote>
+          <article class="rv-card" data-k="beauty" data-r="5">
+            <div class="rv-card__top"><span class="rv-stars" role="img" aria-label="۵ از ۵"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg></span><span class="rv-tag rv-tag--beauty">جوان‌سازی</span></div>
+            <blockquote>رفته بودم بوتاکس بزنم، ولی دکتر گفت برای پوست من مزوژل بهتر جواب می‌ده و لازم نیست خرج اضافه کنم. همین صداقتش باعث شد دیگه جای دیگه نرم.</blockquote>
             <footer><span class="rv-av rv-av--beauty" aria-hidden="true">ل</span><span class="rv-who"><b>لیلا ش.</b><small>مرداد ۱۴۰۵ · متن نمونه</small></span></footer>
           </article>
-          <article class="rv-card" data-k="medicine">
-            <div class="rv-card__top"><span class="rv-stars" aria-label="۵ از ۵"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg></span><span class="rv-tag rv-tag--medicine">پزشک شبانه‌روزی</span></div>
-            <blockquote>ساعت یک بامداد با تب بالای بچه‌ام آمدیم. پزشک همان موقع ویزیتش کرد و داروخانه‌ی پایین ساختمان هم باز بود؛ نیم ساعت بعد خانه بودیم.</blockquote>
+          <article class="rv-card" data-k="medicine" data-r="5">
+            <div class="rv-card__top"><span class="rv-stars" role="img" aria-label="۵ از ۵"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg></span><span class="rv-tag rv-tag--medicine">پزشک شبانه‌روزی</span></div>
+            <blockquote>ساعت یک شب بچه‌م تب شدید کرد. رفتیم ساسان، دکتر همون لحظه ویزیتش کرد و داروخونه‌ی پایینشم باز بود. نیم ساعت بعد خونه بودیم، خدا خیرشون بده.</blockquote>
             <footer><span class="rv-av rv-av--medicine" aria-hidden="true">ح</span><span class="rv-who"><b>حمید ص.</b><small>شهریور ۱۴۰۵ · متن نمونه</small></span></footer>
           </article>
-          <article class="rv-card" data-k="dental">
-            <div class="rv-card__top"><span class="rv-stars" aria-label="۵ از ۵"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg></span><span class="rv-tag rv-tag--dental">عصب‌کشی</span></div>
-            <blockquote>از عصب‌کشی خیلی می‌ترسیدم. دکتر قبل از شروع همه‌ی مراحل را توضیح داد و بی‌حسی آن‌قدر خوب بود که چیزی حس نکردم.</blockquote>
+          <article class="rv-card" data-k="dental" data-r="5">
+            <div class="rv-card__top"><span class="rv-stars" role="img" aria-label="۵ از ۵"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg></span><span class="rv-tag rv-tag--dental">عصب‌کشی</span></div>
+            <blockquote>من از دندون‌پزشکی وحشت دارم، جدی می‌گم! ولی دکتر اون‌قدر آروم و با حوصله بود که اصلاً نفهمیدم عصب‌کشی کِی تموم شد. بی‌حسیش هم عالی بود، هیچی حس نکردم.</blockquote>
             <footer><span class="rv-av rv-av--dental" aria-hidden="true">ن</span><span class="rv-who"><b>نرگس الف.</b><small>تیر ۱۴۰۵ · متن نمونه</small></span></footer>
           </article>
-          <article class="rv-card" data-k="beauty">
-            <div class="rv-card__top"><span class="rv-stars" aria-label="۵ از ۵"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg></span><span class="rv-tag rv-tag--beauty">لیزر</span></div>
-            <blockquote>هشت جلسه لیزر زدم و هر بار از ناحیه عکس گرفتند تا پیشرفت را ببینم. نوبت‌ها هم همیشه سر وقت بود و منتظر نماندم.</blockquote>
-            <footer><span class="rv-av rv-av--beauty" aria-hidden="true">آ</span><span class="rv-who"><b>آرزو ح.</b><small>تیر ۱۴۰۵ · متن نمونه</small></span></footer>
+          <article class="rv-card" data-k="beauty" data-r="5">
+            <div class="rv-card__top"><span class="rv-stars" role="img" aria-label="۵ از ۵"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg></span><span class="rv-tag rv-tag--beauty">فیلر لب</span></div>
+            <blockquote>خیلی می‌ترسیدم لبم مصنوعی بشه. دکتر گفت کم‌کم تزریق می‌کنیم که طبیعی بمونه و دقیقاً همین شد. خیلی ظریف و قشنگ شده، همه فقط می‌گن چقدر سرحال شدی!</blockquote>
+            <footer><span class="rv-av rv-av--beauty" aria-hidden="true">م</span><span class="rv-who"><b>مریم الف.</b><small>شهریور ۱۴۰۵ · متن نمونه</small></span></footer>
           </article>
-          <article class="rv-card" data-k="medicine">
-            <div class="rv-card__top"><span class="rv-stars" aria-label="۵ از ۵"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg></span><span class="rv-tag rv-tag--medicine">سرم‌تراپی</span></div>
-            <blockquote>در سفر مسموم شدیم. نیمه‌شب رفتیم ساسان؛ سرم وصل کردند و دو ساعت بعد حالم خیلی بهتر بود. فردا هم زنگ زدند که حالم را بپرسند.</blockquote>
+          <article class="rv-card" data-k="medicine" data-r="5">
+            <div class="rv-card__top"><span class="rv-stars" role="img" aria-label="۵ از ۵"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg></span><span class="rv-tag rv-tag--medicine">سرم‌تراپی</span></div>
+            <blockquote>مسافرت بودیم که مسموم شدم. نصف شب رفتیم اون‌جا، سریع سرم وصل کردن و دو ساعت بعد حالم خیلی بهتر بود. فرداشم زنگ زدن حالمو پرسیدن، واقعاً ممنونم ازشون.</blockquote>
             <footer><span class="rv-av rv-av--medicine" aria-hidden="true">ف</span><span class="rv-who"><b>فرشته ب.</b><small>خرداد ۱۴۰۵ · متن نمونه</small></span></footer>
           </article>
-          <article class="rv-card" data-k="dental">
-            <div class="rv-card__top"><span class="rv-stars" aria-label="۵ از ۵"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg></span><span class="rv-tag rv-tag--dental">لمینت</span></div>
-            <blockquote>لمینت‌ها را اول روی مانیتور دیدم و دو بار تغییرشان دادیم تا طبیعی شد. کسی اصرار نکرد تعداد را بیشتر کنم.</blockquote>
+          <article class="rv-card" data-k="dental" data-r="5">
+            <div class="rv-card__top"><span class="rv-stars" role="img" aria-label="۵ از ۵"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg></span><span class="rv-tag rv-tag--dental">لمینت</span></div>
+            <blockquote>قبل از این‌که دست به دندونام بزنن، طرح لبخندم رو روی مانیتور نشونم دادن و تا خودم راضی نشدم کاری نکردن. نتیجه‌ش اون‌قدر طبیعیه که همه فکر می‌کنن دندونای خودمه.</blockquote>
             <footer><span class="rv-av rv-av--dental" aria-hidden="true">س</span><span class="rv-who"><b>سارا م.</b><small>خرداد ۱۴۰۵ · متن نمونه</small></span></footer>
           </article>
-          <article class="rv-card" data-k="beauty">
-            <div class="rv-card__top"><span class="rv-stars" aria-label="۵ از ۵"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg></span><span class="rv-tag rv-tag--beauty">لایه‌برداری</span></div>
-            <blockquote>برای جای جوش‌ها چند جلسه میکرونیدلینگ و لایه‌برداری رفتم. هر بار از پوستم عکس گرفتند و فرقش را خودم هم می‌دیدم.</blockquote>
+          <article class="rv-card" data-k="beauty" data-r="5">
+            <div class="rv-card__top"><span class="rv-stars" role="img" aria-label="۵ از ۵"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg></span><span class="rv-tag rv-tag--beauty">لیزر</span></div>
+            <blockquote>هشت جلسه لیزر رفتم و هر جلسه از ناحیه عکس می‌گرفتن که پیشرفتش رو ببینم. نوبتام همیشه سر وقت بود، محیطشم خیلی تمیز و آرومه.</blockquote>
+            <footer><span class="rv-av rv-av--beauty" aria-hidden="true">آ</span><span class="rv-who"><b>آرزو ح.</b><small>تیر ۱۴۰۵ · متن نمونه</small></span></footer>
+          </article>
+          <article class="rv-card" data-k="medicine" data-r="5">
+            <div class="rv-card__top"><span class="rv-stars" role="img" aria-label="۵ از ۵"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg></span><span class="rv-tag rv-tag--medicine">بخیه</span></div>
+            <blockquote>شب دستم با شیشه برید و کلی ترسیده بودم. دکتر با حوصله بخیه زد، گفت کی برم بکشمش و جای زخمم خیلی تمیز خوب شد.</blockquote>
+            <footer><span class="rv-av rv-av--medicine" aria-hidden="true">ک</span><span class="rv-who"><b>کاوه د.</b><small>اردیبهشت ۱۴۰۵ · متن نمونه</small></span></footer>
+          </article>
+          <article class="rv-card" data-k="dental" data-r="4">
+            <div class="rv-card__top"><span class="rv-stars" role="img" aria-label="۴ از ۵"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic is-off" aria-hidden="true"><use href="#i-star"/></svg></span><span class="rv-tag rv-tag--dental">جرم‌گیری و بلیچینگ</span></div>
+            <blockquote>جرم‌گیری و بلیچینگ رو با هم انجام دادم. کارشون خیلی تمیز بود و بعدش کلی نکته گفتن که رنگ دندونام بمونه. چند درجه روشن‌تر شده و حسابی راضی‌ام.</blockquote>
+            <footer><span class="rv-av rv-av--dental" aria-hidden="true">ر</span><span class="rv-who"><b>رضا ک.</b><small>مرداد ۱۴۰۵ · متن نمونه</small></span></footer>
+          </article>
+          <article class="rv-card" data-k="beauty" data-r="4">
+            <div class="rv-card__top"><span class="rv-stars" role="img" aria-label="۴ از ۵"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic is-off" aria-hidden="true"><use href="#i-star"/></svg></span><span class="rv-tag rv-tag--beauty">میکرونیدلینگ</span></div>
+            <blockquote>واسه جای جوشام چند جلسه میکرونیدلینگ و لایه‌برداری رفتم. هر بار از پوستم عکس می‌گرفتن و فرقش رو خودمم کاملاً می‌دیدم. پوستم خیلی صاف‌تر شده.</blockquote>
             <footer><span class="rv-av rv-av--beauty" aria-hidden="true">ا</span><span class="rv-who"><b>امیر ت.</b><small>اردیبهشت ۱۴۰۵ · متن نمونه</small></span></footer>
           </article>
-          <article class="rv-card" data-k="medicine">
-            <div class="rv-card__top"><span class="rv-stars" aria-label="۵ از ۵"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg></span><span class="rv-tag rv-tag--medicine">بخیه</span></div>
-            <blockquote>شب بود که دستم با شیشه برید. پزشک بخیه زد، گفت کی برای کشیدن بخیه‌ها برگردم و جای زخم خیلی تمیز خوب شد.</blockquote>
-            <footer><span class="rv-av rv-av--medicine" aria-hidden="true">ک</span><span class="rv-who"><b>کاوه د.</b><small>اردیبهشت ۱۴۰۵ · متن نمونه</small></span></footer>
+          <article class="rv-card" data-k="medicine" data-r="5">
+            <div class="rv-card__top"><span class="rv-stars" role="img" aria-label="۵ از ۵"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg></span><span class="rv-tag rv-tag--medicine">نوار قلب</span></div>
+            <blockquote>یه شب قفسه‌ی سینه‌م تیر کشید و حسابی نگران شدیم. همون موقع نوار قلب گرفتن، دکتر دقیق نگاهش کرد و با خیال راحت برگشتیم خونه. با آدم مسن خیلی محترمانه رفتار می‌کنن.</blockquote>
+            <footer><span class="rv-av rv-av--medicine" aria-hidden="true">ب</span><span class="rv-who"><b>بهروز ق.</b><small>تیر ۱۴۰۵ · متن نمونه</small></span></footer>
+          </article>
+          <article class="rv-card" data-k="dental" data-r="5">
+            <div class="rv-card__top"><span class="rv-stars" role="img" aria-label="۵ از ۵"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg></span><span class="rv-tag rv-tag--dental">کشیدن دندان عقل</span></div>
+            <blockquote>دندون عقلم نیمه‌نهفته بود و همه می‌گفتن کشیدنش سخته. دکتر خیلی راحت و سریع درش آورد، بعدشم همه‌چی رو برام نوشت که چی بخورم و چی نخورم. فرداش سر کار بودم.</blockquote>
+            <footer><span class="rv-av rv-av--dental" aria-hidden="true">پ</span><span class="rv-who"><b>پویا ن.</b><small>مهر ۱۴۰۵ · متن نمونه</small></span></footer>
+          </article>
+          <article class="rv-card" data-k="beauty" data-r="5">
+            <div class="rv-card__top"><span class="rv-stars" role="img" aria-label="۵ از ۵"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg></span><span class="rv-tag rv-tag--beauty">بوتاکس</span></div>
+            <blockquote>بوتاکس پیشونی زدم. دکتر اول کلی سؤال پرسید و صورتم رو دقیق نگاه کرد، بعد تزریق کرد. دو هفته بعدم برای چکاپ صدام کردن. حالت صورتم کاملاً طبیعی مونده.</blockquote>
+            <footer><span class="rv-av rv-av--beauty" aria-hidden="true">ش</span><span class="rv-who"><b>شیما ر.</b><small>مهر ۱۴۰۵ · متن نمونه</small></span></footer>
+          </article>
+          <article class="rv-card" data-k="medicine" data-r="5">
+            <div class="rv-card__top"><span class="rv-stars" role="img" aria-label="۵ از ۵"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg></span><span class="rv-tag rv-tag--medicine">شست‌وشوی گوش</span></div>
+            <blockquote>بعد از شنا تو دریا گوشم کیپ شده بود و هیچی نمی‌شنیدم. پنج دقیقه‌ای شست‌وشو دادن و انگار دنیا دوباره صدادار شد! خیلی هم خوش‌برخورد بودن.</blockquote>
+            <footer><span class="rv-av rv-av--medicine" aria-hidden="true">ن</span><span class="rv-who"><b>نازنین ف.</b><small>مرداد ۱۴۰۵ · متن نمونه</small></span></footer>
           </article>
           </div>
           <div class="rv-progress" aria-hidden="true"><i></i></div>
@@ -664,7 +695,7 @@
         </div>
         <a class="link-arrow link-arrow--light" href="#articles">همه‌ی مقاله‌ها<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
       </header>
-      <ol class="mag__list">
+      <ol class="mag__list" tabindex="0" aria-label="مقاله‌ها؛ با کشیدن یا کلیدهای جهت جابه‌جا شوید">
         <li data-rv class="mag__item" data-k="dental">
           <a class="mag__row" href="#articles" data-i="0">
             <span class="mag__media"><img src="img/art-implant-l.webp" alt="" width="1120" height="700" loading="lazy" decoding="async"></span>
@@ -716,6 +747,13 @@
           </a>
         </li>
       </ol>
+      <div class="hctl mag__ctl" aria-hidden="false">
+        <div class="hctl__bar"><i></i></div>
+        <div class="hctl__nav">
+          <button type="button" class="hctl__btn" data-dir="prev" aria-label="مقاله‌ی قبلی"><svg class="ic" aria-hidden="true"><use href="#i-arrow-r"/></svg></button>
+          <button type="button" class="hctl__btn" data-dir="next" aria-label="مقاله‌ی بعدی"><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+        </div>
+      </div>
       <p class="mag__note">مقاله‌ها را پزشکان همین کلینیک می‌نویسند و هر شش ماه یک بار بازبینی می‌کنند.</p>
     </div>
     <div class="mag__pv" aria-hidden="true"><div class="mag__pv-in"><img src="img/art-implant-p.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" data-i="0"><img src="img/art-spf-p.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" data-i="1"><img src="img/art-checkup-p.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" data-i="2"><img src="img/art-brush-p.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" data-i="3"><img src="img/art-botox-p.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" data-i="4"></div></div>
@@ -757,7 +795,7 @@
           </details>
           <details data-rv class="faq-item" data-k="visit">
             <summary><span class="faq-item__tag">نوبت و پذیرش</span><span class="faq-item__q">روز اول چه مدارکی همراهم بیاورم؟</span><span class="faq-item__ic" aria-hidden="true"></span></summary>
-            <div class="faq-item__a"><p>کارت ملی و کد بیمه کافی است. اگر عکس، آزمایش یا نسخه‌ی قبلی دارید (حتی روی گوشی) بیاورید، و اسم داروهایی که مصرف می‌کنید را هم یادداشت کنید. این‌ها معاینه را دقیق‌تر می‌کند.</p></div>
+            <div class="faq-item__a"><p>کارت ملی کافی است. اگر عکس، آزمایش یا نسخه‌ی قبلی دارید (حتی روی گوشی) بیاورید، و اسم داروهایی که مصرف می‌کنید را هم یادداشت کنید. این‌ها معاینه را دقیق‌تر می‌کند.</p></div>
           </details>
           <details data-rv class="faq-item" data-k="dental">
             <summary><span class="faq-item__tag">دندانپزشکی</span><span class="faq-item__q">ایمپلنت از اول تا آخر چقدر طول می‌کشد؟</span><span class="faq-item__ic" aria-hidden="true"></span></summary>
@@ -792,8 +830,8 @@
             <div class="faq-item__a"><p>بله، تزریق دارو و سرم با نسخه‌ی پزشک انجام می‌شود. اگر نسخه ندارید، پزشک عمومی همان‌جا ویزیتتان می‌کند و اگر لازم باشد نسخه می‌نویسد.</p></div>
           </details>
           <details data-rv class="faq-item" data-k="pay">
-            <summary><span class="faq-item__tag">بیمه و پرداخت</span><span class="faq-item__q">کدام بیمه‌ها را قبول می‌کنید؟</span><span class="faq-item__ic" aria-hidden="true"></span></summary>
-            <div class="faq-item__a"><p>فهرست بیمه‌های طرف قرارداد هر بخش را پیش از مراجعه از پذیرش بپرسید: <a href="tel:+981154611560" dir="ltr">۰۱۱ ۵۴۶۱ ۱۵۶۰</a>.</p></div>
+            <summary><span class="faq-item__tag">بیمه و پرداخت</span><span class="faq-item__q">درباره‌ی بیمه از کجا بپرسم؟</span><span class="faq-item__ic" aria-hidden="true"></span></summary>
+            <div class="faq-item__a"><p>برای اطلاع از شرایط بیمه، پیش از مراجعه با پذیرش تماس بگیرید: <a href="tel:+981154611560" dir="ltr">۰۱۱ ۵۴۶۱ ۱۵۶۰</a>.</p></div>
           </details>
           <details data-rv class="faq-item" data-k="pay">
             <summary><span class="faq-item__tag">بیمه و پرداخت</span><span class="faq-item__q">هزینه را از قبل می‌دانم؟</span><span class="faq-item__ic" aria-hidden="true"></span></summary>
@@ -924,8 +962,13 @@
           <div class="callback__fields">
             <label class="field"><span class="field__label">نام</span><input name="name" autocomplete="name" required></label>
             <label class="field"><span class="field__label">شماره‌ی موبایل</span><input name="tel" type="tel" inputmode="tel" autocomplete="tel" dir="ltr" placeholder="۰۹۱۱ ۱۲۳ ۴۵۶۷" required></label>
-            <label class="field"><span class="field__label">درباره‌ی</span>
-              <select name="topic"><option>نوبت دندانپزشکی</option><option>هماهنگی زیبایی و لیزر</option><option>پزشک عمومی</option><option>سؤال درباره‌ی هزینه</option></select>
+            <label class="field"><span class="field__label">موضوع تماس</span>
+              <select name="topic">
+                <option data-ic="i-tooth" data-tone="dental" data-hint="ایمپلنت، لمینت، عصب‌کشی، جرم‌گیری و …">نوبت دندانپزشکی</option>
+                <option data-ic="i-sparkles" data-tone="beauty" data-hint="بوتاکس، فیلر، جوان‌سازی و لیزر">هماهنگی زیبایی و لیزر</option>
+                <option data-ic="i-steth" data-tone="medicine" data-hint="ویزیت، تزریقات، سرم، بخیه و نوار قلب">پزشک عمومی</option>
+                <option data-ic="i-wallet" data-hint="هزینه‌ی درمان و شرایط پرداخت">سؤال درباره‌ی هزینه</option>
+              </select>
             </label>
             <button class="btn btn--primary callback__submit" type="submit"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg>با من تماس بگیرید</button>
           </div>

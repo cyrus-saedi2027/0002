@@ -244,6 +244,13 @@ html.motion .deck.is-flipped .pcard:hover .pcard__face { translate: 0 -10px; }
 .jr-step__facts .ic { width: 16px; height: 16px; color: var(--ok); stroke-width: 2.4; }
 .jr-side { display: none; }
 
+/* قاب عکس ثابت و نوار مرحله‌ها؛ فقط وقتی حرکت روشن است نمایش داده می‌شود */
+.jr-frame { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #DCE5EF; box-shadow: 0 2px 6px rgba(13, 27, 48, .06), 0 40px 70px -40px rgba(13, 27, 48, .45); }
+.jr-frame__img { position: absolute; inset: 0; overflow: hidden; }
+.jr-frame__img img { position: absolute; left: 0; top: -8%; width: 100%; height: 116%; object-fit: cover; }
+.jr-dots li::before, .jr-dots li::after { content: ""; position: absolute; top: 0; inset-inline: 0; height: 3px; border-radius: 2px; }
+.jr-dots li::after { transform-origin: 100% 50%; transform: scaleX(var(--f, 0)); }
+
 @media (min-width: 900px) {
   html.motion .jr { grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); }
   html.motion .jr-steps { gap: 0; }
@@ -253,16 +260,32 @@ html.motion .deck.is-flipped .pcard:hover .pcard__face { translate: 0 -10px; }
   html.motion .jr-step.is-active .jr-step__txt { opacity: 1; }
   html.motion .jr-step__title { font-size: clamp(1.5rem, 1.1rem + 1vw, 2.1rem); }
   html.motion .jr-side { display: flex; flex-direction: column; justify-content: center; gap: 18px; position: sticky; top: 0; height: 100svh; align-self: start; padding-top: calc(var(--bar-gap) + var(--bar-h)); }
-  .jr-frame { position: relative; width: 100%; aspect-ratio: 5 / 4; max-height: 64svh; border-radius: 12px; overflow: hidden; background: #DCE5EF; box-shadow: 0 2px 6px rgba(13, 27, 48, .06), 0 40px 70px -40px rgba(13, 27, 48, .45); }
-  .jr-frame__img { position: absolute; inset: 0; overflow: hidden; }
-  .jr-frame__img img { position: absolute; left: 0; top: -8%; width: 100%; height: 116%; object-fit: cover; }
+  .jr-frame { aspect-ratio: 5 / 4; max-height: 64svh; }
   .jr-dots { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
   .jr-dots li { position: relative; padding-top: 12px; font-size: .8125rem; font-weight: 600; color: var(--ink-3); line-height: 1.5; transition: color .3s; }
-  .jr-dots li::before, .jr-dots li::after { content: ""; position: absolute; top: 0; inset-inline: 0; height: 3px; border-radius: 2px; }
   .jr-dots li::before { background: rgba(13, 27, 48, .12); }
-  .jr-dots li::after { background: var(--blue); transform-origin: 100% 50%; transform: scaleX(var(--f, 0)); }
+  .jr-dots li::after { background: var(--blue); }
   .jr-dots li span { display: block; font-family: var(--f-ui); font-size: .75rem; color: inherit; }
   .jr-dots li.is-on { color: var(--navy-800); }
+}
+
+/* موبایل: قاب زیر سربرگ می‌چسبد، متن مرحله‌ها از زیرش بالا می‌آید و نوار مرحله‌ها مثل استوری روی عکس است.
+   flex (نه grid) تا محدوده‌ی چسبیدن کل .jr باشد، نه فقط ردیف خود قاب */
+@media (max-width: 899px) {
+  html.motion .jr { display: flex; flex-direction: column; gap: 0; }
+  html.motion .jr-side { display: block; order: -1; position: sticky; top: calc(var(--bar-gap) + var(--bar-h) + 12px); z-index: 2; margin-bottom: 6px; }
+  html.motion .jr-steps { gap: 0; }
+  html.motion .jr-step { min-height: 62svh; display: flex; align-items: center; padding-block: 24px; }
+  html.motion .jr-step__img { display: none; }
+  html.motion .jr-step__txt { opacity: .28; transition: opacity .5s var(--ease-out); }
+  html.motion .jr-step.is-active .jr-step__txt { opacity: 1; }
+  .jr-frame { aspect-ratio: 16 / 10; max-height: 36svh; }
+  .jr-frame::after { content: ""; position: absolute; inset: 0 0 auto; height: 40%; z-index: 9; pointer-events: none; background: linear-gradient(rgba(8, 16, 32, .42), rgba(8, 16, 32, 0)); }
+  .jr-dots { position: absolute; top: 12px; inset-inline: 14px; z-index: 10; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+  .jr-dots li { position: relative; height: 3px; font-size: 0; line-height: 0; color: transparent; }
+  .jr-dots li span { display: none; }
+  .jr-dots li::before { background: rgba(255, 255, 255, .34); }
+  .jr-dots li::after { background: #fff; box-shadow: 0 0 8px rgba(255, 255, 255, .5); }
 }
 
 /* آسمان روشن مسیر درمان: لایه‌ی چسبان تمام‌صفحه با چهار رنگ ملایم */
@@ -341,6 +364,14 @@ html.hc .cs__who, html.hc .cs__p, html.hc .cs__stats span, html.hc .cs-note { co
 .rv-stars { display: inline-flex; gap: 2px; color: #F2A516; }
 .rv-stars .ic { width: 15px; height: 15px; fill: currentColor; stroke: none; }
 .rv-stars--lg .ic { width: 20px; height: 20px; }
+.rv-stars .ic.is-off { color: #D5DCE6; }
+/* ستاره‌های بزرگ به اندازه‌ی میانگین پر می‌شوند (--r = میانگین / ۵)؛ از راست، هم‌جهت با متن */
+.rv-stars--lg { position: relative; justify-self: start; width: max-content; }
+.rv-stars__base, .rv-stars__fill { display: inline-flex; gap: 2px; }
+.rv-stars__base { color: #D5DCE6; }
+.rv-stars__fill { position: absolute; inset: 0; color: #F2A516; clip-path: inset(0 0 0 calc((1 - var(--r, 1)) * 100%)); }
+.rv-scope { font-family: var(--f-ui); font-size: .8125rem; color: var(--ink-3); overflow: hidden; }
+.rv-scope b { display: inline-block; font-weight: 700; color: var(--navy-800); }
 .rv-count { font-size: .9375rem; color: var(--ink-2); }
 .rv-count b { color: var(--ink); font-variant-numeric: tabular-nums; }
 .rv-bars { display: grid; gap: 8px; margin-top: 6px; padding-top: 14px; border-top: 1px solid var(--line); }
@@ -412,6 +443,15 @@ html.hc .cs__who, html.hc .cs__p, html.hc .cs__stats span, html.hc .cs-note { co
   .mag__row:hover .mag__go { background: #fff; color: var(--navy-800); border-color: #fff; transform: translateX(-4px); }
 }
 .mag__row:focus-visible { outline-offset: -3px; }
+/* کنترل ردیف‌های افقی (فلش‌ها و نوار پیشرفت)؛ فقط وقتی فهرست افقی است */
+.hctl { display: none; align-items: center; gap: 16px; margin-top: 18px; }
+.hctl__bar { position: relative; flex: 1; height: 2px; border-radius: 2px; background: rgba(255, 255, 255, .16); overflow: hidden; }
+.hctl__bar i { position: absolute; inset-block: 0; right: 0; width: 100%; background: #fff; transform-origin: 100% 50%; transform: scaleX(var(--p, .2)); transition: transform .35s var(--ease-out); }
+.hctl__nav { display: flex; gap: 8px; }
+.hctl__btn { width: 44px; height: 44px; border-radius: var(--r1); display: grid; place-items: center; color: #fff; border: 1px solid rgba(255, 255, 255, .22); transition: background-color .25s, color .25s, border-color .25s, opacity .25s, transform .5s var(--spring); }
+.hctl__btn:hover:not(:disabled) { background: #fff; color: var(--navy-800); border-color: #fff; }
+.hctl__btn:active:not(:disabled) { transform: scale(.92); }
+.hctl__btn:disabled { opacity: .3; cursor: default; }
 .mag__note { margin-top: 20px; font-size: .8125rem; color: rgba(217, 226, 241, .55); }
 .mag .link-arrow--light { white-space: nowrap; }
 /* پیش‌نمایش شناور */
@@ -422,6 +462,10 @@ html.hc .cs__who, html.hc .cs__p, html.hc .cs__stats span, html.hc .cs-note { co
 @media (max-width: 1060px) {
   .mag__list { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; border: 0; margin-inline: calc(var(--gutter) * -1); padding: 4px var(--gutter) 8px; scroll-padding-inline: var(--gutter); }
   .mag__list::-webkit-scrollbar { display: none; }
+  .mag__list { touch-action: pan-x pan-y; cursor: grab; }
+  .mag__list.is-drag { cursor: grabbing; scroll-snap-type: none; }
+  .mag__list.is-drag .mag__row { pointer-events: none; }
+  .mag__ctl { display: flex; }
   .mag__item { flex: 0 0 min(360px, 80%); scroll-snap-align: start; border: 0; }
   .mag__row { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "media media" "cat go" "title title" "meta meta"; gap: 10px; padding: 0 0 6px; }
   .mag__row::before { display: none; }
@@ -708,6 +752,7 @@ html.svc-open main *, html.svc-open .foot * { animation-play-state: paused !impo
   .faq-tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-inline: calc(var(--gutter) * -1); padding-inline: var(--gutter); }
   .faq-tabs::-webkit-scrollbar { display: none; }
   .faq-tabs button { flex: none; }
+  .faq-tabs.has-pill { width: auto; margin-inline: 0; padding: 4px; overscroll-behavior-x: contain; }
   .faq__ask .btn { flex: 1 1 160px; }
   .stage__img { object-position: 22% 50%; }
   .stage__shade { background: linear-gradient(to top, rgba(6, 16, 34, .94) 0%, rgba(6, 16, 34, .78) 42%, rgba(6, 16, 34, .2) 72%, rgba(6, 16, 34, .05) 100%); }
@@ -798,3 +843,52 @@ html.hc .jr-step__facts li { border: 2px solid #000; }
 html.hc .rv-note, html.hc .rv-who small, html.hc .rv-count { color: #000; }
 html.hc .tile { outline: 2px solid #000; outline-offset: -2px; }
 html.hc .tile::after { background: linear-gradient(0deg, rgba(0, 0, 0, .92) 0%, rgba(0, 0, 0, .6) 45%, rgba(0, 0, 0, 0) 70%); }
+
+/* ==========================================================================
+   تعامل‌ها (دور ۱۰): زبانه‌های کپسولی با نشانگر فنری، حالت‌های دکمه‌ی ارسال
+   ========================================================================== */
+/* وقتی جاوااسکریپت نشانگر را ساخت، زبانه‌ها یک کپسول می‌شوند و نشانگر تیره زیر زبانه‌ی انتخاب‌شده می‌لغزد */
+.rv-tabs.has-pill, .faq-tabs.has-pill { position: relative; gap: 2px; width: fit-content; max-width: 100%; padding: 4px; background: #fff; border: 1px solid var(--line-2); border-radius: calc(var(--r1) + 4px); }
+.has-pill > button { position: relative; z-index: 1; height: 36px; border: 0; background: transparent; }
+.has-pill > button:hover:not([aria-selected="true"]):not([aria-pressed="true"]) { background: var(--mist); color: var(--ink); }
+.has-pill > button[aria-selected="true"], .has-pill > button[aria-pressed="true"] { background: transparent; color: #fff; }
+.pill { position: absolute; left: 0; top: 0; z-index: 0; width: var(--w, 0); height: var(--h, 0); border-radius: var(--r1); background: var(--navy-800); box-shadow: 0 6px 14px -6px rgba(13, 27, 48, .5); transform: translate(var(--x, 0), var(--y, 0)); transition: transform .55s var(--spring), width .55s var(--spring), height .3s var(--ease-out); pointer-events: none; }
+html.rm .pill { transition: none; }
+html.hc .has-pill { border: 2px solid #000; }
+html.hc .pill { background: #000; }
+
+/* دکمه‌ی ارسال: در حال بررسی ← انجام شد */
+.btn .spin { display: none; width: 18px; height: 18px; flex: none; border-radius: 50%; border: 2px solid rgba(255, 255, 255, .35); border-top-color: #fff; animation: spin .7s linear infinite; }
+.btn.is-busy .spin { display: block; }
+.btn.is-busy > .ic { display: none; }
+.btn.is-busy { pointer-events: none; }
+.btn--primary.is-ok, .btn--primary.is-ok:hover { background: var(--ok); box-shadow: 0 2px 0 #0B7A4F; transition: background-color .35s; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.qbook__result, .callback__msg { overflow: hidden; }
+.callback__msg b, .callback__msg span { display: block; }
+.callback__msg span { margin-top: 2px; font-weight: 400; }
+.callback__msg a { font-weight: 700; color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+
+/* ---------- بازخورد لمسی: هر کنترل هنگام فشار کمی جمع می‌شود و با فنر برمی‌گردد (ویژگی scale، جدا از transformهای GSAP) ---------- */
+/* فقط ویژگی‌های رنگ و scale/translate؛ transform و opacity را GSAP می‌گرداند و ترنزیشن CSS رویشان مقدار پایانی را خراب می‌کند */
+.rv-btn, .vroutes button, .chip, .social a, .vapp, .vtabs__btn, .prefs__btn, .seg__btn, .tgl, .burger, .pick, .has-pill > button, .sheet__svc {
+  transition-property: background-color, border-color, color, box-shadow, scale, translate;
+  transition-duration: .2s, .2s, .2s, .3s, .5s, .45s;
+  transition-timing-function: ease, ease, ease, ease, var(--spring), var(--spring);
+  transition-delay: 0s;
+}
+.rv-btn { transition-property: background-color, border-color, color, box-shadow, scale, opacity; transition-duration: .2s, .2s, .2s, .3s, .5s, .2s; transition-timing-function: ease, ease, ease, ease, var(--spring), ease;
+}
+.rv-btn:active, .vroutes button:active, .chip:active, .social a:active, .vtabs__btn:active, .prefs__btn:active, .seg__btn:active, .tgl:active, .burger:active, .has-pill > button:active { scale: .94; transition-duration: .1s; }
+.vapp:active, .pick:active, .sheet__svc:active { scale: .98; transition-duration: .1s; }
+.sheet__nav a { transition: padding .35s var(--ease-out), color .2s; }
+.sheet__nav a:active { padding-inline-start: 6px; color: var(--blue); }
+.rv-btn .ic, .hctl__btn .ic { transition: translate .45s var(--spring); }
+.rv-btn[data-dir="next"]:hover:not(:disabled) .ic, .hctl__btn[data-dir="next"]:hover:not(:disabled) .ic { translate: -3px 0; }
+.rv-btn[data-dir="prev"]:hover:not(:disabled) .ic, .hctl__btn[data-dir="prev"]:hover:not(:disabled) .ic { translate: 3px 0; }
+@media (hover: none) {
+  .mag__row, .rv-card, .vcard { transition-property: scale, border-color, box-shadow, translate; transition-duration: .5s, .25s, .3s, .5s; transition-timing-function: var(--spring), ease, ease, var(--spring); }
+  .mag__row:active, .rv-card:active, .vcard:active { scale: .985; transition-duration: .12s; }
+}
+html.rm .rv-btn, html.rm .vroutes button, html.rm .chip, html.rm .vapp, html.rm .pick, html.rm .has-pill > button, html.rm .mag__row, html.rm .rv-card { transition-property: background-color, border-color, color, box-shadow; }
+html.rm *:active { scale: none !important; }
