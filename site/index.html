@@ -693,11 +693,11 @@
           <p class="kicker kicker--light">مجله‌ی سلامت ساسان</p>
           <h2 class="sec-title" id="mag-title">قبل از درمان، این‌ها را بخوانید</h2>
         </div>
-        <a class="link-arrow link-arrow--light" href="#articles">همه‌ی مقاله‌ها<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        <a class="link-arrow link-arrow--light" href="#mag-all" data-article="all">همه‌ی مقاله‌ها<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
       </header>
       <ol class="mag__list" tabindex="0" aria-label="مقاله‌ها؛ با کشیدن یا کلیدهای جهت جابه‌جا شوید">
         <li data-rv class="mag__item" data-k="dental">
-          <a class="mag__row" href="#articles" data-i="0">
+          <a class="mag__row" href="#mag-implant" data-article="implant" data-i="0">
             <span class="mag__media"><img src="img/art-implant-l.webp" alt="" width="1120" height="700" loading="lazy" decoding="async"></span>
             <span class="mag__no">۰۱</span>
             <span class="mag__cat">دندانپزشکی</span>
@@ -707,7 +707,7 @@
           </a>
         </li>
         <li data-rv class="mag__item" data-k="beauty">
-          <a class="mag__row" href="#articles" data-i="1">
+          <a class="mag__row" href="#mag-sunscreen" data-article="sunscreen" data-i="1">
             <span class="mag__media"><img src="img/art-spf-l.webp" alt="" width="1120" height="700" loading="lazy" decoding="async"></span>
             <span class="mag__no">۰۲</span>
             <span class="mag__cat">زیبایی و لیزر</span>
@@ -717,7 +717,7 @@
           </a>
         </li>
         <li data-rv class="mag__item" data-k="medicine">
-          <a class="mag__row" href="#articles" data-i="2">
+          <a class="mag__row" href="#mag-blood-pressure" data-article="blood-pressure" data-i="2">
             <span class="mag__media"><img src="img/art-checkup-l.webp" alt="" width="1120" height="700" loading="lazy" decoding="async"></span>
             <span class="mag__no">۰۳</span>
             <span class="mag__cat">پزشکی</span>
@@ -727,7 +727,7 @@
           </a>
         </li>
         <li data-rv class="mag__item" data-k="dental">
-          <a class="mag__row" href="#articles" data-i="3">
+          <a class="mag__row" href="#mag-sensitivity" data-article="sensitivity" data-i="3">
             <span class="mag__media"><img src="img/art-brush-l.webp" alt="" width="1120" height="700" loading="lazy" decoding="async"></span>
             <span class="mag__no">۰۴</span>
             <span class="mag__cat">دندانپزشکی</span>
@@ -737,7 +737,7 @@
           </a>
         </li>
         <li data-rv class="mag__item" data-k="beauty">
-          <a class="mag__row" href="#articles" data-i="4">
+          <a class="mag__row" href="#mag-botox" data-article="botox" data-i="4">
             <span class="mag__media"><img src="img/art-botox-l.webp" alt="" width="1120" height="700" loading="lazy" decoding="async"></span>
             <span class="mag__no">۰۵</span>
             <span class="mag__cat">زیبایی و لیزر</span>
@@ -754,7 +754,7 @@
           <button type="button" class="hctl__btn" data-dir="next" aria-label="مقاله‌ی بعدی"><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></button>
         </div>
       </div>
-      <p class="mag__note">مقاله‌ها را پزشکان همین کلینیک می‌نویسند و هر شش ماه یک بار بازبینی می‌کنند.</p>
+      <p class="mag__note">متن مقاله‌ها اولیه است و پیش از انتشار، پزشکان همین کلینیک بازبینی و تأییدشان می‌کنند.</p>
     </div>
     <div class="mag__pv" aria-hidden="true"><div class="mag__pv-in"><img src="img/art-implant-p.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" data-i="0"><img src="img/art-spf-p.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" data-i="1"><img src="img/art-checkup-p.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" data-i="2"><img src="img/art-brush-p.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" data-i="3"><img src="img/art-botox-p.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" data-i="4"></div></div>
   </section>
@@ -1091,11 +1091,29 @@
   </div>
 </div>
 
+<!-- ========== مجله: خواندن مقاله (js/home.js → Reader) ========== -->
+<div class="ar" id="ar" role="dialog" aria-modal="true" aria-labelledby="arTitle" hidden>
+  <div class="ar__scrim" data-ar-close></div>
+  <div class="ar__sheet">
+    <div class="ar__bar">
+      <button type="button" class="ar__back" id="arBack"><svg class="ic" aria-hidden="true"><use href="#i-arrow-r"/></svg><span>بازگشت</span></button>
+      <span class="ar__crumb" id="arCrumb">مجله‌ی سلامت ساسان</span>
+      <button type="button" class="ar__all" id="arAll" data-ar-go="all"><svg class="ic" aria-hidden="true"><use href="#i-file"/></svg><span>همه‌ی مقاله‌ها</span></button>
+      <button type="button" class="ar__copy" id="arCopy" aria-label="کپی نشانی این مقاله"><svg class="ic" aria-hidden="true"><use href="#i-copy"/></svg></button>
+      <i class="ar__prog" aria-hidden="true"><i></i></i>
+    </div>
+    <div class="ar__scroll" id="arScroll" data-lenis-prevent tabindex="-1">
+      <div class="ar__page" id="arPage"></div>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrollTrigger.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/Flip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.min.js"></script>
 <script src="js/core.js"></script>
+<script src="js/articles.js"></script>
 <script src="js/home.js"></script>
 <script src="js/fx.js"></script>
 </body>

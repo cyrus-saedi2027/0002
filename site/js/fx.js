@@ -185,8 +185,18 @@
   const mag = $('#articles');
   if (mag && window.gsap) {
     const list = $('.mag__list', mag), pv = $('.mag__pv', mag), imgs = $$('.mag__pv img', mag);
-    let active = false, tx = 0, ty = 0, x = 0, y = 0, z = 1, cur = -1, loop = null, lastX = 0;
+    let active = false, tx = 0, ty = 0, x = 0, y = 0, z = 1, cur = -1, loop = null, lastX = 0, lx = -1, ly = -1;
     const desk = () => fine() && Motion.on && window.matchMedia('(min-width: 1061px)').matches;
+    /* عکس‌های پیش‌نمایش پیش از اولین هاور بارگیری و رمزگشایی می‌شوند؛ وگرنه قاب اول خالی می‌آمد و عکس بعد می‌پرید */
+    let warmed = false;
+    const warm = () => {
+      if (warmed || !desk()) return; warmed = true;
+      imgs.forEach((im) => { im.loading = 'eager'; if (im.decode) im.decode().catch(() => {}); });
+    };
+    if ('IntersectionObserver' in window) {
+      const wio = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { warm(); if (warmed) wio.disconnect(); } }, { rootMargin: '900px 0px' });
+      wio.observe(mag);
+    }
     const tick = () => {
       x += (tx - x) * 0.14; y += (ty - y) * 0.14;
       const vx = x - lastX; lastX = x;
@@ -196,25 +206,37 @@
       if (i === cur) return;
       cur = i;
       const im = imgs[i]; if (!im) return;
-      im.style.zIndex = String(++z);
-      im.classList.remove('is-on'); void im.offsetWidth; im.classList.add('is-on');
-      setTimeout(() => imgs.forEach((o) => { if (o !== im && +o.style.zIndex < z) o.classList.remove('is-on'); }), 750);
+      const go = () => {
+        if (cur !== i) return;
+        im.style.zIndex = String(++z);
+        im.classList.remove('is-on'); void im.offsetWidth; im.classList.add('is-on');
+        setTimeout(() => imgs.forEach((o) => { if (o !== im && +o.style.zIndex < z) o.classList.remove('is-on'); }), 750);
+      };
+      /* تا عکس آماده نشده، عکس قبلی می‌ماند */
+      if (im.complete && im.naturalWidth) go();
+      else { im.loading = 'eager'; (im.decode ? im.decode() : Promise.resolve()).catch(() => {}).then(go); }
     };
     /* عکس روی ستون چپ (زمان مطالعه و فلش) می‌نشیند تا روی تیترها را نگیرد؛ عمودی دنبال نشانگر است و افقی کمی با آن جابه‌جا می‌شود */
     const place = (e) => {
       const r = mag.getBoundingClientRect(), lr = list.getBoundingClientRect(), w = pv.offsetWidth, h = pv.offsetHeight;
       const f = Math.min(1, Math.max(0, (e.clientX - lr.left) / lr.width));
-      tx = lr.left - r.left + 10 + f * 110;
+      /* فقط در فضای بین لبه‌ی فهرست و ستون تیترها جابه‌جا می‌شود تا انتهای تیترهای بلند زیرش نرود */
+      const tt = $('.mag__title', list), room = tt ? tt.getBoundingClientRect().left - lr.left - 24 : w + 110;
+      tx = lr.left - r.left + 6 + f * Math.max(0, room - w - 6);
       ty = Math.min(Math.max(e.clientY - r.top - h * 0.5, lr.top - r.top - h * 0.35), lr.bottom - r.top - h * 0.65);
     };
     list.addEventListener('pointerenter', (e) => {
       if (!desk()) return;
+      warm();
+      lx = e.clientX; ly = e.clientY;
       active = true; place(e); x = tx; y = ty + 30; lastX = x;
       list.classList.add('is-pv');
       if (!loop) { loop = tick; gsap.ticker.add(loop); }
       gsap.to(pv, { autoAlpha: 1, scale: 1, duration: 0.5, ease: 'expo.out', overwrite: 'auto' });
     });
-    list.addEventListener('pointermove', (e) => { if (active) place(e); });
+    list.addEventListener('pointermove', (e) => { lx = e.clientX; ly = e.clientY; if (active) place(e); });
+    /* هنگام اسکرول با نشانگر ثابت، پیش‌نمایش کنار نشانگر می‌ماند (قبلاً با صفحه بالا و پایین می‌رفت) */
+    window.addEventListener('scroll', () => { if (active && lx >= 0) place({ clientX: lx, clientY: ly }); }, { passive: true });
     list.addEventListener('pointerleave', () => {
       if (!active) return;
       active = false; cur = -1;

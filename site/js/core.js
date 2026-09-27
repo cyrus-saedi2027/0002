@@ -330,7 +330,7 @@
      ========================================================================== */
   document.addEventListener('click', (e) => {
     const a = e.target.closest('a[href^="#"]');
-    if (!a || a.hasAttribute('data-svc') || e.defaultPrevented) return;
+    if (!a || a.hasAttribute('data-svc') || a.hasAttribute('data-article') || e.defaultPrevented) return;
     const id = a.getAttribute('href');
     if (id === '#' || id.length < 2) return;
     let target = document.getElementById(id.slice(1));

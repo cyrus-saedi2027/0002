@@ -1123,6 +1123,235 @@
   });
 
   /* ==========================================================================
+     مجله: خواندن مقاله. برگه از پایین بالا می‌آید و عکس کارت (یا پیش‌نمایش شناور) تا جای خودش در مقاله پرواز می‌کند؛
+     آدرس هر مقاله #mag-… است و دکمه‌ی برگشت مرورگر برگه را می‌بندد
+     ========================================================================== */
+  const ARTS = window.SasanArticles || [];
+  const arEl = $('#ar');
+  if (arEl && ARTS.length) {
+    const sheet = $('.ar__sheet', arEl), scrim = $('.ar__scrim', arEl), scroller = $('#arScroll'), page = $('#arPage');
+    const prog = $('.ar__prog i', arEl), crumb = $('#arCrumb'), allBtn = $('#arAll'), copyBtn = $('#arCopy');
+    const EXPO = 'cubic-bezier(.16, 1, .3, 1)';
+    const byId = (id) => ARTS.find((a) => a.id === id);
+    const can = () => Motion.on && typeof arEl.animate === 'function';
+    /* pushed: این برگه خودش یک قدم به تاریخچه اضافه کرده؟ (اگر مستقیم از نشانی آمده، «برگشت» نباید از سایت بیرون برود) */
+    let isOpen = false, cur = null, opener = null, pushed = false;
+    const CTA = {
+      dental: ['سؤالی درباره‌ی دندان‌هایتان دارید؟', 'دندانپزشکی شنبه، یکشنبه، دوشنبه و پنجشنبه از ۱۰ صبح تا ۸ شب پذیرش دارد. برای نوبت یا سؤال با پذیرش تماس بگیرید.'],
+      beauty: ['برای مشاوره‌ی زیبایی وقت بگیرید', 'بخش زیبایی و لیزر همه‌روزه با هماهنگی قبلی پذیرش دارد. برای وقت مشاوره با پذیرش تماس بگیرید.'],
+      medicine: ['پزشک عمومی همین حالا در کلینیک است', 'پزشک عمومی شبانه‌روز در کلینیک حضور دارد؛ برای ویزیت، تزریقات یا نوار قلب می‌توانید مستقیم مراجعه کنید.']
+    };
+    const artHTML = (a) => {
+      const next = ARTS[(ARTS.indexOf(a) + 1) % ARTS.length], [ct, cp] = CTA[a.k];
+      return `<article class="ar-art">
+  <header class="ar-head">
+    <span class="ar-cat">${a.cat}</span>
+    <h2 class="ar-title" id="arTitle">${a.title}</h2>
+    <p class="ar-lead">${a.lead}</p>
+    <p class="ar-meta"><span><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>${a.mins} دقیقه مطالعه</span><span>${a.by}</span><span class="ar-draft">متن اولیه · در انتظار بازبینی پزشک</span></p>
+  </header>
+  <figure class="ar-cover"><img src="${a.img}" alt="${a.alt}" width="1120" height="700" decoding="async"></figure>
+  <div class="ar-body">${a.body}</div>
+  <section class="ar-cta" aria-label="تماس با کلینیک">
+    <b>${ct}</b><p>${cp}</p>
+    <div class="ar-cta__acts">
+      <a class="btn btn--light" href="tel:+981154611560"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg><span dir="ltr">${TEL}</span></a>
+      <a class="btn btn--outline-light" href="#book" data-ar-book><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg>زمان مراجعه</a>
+    </div>
+  </section>
+  <p class="ar-note">این مطلب برای آگاهی عمومی است و جای معاینه را نمی‌گیرد. متن اولیه است و پیش از انتشار سایت، پزشکان کلینیک آن را بازبینی و تأیید می‌کنند.</p>
+  <a class="ar-next" href="#mag-${next.id}" data-ar-go="${next.id}">
+    <span class="ar-next__img"><img src="${next.img}" alt="" width="1120" height="700" loading="lazy" decoding="async"></span>
+    <span class="ar-next__txt"><small>مقاله‌ی بعدی · ${next.cat}</small><b>${next.title}</b></span>
+    <span class="ar-next__go" aria-hidden="true"><svg class="ic"><use href="#i-arrow"/></svg></span>
+  </a>
+</article>`;
+    };
+    const card = (a) => `<a class="ar-card" href="#mag-${a.id}" data-ar-go="${a.id}" data-k="${a.k}">
+  <span class="ar-card__img"><img src="${a.img}" alt="" width="1120" height="700" loading="lazy" decoding="async"></span>
+  <span class="ar-cat">${a.cat}</span><b>${a.title}</b><small>${a.mins} دقیقه مطالعه · ${a.by}</small>
+</a>`;
+    const indexHTML = () => `<div class="ar-index">
+  <header class="ar-head">
+    <span class="ar-kick">مجله‌ی سلامت ساسان</span>
+    <h2 class="ar-title" id="arTitle">همه‌ی مقاله‌ها</h2>
+    <p class="ar-lead">راهنماهای کوتاه برای پیش و پس از درمان، از سه بخش کلینیک.</p>
+  </header>
+  <div class="ar-tabs" role="toolbar" aria-label="دسته‌ی مقاله‌ها">
+    <button type="button" aria-pressed="true" data-f="all">همه</button>
+    <button type="button" aria-pressed="false" data-f="dental">دندانپزشکی</button>
+    <button type="button" aria-pressed="false" data-f="beauty">زیبایی و لیزر</button>
+    <button type="button" aria-pressed="false" data-f="medicine">پزشکی</button>
+  </div>
+  <div class="ar-grid">${ARTS.map(card).join('')}</div>
+</div>`;
+
+    /* نوار پیشرفت خواندن */
+    let praf = 0;
+    const setProg = () => {
+      praf = 0;
+      const m = scroller.scrollHeight - scroller.clientHeight;
+      prog.style.transform = `scaleX(${m > 0 ? Math.min(1, scroller.scrollTop / m).toFixed(4) : 0})`;
+    };
+    scroller.addEventListener('scroll', () => { if (!praf) praf = requestAnimationFrame(setProg); }, { passive: true });
+
+    const wireIndex = () => {
+      const tabs = $('.ar-tabs', page), cards = $$('.ar-card', page);
+      Pill(tabs, 'aria-pressed');
+      $$('button', tabs).forEach((b) => b.addEventListener('click', () => {
+        const f = b.dataset.f;
+        $$('button', tabs).forEach((t) => t.setAttribute('aria-pressed', String(t === b)));
+        const show = cards.filter((c) => f === 'all' || c.dataset.k === f);
+        cards.forEach((c) => { c.hidden = !show.includes(c); });
+        if (can()) show.forEach((c, i) => c.animate([{ opacity: 0, transform: 'translate3d(0, 14px, 0)' }, { opacity: 1, transform: 'none' }], { duration: 500, delay: i * 50, easing: EXPO, fill: 'backwards' }));
+      }));
+    };
+    const render = (id) => {
+      cur = id;
+      const a = id === 'all' ? null : byId(id);
+      arEl.dataset.k = a ? a.k : '';
+      page.innerHTML = a ? artHTML(a) : indexHTML();
+      crumb.textContent = a ? `مجله‌ی سلامت ساسان · ${a.cat}` : 'مجله‌ی سلامت ساسان';
+      allBtn.hidden = !a;
+      scroller.scrollTop = 0; setProg();
+      if (!a) wireIndex();
+    };
+    const parts = (skipCover) => [...$$('.ar-head > *', page), skipCover ? null : $('.ar-cover', page), $('.ar-tabs', page), $('.ar-body', page), $('.ar-grid', page)].filter(Boolean);
+    const stagger = (list, base = 0) => list.forEach((el, i) => el.animate([{ opacity: 0, transform: 'translate3d(0, 18px, 0)' }, { opacity: 1, transform: 'none' }], { duration: 700, delay: base + i * 60, easing: EXPO, fill: 'backwards' }));
+
+    /* عکسی که از آن پرواز می‌کنیم: پیش‌نمایش شناور روی دسکتاپ، عکس کارت روی موبایل */
+    const srcImg = (from) => {
+      if (!from) return null;
+      if (from.classList.contains('mag__row')) {
+        const list = from.closest('.mag__list');
+        if (list && list.classList.contains('is-pv')) {
+          const on = $$('.mag__pv img.is-on').sort((x, y) => (+y.style.zIndex || 0) - (+x.style.zIndex || 0))[0];
+          if (on) return on;
+        }
+        const m = $('.mag__media img', from);
+        return m && m.getClientRects().length ? m : null;
+      }
+      return $('img', from);
+    };
+    const fly = (img, d) => {
+      const r = img.getBoundingClientRect();
+      if (!r.width || !d.width) return null;
+      const box = img.closest('.mag__pv, .mag__media, .ar-card__img, .ar-next__img') || img;
+      const rad = parseFloat(getComputedStyle(box).borderTopLeftRadius) || 8;
+      const c = document.createElement('div');
+      c.className = 'ar-fly'; c.setAttribute('aria-hidden', 'true');
+      c.innerHTML = `<img src="${img.currentSrc || img.src}" alt="">`;
+      document.body.appendChild(c);
+      const a = c.animate([
+        { left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px', borderRadius: rad + 'px' },
+        { left: d.left + 'px', top: d.top + 'px', width: d.width + 'px', height: d.height + 'px', borderRadius: '12px' }
+      ], { duration: 820, easing: 'cubic-bezier(.76, 0, .24, 1)', fill: 'forwards' });
+      return { c, a };
+    };
+    const focusIn = () => setTimeout(() => $('#arBack').focus({ preventScroll: true }), 60);
+
+    function openAr(id, from, push = true) {
+      if (id !== 'all' && !byId(id)) return;
+      if (isOpen) { swap(id, push); return; }
+      isOpen = true; opener = from || null;
+      render(id);
+      if (push) { try { history.pushState({ ar: id }, '', '#mag-' + id); pushed = true; } catch (e) { /* محیط محدود */ } }
+      lockScroll(true); Motion.pause();
+      root.classList.add('ar-open');
+      arEl.hidden = false;
+      if (!can()) { focusIn(); return; }
+      const src = srcImg(from), fig = $('.ar-cover', page);
+      const dest = src && fig ? fig.getBoundingClientRect() : null;
+      const flying = dest && dest.top < window.innerHeight && dest.bottom > 0;
+      scrim.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 420, easing: 'ease-out' });
+      sheet.animate([{ transform: 'translate3d(0, 56px, 0)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 720, easing: EXPO });
+      stagger(parts(flying), 140);
+      if (flying) {
+        fig.style.visibility = 'hidden';
+        const f = fly(src, dest);
+        if (!f) fig.style.visibility = '';
+        else f.a.onfinish = () => {
+          fig.style.visibility = '';
+          const o = f.c.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 240, fill: 'forwards' });
+          o.onfinish = () => f.c.remove();
+        };
+      }
+      focusIn();
+    }
+    /* جابه‌جایی بین مقاله‌ها داخل همین برگه */
+    function swap(id, push) {
+      if (id === cur) return;
+      if (push) { try { history.replaceState({ ar: id }, '', '#mag-' + id); } catch (e) { /* محیط محدود */ } }
+      if (!can()) { render(id); scroller.focus({ preventScroll: true }); return; }
+      const out = page.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translate3d(0, -10px, 0)' }], { duration: 180, easing: 'ease-in', fill: 'forwards' });
+      out.onfinish = () => { render(id); out.cancel(); stagger(parts()); scroller.focus({ preventScroll: true }); };
+    }
+    function closeAr() {
+      if (!isOpen) return;
+      isOpen = false; pushed = false;
+      root.classList.remove('ar-open');
+      const done = () => {
+        arEl.hidden = true; page.innerHTML = ''; cur = null;
+        [sheet, scrim].forEach((el) => el.getAnimations().forEach((x) => x.cancel()));
+        lockScroll(false); Motion.resume();
+        if (opener && document.contains(opener) && opener.getClientRects().length) opener.focus({ preventScroll: true });
+      };
+      if (!can()) { done(); return; }
+      scrim.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 340, easing: 'ease-in', fill: 'forwards' });
+      sheet.animate([{ transform: 'none', opacity: 1 }, { transform: 'translate3d(0, 44px, 0)', opacity: 0 }], { duration: 340, easing: 'cubic-bezier(.4, 0, 1, 1)', fill: 'forwards' }).onfinish = done;
+    }
+    const goBackAr = () => {
+      if (pushed && history.state && history.state.ar) history.back();
+      else { closeAr(); clearHash(); }
+    };
+
+    document.addEventListener('click', (e) => {
+      const a = e.target.closest('a[data-article], [data-ar-go]');
+      if (!a) return;
+      e.preventDefault();
+      const id = a.dataset.article || a.dataset.arGo;
+      openAr(id, a.closest('.mag__row, .ar-card, .ar-next') || a);
+    });
+    $('#arBack').addEventListener('click', goBackAr);
+    scrim.addEventListener('click', goBackAr);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && isOpen) goBackAr(); });
+    /* «زمان مراجعه»: برگه بسته می‌شود و صفحه تا فرم نوبت (یا جایگزینش روی موبایل) می‌رود */
+    page.addEventListener('click', (e) => {
+      if (!e.target.closest('[data-ar-book]')) return;
+      e.preventDefault();
+      goBackAr();
+      setTimeout(() => {
+        let t = document.getElementById('book');
+        if (t && !t.getClientRects().length && t.dataset.fallback) t = document.getElementById(t.dataset.fallback) || t;
+        if (t) Motion.scrollTo(t, -20);
+      }, can() ? 420 : 30);
+    });
+    copyBtn.addEventListener('click', () => {
+      const url = location.href.split('#')[0] + '#mag-' + cur;
+      const ok = () => {
+        copyBtn.classList.add('is-done'); $('use', copyBtn).setAttribute('href', '#i-check');
+        clearTimeout(copyBtn._t);
+        copyBtn._t = setTimeout(() => { copyBtn.classList.remove('is-done'); $('use', copyBtn).setAttribute('href', '#i-copy'); }, 2000);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(ok, ok); else ok();
+    });
+    window.addEventListener('popstate', (e) => {
+      const id = e.state && e.state.ar;
+      if (id) { if (!isOpen) openAr(id, null, false); else swap(id, false); }
+      else if (isOpen) closeAr();
+    });
+    /* باز شدن مستقیم از نشانی (#mag-…) */
+    const fromHash = () => {
+      const m = /^#mag-([a-z-]+)$/.exec(location.hash);
+      if (!m || (m[1] !== 'all' && !byId(m[1]))) return;
+      try { history.replaceState({ ar: m[1] }, '', location.hash); } catch (e) { /* محیط محدود */ }
+      openAr(m[1], null, false);
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(fromHash, 0));
+    else setTimeout(fromHash, 0);
+  }
+
+  /* ==========================================================================
      سؤال‌های پرتکرار: فیلتر دسته‌ها و باز و بسته شدن نرم
      ========================================================================== */
   const faqList = $('#faqList');
@@ -1599,34 +1828,57 @@
   /* ورود نرم کارت‌های پایین صفحه، فقط برای چیزهایی که هنوز دیده نشده‌اند */
   const Reveal = {
     anims: new Map(),
+    groups: new Map(),
     stop(el) { const a = this.anims.get(el); if (a) { a.cancel(); this.anims.delete(el); } },
+    play(el, delay) {
+      if (typeof el.animate === 'function') {
+        /* انیمیشن بومی روی کامپوزیتور: هر فریم نه جاوااسکریپت دارد و نه رسم دوباره‌ی صفحه */
+        el.classList.remove('is-pre');
+        const a = el.animate([{ opacity: 0, transform: 'translate3d(0, 30px, 0)' }, { opacity: 1, transform: 'translate3d(0, 0, 0)' }], { duration: 900, delay: delay * 1000, easing: 'cubic-bezier(.16, 1, .3, 1)', fill: 'backwards' });
+        this.anims.set(el, a);
+        a.onfinish = () => this.anims.delete(el);
+      } else gsap.fromTo(el, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.9, ease: 'expo.out', delay, clearProps: 'opacity,transform', onStart: () => el.classList.remove('is-pre') });
+    },
     build() {
       if (!window.gsap || !('IntersectionObserver' in window)) return;
       const els = $$('[data-rv]');
       const vh = window.innerHeight;
-      const pending = els.filter((el) => el.getClientRects().length && el.getBoundingClientRect().top > vh * 0.9);
+      let pending = els.filter((el) => el.getClientRects().length && el.getBoundingClientRect().top > vh * 0.9);
       pending.forEach((el) => el.classList.add('is-pre'));
+      /* کارت‌های داخل ردیف افقی (مجله روی موبایل) جداگانه دیده نمی‌شوند؛ کارت‌های بیرون از قاب تا کشیده شدن خالی می‌ماندند.
+         پس کل ردیف با هم وارد می‌شود: کارت‌های داخل قاب پله‌ای، بقیه بی‌صدا */
+      const hs = (p) => p && p.scrollWidth > p.clientWidth + 2 && /(auto|scroll)/.test(getComputedStyle(p).overflowX);
+      this.groups = new Map();
+      pending = pending.filter((el) => {
+        const p = el.parentElement;
+        if (!hs(p)) return true;
+        if (!this.groups.has(p)) this.groups.set(p, []);
+        this.groups.get(p).push(el);
+        return false;
+      });
       this.io = new IntersectionObserver((ents) => {
         let k = 0;
         ents.forEach((en) => {
           if (!en.isIntersecting) return;
           const el = en.target;
           this.io.unobserve(el);
-          const delay = 0.07 * k++;
-          if (typeof el.animate === 'function') {
-            /* انیمیشن بومی روی کامپوزیتور: هر فریم نه جاوااسکریپت دارد و نه رسم دوباره‌ی صفحه (و details هم هر فریم چیده نمی‌شود) */
-            el.classList.remove('is-pre');
-            const a = el.animate([{ opacity: 0, transform: 'translate3d(0, 30px, 0)' }, { opacity: 1, transform: 'translate3d(0, 0, 0)' }], { duration: 900, delay: delay * 1000, easing: 'cubic-bezier(.16, 1, .3, 1)', fill: 'backwards' });
-            this.anims.set(el, a);
-            a.onfinish = () => this.anims.delete(el);
-          } else gsap.fromTo(el, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.9, ease: 'expo.out', delay, clearProps: 'opacity,transform', onStart: () => el.classList.remove('is-pre') });
+          const g = this.groups.get(el);
+          if (!g) { this.play(el, 0.07 * k++); return; }
+          const pr = el.getBoundingClientRect();
+          g.forEach((c) => {
+            const r = c.getBoundingClientRect();
+            if (r.right > pr.left && r.left < pr.right) this.play(c, 0.07 * k++);
+            else c.classList.remove('is-pre');
+          });
         });
       }, { rootMargin: '0px 0px -10% 0px' });
       pending.forEach((el) => this.io.observe(el));
+      this.groups.forEach((g, p) => this.io.observe(p));
     },
     kill() {
       if (this.io) { this.io.disconnect(); this.io = null; }
       this.anims.forEach((a) => a.cancel()); this.anims.clear();
+      this.groups = new Map();
       const els = $$('[data-rv]');
       if (window.gsap) { gsap.killTweensOf(els); gsap.set(els, { clearProps: 'opacity,transform' }); }
       els.forEach((el) => el.classList.remove('is-pre'));

@@ -533,3 +533,5 @@ html.rm .btn, html.rm .nav__ind { transition-duration: .001ms !important; }
 html.rm .pick__chev, html.rm .pick-pop__hl, html.rm .pick-opt__ok, html.rm .pick-opt__ic { transition: none; }
 /* هنگام اسکرول نرم، هاور کارت‌ها خاموش است تا هر فریم صفحه دوباره رسم نشود (core.js) */
 html.is-scrolling main, html.is-scrolling .foot { pointer-events: none; }
+/* فهرست مجله استثناست: پیش‌نمایش عکس باید هنگام اسکرول هم با نشانگر بماند */
+html.is-scrolling .mag__list { pointer-events: auto; }
