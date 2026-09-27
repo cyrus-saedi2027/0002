@@ -46,6 +46,10 @@ html.intro [data-intro] { opacity: 0; }
 .qbook__result { margin-top: 14px; padding: 12px 14px; border-radius: var(--r1); background: var(--blue-50); border-inline-start: 3px solid var(--blue); display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; font-size: .96875rem; }
 .qbook__result b { font-weight: 800; }
 .qbook__result a { margin-inline-start: auto; }
+.qbook__acts { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-inline-start: auto; }
+.qbook__acts a { margin-inline-start: 0; }
+.qbook__go { --bh: 40px; padding: 0 16px; font-size: .9375rem; }
+.qbook__go .ic { width: 18px; height: 18px; }
 
 /* درباره‌ی ما (حالت ایستا: یک بخش معمولی زیر هیرو) */
 .about { position: relative; padding-block: clamp(64px, 10vh, 120px); color: var(--ink); }
@@ -298,6 +302,128 @@ html.motion .deck.is-flipped .pcard:hover .pcard__face { translate: 0 -10px; }
 html.hc .jsky { display: none; }
 /* کاشی‌های «در یک نگاه»: عکس آرام نزدیک می‌شود و برچسب بالا می‌آید */
 .tile img { transition: transform 1.1s var(--ease-out); }
+/* ==========================================================================
+   پزشکان: فهرست پزشکان کنار قاب عکس بزرگ؛ با انتخاب هر پزشک عکس و کارتش با پرده‌ی بالا رونده عوض می‌شود.
+   روی تبلت و موبایل ردیف افقی کارت‌ها (js/home.js → Docs)
+   ========================================================================== */
+.docs { position: relative; isolation: isolate; overflow: clip; color: #fff; background: #070A1E; padding-block: clamp(72px, 11vh, 120px); }
+.docs[data-k="dental"] { --tone: #8CC2FF; }
+.docs[data-k="beauty"] { --tone: #FFA3C4; }
+.docs[data-k="medicine"] { --tone: #7FE6CB; }
+.docs .sec-title { color: #fff; }
+.docs .sec-sub { max-width: 44ch; margin-top: 0; color: rgba(217, 226, 241, .72); }
+/* جای صورت در هر عکس (برای برش‌های افقی و قاب بزرگ) */
+.doc { --fy: 14%; }
+.doc[data-i="4"] { --fy: 42%; }
+/* سه نور رنگی پشت بخش؛ رنگ بخشِ پزشک انتخاب‌شده آرام پررنگ می‌شود */
+.docs__sky { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+.docs__sky i { position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s var(--ease-out); will-change: opacity; }
+.docs__sky i[data-k="dental"] { background: radial-gradient(40% 55% at 22% 40%, rgba(30, 94, 235, .34), rgba(30, 94, 235, 0) 70%), radial-gradient(30% 40% at 90% 96%, rgba(45, 212, 240, .14), rgba(45, 212, 240, 0) 70%); }
+.docs__sky i[data-k="beauty"] { background: radial-gradient(40% 55% at 22% 40%, rgba(214, 90, 131, .3), rgba(214, 90, 131, 0) 70%), radial-gradient(30% 40% at 90% 96%, rgba(123, 97, 255, .16), rgba(123, 97, 255, 0) 70%); }
+.docs__sky i[data-k="medicine"] { background: radial-gradient(40% 55% at 22% 40%, rgba(31, 174, 134, .3), rgba(31, 174, 134, 0) 70%), radial-gradient(30% 40% at 90% 96%, rgba(30, 94, 235, .14), rgba(30, 94, 235, 0) 70%); }
+.docs[data-k="dental"] .docs__sky i[data-k="dental"], .docs[data-k="beauty"] .docs__sky i[data-k="beauty"], .docs[data-k="medicine"] .docs__sky i[data-k="medicine"] { opacity: 1; }
+
+.doc__cat { justify-self: start; padding: 2px 10px; border-radius: var(--r1); border: 1px solid currentColor; font-family: var(--f-ui); font-size: .75rem; font-weight: 600; line-height: 1.8; white-space: nowrap; }
+.doc[data-k="dental"] { --tone: #8CC2FF; --tone-2: #1673D6; --tone-bg: #E7F2FC; }
+.doc[data-k="beauty"] { --tone: #FFA3C4; --tone-2: #C2386B; --tone-bg: #FBEAF0; }
+.doc[data-k="medicine"] { --tone: #7FE6CB; --tone-2: #0E8F6B; --tone-bg: #E5F5EF; }
+.doc__head .doc__cat { color: var(--tone); }
+.doc__cn { font-size: 1.25rem; font-weight: 800; line-height: 1.5; color: var(--navy-800); }
+.doc__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; font-family: var(--f-ui); font-size: .8125rem; color: var(--ink-3); }
+.doc__meta .doc__cat { border: 0; background: var(--tone-bg); color: var(--tone-2); font-weight: 700; }
+.doc__bio { font-size: .9688rem; line-height: 1.95; color: var(--ink-2); }
+.doc__tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.doc__tags li { padding: 3px 10px; border-radius: var(--r1); background: var(--mist); font-size: .8125rem; font-weight: 600; color: var(--navy-800); }
+.doc__days { display: flex; align-items: flex-start; gap: 8px; font-size: .875rem; line-height: 1.7; color: var(--ink-2); }
+.doc__days .ic { flex: none; width: 17px; height: 17px; margin-top: 3px; color: var(--tone-2); }
+.doc__book { width: 100%; }
+.doc__book .ic { width: 18px; height: 18px; }
+.docs__ctl { margin-top: 20px; }
+
+/* ---------- دسکتاپ ---------- */
+@media (min-width: 1000px) {
+  .docs__in {
+    --sh: min(72svh, 640px); --ov: 190px;
+    position: relative; display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(32px, 4vw, 64px); align-items: center;
+  }
+  @supports (width: 1cqi) {
+    .docs__in { container-type: inline-size; --sh: min(72svh, 640px, 50cqi); }
+  }
+  .docs__list { grid-column: 1; grid-row: 1; }
+  .docs__stage { grid-column: 2; grid-row: 1; position: relative; height: var(--sh); }
+  .docs__frame { position: absolute; top: 0; bottom: 0; inset-inline-end: 0; aspect-ratio: 4 / 5; border-radius: 12px; overflow: hidden; background: #1A2130; box-shadow: 0 0 0 1px rgba(255, 255, 255, .08), 0 50px 90px -40px rgba(0, 0, 0, .8); }
+  .docs__img { position: absolute; inset: 0; overflow: hidden; visibility: hidden; }
+  .docs__img.is-on { visibility: visible; z-index: 2; }
+  .docs__img.is-under { visibility: visible; z-index: 1; }
+  .docs__img img { width: 100%; height: 100%; object-fit: cover; }
+  /* عکسی که صورت پایین‌تر از بقیه است کمی بزرگ‌تر می‌شود (scale جدا از transform حرکت‌ها) */
+  .docs__img[data-i="4"] img { scale: 1.2; transform-origin: 50% 100%; }
+  /* شماره‌ی پزشک بالای قاب؛ رقم تازه از پایین بالا می‌آید */
+  .docs__count { position: absolute; top: 18px; left: 20px; z-index: 3; display: flex; align-items: baseline; gap: 6px; font-family: var(--f-ui); font-size: .8125rem; font-weight: 600; color: rgba(255, 255, 255, .7); pointer-events: none; }
+  .docs__num { display: inline-block; overflow: hidden; height: 1.7em; font-size: 1.25rem; line-height: 1.7; color: #fff; }
+  .docs__num b { display: block; font-weight: 700; }
+
+  .docs__list { counter-reset: none; }
+  .doc { border-bottom: 1px solid rgba(255, 255, 255, .09); }
+  .doc:first-child { border-top: 1px solid rgba(255, 255, 255, .09); }
+  .doc__head { position: relative; z-index: 1; display: grid; grid-template-columns: 52px 28px minmax(0, 1fr) auto; align-items: center; gap: 16px; width: 100%; padding: 14px 16px; text-align: start; color: rgba(217, 226, 241, .6); cursor: pointer; transition: color .35s; }
+  .doc__av { width: 52px; height: 52px; border-radius: 50%; overflow: hidden; background: #1A2130; opacity: .55; transition: opacity .35s; }
+  .doc__av img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 12%; transform: scale(1.5); transform-origin: 50% 18%; }
+  .doc__no { font-family: var(--f-ui); font-size: .8125rem; font-variant-numeric: tabular-nums; }
+  .doc__who { display: grid; gap: 2px; min-width: 0; }
+  .doc__name { font-size: clamp(1.08rem, .95rem + .45vw, 1.35rem); font-weight: 800; line-height: 1.5; color: rgba(255, 255, 255, .78); transition: color .35s, translate .6s var(--ease-out); }
+  .doc__role { font-size: .875rem; line-height: 1.6; }
+  .doc__head .doc__cat { opacity: .75; transition: opacity .35s; }
+  .doc.is-on .doc__head, .doc__head:hover { color: rgba(217, 226, 241, .85); }
+  .doc.is-on .doc__name, .doc__head:hover .doc__name { color: #fff; }
+  .doc.is-on .doc__name { translate: -6px 0; }
+  .doc.is-on .doc__av, .doc__head:hover .doc__av, .doc.is-on .doc__head .doc__cat { opacity: 1; }
+  .doc__head:focus-visible { outline-offset: -3px; border-radius: 10px; }
+  /* نشانگر: یک کادر روشن با نوار رنگ بخش که با فنر زیر پزشک انتخاب‌شده می‌لغزد */
+  .docs__ind { position: absolute; top: 0; left: 0; z-index: 0; display: block; border-radius: 10px; pointer-events: none; background: linear-gradient(270deg, rgba(255, 255, 255, .09), rgba(255, 255, 255, .03)); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08); transition: transform .7s cubic-bezier(.3, 1.25, .5, 1); }
+  .docs__ind::before { content: ""; position: absolute; inset-block: 14px; right: 0; width: 3px; border-radius: 3px; background: var(--tone); transition: background-color .5s; }
+  .docs__list { position: static; }
+  .doc { position: static; }
+
+  /* کارت پزشک روی گوشه‌ی قاب عکس؛ همه‌ی کارت‌ها روی هم و فقط کارت انتخاب‌شده دیده می‌شود */
+  .doc__body {
+    position: absolute; z-index: 3; top: calc(var(--sh) + 28px); left: calc(var(--sh) * .8 - var(--ov)); translate: 0 -100%;
+    width: min(350px, calc(var(--ov) + 150px)); min-height: var(--card-h, 0px);
+    display: flex; flex-direction: column; gap: 12px; padding: 22px 22px 20px; border-radius: 12px; background: #fff; color: var(--ink);
+    box-shadow: 0 2px 6px rgba(6, 16, 34, .2), 0 40px 70px -30px rgba(0, 0, 0, .7); visibility: hidden;
+  }
+  .doc.is-on .doc__body { visibility: visible; z-index: 5; }
+  .doc.is-under .doc__body { visibility: visible; z-index: 4; }
+  .doc__img { display: none; }
+  .doc__book { margin-top: auto; }
+}
+
+/* ---------- تبلت و موبایل: ردیف افقی کارت‌ها ---------- */
+@media (max-width: 999.98px) {
+  .docs__stage, .docs__ind { display: none; }
+  .docs__list { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; margin-inline: calc(var(--gutter) * -1); padding: 4px var(--gutter) 8px; scroll-padding-inline: var(--gutter); touch-action: pan-x pan-y; cursor: grab; }
+  .docs__list::-webkit-scrollbar { display: none; }
+  .docs__list.is-drag { cursor: grabbing; scroll-snap-type: none; }
+  .docs__list.is-drag .doc { pointer-events: none; }
+  .docs__ctl { display: flex; }
+  .doc { flex: 0 0 min(330px, 82%); scroll-snap-align: start; display: flex; flex-direction: column; border-radius: 12px; overflow: hidden; background: #fff; color: var(--ink); }
+  .doc__body { display: contents; }
+  .doc__img { order: -1; margin: 0; aspect-ratio: 5 / 4; overflow: hidden; background: #1A2130; }
+  .doc__img img { width: 100%; height: 100%; object-fit: cover; object-position: 50% var(--fy); }
+  .doc__head { display: block; padding: 16px 18px 0; text-align: start; cursor: default; }
+  .doc__av, .doc__no, .doc__head .doc__cat, .doc__cn { display: none; }
+  .doc__who { display: grid; gap: 2px; }
+  .doc__name { font-size: 1.15rem; font-weight: 800; line-height: 1.5; color: var(--navy-800); }
+  .doc__role { font-size: .875rem; color: var(--ink-3); }
+  .doc__meta, .doc__bio, .doc__tags, .doc__days { margin: 10px 18px 0; }
+  .doc__book { margin: auto 18px 18px; width: auto; }
+  .doc__days { margin-bottom: 16px; }
+}
+
+html.hc .docs { background: #000; }
+html.hc .docs__sky { display: none; }
+html.hc .docs .sec-sub, html.hc .doc__head { color: #fff; }
+html.hc .doc__body, html.hc .doc { box-shadow: inset 0 0 0 2px #000; }
 .tile figcaption { transition: transform .6s var(--ease-out); }
 @media (hover: hover) { .tile:hover img { transform: scale(1.07); } .tile:hover figcaption { transform: translateY(-4px); } }
 /* نور براق کارت بخش که دنبال نشانگر می‌رود */
@@ -933,7 +1059,6 @@ html.rm *:active { scale: none !important; }
 .ar-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; margin-top: 16px; font-family: var(--f-ui); font-size: .8125rem; color: var(--ink-3); }
 .ar-meta span { display: inline-flex; align-items: center; gap: 6px; }
 .ar-meta .ic { width: 15px; height: 15px; }
-.ar-draft { padding: 1px 9px; border-radius: var(--r1); background: #FFF4E0; color: #8A5300; font-weight: 600; }
 .ar-cover { margin: 28px 0 8px; aspect-ratio: 16 / 10; border-radius: 12px; overflow: hidden; background: #DCE5EF; }
 .ar-cover img { width: 100%; height: 100%; object-fit: cover; }
 .ar-fly { position: fixed; z-index: 105; overflow: hidden; pointer-events: none; contain: strict; background: #DCE5EF; box-shadow: 0 30px 60px -30px rgba(0, 0, 0, .5); }

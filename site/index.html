@@ -33,6 +33,7 @@
 <link rel="preload" as="image" href="img/hero-dental.webp" fetchpriority="high">
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/book.css">
 </head>
 <body>
 <div class="bi-ov" id="brandIntro" aria-hidden="true">
@@ -126,7 +127,7 @@
       <nav class="nav" aria-label="منوی اصلی">
         <span class="nav__ind" aria-hidden="true"></span>
         <button type="button" class="nav__link nav__link--menu" aria-expanded="false" aria-controls="mega">خدمات<svg class="ic ic--s" aria-hidden="true"><use href="#i-chev-d"/></svg></button>
-        <a class="nav__link" href="#services">پزشکان</a>
+        <a class="nav__link" href="#doctors">پزشکان</a>
         <a class="nav__link" href="#cases">نمونه‌کارها</a>
         <a class="nav__link" href="#articles">مقالات</a>
         <a class="nav__link" href="#about">درباره‌ی ما</a>
@@ -211,7 +212,7 @@
         <a href="#medicine" data-svc="medicine" class="sheet__svc sheet__svc--med"><svg class="ic" aria-hidden="true"><use href="#i-steth"/></svg>پزشکی شبانه‌روزی</a>
       </div>
       <nav class="sheet__nav" aria-label="منوی موبایل">
-        <a href="#services">پزشکان<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
+        <a href="#doctors">پزشکان<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
         <a href="#cases">نمونه‌کارها<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
         <a href="#articles">مقالات<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
         <a href="#about">درباره‌ی ما<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
@@ -490,6 +491,121 @@
     </div>
   </section>
 
+  <!-- ========== بخش ۴٫۵: پزشکان ========== -->
+  <section class="docs" id="doctors" aria-labelledby="docs-title" data-k="dental">
+    <div class="docs__sky" aria-hidden="true"><i data-k="dental"></i><i data-k="beauty"></i><i data-k="medicine"></i></div>
+    <div class="wrap">
+      <header class="sec-head">
+        <div>
+          <p class="kicker kicker--light">پزشکان ساسان</p>
+          <h2 class="sec-title" id="docs-title">پزشکانی که برایتان وقت می‌گذارند</h2>
+        </div>
+        <p class="sec-sub">سه بخش و یک پرونده‌ی مشترک؛ پزشکان هر جا لازم باشد درباره‌ی درمان شما با هم مشورت می‌کنند.</p>
+      </header>
+      <div class="docs__in">
+        <div class="docs__stage" aria-hidden="true">
+          <div class="docs__frame"><div class="docs__img is-on" data-i="0"><img src="img/doc-1.webp" alt="" width="720" height="900" decoding="async"></div><div class="docs__img" data-i="1"><img src="img/doc-2.webp" alt="" width="720" height="900" loading="lazy" decoding="async"></div><div class="docs__img" data-i="2"><img src="img/doc-5.webp" alt="" width="720" height="900" loading="lazy" decoding="async"></div><div class="docs__img" data-i="3"><img src="img/doc-3.webp" alt="" width="720" height="900" loading="lazy" decoding="async"></div><div class="docs__img" data-i="4"><img src="img/doc-4.webp" alt="" width="720" height="900" loading="lazy" decoding="async"></div></div>
+          <p class="docs__count"><span class="docs__num"><b>۰۱</b></span><span class="docs__of">/ ۰۵</span></p>
+        </div>
+        <i class="docs__ind" aria-hidden="true"></i>
+        <ol class="docs__list">
+          <li class="doc is-on" data-k="dental" data-i="0">
+            <button type="button" class="doc__head" aria-expanded="true" aria-controls="doc-b0">
+              <span class="doc__av" aria-hidden="true"><img src="img/doc-1.webp" alt="" width="720" height="900" loading="lazy" decoding="async"></span>
+              <span class="doc__no" aria-hidden="true">۰۱</span>
+              <span class="doc__who"><span class="doc__name">دکتر آرش نیک‌پور</span><span class="doc__role">دندانپزشک · ایمپلنت و جراحی دهان</span></span>
+              <span class="doc__cat">دندانپزشکی</span>
+            </button>
+            <div class="doc__body" id="doc-b0">
+              <figure class="doc__img"><img src="img/doc-1.webp" alt="دکتر آرش نیک‌پور، با کلاه و لباس جراحی سرمه‌ای" width="720" height="900" loading="lazy" decoding="async"></figure>
+              <p class="doc__cn" aria-hidden="true">دکتر آرش نیک‌پور</p>
+              <p class="doc__meta"><span class="doc__cat">دندانپزشکی</span><span class="doc__exp">۱۲ سال سابقه‌ی کار</span></p>
+              <p class="doc__bio">پیش از هر جراحی، مراحل و هزینه را روی عکس رادیولوژی توضیح می‌دهد و برنامه‌ی درمان را مکتوب تحویل می‌دهد.</p>
+              <ul class="doc__tags" aria-label="کارهای اصلی"><li>ایمپلنت</li><li>دندان عقل</li><li>جراحی لثه</li><li>روکش</li></ul>
+              <p class="doc__days"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>شنبه، دوشنبه و پنجشنبه · ۱۰ صبح تا ۸ شب</p>
+              <button type="button" class="btn btn--primary doc__book" data-book="dental" data-doc="doc-1">نوبت با دکتر نیک‌پور<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+            </div>
+          </li>
+          <li class="doc" data-k="dental" data-i="1">
+            <button type="button" class="doc__head" aria-expanded="false" aria-controls="doc-b1">
+              <span class="doc__av" aria-hidden="true"><img src="img/doc-2.webp" alt="" width="720" height="900" loading="lazy" decoding="async"></span>
+              <span class="doc__no" aria-hidden="true">۰۲</span>
+              <span class="doc__who"><span class="doc__name">دکتر سینا رحمانی</span><span class="doc__role">دندانپزشک · زیبایی و ترمیمی</span></span>
+              <span class="doc__cat">دندانپزشکی</span>
+            </button>
+            <div class="doc__body" id="doc-b1">
+              <figure class="doc__img"><img src="img/doc-2.webp" alt="دکتر سینا رحمانی، با لباس فرم آبی، لبخند به دوربین" width="720" height="900" loading="lazy" decoding="async"></figure>
+              <p class="doc__cn" aria-hidden="true">دکتر سینا رحمانی</p>
+              <p class="doc__meta"><span class="doc__cat">دندانپزشکی</span><span class="doc__exp">۹ سال سابقه‌ی کار</span></p>
+              <p class="doc__bio">طرح لبخند را اول با خود بیمار روی مانیتور نهایی می‌کند و کار قطعی را فقط وقتی شروع می‌کند که نتیجه طبیعی و دلخواه باشد.</p>
+              <ul class="doc__tags" aria-label="کارهای اصلی"><li>لمینت</li><li>کامپوزیت</li><li>بلیچینگ</li><li>عصب‌کشی</li></ul>
+              <p class="doc__days"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>شنبه، یکشنبه و دوشنبه · ۱۰ صبح تا ۸ شب</p>
+              <button type="button" class="btn btn--primary doc__book" data-book="dental" data-doc="doc-2">نوبت با دکتر رحمانی<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+            </div>
+          </li>
+          <li class="doc" data-k="beauty" data-i="2">
+            <button type="button" class="doc__head" aria-expanded="false" aria-controls="doc-b2">
+              <span class="doc__av" aria-hidden="true"><img src="img/doc-5.webp" alt="" width="720" height="900" loading="lazy" decoding="async"></span>
+              <span class="doc__no" aria-hidden="true">۰۳</span>
+              <span class="doc__who"><span class="doc__name">دکتر فرهاد کیانی</span><span class="doc__role">پزشک زیبایی و لیزر</span></span>
+              <span class="doc__cat">زیبایی و لیزر</span>
+            </button>
+            <div class="doc__body" id="doc-b2">
+              <figure class="doc__img"><img src="img/doc-5.webp" alt="دکتر فرهاد کیانی، با عینک و لباس مشکی" width="720" height="900" loading="lazy" decoding="async"></figure>
+              <p class="doc__cn" aria-hidden="true">دکتر فرهاد کیانی</p>
+              <p class="doc__meta"><span class="doc__cat">زیبایی و لیزر</span><span class="doc__exp">۸ سال سابقه‌ی کار</span></p>
+              <p class="doc__bio">به نتیجه‌ی طبیعی باور دارد؛ مقدار تزریق را برای هر چهره جدا تعیین می‌کند و دو هفته بعد خودش نتیجه را کنترل می‌کند.</p>
+              <ul class="doc__tags" aria-label="کارهای اصلی"><li>بوتاکس</li><li>فیلر</li><li>لیزر موهای زائد</li><li>جوان‌سازی پوست</li></ul>
+              <p class="doc__days"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>همه‌روزه با هماهنگی قبلی</p>
+              <button type="button" class="btn btn--primary doc__book" data-book="beauty" data-doc="doc-5">نوبت با دکتر کیانی<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+            </div>
+          </li>
+          <li class="doc" data-k="medicine" data-i="3">
+            <button type="button" class="doc__head" aria-expanded="false" aria-controls="doc-b3">
+              <span class="doc__av" aria-hidden="true"><img src="img/doc-3.webp" alt="" width="720" height="900" loading="lazy" decoding="async"></span>
+              <span class="doc__no" aria-hidden="true">۰۴</span>
+              <span class="doc__who"><span class="doc__name">دکتر امید صالحی</span><span class="doc__role">پزشک عمومی · شیفت روز</span></span>
+              <span class="doc__cat">پزشکی</span>
+            </button>
+            <div class="doc__body" id="doc-b3">
+              <figure class="doc__img"><img src="img/doc-3.webp" alt="دکتر امید صالحی، با کلاه جراحی و عینک" width="720" height="900" loading="lazy" decoding="async"></figure>
+              <p class="doc__cn" aria-hidden="true">دکتر امید صالحی</p>
+              <p class="doc__meta"><span class="doc__cat">پزشکی</span><span class="doc__exp">۱۹ سال سابقه‌ی کار</span></p>
+              <p class="doc__bio">با حوصله معاینه می‌کند، نتیجه‌ی آزمایش‌ها را ساده توضیح می‌دهد و هر جا لازم باشد بیمار را به متخصص مناسب ارجاع می‌دهد.</p>
+              <ul class="doc__tags" aria-label="کارهای اصلی"><li>ویزیت</li><li>سرم‌تراپی</li><li>بخیه</li><li>نوار قلب</li></ul>
+              <p class="doc__days"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>هر روز · ۸ صبح تا ۸ شب</p>
+              <button type="button" class="btn btn--primary doc__book" data-book="medicine" data-doc="doc-3">نوبت با دکتر صالحی<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+            </div>
+          </li>
+          <li class="doc" data-k="medicine" data-i="4">
+            <button type="button" class="doc__head" aria-expanded="false" aria-controls="doc-b4">
+              <span class="doc__av" aria-hidden="true"><img src="img/doc-4.webp" alt="" width="720" height="900" loading="lazy" decoding="async"></span>
+              <span class="doc__no" aria-hidden="true">۰۵</span>
+              <span class="doc__who"><span class="doc__name">دکتر پویا شریفی</span><span class="doc__role">پزشک عمومی · شیفت شب</span></span>
+              <span class="doc__cat">پزشکی</span>
+            </button>
+            <div class="doc__body" id="doc-b4">
+              <figure class="doc__img"><img src="img/doc-4.webp" alt="دکتر پویا شریفی، با لباس فرم و گوشی پزشکی" width="720" height="900" loading="lazy" decoding="async"></figure>
+              <p class="doc__cn" aria-hidden="true">دکتر پویا شریفی</p>
+              <p class="doc__meta"><span class="doc__cat">پزشکی</span><span class="doc__exp">۶ سال سابقه‌ی کار</span></p>
+              <p class="doc__bio">شب‌ها در کلینیک است؛ از تب بچه‌ها تا بخیه‌ی نیمه‌شب، مراجعه‌کننده‌ها را بدون نوبت قبلی می‌بیند.</p>
+              <ul class="doc__tags" aria-label="کارهای اصلی"><li>تب و عفونت</li><li>بخیه</li><li>تزریقات</li><li>شست‌وشوی گوش</li></ul>
+              <p class="doc__days"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>هر شب · ۸ شب تا ۸ صبح</p>
+              <button type="button" class="btn btn--primary doc__book" data-book="medicine" data-doc="doc-4">نوبت با دکتر شریفی<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+            </div>
+          </li>
+        </ol>
+      </div>
+      <div class="hctl docs__ctl">
+        <div class="hctl__bar"><i></i></div>
+        <div class="hctl__nav">
+          <button type="button" class="hctl__btn" data-dir="prev" aria-label="پزشک قبلی"><svg class="ic" aria-hidden="true"><use href="#i-arrow-r"/></svg></button>
+          <button type="button" class="hctl__btn" data-dir="next" aria-label="پزشک بعدی"><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ========== بخش ۵: نظر بیماران ========== -->
   <section class="cases" id="cases" aria-labelledby="cases-title">
     <div class="wrap">
@@ -708,7 +824,7 @@
         </li>
         <li data-rv class="mag__item" data-k="beauty">
           <a class="mag__row" href="#mag-sunscreen" data-article="sunscreen" data-i="1">
-            <span class="mag__media"><img src="img/art-spf-l.webp" alt="" width="1120" height="700" loading="lazy" decoding="async"></span>
+            <span class="mag__media"><img src="img/art-sunscreen-l.webp" alt="" width="1120" height="700" loading="lazy" decoding="async"></span>
             <span class="mag__no">۰۲</span>
             <span class="mag__cat">زیبایی و لیزر</span>
             <span class="mag__title">ضدآفتاب را چقدر و هر چند ساعت بزنیم؟ سه اشتباه رایج</span>
@@ -718,7 +834,7 @@
         </li>
         <li data-rv class="mag__item" data-k="medicine">
           <a class="mag__row" href="#mag-blood-pressure" data-article="blood-pressure" data-i="2">
-            <span class="mag__media"><img src="img/art-checkup-l.webp" alt="" width="1120" height="700" loading="lazy" decoding="async"></span>
+            <span class="mag__media"><img src="img/art-bp-l.webp" alt="" width="1120" height="700" loading="lazy" decoding="async"></span>
             <span class="mag__no">۰۳</span>
             <span class="mag__cat">پزشکی</span>
             <span class="mag__title">فشار خون را کی و چطور اندازه بگیریم؟ اشتباه‌هایی که عدد را خراب می‌کنند</span>
@@ -728,7 +844,7 @@
         </li>
         <li data-rv class="mag__item" data-k="dental">
           <a class="mag__row" href="#mag-sensitivity" data-article="sensitivity" data-i="3">
-            <span class="mag__media"><img src="img/art-brush-l.webp" alt="" width="1120" height="700" loading="lazy" decoding="async"></span>
+            <span class="mag__media"><img src="img/art-sensitivity-l.webp" alt="" width="1120" height="700" loading="lazy" decoding="async"></span>
             <span class="mag__no">۰۴</span>
             <span class="mag__cat">دندانپزشکی</span>
             <span class="mag__title">حساسیت دندان به سرما؛ از خمیردندان مناسب تا وقتی باید سراغ دندانپزشک رفت</span>
@@ -746,6 +862,16 @@
             <span class="mag__go" aria-hidden="true"><svg class="ic"><use href="#i-arrow"/></svg></span>
           </a>
         </li>
+        <li data-rv class="mag__item" data-k="medicine">
+          <a class="mag__row" href="#mag-wound-care" data-article="wound-care" data-i="5">
+            <span class="mag__media"><img src="img/art-wound-l.webp" alt="" width="1120" height="700" loading="lazy" decoding="async"></span>
+            <span class="mag__no">۰۶</span>
+            <span class="mag__cat">پزشکی</span>
+            <span class="mag__title">مراقبت از بخیه و زخم در خانه؛ از پانسمان تا کشیدن بخیه</span>
+            <span class="mag__meta">۵ دقیقه مطالعه · پزشک عمومی</span>
+            <span class="mag__go" aria-hidden="true"><svg class="ic"><use href="#i-arrow"/></svg></span>
+          </a>
+        </li>
       </ol>
       <div class="hctl mag__ctl" aria-hidden="false">
         <div class="hctl__bar"><i></i></div>
@@ -754,9 +880,9 @@
           <button type="button" class="hctl__btn" data-dir="next" aria-label="مقاله‌ی بعدی"><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></button>
         </div>
       </div>
-      <p class="mag__note">متن مقاله‌ها اولیه است و پیش از انتشار، پزشکان همین کلینیک بازبینی و تأییدشان می‌کنند.</p>
+      <p class="mag__note">مقاله‌ها را پزشکان همین کلینیک می‌نویسند و هر شش ماه یک بار بازبینی می‌کنند.</p>
     </div>
-    <div class="mag__pv" aria-hidden="true"><div class="mag__pv-in"><img src="img/art-implant-p.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" data-i="0"><img src="img/art-spf-p.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" data-i="1"><img src="img/art-checkup-p.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" data-i="2"><img src="img/art-brush-p.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" data-i="3"><img src="img/art-botox-p.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" data-i="4"></div></div>
+    <div class="mag__pv" aria-hidden="true"><div class="mag__pv-in"><img src="img/art-implant-p.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" data-i="0"><img src="img/art-sunscreen-p.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" data-i="1"><img src="img/art-bp-p.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" data-i="2"><img src="img/art-sensitivity-p.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" data-i="3"><img src="img/art-botox-p.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" data-i="4"><img src="img/art-wound-p.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" data-i="5"></div></div>
   </section>
 
   <section class="faq" id="faq" aria-labelledby="faq-title">
@@ -1108,6 +1234,123 @@
   </div>
 </div>
 
+<!-- ========== کپسول نوبت آنلاین: با هر دکمه‌ی «نوبت بگیرید» باز می‌شود (js/book.js) ========== -->
+<div class="bk" id="bk" hidden>
+  <div class="bk__scrim" data-bk-close></div>
+  <div class="bk__panel" role="dialog" aria-modal="true" aria-labelledby="bkTitle" aria-describedby="bkSub">
+    <div class="bk__skin" aria-hidden="true">
+      <span class="bk__pill"><span class="bk__pill-ic"><svg class="ic"><use href="#i-cal"/></svg></span><span>نوبت آنلاین ساسان</span><i class="bk__pill-dot"></i></span>
+    </div>
+    <div class="bk__glow" aria-hidden="true"><i data-k="dental"></i><i data-k="beauty"></i><i data-k="medicine"></i></div>
+    <div class="bk__in">
+      <header class="bk__top">
+        <button type="button" class="bk__icb bk__back" aria-label="مرحله‌ی قبل" hidden><svg class="ic" aria-hidden="true"><use href="#i-arrow-r"/></svg></button>
+        <div class="bk__ttl">
+          <h2 id="bkTitle">نوبت آنلاین</h2>
+          <p id="bkSub">بخش و پزشک را انتخاب کنید</p>
+        </div>
+        <button type="button" class="bk__icb bk__x" data-bk-close aria-label="بستن"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button>
+      </header>
+      <ol class="bk__prog" aria-hidden="true">
+        <li class="is-on">بخش</li><li>زمان</li><li>مشخصات</li><li>تأیید</li>
+        <i class="bk__bar"><i></i></i>
+      </ol>
+
+      <div class="bk__view" data-lenis-prevent>
+        <!-- ۱. بخش و پزشک -->
+        <section class="bk__step" data-step="0">
+          <fieldset class="bk-grp">
+            <legend class="bk-lbl">کدام بخش؟</legend>
+            <div class="bk-depts">
+              <label class="bk-dept" data-k="dental"><input type="radio" name="bkDept" value="dental"><span class="bk-dept__ic"><svg class="ic" aria-hidden="true"><use href="#i-tooth"/></svg></span><span class="bk-dept__t"><b>دندانپزشکی</b><small data-avail="dental">شنبه، یکشنبه، دوشنبه و پنجشنبه</small></span><span class="bk-ok" aria-hidden="true"><svg class="ic"><use href="#i-check"/></svg></span></label>
+              <label class="bk-dept" data-k="beauty"><input type="radio" name="bkDept" value="beauty"><span class="bk-dept__ic"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg></span><span class="bk-dept__t"><b>زیبایی و لیزر</b><small data-avail="beauty">همه‌روزه با هماهنگی قبلی</small></span><span class="bk-ok" aria-hidden="true"><svg class="ic"><use href="#i-check"/></svg></span></label>
+              <label class="bk-dept" data-k="medicine"><input type="radio" name="bkDept" value="medicine"><span class="bk-dept__ic"><svg class="ic" aria-hidden="true"><use href="#i-steth"/></svg></span><span class="bk-dept__t"><b>پزشک عمومی</b><small data-avail="medicine">شبانه‌روزی؛ همین حالا هم پذیرش دارد</small></span><span class="bk-ok" aria-hidden="true"><svg class="ic"><use href="#i-check"/></svg></span></label>
+            </div>
+          </fieldset>
+          <fieldset class="bk-grp bk-docs" hidden>
+            <legend class="bk-lbl">پزشک</legend>
+            <div class="bk-docs__row" id="bkDocs"></div>
+          </fieldset>
+        </section>
+
+        <!-- ۲. نوع مراجعه، روز و ساعت -->
+        <section class="bk__step" data-step="1" hidden>
+          <p class="bk-ctx" id="bkCtx"></p>
+          <fieldset class="bk-grp">
+            <legend class="bk-lbl">نوع مراجعه</legend>
+            <div class="bk-seg">
+              <label><input type="radio" name="bkType" value="ویزیت اول" checked><span>ویزیت اول</span></label>
+              <label><input type="radio" name="bkType" value="ادامه‌ی درمان"><span>ادامه‌ی درمان</span></label>
+              <label><input type="radio" name="bkType" value="مشاوره"><span>مشاوره</span></label>
+            </div>
+          </fieldset>
+          <fieldset class="bk-grp">
+            <legend class="bk-lbl">روز <span class="bk-lbl__m" id="bkMonth"></span></legend>
+            <div class="bk-days" id="bkDays"></div>
+          </fieldset>
+          <fieldset class="bk-grp">
+            <legend class="bk-lbl">ساعت</legend>
+            <div class="bk-slots" id="bkSlots"></div>
+            <p class="bk-note" id="bkNote"></p>
+          </fieldset>
+        </section>
+
+        <!-- ۳. مشخصات -->
+        <section class="bk__step" data-step="2" hidden>
+          <p class="bk-ctx" id="bkCtx2"></p>
+          <div class="bk-form">
+            <label class="field"><span class="field__label">نام و نام خانوادگی</span><input id="bkName" name="name" autocomplete="name" maxlength="60" required></label>
+            <label class="field"><span class="field__label">شماره‌ی موبایل</span><input id="bkTel" name="tel" type="tel" inputmode="tel" autocomplete="tel" dir="ltr" placeholder="۰۹۱۱ ۱۲۳ ۴۵۶۷" maxlength="20" required></label>
+            <label class="field"><span class="field__label">توضیح کوتاه <small>(اختیاری)</small></span><textarea id="bkNoteIn" name="note" rows="2" maxlength="300" placeholder="مثلاً: دندان عقل پایین چپ درد دارد"></textarea></label>
+          </div>
+          <p class="bk-safe"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg>شماره‌تان فقط برای تأیید نوبت و هماهنگی پذیرش به کار می‌رود.</p>
+        </section>
+
+        <!-- ۴. کد تأیید -->
+        <section class="bk__step" data-step="3" hidden>
+          <div class="bk-otp">
+            <span class="bk-otp__ic" aria-hidden="true"><svg class="ic"><use href="#i-chat"/></svg></span>
+            <p class="bk-otp__t">کد ۵ رقمی به <bdi dir="ltr" id="bkTelShow"></bdi> پیامک شد.</p>
+            <button type="button" class="bk-link" data-bk-edit>ویرایش شماره</button>
+            <div class="bk-code">
+              <input id="bkCode" inputmode="numeric" autocomplete="one-time-code" maxlength="5" dir="ltr" aria-label="کد تأیید ۵ رقمی" aria-describedby="bkTimerRow">
+              <span class="bk-code__cells" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+            </div>
+            <div class="bk-timer" id="bkTimerRow"><i class="bk-timer__bar"><i></i></i><span>اعتبار کد: <b id="bkTimer">۲:۰۰</b></span><button type="button" class="bk-link" id="bkResend" disabled>ارسال دوباره</button></div>
+          </div>
+        </section>
+
+        <!-- ۵. ثبت شد -->
+        <section class="bk__step bk-done" data-step="4" hidden>
+          <div class="bk-done__mark" aria-hidden="true">
+            <i></i><i></i>
+            <svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="29"/><path d="M19 33.5l8.5 8.5L45 24.5"/></svg>
+          </div>
+          <h3 class="bk-done__t" tabindex="-1">نوبت شما ثبت شد</h3>
+          <p class="bk-done__p" id="bkDoneP"></p>
+          <dl class="bk-ticket" id="bkTicket"></dl>
+          <div class="bk-done__acts">
+            <button type="button" class="btn btn--outline bk-ics"><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg>افزودن به تقویم</button>
+            <button type="button" class="btn btn--primary" data-bk-close>تمام</button>
+          </div>
+        </section>
+      </div>
+
+      <footer class="bk__foot">
+        <p class="bk__msg" id="bkMsg" role="alert"></p>
+        <div class="bk__foot-in">
+          <p class="bk__sum" id="bkSum" aria-live="polite"></p>
+          <button type="button" class="btn btn--primary bk__next" id="bkNext"><span>ادامه</span><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+        </div>
+      </footer>
+    </div>
+  </div>
+  <div class="bk-sms" id="bkSms" hidden>
+    <span class="bk-sms__app" aria-hidden="true"><svg class="ic"><use href="#i-chat"/></svg></span>
+    <span class="bk-sms__t"><b>پیامک · کلینیک ساسان</b><span id="bkSmsText"></span><small>پیش‌نمایش؛ در این نسخه پیامک واقعی فرستاده نمی‌شود. برای پر کردن کد بزنید.</small></span>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrollTrigger.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/Flip.min.js"></script>
@@ -1116,5 +1359,6 @@
 <script src="js/articles.js"></script>
 <script src="js/home.js"></script>
 <script src="js/fx.js"></script>
+<script src="js/book.js"></script>
 </body>
 </html>

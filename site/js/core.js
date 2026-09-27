@@ -100,6 +100,7 @@
             clearTimeout(t); t = setTimeout(() => root.classList.remove('is-scrolling'), 160);
           });
         }
+        if (this.paused) this.lenis.stop();
         this._raf = (t) => this.lenis && this.lenis.raf(t * 1000);
         gsap.ticker.add(this._raf);
         gsap.ticker.lagSmoothing(0);
@@ -132,8 +133,19 @@
         window.scrollTo({ top: y, behavior: root.classList.contains('rm') ? 'auto' : 'smooth' });
       }
     },
-    pause() { if (this.lenis) this.lenis.stop(); },
-    resume() { if (this.lenis) this.lenis.start(); }
+    /* شمارنده‌دار: چند لایه‌ی روی هم (منو، مقاله، کپسول نوبت) اسکرول نرم را با هم نگه می‌دارند و آخری آزادش می‌کند */
+    paused: 0,
+    pause() { this.paused++; if (this.lenis) this.lenis.stop(); },
+    resume() { this.paused = Math.max(0, this.paused - 1); if (this.lenis && !this.paused) this.lenis.start(); }
+  };
+
+  /* قفل اسکرول صفحه‌ی زیرین (شمارنده‌دار)؛ اگر نوار اسکرول واقعی هست، جایش نگه داشته می‌شود تا صفحه تکان نخورد */
+  let locks = 0;
+  const lockScroll = (on) => {
+    const was = locks;
+    locks = Math.max(0, locks + (on ? 1 : -1));
+    if (!was && locks) { if (window.innerWidth - root.clientWidth > 0) root.style.scrollbarGutter = 'stable'; document.body.style.overflow = 'hidden'; }
+    else if (was && !locks) { document.body.style.overflow = ''; root.style.scrollbarGutter = ''; }
   };
 
   /* ==========================================================================
@@ -559,6 +571,7 @@
     /* فوراً یک فریم تازه رسم می‌کند (برای لحظه‌ی باز شدن یک لایه) */
     now(host) { last = 0; hosts.forEach((h) => { if (h.host === host) { h.live = true; h.drawn = false; } }); frame(); },
     hold(ms) { holdUntil = Math.max(holdUntil, performance.now() + ms); },
+    release() { holdUntil = 0; },
     paintSky, paintFoot,
     /* حرکت ستاره‌ها و مدارها فقط وقتی بخش دیده می‌شود */
     watch(host, probe = host) {
@@ -570,7 +583,7 @@
   };
 
   /* ---------- راه‌اندازی ---------- */
-  window.Sasan = { $, $$, clamp, lerp, toFa, Spring, Motion, Prefs, Clinic, store, finePointer, Aurora };
+  window.Sasan = { $, $$, clamp, lerp, toFa, Spring, Motion, Prefs, Clinic, store, finePointer, Aurora, lockScroll };
   document.addEventListener('DOMContentLoaded', () => {
     Motion.ready = true;
     if (!root.classList.contains('rm')) Motion.start(); else Motion.statics(true);

@@ -290,7 +290,8 @@
         html = w ? `<span>نزدیک‌ترین زمان پذیرش دندانپزشکی:</span> <b>${w}</b>` : '<b>دندانپزشکی شب پذیرش ندارد.</b> <span>شنبه، یکشنبه، دوشنبه و پنجشنبه از ۱۰ صبح تا ۸ شب.</span>';
       }
       await busy(btn, 420);
-      swap(out, `${html} <a class="link-arrow" href="tel:+981154611560">تماس با پذیرش: <span dir="ltr">${TEL}</span><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>`);
+      const type = $('#qbType').value;
+      swap(out, `${html} <span class="qbook__acts"><button type="button" class="btn btn--primary qbook__go" data-book="${k}" data-type="${type === 'مشاوره پیش از درمان' ? 'مشاوره' : type}" data-pref="${pref}"><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg>رزرو آنلاین</button><a class="link-arrow" href="tel:+981154611560">تماس با پذیرش: <span dir="ltr">${TEL}</span><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a></span>`);
     });
   }
 
@@ -817,6 +818,122 @@
     }
   };
 
+  /* ==========================================================================
+     پزشکان: انتخاب با اشاره، کلیک، فوکوس یا کلیدهای بالا و پایین؛
+     عکس بزرگ و کارت پزشک با یک پرده‌ی بالا رونده عوض می‌شوند و نشانگر با فنر زیر پزشک انتخاب‌شده می‌لغزد
+     ========================================================================== */
+  const docsSec = $('#doctors');
+  const Docs = { ctx: null, build() {}, kill() {} };
+  if (docsSec) {
+    const docs = $$('.doc', docsSec), heads = docs.map((d) => $('.doc__head', d)), bodies = docs.map((d) => $('.doc__body', d));
+    const frames = $$('.docs__img', docsSec), inn = $('.docs__in', docsSec), ind = $('.docs__ind', docsSec), num = $('.docs__num b', docsSec);
+    const deskMq = window.matchMedia('(min-width: 1000px)');
+    let cur = 0, ht = 0;
+    const placeInd = () => {
+      if (!deskMq.matches) return;
+      const h = heads[cur];
+      ind.style.width = h.offsetWidth + 'px'; ind.style.height = h.offsetHeight + 'px';
+      ind.style.transform = `translate3d(${h.offsetLeft}px, ${h.offsetTop}px, 0)`;
+    };
+    /* همه‌ی کارت‌ها هم‌قد بلندترینشان می‌شوند تا عوض شدن کارت هیچ لبه‌ای را جابه‌جا نکند */
+    const sizeCards = () => {
+      inn.style.removeProperty('--card-h');
+      if (!deskMq.matches) return;
+      inn.style.setProperty('--card-h', Math.max(...bodies.map((b) => b.offsetHeight)) + 'px');
+    };
+    const mode = () => {
+      const d = deskMq.matches;
+      heads.forEach((h, k) => { h.setAttribute('aria-expanded', String(!d || k === cur)); h.tabIndex = d ? 0 : -1; });
+      sizeCards(); placeInd();
+    };
+    const resetFrame = (f) => { gsap.killTweensOf([f, $('img', f)]); gsap.set([f, $('img', f)], { clearProps: 'transform' }); };
+    const resetBody = (b) => { gsap.killTweensOf([b, ...b.children]); gsap.set([b, ...b.children], { clearProps: 'clipPath,transform,opacity,visibility' }); };
+    function set(i) {
+      if (i === cur || i < 0 || i >= docs.length) return;
+      const prev = cur, dir = i > prev ? 1 : -1;
+      cur = i;
+      docs.forEach((d, k) => d.classList.toggle('is-on', k === i));
+      heads.forEach((h, k) => h.setAttribute('aria-expanded', String(!deskMq.matches || k === i)));
+      docsSec.dataset.k = docs[i].dataset.k;
+      num.textContent = toFa(String(i + 1).padStart(2, '0'));
+      placeInd();
+      const fIn = frames[i], fOut = frames[prev], bIn = bodies[i], bOut = bodies[prev];
+      if (!anim() || !deskMq.matches) {
+        frames.forEach((f, k) => { f.classList.toggle('is-on', k === i); f.classList.remove('is-under'); });
+        docs.forEach((d) => d.classList.remove('is-under'));
+        return;
+      }
+      /* نیمه‌کاره‌ها همان لحظه تمام می‌شوند؛ تصویر و کارت قبلی زیر تصویر و کارت تازه می‌مانند تا پرده رویشان کشیده شود */
+      frames.forEach((f) => { resetFrame(f); f.classList.remove('is-under'); if (f !== fIn) f.classList.remove('is-on'); });
+      fOut.classList.add('is-under'); fIn.classList.add('is-on');
+      docs.forEach((d) => d.classList.remove('is-under'));
+      bodies.forEach(resetBody);
+      docs[prev].classList.add('is-under');
+      const imIn = $('img', fIn), imOut = $('img', fOut);
+      const done = () => { fOut.classList.remove('is-under'); resetFrame(fOut); };
+      gsap.fromTo(fIn, { yPercent: 100 * dir }, { yPercent: 0, duration: 1, ease: 'expo.out', onComplete: done });
+      gsap.fromTo(imIn, { yPercent: -100 * dir, scale: 1.12 }, { yPercent: 0, scale: 1, duration: 1, ease: 'expo.out' });
+      gsap.to(imOut, { yPercent: -14 * dir, duration: 1, ease: 'expo.out' });
+      gsap.fromTo(bIn, { clipPath: dir > 0 ? 'inset(100% 0% 0% 0% round 12px)' : 'inset(0% 0% 100% 0% round 12px)' },
+        { clipPath: 'inset(0% 0% 0% 0% round 12px)', duration: 0.85, ease: 'expo.out', delay: 0.06, clearProps: 'clipPath', onComplete: () => docs[prev].classList.remove('is-under') });
+      gsap.fromTo([...bIn.children].filter((c) => c.offsetParent), { y: 16 * dir, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.7, ease: 'expo.out', stagger: 0.04, delay: 0.14, clearProps: 'transform,opacity,visibility' });
+      gsap.fromTo(num, { yPercent: 100 * dir }, { yPercent: 0, duration: 0.7, ease: 'expo.out', clearProps: 'transform' });
+    }
+    heads.forEach((h, i) => {
+      h.addEventListener('click', () => { if (deskMq.matches) set(i); });
+      h.addEventListener('focus', () => { if (deskMq.matches) set(i); });
+      h.addEventListener('pointerenter', (e) => {
+        if (e.pointerType !== 'mouse' || !deskMq.matches) return;
+        clearTimeout(ht); ht = setTimeout(() => set(i), 110);
+      });
+      h.addEventListener('pointerleave', () => clearTimeout(ht));
+      h.addEventListener('keydown', (e) => {
+        const d = { ArrowDown: 1, ArrowUp: -1, Home: -99, End: 99 }[e.key];
+        if (!d || !deskMq.matches) return;
+        e.preventDefault();
+        heads[Math.max(0, Math.min(docs.length - 1, i + d))].focus();
+      });
+    });
+    mode();
+    (deskMq.addEventListener ? deskMq.addEventListener('change', mode) : deskMq.addListener(mode));
+    if ('ResizeObserver' in window) { let rq = 0; new ResizeObserver(() => { cancelAnimationFrame(rq); rq = requestAnimationFrame(() => { sizeCards(); placeInd(); }); }).observe(inn); }
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { sizeCards(); placeInd(); });
+    hScroller($('.docs__list', docsSec), $('.docs__ctl', docsSec));
+    /* عکس‌های بزرگ پیش از رسیدن به بخش رمزگشایی می‌شوند تا پرده هیچ‌وقت روی قاب خالی کشیده نشود */
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver((ents) => {
+        if (!ents.some((en) => en.isIntersecting)) return;
+        io.disconnect();
+        $$('.docs__img img, .doc__av img', docsSec).forEach((im) => { im.loading = 'eager'; if (im.decode) im.decode().catch(() => {}); });
+      }, { rootMargin: '600px 0px' });
+      io.observe(docsSec);
+    }
+    Docs.build = function () {
+      const desk = deskMq.matches;
+      this.ctx = gsap.context(() => {
+        gsap.from(docsSec.querySelectorAll('.sec-head .sec-sub'), { y: 22, autoAlpha: 0, duration: 0.9, ease: 'expo.out', scrollTrigger: { trigger: docsSec, start: 'top 72%' } });
+        if (desk) {
+          const frame = $('.docs__frame', docsSec);
+          gsap.timeline({ scrollTrigger: { trigger: inn, start: 'top 76%' } })
+            .from(heads, { y: 26, autoAlpha: 0, duration: 0.9, stagger: 0.07, ease: 'expo.out', clearProps: 'transform,opacity,visibility' }, 0)
+            .from(ind, { autoAlpha: 0, duration: 0.8, ease: 'power2.out', clearProps: 'opacity,visibility' }, 0.3)
+            .fromTo(frame, { clipPath: 'inset(100% 0% 0% 0% round 12px)' }, { clipPath: 'inset(0% 0% 0% 0% round 12px)', duration: 1.3, ease: 'expo.inOut', clearProps: 'clipPath' }, 0)
+            .from($('img', frames[cur]), { scale: 1.3, yPercent: 6, duration: 1.8, ease: 'expo.out', clearProps: 'transform' }, 0.15)
+            .from(bodies[cur], { y: 48, autoAlpha: 0, duration: 1.1, ease: 'expo.out', clearProps: 'transform,opacity,visibility' }, 0.55)
+            .from($('.docs__count', docsSec), { y: -12, autoAlpha: 0, duration: 0.8, ease: 'expo.out', clearProps: 'transform,opacity,visibility' }, 0.8);
+        } else {
+          gsap.from(docs, { y: 34, autoAlpha: 0, duration: 0.9, stagger: 0.08, ease: 'expo.out', clearProps: 'transform,opacity,visibility', scrollTrigger: { trigger: inn, start: 'top 86%' } });
+        }
+      });
+    };
+    Docs.kill = function () {
+      if (this.ctx) { this.ctx.revert(); this.ctx = null; }
+      frames.forEach(resetFrame); bodies.forEach(resetBody);
+      frames.forEach((f, k) => { f.classList.toggle('is-on', k === cur); f.classList.remove('is-under'); });
+      docs.forEach((d) => d.classList.remove('is-under'));
+    };
+  }
+
   const Reviews = {
     ctx: null,
     build() {
@@ -1010,11 +1127,7 @@
     M.from = g; M.p = p; morphAt(p);
   };
   /* قفل اسکرول صفحه‌ی زیرین؛ اگر نوار اسکرول واقعی هست، جایش نگه داشته می‌شود تا صفحه تکان نخورد */
-  const lockScroll = (on) => {
-    const root = document.documentElement;
-    if (on) { if (window.innerWidth - root.clientWidth > 0) root.style.scrollbarGutter = 'stable'; document.body.style.overflow = 'hidden'; }
-    else { document.body.style.overflow = ''; root.style.scrollbarGutter = ''; }
-  };
+  const lockScroll = S.lockScroll;
   const showView = () => {
     view.hidden = false;
     Aurora.refresh(svcBg); Aurora.now(svcBg);
@@ -1148,7 +1261,7 @@
     <span class="ar-cat">${a.cat}</span>
     <h2 class="ar-title" id="arTitle">${a.title}</h2>
     <p class="ar-lead">${a.lead}</p>
-    <p class="ar-meta"><span><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>${a.mins} دقیقه مطالعه</span><span>${a.by}</span><span class="ar-draft">متن اولیه · در انتظار بازبینی پزشک</span></p>
+    <p class="ar-meta"><span><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>${a.mins} دقیقه مطالعه</span><span>${a.by}</span></p>
   </header>
   <figure class="ar-cover"><img src="${a.img}" alt="${a.alt}" width="1120" height="700" decoding="async"></figure>
   <div class="ar-body">${a.body}</div>
@@ -1159,7 +1272,7 @@
       <a class="btn btn--outline-light" href="#book" data-ar-book><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg>زمان مراجعه</a>
     </div>
   </section>
-  <p class="ar-note">این مطلب برای آگاهی عمومی است و جای معاینه را نمی‌گیرد. متن اولیه است و پیش از انتشار سایت، پزشکان کلینیک آن را بازبینی و تأیید می‌کنند.</p>
+  <p class="ar-note">این مطلب را پزشکان کلینیک ساسان برای آگاهی عمومی نوشته‌اند و جای معاینه را نمی‌گیرد.</p>
   <a class="ar-next" href="#mag-${next.id}" data-ar-go="${next.id}">
     <span class="ar-next__img"><img src="${next.img}" alt="" width="1120" height="700" loading="lazy" decoding="async"></span>
     <span class="ar-next__txt"><small>مقاله‌ی بعدی · ${next.cat}</small><b>${next.title}</b></span>
@@ -1319,7 +1432,10 @@
     page.addEventListener('click', (e) => {
       if (!e.target.closest('[data-ar-book]')) return;
       e.preventDefault();
+      const k = arEl.dataset.k;
       goBackAr();
+      /* کپسول نوبت بعد از بسته شدن برگه (و برگشت تاریخچه) با همان بخش باز می‌شود */
+      if (S.Book) { setTimeout(() => S.Book.open({ k }), can() ? 420 : 60); return; }
       setTimeout(() => {
         let t = document.getElementById('book');
         if (t && !t.getClientRects().length && t.dataset.fallback) t = document.getElementById(t.dataset.fallback) || t;
@@ -1445,7 +1561,15 @@
         (badName ? fName : fTel).focus();
         return;
       }
-      await busy(cbBtn, 700);
+      /* اگر سرور کلینیک هست (متای sasan-api)، درخواست واقعاً برای پذیرش ثبت می‌شود */
+      const api = $('meta[name="sasan-api"]');
+      const sent = api ? fetch(api.content.replace(/\/$/, '') + '/callback', { method: 'POST', headers: { 'content-type': 'application/json' }, credentials: 'same-origin', body: JSON.stringify({ name: n, mobile: t, topic: ($('[name="topic"]', cb) || {}).value || '' }) }).then((r) => r.json()).catch(() => ({ ok: false })) : Promise.resolve({ ok: true });
+      const [res] = await Promise.all([sent, busy(cbBtn, 700)]);
+      if (!res.ok) {
+        msg.classList.add('is-bad');
+        swap(msg, `<b>${res.error === 'rate' ? 'برای این شماره تازه درخواست ثبت شده است.' : 'ثبت درخواست الان ممکن نشد.'}</b><span>لطفاً مستقیم با <a href="tel:+981154611560" dir="ltr">${TEL}</a> تماس بگیرید.</span>`);
+        return;
+      }
       const pretty = toFa(`${t.slice(0, 4)} ${t.slice(4, 7)} ${t.slice(7)}`);
       swap(msg, `<b>ممنون ${n}؛ درخواستتان ثبت شد.</b><span>پذیرش برای هماهنگی با شماره‌ی <bdi dir="ltr">${pretty}</bdi> تماس می‌گیرد. اگر عجله دارید، همین حالا با <a href="tel:+981154611560" dir="ltr">${TEL}</a> تماس بگیرید.</span>`);
       if (anim()) {
@@ -1890,6 +2014,7 @@
   Motion.add(Reel);
   Motion.add(Depts);
   Motion.add(Journey);
+  Motion.add(Docs);
   Motion.add(Reviews);
   Motion.add(MapFx);
   Motion.add(AppsFx);
