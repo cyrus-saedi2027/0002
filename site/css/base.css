@@ -118,6 +118,7 @@ p { text-wrap: pretty; }
   color: var(--blue);
 }
 .kicker::before { content: ""; width: 28px; height: 2px; background: currentColor; transform-origin: 100% 50%; transform: scaleX(var(--kx, 1)); }
+.kicker.kx-t::before { transition: transform .9s cubic-bezier(.16, 1, .3, 1); }
 .kicker--light { color: #9EC0FF; }
 
 .link-arrow { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; color: var(--blue); text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 6px; text-decoration-color: rgba(30, 94, 235, .35); transition: text-decoration-color .25s, color .25s; }
@@ -224,7 +225,9 @@ html.hc .pick-opt__txt small { color: #000; }
 
 /* ---------- نقطه‌ی وضعیت ---------- */
 .dot { position: relative; width: 8px; height: 8px; border-radius: 50%; background: var(--ok); flex: none; }
-.dot::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid var(--ok); opacity: 0; animation: ping 2.2s var(--ease-out) infinite; }
+.dot::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid var(--ok); opacity: 0; }
+/* پینگ بی‌پایان هر فریم کل صفحه را دوباره می‌سازد؛ برای همین فقط وقتی نقطه دیده می‌شود و هر چند ثانیه یک بار (core.js) */
+.dot.is-ping::after { animation: ping 1.6s var(--ease-out); }
 .dot.is-closed { background: var(--warn); }
 .dot.is-closed::after { border-color: var(--warn); }
 @keyframes ping { 0% { transform: scale(.4); opacity: .9; } 80%, 100% { transform: scale(1.5); opacity: 0; } }
@@ -316,14 +319,18 @@ html.hc .pick-opt__txt small { color: #000; }
 .aur__art .o2 { stroke-opacity: .12; }
 .aur__sp { position: absolute; display: block; width: 14px; aspect-ratio: 290 / 334; color: #fff; }
 .aur__sp svg { display: block; width: 100%; height: 100%; fill: currentColor; }
-.aur__sp--1 { right: 26%; top: 6%; width: 18px; animation: aurTw 5.2s ease-in-out infinite; }
-.aur__sp--2 { right: 62%; top: 4%; width: 10px; animation: aurTw 6.6s ease-in-out -2.2s infinite; }
-.aur__sp--3 { right: 44%; top: 11%; width: 12px; animation: aurTw 7.4s ease-in-out -4.1s infinite; }
+.aur__sp--1 { right: 26%; top: 6%; width: 18px; animation: aurTw 5.2s ease-in-out 3 both; }
+.aur__sp--2 { right: 62%; top: 4%; width: 10px; animation: aurTw 6.6s ease-in-out -2.2s 3 both; }
+.aur__sp--3 { right: 44%; top: 11%; width: 12px; animation: aurTw 7.4s ease-in-out -4.1s 3 both; }
+/* هر انیمیشن فعال هر فریم کل صفحه را دوباره می‌سازد؛ پس درخشش ستاره‌ها با هر بار دیده شدن بخش سه دور پخش می‌شود و آرام می‌گیرد.
+   روی لایه‌ی باز شده‌ی هر بخش (که کاربر به آن نگاه می‌کند) پیوسته می‌ماند */
+.svc-morph .aur__sp, .svc__bg .aur__sp { animation-iteration-count: infinite; }
 @keyframes aurTw { 0%, 100% { transform: scale(.55) rotate(0deg); opacity: .3; } 50% { transform: scale(1.08) rotate(45deg); opacity: .95; } }
 /* سایه‌ی پایین روی خود بوم رسم می‌شود؛ این لایه فقط دانه‌ی ریز است */
 .aur::after { content: ""; position: absolute; inset: 0; background-image: var(--grain, none); background-size: 180px 180px; opacity: .07; }
 html.rm .aur__sp { animation: none; }
-.aur-host:not(.is-live) * { animation-play-state: paused !important; }
+/* بیرون از دید انیمیشن برداشته می‌شود تا با برگشتن به بخش دوباره از اول پخش شود */
+.aur-host:not(.is-live) * { animation: none !important; }
 .end-probe { height: 1px; margin-top: -1px; pointer-events: none; }
 html.rm 
 /* ==========================================================================
@@ -444,7 +451,9 @@ html.bi .hdr .brand__mark { opacity: 0; }
 .fword__star { position: absolute; width: clamp(18px, 2.6vw, 34px); aspect-ratio: 290 / 334; fill: #fff; filter: drop-shadow(0 0 10px rgba(165, 175, 255, .8)); }
 .fword__star--l { left: calc(50% + min(50%, 480px) - 1%); top: 0; }
 .fword__star--s { left: calc(50% + min(50%, 480px) - 5%); top: 30%; width: clamp(10px, 1.4vw, 18px); }
-html.motion .fword__star { animation: aurTw 4.8s ease-in-out infinite; }
+/* همان چشمک، ولی از حالت کامل ستاره شروع و به همان ختم می‌شود تا بعد از چند دور ستاره‌ی لوگو کامل بماند */
+@keyframes fwTw { 0%, 100% { transform: none; opacity: 1; } 50% { transform: scale(.55) rotate(45deg); opacity: .35; } }
+html.motion .fword__star { animation: fwTw 4.8s ease-in-out 4; }
 html.motion .fword__star--s { animation-delay: -2.1s; }
 .foot a:not(.btn) { color: inherit; text-decoration: none; }
 .foot__grid, .foot__bottom, .foot__word { background: linear-gradient(rgba(255, 255, 255, .1), rgba(255, 255, 255, .1)) 50% 0 / calc(100% - var(--gutter) * 2) 1px no-repeat; }
@@ -522,3 +531,5 @@ html.rm .btn, html.rm .nav__ind { transition-duration: .001ms !important; }
 .foot__social a.foot__soc:hover { background: #fff; transform: translateY(-3px); box-shadow: 0 10px 22px -10px rgba(0, 0, 0, .6); }
 .foot__soc img { display: block; width: 22px; height: 22px; object-fit: contain; }
 html.rm .pick__chev, html.rm .pick-pop__hl, html.rm .pick-opt__ok, html.rm .pick-opt__ic { transition: none; }
+/* هنگام اسکرول نرم، هاور کارت‌ها خاموش است تا هر فریم صفحه دوباره رسم نشود (core.js) */
+html.is-scrolling main, html.is-scrolling .foot { pointer-events: none; }

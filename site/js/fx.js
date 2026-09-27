@@ -37,8 +37,12 @@
     if (el.dataset.spot) return;
     el.dataset.spot = '1';
     el.classList.add('spot');
-    let raf = 0, ev = null;
+    let raf = 0, ev = null, lx = -1, ly = -1;
     el.addEventListener('pointermove', (e) => {
+      /* هنگام اسکرول، مرورگر حرکت ساختگی نشانگر با همان مختصات می‌فرستد؛ نادیده‌اش می‌گیریم تا هر فریم استایل کارت
+         (و در سؤال‌ها، چیدمان متن بسته‌ی details) دوباره حساب نشود */
+      if (e.clientX === lx && e.clientY === ly) return;
+      lx = e.clientX; ly = e.clientY;
       ev = e;
       if (raf) return;
       raf = requestAnimationFrame(() => {
@@ -109,11 +113,16 @@
     return $$('.wi', el);
   };
 
+  /* ورودها با انیمیشن بومی مرورگر (WAAPI) اجرا می‌شوند: روی کامپوزیتور می‌چرخند، پس هر فریم نه جاوااسکریپت دارند
+     و نه رسم دوباره‌ی صفحه؛ منحنی همان expo.out است */
+  const EXPO = 'cubic-bezier(.16, 1, .3, 1)';
+  const waapi = typeof Element.prototype.animate === 'function';
   const Titles = {
     build() {
       if (!window.gsap || !('IntersectionObserver' in window)) return;
       const els = $$('.sec-title, .foot__title, .ar-title');
       const vh = window.innerHeight;
+      this.anims = [];
       this.items = els.filter((el) => el.getClientRects().length && el.getBoundingClientRect().top > vh * 0.85);
       this.items.forEach((el) => {
         const words = split(el);
@@ -125,20 +134,28 @@
         if (!en.isIntersecting) return;
         const el = en.target;
         this.io.unobserve(el);
-        gsap.to($$('.wi', el), { yPercent: 0, duration: 1.05, ease: 'expo.out', stagger: 0.04 });
-        const k = el.parentElement && $('.kicker', el.parentElement);
-        if (k) gsap.to(k, { '--kx': 1, duration: 0.9, ease: 'expo.out' });
+        const words = $$('.wi', el), k = el.parentElement && $('.kicker', el.parentElement);
+        if (waapi) {
+          words.forEach((w, i) => this.anims.push(w.animate([{ transform: 'translate3d(0, 115%, 0)' }, { transform: 'translate3d(0, 0, 0)' }], { duration: 1050, delay: 40 * i, easing: EXPO, fill: 'backwards' })));
+          gsap.set(words, { clearProps: 'transform' });
+          /* خط کوچک کنار برچسب با ترنزیشن CSS روی transform باز می‌شود (kx-t در base.css) */
+          if (k) { k.classList.add('kx-t'); k.style.setProperty('--kx', '1'); }
+        } else {
+          gsap.to(words, { yPercent: 0, duration: 1.05, ease: 'expo.out', stagger: 0.04 });
+          if (k) gsap.to(k, { '--kx': 1, duration: 0.9, ease: 'expo.out' });
+        }
       }), { rootMargin: '0px 0px -12% 0px' });
       this.items.forEach((el) => this.io.observe(el));
     },
     kill() {
       if (this.io) { this.io.disconnect(); this.io = null; }
+      (this.anims || []).forEach((a) => a.cancel()); this.anims = [];
       (this.tws || []).forEach((t) => t.kill()); this.tws = [];
       (this.items || []).forEach((el) => {
         gsap.killTweensOf($$('.wi', el));
         gsap.set($$('.wi', el), { clearProps: 'transform' });
         const k = el.parentElement && $('.kicker', el.parentElement);
-        if (k) gsap.set(k, { '--kx': 1 });
+        if (k) { k.classList.remove('kx-t'); gsap.set(k, { '--kx': 1 }); }
       });
       this.items = [];
     }

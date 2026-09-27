@@ -91,6 +91,15 @@
         springify(this.lenis);
         this.lenis.on('scroll', ScrollTrigger.update);
         this.lenis.on('scroll', () => Aurora.hold(220));
+        /* هنگام اسکرول، کارت‌ها زیر نشانگرِ ثابت رد می‌شوند و هاورشان هر فریم صفحه را دوباره رسم می‌کند؛
+           تا اسکرول آرام نگرفته، محتوا به نشانگر جواب نمی‌دهد (هدر همچنان فعال است) */
+        if (finePointer) {
+          let t = 0;
+          this.lenis.on('scroll', () => {
+            if (!root.classList.contains('is-scrolling')) root.classList.add('is-scrolling');
+            clearTimeout(t); t = setTimeout(() => root.classList.remove('is-scrolling'), 160);
+          });
+        }
         this._raf = (t) => this.lenis && this.lenis.raf(t * 1000);
         gsap.ticker.add(this._raf);
         gsap.ticker.lagSmoothing(0);
@@ -102,7 +111,7 @@
       this.mods.slice().reverse().forEach((m) => m.kill());
       if (this.lenis) { gsap.ticker.remove(this._raf); this.lenis.destroy(); this.lenis = null; }
       this.on = false;
-      root.classList.remove('motion');
+      root.classList.remove('motion', 'is-scrolling');
       this.statics(true);
       if (hasGsap) ScrollTrigger.refresh();
     },
@@ -153,6 +162,19 @@
   $$('.seg__btn[data-fs]').forEach((b) => b.addEventListener('click', () => Prefs.setFs(+b.dataset.fs)));
   $$('.tgl[data-pref]').forEach((b) => b.addEventListener('click', () => Prefs.toggle(b.dataset.pref)));
   Prefs.sync();
+
+  /* ---------- نقطه‌ی «باز است»: هر ۵ ثانیه یک پینگ، فقط وقتی روی صفحه است ---------- */
+  const dots = $$('.dot');
+  if (dots.length && 'IntersectionObserver' in window) {
+    const seen = new Set();
+    const ping = (d) => { if (!root.classList.contains('rm')) d.classList.add('is-ping'); };
+    dots.forEach((d) => d.addEventListener('animationend', () => d.classList.remove('is-ping')));
+    const io = new IntersectionObserver((es) => es.forEach((e) => {
+      if (e.isIntersecting) { seen.add(e.target); ping(e.target); } else { seen.delete(e.target); e.target.classList.remove('is-ping'); }
+    }));
+    dots.forEach((d) => io.observe(d));
+    setInterval(() => { if (!document.hidden) seen.forEach(ping); }, 5000);
+  }
 
   /* ==========================================================================
      هدر: جمع شدن نوار بالا، نشانگر فنری منو، مگامنو
@@ -328,9 +350,11 @@
   const DAYS = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه'];
   const DENTAL = [[10, 20], [10, 20], [10, 20], null, null, [10, 20], null];
   const EN = { Sat: 0, Sun: 1, Mon: 2, Tue: 3, Wed: 4, Thu: 5, Fri: 6 };
+  /* ساختن DateTimeFormat با منطقه‌ی زمانی گران است؛ یک بار ساخته می‌شود */
+  let tzFmt = null;
   function tehranNow() {
     try {
-      const f = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Tehran', weekday: 'short', hour: 'numeric', minute: 'numeric', hourCycle: 'h23' });
+      const f = tzFmt || (tzFmt = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Tehran', weekday: 'short', hour: 'numeric', minute: 'numeric', hourCycle: 'h23' }));
       const p = {}; f.formatToParts(new Date()).forEach((x) => { p[x.type] = x.value; });
       return { d: EN[p.weekday] ?? 0, min: (+p.hour % 24) * 60 + (+p.minute) };
     } catch (e) {

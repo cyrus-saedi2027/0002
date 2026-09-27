@@ -228,9 +228,10 @@
         box.scrollTo({ left: to, behavior: anim() ? 'smooth' : 'auto' });
       }
     }));
+    /* اندازه‌گیری داخل ResizeObserver بعد از چیدمان خود مرورگر انجام می‌شود و چیدمان اضافه‌ای نمی‌سازد */
     if ('ResizeObserver' in window) new ResizeObserver(() => put(true)).observe(box);
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => put(true));
-    put(true);
+    else requestAnimationFrame(() => put(true));
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => requestAnimationFrame(() => put(true)));
   }
   Pill($('.rv-tabs'), 'aria-selected');
   Pill($('.faq-tabs'), 'aria-pressed');
@@ -1155,7 +1156,7 @@
       faqList.dataset.f = f;
       const show = items.filter((d) => f === 'all' || d.dataset.k === f);
       items.forEach((d) => { d.hidden = !show.includes(d); });
-      show.forEach((d) => { d.classList.remove('is-pre'); if (Reveal.io) Reveal.io.unobserve(d); });
+      show.forEach((d) => { d.classList.remove('is-pre'); Reveal.stop(d); if (Reveal.io) Reveal.io.unobserve(d); });
       if (Motion.on && window.gsap) gsap.fromTo(show, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out', stagger: 0.045, overwrite: true, clearProps: 'opacity,transform' });
     }));
   }
@@ -1364,7 +1365,8 @@
           .fromTo(r.head, { opacity: 0 }, { opacity: 1, duration: 0.35, immediateRender: false }, 0)
           .to(r.head, { opacity: 0, duration: 0.4 }, dur - 0.4);
       };
-      this.loop = gsap.timeline({ paused: true, repeat: -1, repeatDelay: 1.6 })
+      /* سه دور با هر بار دیده شدن نقشه و بعد آرام می‌گیرد (حلقه‌ی بی‌پایان هر فریم کل صفحه را دوباره می‌ساخت) */
+      this.loop = gsap.timeline({ paused: true, repeat: 2, repeatDelay: 1.6 })
         .add(comet(R.a, 2.4), 0).add(comet(R.b, 2.8), 1.2).add(comet(R.c, 3.2), 2.2);
 
       /* فقط وقتی دیده می‌شود کار می‌کند */
@@ -1373,8 +1375,14 @@
       this.io = new IntersectionObserver((es) => {
         const on = es.some((e) => e.isIntersecting);
         this.visible = on;
+        /* حلقه‌ی تپنده‌ی سنجاق بیرون از دید متوقف می‌شود (هر انیمیشن فعال، هر فریم کل صفحه را دوباره می‌سازد) */
+        map.classList.toggle('is-away', !on);
         if (on && !seen) { seen = true; intro.play(); }
-        else if (seen && intro.progress() === 1 && map.dataset.view === 'route') { if (on) this.loop.resume(); else this.loop.pause(); }
+        else if (seen && intro.progress() === 1 && map.dataset.view === 'route') {
+          if (!on) this.loop.pause();
+          else if (this.loop.progress() === 1) this.loop.restart();
+          else this.loop.resume();
+        }
       }, { threshold: 0.3 });
       this.io.observe(view);
 
@@ -1574,9 +1582,12 @@
         gsap.set(line, { strokeDasharray: len, strokeDashoffset: len });
         gsap.set(wipe, { attr: { width: 0 } });
         const inner = $('.foot__in', foot), sky = $('.fsky', foot);
-        gsap.timeline({ scrollTrigger: { trigger: main, start: 'bottom bottom', end: () => '+=' + foot.offsetHeight, scrub: true, invalidateOnRefresh: true } })
-          .fromTo(inner, { yPercent: -28 }, { yPercent: 0, ease: 'none', duration: 1 }, 0)
-          .fromTo(sky, { yPercent: -12, opacity: 0.4 }, { yPercent: 0, opacity: 1, ease: 'none', duration: 1 }, 0);
+        /* وقتی فوتر از صفحه بلندتر است (موبایل)، بالا آمدن محتوا تیتر نوبت را زیر لبه‌ی فوتر پنهان نگه می‌داشت
+           و هیچ‌وقت دیده نمی‌شد؛ آن‌جا فقط آسمان پشت حرکت می‌کند */
+        const tall = foot.offsetHeight > window.innerHeight * 1.05;
+        const rise = gsap.timeline({ scrollTrigger: { trigger: main, start: 'bottom bottom', end: () => '+=' + foot.offsetHeight, scrub: true, invalidateOnRefresh: true } });
+        if (!tall) rise.fromTo(inner, { yPercent: -28 }, { yPercent: 0, ease: 'none', duration: 1 }, 0);
+        rise.fromTo(sky, { yPercent: -12, opacity: 0.4 }, { yPercent: 0, opacity: 1, ease: 'none', duration: 1 }, 0);
         gsap.timeline({ scrollTrigger: { trigger: main, start: 'bottom bottom', end: () => '+=' + foot.offsetHeight, scrub: 0.8, invalidateOnRefresh: true } })
           .to(line, { strokeDashoffset: 0, duration: 0.62, ease: 'none' }, 0)
           .to(wipe, { attr: { width: 1427 }, duration: 0.5, ease: 'power1.inOut' }, 0.42);
@@ -1587,6 +1598,8 @@
 
   /* ورود نرم کارت‌های پایین صفحه، فقط برای چیزهایی که هنوز دیده نشده‌اند */
   const Reveal = {
+    anims: new Map(),
+    stop(el) { const a = this.anims.get(el); if (a) { a.cancel(); this.anims.delete(el); } },
     build() {
       if (!window.gsap || !('IntersectionObserver' in window)) return;
       const els = $$('[data-rv]');
@@ -1599,13 +1612,21 @@
           if (!en.isIntersecting) return;
           const el = en.target;
           this.io.unobserve(el);
-          gsap.fromTo(el, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.9, ease: 'expo.out', delay: 0.07 * k++, clearProps: 'opacity,transform', onStart: () => el.classList.remove('is-pre') });
+          const delay = 0.07 * k++;
+          if (typeof el.animate === 'function') {
+            /* انیمیشن بومی روی کامپوزیتور: هر فریم نه جاوااسکریپت دارد و نه رسم دوباره‌ی صفحه (و details هم هر فریم چیده نمی‌شود) */
+            el.classList.remove('is-pre');
+            const a = el.animate([{ opacity: 0, transform: 'translate3d(0, 30px, 0)' }, { opacity: 1, transform: 'translate3d(0, 0, 0)' }], { duration: 900, delay: delay * 1000, easing: 'cubic-bezier(.16, 1, .3, 1)', fill: 'backwards' });
+            this.anims.set(el, a);
+            a.onfinish = () => this.anims.delete(el);
+          } else gsap.fromTo(el, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.9, ease: 'expo.out', delay, clearProps: 'opacity,transform', onStart: () => el.classList.remove('is-pre') });
         });
       }, { rootMargin: '0px 0px -10% 0px' });
       pending.forEach((el) => this.io.observe(el));
     },
     kill() {
       if (this.io) { this.io.disconnect(); this.io = null; }
+      this.anims.forEach((a) => a.cancel()); this.anims.clear();
       const els = $$('[data-rv]');
       if (window.gsap) { gsap.killTweensOf(els); gsap.set(els, { clearProps: 'opacity,transform' }); }
       els.forEach((el) => el.classList.remove('is-pre'));
