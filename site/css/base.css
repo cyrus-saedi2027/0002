@@ -339,7 +339,7 @@ html.bi .hdr .brand__mark { opacity: 0; }
 .mega__list a:hover { color: var(--blue); padding-inline-start: 6px; }
 .mega__aside { padding: 22px; border-radius: 10px; background: var(--navy-800); color: #D9E2F1; display: grid; gap: 8px; align-content: start; font-size: .9375rem; line-height: 1.85; }
 .mega__kicker { font-weight: 800; font-size: 1.0625rem; color: #fff; }
-.mega__tel { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; color: #fff; margin-top: 6px; }
+.mega__tel { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; color: #fff; margin-top: 6px; text-decoration: none; }
 
 /* ---------- شیت موبایل ---------- */
 .sheet { position: fixed; inset: 0; z-index: 120; }
@@ -380,7 +380,7 @@ html.bi .hdr .brand__mark { opacity: 0; }
 .tgl--row[aria-pressed="true"] .sw { background: var(--ok); }
 .tgl--row[aria-pressed="true"] .sw::after { transform: translateX(-20px); }
 .sheet__foot { display: grid; gap: 12px; }
-.sheet__foot p { display: flex; align-items: center; gap: 8px; justify-content: center; font-weight: 700; }
+.sheet__foot p, .sheet__tel { display: flex; align-items: center; gap: 8px; justify-content: center; font-weight: 700; color: inherit; text-decoration: none; }
 
 /* ---------- واکنش‌گرا ---------- */
 /* ==========================================================================
@@ -467,3 +467,8 @@ html.hc :focus-visible { outline-color: #000; box-shadow: 0 0 0 5px var(--focus)
 /* ---------- حرکت کمتر ---------- */
 html.rm *, html.rm *::before, html.rm *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
 html.rm .btn, html.rm .nav__ind { transition-duration: .001ms !important; }
+.btn--insta img { width: 20px; height: 20px; flex: none; }
+.foot__sub { margin-top: 6px; font-family: var(--f-ui); font-size: .9375rem; color: rgba(217, 226, 241, .8); }
+.foot__social a.foot__soc { background: #fff; border-color: transparent; transition: transform .45s var(--spring), box-shadow .3s; }
+.foot__social a.foot__soc:hover { background: #fff; transform: translateY(-3px); box-shadow: 0 10px 22px -10px rgba(0, 0, 0, .6); }
+.foot__soc img { display: block; width: 22px; height: 22px; object-fit: contain; }

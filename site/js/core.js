@@ -78,9 +78,12 @@
     lenis: null,
     mods: [],
     _raf: null,
-    add(mod) { this.mods.push(mod); if (this.on) mod.build(); },
+    /* ماژول always بدون حرکت هم ساخته می‌شود (نسخه‌ی ایستا)، مثل نقشه */
+    add(mod) { this.mods.push(mod); if (this.on || (mod.always && this.ready)) mod.build(); },
+    statics(on) { this.mods.forEach((m) => { if (m.always) { m.kill(); if (on) m.build(); } }); },
     start() {
       if (!hasGsap) return;
+      this.statics(false);
       this.on = true;
       root.classList.add('motion');
       if (window.Lenis) {
@@ -100,6 +103,7 @@
       if (this.lenis) { gsap.ticker.remove(this._raf); this.lenis.destroy(); this.lenis = null; }
       this.on = false;
       root.classList.remove('motion');
+      this.statics(true);
       if (hasGsap) ScrollTrigger.refresh();
     },
     rebuild() {
@@ -318,10 +322,11 @@
   });
 
   /* ==========================================================================
-     ساعت کاری و نوبت‌های خالی (بر اساس ساعت تهران)
+     ساعت کاری واقعی کلینیک (به وقت تهران)
+     پزشک عمومی شبانه‌روزی؛ دندانپزشکی شنبه، یکشنبه، دوشنبه و پنجشنبه ۱۰ تا ۲۰؛ زیبایی و لیزر همه‌روزه با هماهنگی
      ========================================================================== */
   const DAYS = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه'];
-  const HOURS = [[9, 21], [9, 21], [9, 21], [9, 21], [9, 21], [9, 14], null];
+  const DENTAL = [[10, 20], [10, 20], [10, 20], null, null, [10, 20], null];
   const EN = { Sat: 0, Sun: 1, Mon: 2, Tue: 3, Wed: 4, Thu: 5, Fri: 6 };
   function tehranNow() {
     try {
@@ -332,38 +337,34 @@
       const n = new Date(); return { d: (n.getDay() + 1) % 7, min: n.getHours() * 60 + n.getMinutes() };
     }
   }
-  const fmtTime = (m) => toFa(Math.floor(m / 60) + ':' + String(m % 60).padStart(2, '0'));
+  /* ۱۰ → «۱۰ صبح»، ۲۰ → «۸ شب» */
+  const hourFa = (h) => (h < 12 ? `${toFa(h)} صبح` : h === 12 ? '۱۲ ظهر' : h < 17 ? `${toFa(h - 12)} بعدازظهر` : `${toFa(h - 12)} شب`);
   const dayLabel = (off, di) => (off === 0 ? 'امروز' : off === 1 ? 'فردا' : DAYS[di]);
-  function hash(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; }
-
   const Clinic = {
-    DAYS, HOURS,
+    DAYS, DENTAL, hourFa,
+    now: tehranNow,
     today() { return tehranNow().d; },
-    status() {
-      const n = tehranNow(), hrs = HOURS[n.d];
-      if (hrs && n.min >= hrs[0] * 60 && n.min < hrs[1] * 60) return { open: true, text: `الان باز هستیم · تا ساعت ${toFa(hrs[1])}` };
-      if (hrs && n.min < hrs[0] * 60) return { open: false, text: `الان بسته‌ایم · امروز از ساعت ${toFa(hrs[0])}` };
-      for (let off = 1; off < 8; off++) {
-        const di = (n.d + off) % 7;
-        if (HOURS[di]) return { open: false, text: `الان بسته‌ایم · ${off === 1 ? 'فردا' : DAYS[di]} از ساعت ${toFa(HOURS[di][0])}` };
+    /* وضعیت دندانپزشکی: باز است یا کی باز می‌شود */
+    dental() {
+      const n = tehranNow(), h = DENTAL[n.d];
+      if (h && n.min >= h[0] * 60 && n.min < h[1] * 60) return { open: true, text: `باز است تا ${hourFa(h[1])}`, when: `امروز تا ${hourFa(h[1])}` };
+      for (let off = 0; off < 8; off++) {
+        const di = (n.d + off) % 7, hh = DENTAL[di];
+        if (!hh || (off === 0 && n.min >= hh[0] * 60)) continue;
+        const t = `${dayLabel(off, di)} از ${hourFa(hh[0])}`;
+        return { open: false, text: t, when: t };
       }
-      return { open: false, text: '' };
+      return { open: false, text: '', when: '' };
     },
-    nextSlot(key, when = 'any') {
-      const n = tehranNow();
-      const dayNo = Math.floor(Date.now() / 864e5);
-      const okTime = (t) => when === 'am' ? t < 13 * 60 : when === 'pm' ? t >= 16 * 60 : true;
-      let start = Math.ceil((n.min + 90) / 30) * 30;
-      for (let off = 0; off < 10; off++) {
-        const di = (n.d + off) % 7, hrs = HOURS[di];
-        if (hrs) {
-          for (let t = Math.max(start, hrs[0] * 60 + 30); t <= hrs[1] * 60 - 30; t += 30) {
-            if (okTime(t) && hash(key + ':' + (dayNo + off) + ':' + t) < 0.22) return { off, di, t, label: `${dayLabel(off, di)}، ساعت ${fmtTime(t)}`, short: `${dayLabel(off, di)} ${fmtTime(t)}` };
-          }
-        }
-        start = 0;
-      }
-      return null;
+    /* یک خط کوتاه برای هر بخش (کارت‌ها، صفحه‌ی بخش، فرم نوبت) */
+    avail(key) {
+      if (key === 'medicine') return 'پزشک عمومی همین حالا در کلینیک است';
+      if (key === 'beauty') return 'همه‌روزه، با هماهنگی قبلی';
+      return `دندانپزشکی: ${this.dental().when}`;
+    },
+    status() {
+      const d = this.dental();
+      return { open: true, text: `پزشک عمومی: شبانه‌روزی · دندانپزشکی: ${d.open ? d.text : d.when}` };
     }
   };
 
@@ -547,7 +548,8 @@
   /* ---------- راه‌اندازی ---------- */
   window.Sasan = { $, $$, clamp, lerp, toFa, Spring, Motion, Prefs, Clinic, store, finePointer, Aurora };
   document.addEventListener('DOMContentLoaded', () => {
-    if (!root.classList.contains('rm')) Motion.start();
+    Motion.ready = true;
+    if (!root.classList.contains('rm')) Motion.start(); else Motion.statics(true);
     onScroll();
     /* اگر فونت یا عکسی دیر رسید و چیدمان واقعاً عوض شد، فقط وقتی اسکرول آرام گرفته دوباره اندازه می‌گیریم */
     const sig = () => [document.body.scrollHeight, ...$$('main > section, footer').map((el) => el.offsetHeight)].join(',');

@@ -19,74 +19,89 @@
      ========================================================================== */
   const SVC = {
     dental: {
-      title: 'دندانپزشکی', icon: 'tooth', doctor: 'دکتر سارا امینی',
-      lead: 'از جرم‌گیری و ترمیم ساده تا ایمپلنت و لمینت. قبل از هر درمان عکس دیجیتال می‌گیریم، طرح درمان را روی مانیتور نشانتان می‌دهیم و هزینه‌ی هر مرحله را مکتوب می‌کنیم.',
+      title: 'دندانپزشکی', icon: 'tooth',
+      lead: 'ایمپلنت، لمینت و کامپوزیت، عصب‌کشی و ترمیم، روکش، جراحی لثه، کشیدن دندان، جرم‌گیری و بلیچینگ. شنبه، یکشنبه، دوشنبه و پنجشنبه از ۱۰ صبح تا ۸ شب پذیرش داریم و پیش از هر درمان، مراحل و هزینه را روشن می‌گوییم.',
       items: [
-        ['معاینه و جرم‌گیری', 'معاینه‌ی کامل، عکس دیجیتال و جرم‌گیری با دستگاه اولتراسونیک.', '۴۵ دقیقه'],
-        ['ترمیم و درمان ریشه', 'پر کردن هم‌رنگ دندان و عصب‌کشی با روتاری، بیشتر وقت‌ها در یک جلسه.', '۱ تا ۲ جلسه'],
-        ['ایمپلنت دیجیتال', 'کاشت پایه با راهنمای جراحی دیجیتال و روکش پس از جوش خوردن استخوان.', '۳ تا ۴ ماه'],
-        ['لمینت و کامپوزیت', 'طراحی لبخند روی مانیتور، پیش از آن‌که حتی یک میلی‌متر از دندان تراشیده شود.', '۲ تا ۳ جلسه'],
-        ['ارتودنسی و الاینر', 'براکت ثابت یا الاینر شفاف، با برنامه‌ی ماه‌به‌ماه و عکس از روند پیشرفت.', '۱۲ تا ۲۴ ماه'],
-        ['دندانپزشکی کودکان', 'اتاقی آرام برای بچه‌ها، فیشورسیل و وارنیش فلوراید.', '۳۰ دقیقه']
+        ['ایمپلنت (کاشت دندان)', 'جایگزین ثابت برای دندان ازدست‌رفته: کاشت پایه، و گذاشتن روکش بعد از جوش خوردن استخوان.', 'چند ماه، در چند جلسه'],
+        ['لمینت و کامپوزیت', 'اصلاح رنگ، فرم و فاصله‌ی دندان‌های جلو برای لبخندی یکدست و طبیعی.', '۱ تا ۳ جلسه'],
+        ['عصب‌کشی', 'درمان ریشه‌ی دندانی که عصبش آسیب دیده، تا درد برطرف شود و خود دندان حفظ شود.', '۱ تا ۲ جلسه'],
+        ['ترمیم', 'پر کردن پوسیدگی با مواد هم‌رنگ دندان.', 'یک جلسه'],
+        ['روکش', 'پوشش کامل دندانی که ضعیف یا عصب‌کشی شده، برای استحکام و ظاهر بهتر.', '۲ جلسه'],
+        ['جراحی لثه', 'درمان و فرم‌دهی لثه، هم برای سلامت و هم برای زیبایی لبخند.', 'بسته به نوع درمان'],
+        ['کشیدن دندان', 'کشیدن دندانی که دیگر قابل نگه‌داشتن نیست، با بی‌حسی کامل.', 'حدود ۳۰ دقیقه'],
+        ['جرم‌گیری', 'پاک کردن جرم و رنگ‌دانه‌ها برای لثه‌ی سالم و دندان‌های تمیزتر.', 'حدود ۳۰ دقیقه'],
+        ['بلیچینگ (سفید کردن دندان)', 'روشن‌تر کردن رنگ دندان‌ها زیر نظر دندانپزشک.', 'یک جلسه']
       ]
     },
     beauty: {
-      title: 'زیبایی و پوست', icon: 'sparkles', doctor: 'دکتر نگار رحیمی',
-      lead: 'پوست، مو و جوان‌سازی زیر نظر متخصص پوست. پیش از هر تزریق یا لیزر، پوستتان معاینه می‌شود و اگر روش ساده‌تری جواب بدهد، همان را پیشنهاد می‌کنیم.',
+      title: 'زیبایی و لیزر', icon: 'sparkles',
+      lead: 'بوتاکس، تزریق فیلر، جوان‌سازی با مزوژل و مزوتراپی، لیزر، میکرونیدلینگ و لایه‌برداری. همه‌روزه با هماهنگی قبلی؛ پیش از هر تزریق یا لیزر، پوست و خواسته‌تان بررسی می‌شود.',
       items: [
-        ['بوتاکس', 'برای خطوط پیشانی و دور چشم، با دوز حساب‌شده تا حالت طبیعی صورت بماند.', '۲۰ دقیقه'],
-        ['فیلر', 'حجم‌دهی لب، گونه و خط فک با فیلرهایی که اصالت کالا دارند.', '۳۰ دقیقه'],
-        ['لیزر موهای زائد', 'دستگاه دایود با خنک‌کننده‌ی تماسی، مناسب بیشتر رنگ‌های پوست.', '۶ تا ۸ جلسه'],
-        ['جوان‌سازی و مزوتراپی', 'ویتامین و پی‌آرپی برای پوست خسته، چروک‌های ریز و ریزش مو.', '۳ تا ۴ جلسه'],
-        ['پاکسازی و هیدرافیشیال', 'پاکسازی عمقی، لایه‌برداری ملایم و آب‌رسانی در یک جلسه.', '۶۰ دقیقه'],
-        ['درمان آکنه و لک', 'ویزیت متخصص پوست، پیلینگ شیمیایی و برنامه‌ی مراقبت در خانه.', 'بسته به نوع پوست']
+        ['بوتاکس', 'کم کردن خطوط پیشانی، میان ابرو و دور چشم با دوز حساب‌شده، تا حالت طبیعی صورت بماند.', 'حدود ۲۰ دقیقه'],
+        ['تزریق فیلر', 'حجم‌دهی و فرم‌دهی لب، گونه، زاویه‌ی فک، چانه و شقیقه.', '۳۰ تا ۴۵ دقیقه'],
+        ['جوان‌سازی (مزوژل و مزوتراپی)', 'آب‌رسانی، شادابی پوست و کمک به چروک‌های ریز.', 'چند جلسه با فاصله'],
+        ['لیزر', 'جلسه‌های لیزر با برنامه‌ی مشخص؛ تعداد جلسه‌ها بعد از معاینه گفته می‌شود.', 'چند جلسه'],
+        ['میکرونیدلینگ و لایه‌برداری', 'برای بافت ناصاف پوست، جای جوش و کدری.', 'چند جلسه با فاصله']
       ]
     },
     medicine: {
-      title: 'پزشکی', icon: 'steth', doctor: 'دکتر حمید کاظمی',
-      lead: 'پزشک عمومی، متخصص داخلی و مشاور تغذیه برای چکاپ، بیماری‌های مزمن و سؤال‌های روزمره‌ی سلامت. آزمایشگاه هم در همین ساختمان است و جواب‌ها مستقیم به پرونده‌تان می‌رسد.',
+      title: 'پزشکی شبانه‌روزی', icon: 'steth',
+      lead: 'پزشک عمومی شبانه‌روز در کلینیک است. برای ویزیت، تزریقات و سرم‌تراپی، شست‌وشوی گوش، بخیه و نوار قلب، هر ساعتی از شبانه‌روز می‌توانید بیایید.',
       items: [
-        ['چکاپ کامل', 'آزمایش خون، نوار قلب و ویزیت پزشک در یک صبح؛ جواب‌ها همان هفته آماده است.', 'نیم روز'],
-        ['داخلی و دیابت', 'دیابت، فشار خون، تیروئید و مشکلات گوارشی، با پیگیری منظم.', '۳۰ دقیقه'],
-        ['پزشک عمومی', 'از سرماخوردگی تا گواهی سلامت. بیشتر روزها نوبت همان روز پیدا می‌شود.', '۲۰ دقیقه'],
-        ['تغذیه و رژیم', 'برنامه‌ی غذایی بر اساس آزمایش و سبک زندگی خودتان، با پیگیری دوهفته‌ای.', '۴۵ دقیقه'],
-        ['آزمایشگاه در محل', 'نمونه‌گیری در همین ساختمان، بدون نیاز به رفتن به جای دیگر.', '۱۰ دقیقه'],
-        ['سرم و تزریقات', 'سرم‌تراپی و تزریقات با نسخه‌ی پزشک، زیر نظر پرستار.', '۳۰ تا ۶۰ دقیقه']
+        ['ویزیت پزشک عمومی', 'شبانه‌روزی و همه‌ی روزهای هفته.', 'حدود ۱۵ دقیقه'],
+        ['تزریقات', 'تزریق عضلانی و وریدی دارو با نسخه‌ی پزشک.', 'چند دقیقه'],
+        ['سرم‌تراپی', 'سرم با نسخه‌ی پزشک و زیر نظر کادر درمان.', '۳۰ تا ۶۰ دقیقه'],
+        ['شست‌وشوی گوش', 'خارج کردن جرم گوش بعد از معاینه‌ی پزشک.', 'حدود ۱۵ دقیقه'],
+        ['بخیه', 'بخیه و پانسمان زخم و بریدگی، شب یا روز.', 'بسته به زخم'],
+        ['نوار قلب', 'گرفتن نوار قلب (ECG) در کلینیک و بررسی آن توسط پزشک.', 'حدود ۱۰ دقیقه']
       ]
     }
   };
   const KEYS = ['dental', 'beauty', 'medicine'];
+  const TEL = '۰۱۱ ۵۴۶۱ ۱۵۶۰';
 
   /* ==========================================================================
-     نوبت‌های خالی
+     ساعت کاری روی کارت‌ها، فرم نوبت و نوار پایین صفحه
      ========================================================================== */
-  let SLOTS = {};
+  const cardAvail = (k) => (k === 'medicine' ? 'همین حالا · شبانه‌روزی' : k === 'beauty' ? 'همه‌روزه با هماهنگی' : Clinic.dental().when);
   function fillSlots() {
-    KEYS.forEach((k) => { SLOTS[k] = Clinic.nextSlot(k); });
-    KEYS.forEach((k) => {
-      const cs = $(`.pcard__slot[data-slot="${k}"]`);
-      if (cs && SLOTS[k]) cs.textContent = 'نوبت خالی: ' + SLOTS[k].short;
-    });
-    let best = null;
-    KEYS.forEach((k) => { const s = SLOTS[k]; if (s && (!best || s.off * 1440 + s.t < best.s.off * 1440 + best.s.t)) best = { k, s }; });
-    const live = $('#qbookLive');
-    if (live && best) live.textContent = `نزدیک‌ترین نوبت خالی: ${best.s.label}، ${SVC[best.k].title}`;
-    const fs = $('#footSlot');
-    if (fs && best) fs.textContent = best.s.label;
+    KEYS.forEach((k) => { const cs = $(`.pcard__slot[data-slot="${k}"]`); if (cs) cs.textContent = cardAvail(k); });
+    const live = $('#qbookLive'); if (live) live.textContent = Clinic.status().text;
+    const fs = $('#footSlot'); if (fs) fs.textContent = 'دندانپزشکی: ' + Clinic.dental().when;
   }
   fillSlots();
 
-  /* ---------- فرم نوبت آنلاین ---------- */
+  /* ---------- فرم نوبت: زمان مراجعه را بر اساس ساعت واقعی هر بخش می‌گوید ---------- */
+  const WHEN = { am: [10, 14, 'صبح'], pm: [14, 20, 'عصر'], night: [20, 24, 'شب'] };
+  function dentalFor(pref) {
+    const n = Clinic.now(), D = Clinic.DENTAL;
+    if (pref === 'night') return null;
+    for (let off = 0; off < 8; off++) {
+      const di = (n.d + off) % 7, h = D[di]; if (!h) continue;
+      let from = h[0], to = h[1];
+      if (WHEN[pref]) { from = Math.max(from, WHEN[pref][0]); to = Math.min(to, WHEN[pref][1]); }
+      if (off === 0) { if (n.min >= to * 60) continue; from = Math.max(from, Math.ceil(n.min / 60)); }
+      if (from >= to) continue;
+      const day = off === 0 ? 'امروز' : off === 1 ? 'فردا' : Clinic.DAYS[di];
+      return `${day}، ${Clinic.hourFa(from)} تا ${Clinic.hourFa(to)}`;
+    }
+    return null;
+  }
   const qb = $('#qbook');
   if (qb) {
     qb.addEventListener('submit', (e) => {
       e.preventDefault();
-      const k = $('#qbDept').value, when = $('#qbWhen').value;
-      let s = Clinic.nextSlot(k, when);
+      const k = $('#qbDept').value, pref = $('#qbWhen').value;
       const out = $('#qbResult');
       out.hidden = false;
-      if (!s) { out.textContent = 'در این بازه نوبت خالی پیدا نشد. با شماره‌ی ۰۲۱ ۲۲۳۴ ۵۶۷۸ تماس بگیرید.'; return; }
-      out.innerHTML = `<span>نزدیک‌ترین نوبت ${SVC[k].title}:</span> <b>${s.label}</b> <span>با ${SVC[k].doctor}</span> <a class="link-arrow" href="#endcap">رزرو همین نوبت<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>`;
+      let html;
+      if (k === 'medicine') html = '<b>پزشک عمومی شبانه‌روزی است</b> <span>همین حالا هم می‌توانید بیایید؛ برای تزریقات، سرم‌تراپی، بخیه و نوار قلب هم همین‌طور.</span>';
+      else if (k === 'beauty') html = `<b>زیبایی و لیزر: همه‌روزه با هماهنگی قبلی</b> <span>${WHEN[pref] ? 'برای ' + WHEN[pref][2] + '، ' : ''}زمان را تلفنی با پذیرش هماهنگ کنید.</span>`;
+      else {
+        const w = dentalFor(pref);
+        html = w ? `<span>نزدیک‌ترین زمان پذیرش دندانپزشکی:</span> <b>${w}</b>` : '<b>دندانپزشکی شب پذیرش ندارد.</b> <span>شنبه، یکشنبه، دوشنبه و پنجشنبه از ۱۰ صبح تا ۸ شب.</span>';
+      }
+      out.innerHTML = `${html} <a class="link-arrow" href="tel:+981154611560">تماس با پذیرش: <span dir="ltr">${TEL}</span><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>`;
       if (Motion.on) gsap.fromTo(out, { opacity: 0, y: -6 }, { opacity: 1, y: 0, duration: 0.45, ease: 'expo.out' });
     });
   }
@@ -333,7 +348,8 @@
         row.style.setProperty('--ox', co.x + 'px'); row.style.setProperty('--oy', co.y + 'px');
         row.style.setProperty('--ow', co.w + 'px'); row.style.setProperty('--oh', co.h + 'px');
         const O = { x: cc.x + cc.w / 2 - co.x, y: cc.y + cc.h / 2 - co.y };
-        const s0 = Math.max(cc.w / 2 / O.x, cc.w / 2 / (co.w - O.x), cc.h / 2 / O.y, cc.h / 2 / (co.h - O.y)) * 1.01;
+        /* در حالت بسته، عکس مثل یک کاشی معمولی قاب کوچک را cover می‌کند (مرکزش مرکز کاشی است) */
+        const s0 = Math.max(cc.w / co.w, cc.h / co.h) * 1.01;
         M = { closed, open, O, s0, cc, co, capY: wrap.clientHeight * 0.6 };
       };
       measure();
@@ -347,7 +363,8 @@
         const s = M.s0 + (1 - M.s0) * q, r = 8 * (1 - ease01(q / 0.2));
         inner.style.transform = `translate3d(${tx}px, ${ty}px, 0) scale(${sx}, ${sy})`;
         inner.style.borderRadius = r > 0.05 ? `${r / sx}px / ${r / sy}px` : '0px';
-        img.style.transform = `translate3d(${(M.O.x * (1 - s) - tx) / sx}px, ${(M.O.y * (1 - s) - ty) / sy}px, 0) scale(${s / sx}, ${s / sy})`;
+        const ix = (1 - q) * (M.O.x - M.s0 * co.w / 2), iy = (1 - q) * (M.O.y - M.s0 * co.h / 2);
+        img.style.transform = `translate3d(${(ix - tx) / sx}px, ${(iy - ty) / sy}px, 0) scale(${s / sx}, ${s / sy})`;
         shade.style.transform = `translate3d(${-tx / sx}px, ${-ty / sy}px, 0) scale(${1 / sx}, ${1 / sy})`;
       };
       paint();
@@ -641,8 +658,7 @@
     $('#svcCrumb').textContent = 'خدمات / ' + d.title;
     $('#svcLead').textContent = d.lead;
     $('#svcIc use').setAttribute('href', '#i-' + d.icon);
-    const s = SLOTS[key];
-    $('#svcSlot').textContent = s ? `نزدیک‌ترین نوبت: ${s.label}` : '';
+    $('#svcSlot').textContent = Clinic.avail(key);
     $('#svcList').innerHTML = d.items.map((it) => `
       <article class="svc__item">
         <b>${it[0]}</b>
@@ -857,12 +873,15 @@
      مسیر و تماس: وضعیت باز/بسته، روز جاری، کپی نشانی، فرم تماس
      ========================================================================== */
   const vs = $('#visitStatus');
-  if (vs) {
-    const st = Clinic.status();
-    if (st.text) { $('.visit__status-text', vs).textContent = st.text; $('.dot', vs).classList.toggle('is-closed', !st.open); }
-  }
-  const hoursEl = $('#hours');
-  if (hoursEl) { const d = Clinic.today(); $$('li', hoursEl).forEach((li) => li.classList.toggle('is-today', +li.dataset.d === d)); }
+  const paintHours = () => {
+    if (vs) $('.visit__status-text', vs).textContent = Clinic.status().text;
+    const dOpen = Clinic.dental().open;
+    $$('#hours li').forEach((li) => li.classList.toggle('is-now', li.dataset.k === 'medicine' || (li.dataset.k === 'dental' && dOpen)));
+    const d = Clinic.today();
+    $$('#dentalDays li').forEach((li) => li.classList.toggle('is-today', +li.dataset.d === d));
+  };
+  paintHours();
+  setInterval(paintHours, 60 * 1000);
 
   $$('[data-copy]').forEach((b) => b.addEventListener('click', async () => {
     const lab = $('span', b), use = $('use', b);
@@ -902,44 +921,346 @@
         (badName ? fName : fTel).focus();
         return;
       }
-      const st = Clinic.status();
-      const next = (st.text.split('·')[1] || '').trim();
-      const when = st.open ? 'تا یک ساعت دیگر' : next ? `اول وقت کاری (${next})` : 'اول وقت کاری بعد';
       const pretty = toFa(`${t.slice(0, 4)} ${t.slice(4, 7)} ${t.slice(7)}`);
-      msg.textContent = `ممنون ${n}؛ درخواستتان ثبت شد. ${when} با شماره‌ی ${pretty} تماس می‌گیریم.`;
+      msg.textContent = `ممنون ${n}؛ درخواستتان ثبت شد. پذیرش برای هماهنگی با شماره‌ی ${pretty} تماس می‌گیرد. اگر عجله دارید، همین حالا با ${TEL} تماس بگیرید.`;
       cb.reset();
     });
   }
 
-  /* نقشه: مسیر از میدان کاج کشیده می‌شود و نشانگر کلینیک پایین می‌آید */
-  const MapAnim = {
+  /* ==========================================================================
+     نقشه‌ی مسیر: نقشه‌ی واقعی سلمان‌شهر و سه راه رسیدن به کلینیک
+     دوربین با transform جابه‌جا می‌شود، مسیرها یک بار کشیده می‌شوند و نقطه‌های متحرک فقط transform دارند
+     ========================================================================== */
+  const WORLD = { x: -1200, y: -700, w: 3300, h: 2000 };
+  const MapFx = {
+    always: true,
     build() {
       const map = $('#vmap');
-      if (!map || !window.gsap || !('IntersectionObserver' in window)) return;
-      const route = $('.vmap__route', map), drop = $('.vmap__drop', map), park = $('.vmap__park-in', map), cap = $('.vmap__cap', map);
-      const len = route.getTotalLength();
-      this.ctx = gsap.context(() => {
-        gsap.set(route, { strokeDasharray: len, strokeDashoffset: len });
-        gsap.set(drop, { y: -46, opacity: 0 });
-        gsap.set(park, { scale: 0, transformOrigin: '50% 50%' });
-        gsap.set(cap, { opacity: 0, y: 10 });
-        this.tl = gsap.timeline({ paused: true })
-          .to(route, { strokeDashoffset: 0, duration: 1.5, ease: 'power2.inOut' })
-          .to(drop, { y: 0, opacity: 1, duration: 0.8, ease: 'bounce.out' }, '-=0.45')
-          .to(park, { scale: 1, duration: 0.5, ease: 'back.out(2)' }, '-=0.5')
-          .to(cap, { opacity: 1, y: 0, duration: 0.55, ease: 'power2.out' }, '-=0.3');
+      if (!map || !window.gsap) return;
+      const view = $('.vmap__view', map), world = $('#vworld'), pin = $('.vpin', map);
+      const R = {};
+      ['a', 'b', 'c'].forEach((k) => {
+        const g = $(`.rt--${k}`, map);
+        R[k] = { k, g, line: $('.rt__line', g), glow: $('.rt__glow', g), head: $(`.vhead--${k}`, map), org: $(`.vorg--${k}`, map), tag: $(`.vtag--${k}`, map), btn: $(`.vroute[data-r="${k}"]`, map) };
+        R[k].len = R[k].line.getTotalLength();
       });
-      this.io = new IntersectionObserver((ents) => {
-        if (ents.some((en) => en.isIntersecting)) { this.tl.play(); this.io.disconnect(); }
-      }, { threshold: 0.45 });
-      this.io.observe(map);
+      const cam = { s: 1, tx: 0, ty: 0, k: 1 };
+      /* ناحیه‌ای که باید دیده شود؛ روی صفحه‌ی باریک جنوب شهر کمتر و مسیر جاده از لبه وارد می‌شود */
+      const region = () => {
+        const r = view.clientWidth / Math.max(1, view.clientHeight);
+        if (r > 1.9) return { x0: -640, x1: 1880, y0: -420, y1: 610 };
+        if (r > 1.25) return { x0: -600, x1: 1300, y0: -470, y1: 640 };
+        return { x0: -560, x1: 940, y0: -470, y1: 620 };
+      };
+      const toPx = (x, y) => [(x - WORLD.x) * cam.s, (y - WORLD.y) * cam.s];
+      const apply = () => {
+        const [cx, cy] = toPx(0, 0);
+        world.style.transformOrigin = `${cx}px ${cy}px`;
+        world.style.transform = `translate3d(${cam.tx}px, ${cam.ty}px, 0) scale(${cam.k})`;
+      };
+      const layout = () => {
+        const bw = view.clientWidth, bh = view.clientHeight, g = region();
+        const rw = g.x1 - g.x0, rh = g.y1 - g.y0;
+        cam.s = Math.min(bw / rw, bh / rh);
+        const W = WORLD.w * cam.s, H = WORLD.h * cam.s;
+        world.style.width = W + 'px'; world.style.height = H + 'px';
+        const cx = ((g.x0 + g.x1) / 2 - WORLD.x) * cam.s, cy = ((g.y0 + g.y1) / 2 - WORLD.y) * cam.s;
+        cam.tx = Math.min(0, Math.max(bw - W, bw / 2 - cx));
+        cam.ty = Math.min(0, Math.max(bh - H, bh / 2 - cy));
+        apply();
+        /* نشانگر شروع مسیر جاده جایی است که مسیر وارد قاب می‌شود */
+        const c = R.c, pad = 34;
+        for (let d = 0; d < c.len; d += 12) {
+          const p = c.line.getPointAtLength(d), [x, y] = toPx(p.x, p.y);
+          if (x + cam.tx < bw - pad && y + cam.ty > pad) {
+            c.org.style.setProperty('--x', ((p.x - WORLD.x) / WORLD.w * 100) + '%');
+            c.org.style.setProperty('--y', ((p.y - WORLD.y) / WORLD.h * 100) + '%');
+            c.start = d / c.len; break;
+          }
+        }
+        /* برچسب زمان هر مسیر وسط بخش دیده‌شده‌ی همان مسیر، کمی کنار خط */
+        Object.values(R).forEach((r) => {
+          const st = r.start || 0, f = st + (1 - st) * (r.k === 'c' ? 0.42 : 0.5), L = r.len * f;
+          const p = r.line.getPointAtLength(L), q = r.line.getPointAtLength(Math.min(r.len, L + 8));
+          let nx = -(q.y - p.y), ny = q.x - p.x; const n = Math.hypot(nx, ny) || 1; nx /= n; ny /= n;
+          if (ny > 0) { nx = -nx; ny = -ny; }
+          const off = 26 / cam.s;
+          r.tag.style.setProperty('--x', ((p.x + nx * off - WORLD.x) / WORLD.w * 100) + '%');
+          r.tag.style.setProperty('--y', ((p.y + ny * off - WORLD.y) / WORLD.h * 100) + '%');
+        });
+      };
+      layout();
+      this.layout = layout;
+      const ro = 'ResizeObserver' in window ? new ResizeObserver(() => layout()) : null;
+      if (ro) ro.observe(view);
+      this.ro = ro;
+
+      /* کشیدن مسیر تا p (۰ تا ۱)؛ مسیر ساحل نقطه‌چین (قدم‌ها) است */
+      const DOT = 0.034;
+      const draw = (r, p) => {
+        const q = Math.max(0, Math.min(1, p));
+        r.glow.style.strokeDashoffset = 1 - q;
+        if (r.k === 'b') {
+          if (q >= 1) { r.line.style.strokeDasharray = `0 ${DOT}`; r.line.style.strokeDashoffset = 0; }
+          else { r.line.style.strokeDasharray = q <= 0 ? '0 2' : ('0 ' + DOT + ' ').repeat(Math.floor(q / DOT) + 1) + '0 2'; r.line.style.strokeDashoffset = 0; }
+        } else r.line.style.strokeDashoffset = 1 - q;
+      };
+      const headAt = (r, p, o) => {
+        const pt = r.line.getPointAtLength(r.len * Math.max(0, Math.min(1, p)));
+        const [x, y] = toPx(pt.x, pt.y);
+        r.head.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+        if (o !== undefined) r.head.style.opacity = o;
+      };
+      this.R = R; this.draw = draw;
+
+      const still = !Motion.on || root.classList.contains('rm');
+      if (still) {
+        Object.values(R).forEach((r) => draw(r, 1));
+        pin.classList.add('is-live');
+        return;
+      }
+
+      /* حالت اولیه */
+      Object.values(R).forEach((r) => { draw(r, 0); gsap.set(r.org, { autoAlpha: 0, scale: 0.6 }); gsap.set(r.tag, { xPercent: -50, yPercent: -50, x: 0, y: 0, autoAlpha: 0, scale: 0.6 }); });
+      gsap.set($('.vpin__badge', pin), { y: -46, autoAlpha: 0 });
+      gsap.set($('.vpin__cap', pin), { autoAlpha: 0, x: 12 });
+      gsap.set($('.vmap__base', map), { opacity: 0 });
+      cam.k = 1.14; apply();
+
+      const route = (r, dur) => {
+        const st = { p: r.start || 0 };
+        const tl = gsap.timeline();
+        tl.to(r.org, { autoAlpha: 1, scale: 1, duration: 0.5, ease: 'back.out(2.2)' }, 0)
+          .fromTo(st, { p: r.start || 0 }, {
+            p: 1, duration: dur, ease: 'power2.inOut', immediateRender: false,
+            onStart: () => { r.head.style.opacity = 1; },
+            onUpdate: () => { draw(r, st.p); headAt(r, st.p); },
+            onComplete: () => { gsap.to(r.head, { opacity: 0, duration: 0.35 }); }
+          }, 0.2)
+          .to(r.tag, { autoAlpha: 1, scale: 1, duration: 0.55, ease: 'back.out(2)' }, dur * 0.72);
+        return tl;
+      };
+      this.route = route;
+      const intro = gsap.timeline({ paused: true });
+      const camT = { k: 1.14 };
+      intro.to($('.vmap__base', map), { opacity: 1, duration: 0.7, ease: 'power1.out' }, 0)
+        .to(camT, { k: 1, duration: 2.2, ease: 'expo.out', onUpdate: () => { cam.k = camT.k; apply(); } }, 0)
+        .to($('.vpin__badge', pin), { y: 0, autoAlpha: 1, duration: 0.9, ease: 'bounce.out' }, 0.35)
+        .add(() => pin.classList.add('is-live'), 0.95)
+        .to($('.vpin__cap', pin), { autoAlpha: 1, x: 0, duration: 0.6, ease: 'expo.out' }, 1)
+        .add(route(R.a, 2.1), 1.1)
+        .add(route(R.b, 2.2), 2.2)
+        .add(route(R.c, 2.6), 3.3)
+        .add(() => { if (this.loop && this.visible && map.dataset.view === 'route') this.loop.play(); }, '+=0.6');
+      this.intro = intro;
+
+      /* پس از معرفی: هر چند ثانیه یک نقطه‌ی نورانی روی هر مسیر به سمت کلینیک می‌رود */
+      const comet = (r, dur) => {
+        const st = { p: r.start || 0 };
+        return gsap.timeline()
+          .fromTo(st, { p: r.start || 0 }, { p: 1, duration: dur, ease: 'power1.inOut', immediateRender: false, onUpdate: () => headAt(r, st.p) }, 0)
+          .fromTo(r.head, { opacity: 0 }, { opacity: 1, duration: 0.35, immediateRender: false }, 0)
+          .to(r.head, { opacity: 0, duration: 0.4 }, dur - 0.4);
+      };
+      this.loop = gsap.timeline({ paused: true, repeat: -1, repeatDelay: 1.6 })
+        .add(comet(R.a, 2.4), 0).add(comet(R.b, 2.8), 1.2).add(comet(R.c, 3.2), 2.2);
+
+      /* فقط وقتی دیده می‌شود کار می‌کند */
+      let seen = false;
+      this.visible = false;
+      this.io = new IntersectionObserver((es) => {
+        const on = es.some((e) => e.isIntersecting);
+        this.visible = on;
+        if (on && !seen) { seen = true; intro.play(); }
+        else if (seen && intro.progress() === 1 && map.dataset.view === 'route') { if (on) this.loop.resume(); else this.loop.pause(); }
+      }, { threshold: 0.3 });
+      this.io.observe(view);
+
+      /* راه‌ها: با نشانگر یا فوکوس برجسته، با کلیک دوباره کشیده می‌شود */
+      const hot = (k) => {
+        map.classList.toggle('is-focus', !!k);
+        Object.values(R).forEach((r) => {
+          const on = r.k === k;
+          r.g.classList.toggle('is-hot', on); r.btn.classList.toggle('is-hot', on);
+          gsap.to([r.org, r.tag], { autoAlpha: !k || on ? 1 : 0.25, duration: 0.35, overwrite: 'auto' });
+        });
+      };
+      Object.values(R).forEach((r) => {
+        r.btn.addEventListener('pointerenter', () => { if (intro.progress() === 1) hot(r.k); });
+        r.btn.addEventListener('pointerleave', () => hot(null));
+        r.btn.addEventListener('focus', () => { if (intro.progress() === 1) hot(r.k); });
+        r.btn.addEventListener('blur', () => hot(null));
+        r.btn.addEventListener('click', () => {
+          if (intro.progress() < 1) intro.progress(1);
+          this.loop.pause();
+          const st = { p: r.start || 0 };
+          gsap.fromTo(st, { p: r.start || 0 }, {
+            p: 1, duration: 1.6, ease: 'power2.inOut', overwrite: 'auto',
+            onStart: () => { r.head.style.opacity = 1; },
+            onUpdate: () => { draw(r, st.p); headAt(r, st.p); },
+            onComplete: () => { gsap.to(r.head, { opacity: 0, duration: 0.35 }); if (this.visible && map.dataset.view === 'route') this.loop.restart(); }
+          });
+        });
+      });
     },
     kill() {
       if (this.io) { this.io.disconnect(); this.io = null; }
-      if (this.ctx) { this.ctx.revert(); this.ctx = null; }
-      this.tl = null;
+      if (this.ro) { this.ro.disconnect(); this.ro = null; }
+      if (this.intro) { this.intro.kill(); this.intro = null; }
+      if (this.loop) { this.loop.kill(); this.loop = null; }
+      const map = $('#vmap'); if (!map) return;
+      gsap.killTweensOf($$('.vorg, .vtag, .vhead, .vpin__badge, .vpin__cap, .vmap__base', map));
+      /* فقط ویژگی‌های حرکت پاک می‌شود؛ جای برچسب‌ها (--x و --y) در style خودشان است و باید بماند */
+      gsap.set($$('.vorg, .vtag, .vhead, .vpin__badge, .vpin__cap, .vmap__base', map), { clearProps: 'transform,opacity,visibility' });
+      $$('.rt path', map).forEach((p) => { p.style.strokeDasharray = ''; p.style.strokeDashoffset = ''; });
+      map.classList.remove('is-focus');
+      $('.vpin', map).classList.remove('is-live');
+      if (this.R) Object.values(this.R).forEach((r) => { r.g.classList.remove('is-hot'); r.btn.classList.remove('is-hot'); });
+      this.R = null;
     }
   };
+
+  /* ==========================================================================
+     دکمه‌های مسیریاب (بلد، نشان، گوگل‌مپ): آیکون‌ها مثل سنجاق روی نقشه فرود می‌آیند،
+     با نشانگر می‌پرند و هر چند ثانیه یکی‌شان آرام «پینگ» می‌زند
+     ========================================================================== */
+  const AppsFx = {
+    build() {
+      const wrap = $('#vapps');
+      if (!wrap || !window.gsap) return;
+      const apps = $$('.vapp', wrap);
+      const ping = (a) => { a.classList.remove('is-ping'); void a.offsetWidth; a.classList.add('is-ping'); };
+      this.ctx = gsap.context(() => {
+        apps.forEach((a) => {
+          const ic = $('.vapp__ic img', a), sh = $('.vapp__shadow', a);
+          gsap.set(a, { autoAlpha: 0, y: 26 });
+          gsap.set(ic, { y: -34, autoAlpha: 0, transformOrigin: '50% 100%' });
+          gsap.set(sh, { scale: 0.3, autoAlpha: 0 });
+        });
+        this.enter = gsap.timeline({ paused: true });
+        apps.forEach((a, i) => {
+          const ic = $('.vapp__ic img', a), sh = $('.vapp__shadow', a), t = i * 0.14;
+          this.enter.to(a, { autoAlpha: 1, y: 0, duration: 0.9, ease: 'expo.out' }, t)
+            .to(ic, { y: 0, autoAlpha: 1, duration: 0.42, ease: 'power2.in' }, t + 0.18)
+            .to(sh, { scale: 1.15, autoAlpha: 1, duration: 0.42, ease: 'power2.in' }, t + 0.18)
+            .to(ic, { scaleY: 0.8, scaleX: 1.14, duration: 0.1, ease: 'power1.out' }, t + 0.6)
+            .add(() => ping(a), t + 0.6)
+            .to(ic, { scaleY: 1, scaleX: 1, duration: 0.8, ease: 'elastic.out(1, 0.38)' }, t + 0.7)
+            .to(sh, { scale: 1, duration: 0.6, ease: 'power2.out' }, t + 0.7);
+        });
+      });
+      let k = 0, idle = null;
+      const loop = () => { if (!document.hidden) ping(apps[k++ % apps.length]); };
+      this.io = new IntersectionObserver((es) => {
+        const on = es.some((e) => e.isIntersecting);
+        if (on && this.enter && this.enter.progress() === 0) this.enter.play();
+        clearInterval(idle); idle = null;
+        if (on && !root.classList.contains('rm')) idle = setInterval(loop, 4200);
+      }, { threshold: 0.4 });
+      this.io.observe(wrap);
+      this.stopIdle = () => { clearInterval(idle); idle = null; };
+      /* با نشانگر: آیکون می‌پرد و روی نقشه فرود می‌آید */
+      this.hops = apps.map((a) => {
+        const ic = $('.vapp__ic img', a), sh = $('.vapp__shadow', a);
+        const hop = () => {
+          if (this.enter && this.enter.isActive()) return;
+          gsap.timeline({ overwrite: 'auto' })
+            .to(ic, { y: -9, scaleY: 1.06, scaleX: 0.96, duration: 0.22, ease: 'power2.out' }, 0)
+            .to(sh, { scale: 0.6, autoAlpha: 0.5, duration: 0.22, ease: 'power2.out' }, 0)
+            .to(ic, { y: 0, scaleY: 1, scaleX: 1, duration: 0.55, ease: 'bounce.out' }, 0.22)
+            .to(sh, { scale: 1, autoAlpha: 1, duration: 0.55, ease: 'bounce.out' }, 0.22)
+            .add(() => ping(a), 0.5);
+        };
+        a.addEventListener('pointerenter', hop);
+        a.addEventListener('focus', hop);
+        return [a, hop];
+      });
+    },
+    kill() {
+      if (this.io) { this.io.disconnect(); this.io = null; }
+      if (this.stopIdle) this.stopIdle();
+      if (this.hops) this.hops.forEach(([a, h]) => { a.removeEventListener('pointerenter', h); a.removeEventListener('focus', h); });
+      this.hops = null;
+      if (this.ctx) { this.ctx.revert(); this.ctx = null; }
+      this.enter = null;
+      $$('.vapp').forEach((a) => a.classList.remove('is-ping'));
+    }
+  };
+
+  /* ---------- نقشه‌ی واقعی گوگل: با دکمه، از جای کلینیک روی نقشه باز می‌شود ---------- */
+  const vmap = $('#vmap');
+  if (vmap) {
+    const tabs = $$('.vtabs__btn', vmap), ind = $('.vtabs__ind', vmap), gl = $('#vgmap'), view = $('.vmap__view', vmap);
+    let frame = null, loaded = false, busy = false;
+    const setInd = () => {
+      const on = tabs.find((t) => t.classList.contains('is-on'));
+      if (!on || !ind) return;
+      ind.style.setProperty('--w', on.offsetWidth + 'px');
+      ind.style.setProperty('--tx', (on.offsetLeft - 4) + 'px');
+    };
+    requestAnimationFrame(setInd);
+    window.addEventListener('resize', setInd);
+    const ensure = () => new Promise((res) => {
+      if (loaded) { res(); return; }
+      if (!frame) {
+        frame = document.createElement('iframe');
+        frame.title = 'نقشه‌ی گوگل: درمانگاه شبانه‌روزی ساسان، سلمان‌شهر';
+        frame.setAttribute('allowfullscreen', '');
+        frame.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+        frame.src = gl.dataset.src;
+        gl.appendChild(frame);
+      }
+      const done = () => { loaded = true; res(); };
+      frame.addEventListener('load', done, { once: true });
+      setTimeout(done, 3500);
+    });
+    const pinXY = () => {
+      const p = $('.vpin', vmap).getBoundingClientRect(), f = view.getBoundingClientRect();
+      return [p.left - f.left, p.top - f.top - 30];
+    };
+    const setView = async (v) => {
+      if (busy || vmap.dataset.view === v) return;
+      busy = true;
+      tabs.forEach((t) => { const on = t.dataset.view === v; t.classList.toggle('is-on', on); t.setAttribute('aria-selected', on); });
+      setInd();
+      const anim = Motion.on && !root.classList.contains('rm');
+      const [x, y] = pinXY(), rmax = Math.hypot(Math.max(x, view.clientWidth - x), Math.max(y, view.clientHeight - y)) + 20;
+      if (v === 'google') {
+        if (MapFx.loop) MapFx.loop.pause();
+        const btn = tabs.find((t) => t.dataset.view === 'google');
+        gl.hidden = false;
+        gl.style.clipPath = anim ? `circle(0px at ${x}px ${y}px)` : '';
+        btn.classList.add('is-busy');
+        vmap.dataset.view = 'google';
+        await ensure();
+        btn.classList.remove('is-busy');
+        if (anim) {
+          const o = { r: 0 };
+          gsap.timeline({ onComplete: () => { gl.style.clipPath = ''; busy = false; } })
+            .to(o, { r: rmax, duration: 1.05, ease: 'expo.inOut', onUpdate: () => { gl.style.clipPath = `circle(${o.r}px at ${x}px ${y}px)`; } }, 0)
+            .to(view, { scale: 1.08, opacity: 0.55, duration: 1.05, ease: 'expo.inOut', transformOrigin: `${x}px ${y + 30}px` }, 0);
+        } else busy = false;
+      } else {
+        vmap.dataset.view = 'route';
+        if (anim) {
+          const o = { r: rmax };
+          gsap.timeline({ onComplete: () => { gl.hidden = true; gl.style.clipPath = ''; busy = false; if (MapFx.loop && MapFx.visible && MapFx.intro && MapFx.intro.progress() === 1) MapFx.loop.resume(); } })
+            .to(o, { r: 0, duration: 0.9, ease: 'expo.inOut', onUpdate: () => { gl.style.clipPath = `circle(${o.r}px at ${x}px ${y}px)`; } }, 0)
+            .to(view, { scale: 1, opacity: 1, duration: 0.9, ease: 'expo.inOut', clearProps: 'transform,opacity' }, 0);
+        } else { gl.hidden = true; busy = false; }
+      }
+    };
+    tabs.forEach((t) => {
+      t.addEventListener('click', () => setView(t.dataset.view));
+      /* با اولین نشانه‌ی قصد (نشانگر یا فوکوس) نقشه‌ی گوگل از قبل بارگیری می‌شود */
+      if (t.dataset.view === 'google') { const pre = () => ensure(); t.addEventListener('pointerenter', pre, { once: true }); t.addEventListener('focus', pre, { once: true }); }
+    });
+    $('.vtabs', vmap).addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      const i = tabs.findIndex((t) => t.classList.contains('is-on')), n = tabs[(i + 1) % tabs.length];
+      n.focus(); setView(n.dataset.view);
+    });
+  }
 
   /* فوتر: محتوا از زیر صفحه بالا می‌آید و «Sasan Clinic» با اسکرول، اول خط‌به‌خط کشیده و بعد با گرادیان آئورا پر می‌شود */
   const FootFx = {
@@ -995,7 +1316,8 @@
   Motion.add(Depts);
   Motion.add(Journey);
   Motion.add(Reviews);
-  Motion.add(MapAnim);
+  Motion.add(MapFx);
+  Motion.add(AppsFx);
   Motion.add(Reveal);
   Motion.add(FootFx);
 

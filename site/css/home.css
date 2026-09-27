@@ -131,7 +131,7 @@ html.motion .reel__row.is-open .reel__item--l { height: var(--u); }
 html.motion .reel__row.is-open .reel__item--center { width: 100%; height: 100%; aspect-ratio: auto; border-radius: 0; }
 html.motion .reel__row.is-open .reel__cap { bottom: 0; opacity: 1; }
 /* حالت حرکتی: عکس وسط از اول به اندازه‌ی حالت باز است و فقط با clip و بزرگ‌نمایی باز می‌شود */
-html.motion .reel__row.is-fx .reel__item--center { position: static; }
+html.motion .reel__row.is-fx .reel__item--center { position: static; background: none; box-shadow: none; }
 html.motion .reel__row.is-fx .reel__inner { position: absolute; inset: auto; left: var(--ox); top: var(--oy); width: var(--ow); height: var(--oh); z-index: 3; overflow: hidden; transform-origin: 0 0; will-change: transform; }
 html.motion .reel__row.is-fx .reel__inner img, html.motion .reel__row.is-fx .reel__shade { transform-origin: 0 0; will-change: transform; }
 html.motion .reel__row.is-fx .reel__cap { bottom: 0; z-index: 5; opacity: 1; }
@@ -477,8 +477,8 @@ html.motion [data-rv].is-pre { opacity: 0; }
    ========================================================================== */
 .visit { background: #fff; color: var(--ink); padding-block: clamp(72px, 11vh, 120px); border-top: 1px solid var(--line); }
 .visit__status { display: inline-flex; align-items: center; gap: 10px; min-height: 40px; padding: 0 14px; border-radius: var(--r1); background: var(--mist); border: 1px solid var(--line); font-family: var(--f-ui); font-size: .875rem; font-weight: 600; color: var(--ink-2); }
-.visit__grid { display: grid; grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr); gap: clamp(16px, 2.4vw, 32px); align-items: start; }
-.visit__info, .visit__side { display: grid; gap: clamp(12px, 1.4vw, 16px); min-width: 0; }
+.visit__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(12px, 1.6vw, 20px); align-items: stretch; }
+.visit__status .dot { background: var(--ok); }
 .vcard { padding: 22px; border: 1px solid var(--line); border-radius: var(--r2); background: #fff; }
 .vcard__title { display: flex; align-items: center; gap: 10px; font-size: 1.0625rem; font-weight: 800; }
 .vcard__title .ic { width: 20px; height: 20px; color: var(--blue); }
@@ -493,27 +493,122 @@ html.motion [data-rv].is-pre { opacity: 0; }
 .hours { display: grid; margin-top: 10px; }
 .hours li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 10px; margin-inline: -10px; border-radius: var(--r1); font-size: .9375rem; }
 .hours li + li { box-shadow: 0 -1px 0 var(--mist-2); }
-.hours b { font-family: var(--f-ui); font-weight: 600; font-variant-numeric: tabular-nums; color: var(--ink-2); }
-.hours li[data-d="6"] b { color: var(--ink-3); }
-.hours li.is-today { background: var(--blue-50); box-shadow: none; font-weight: 700; color: var(--navy-800); }
-.hours li.is-today + li { box-shadow: none; }
-.hours li.is-today b { color: var(--navy-800); }
-.hours li.is-today span::after { content: "امروز"; margin-inline-start: 8px; padding: 1px 7px; border-radius: 3px; background: var(--blue); color: #fff; font-family: var(--f-ui); font-size: .6875rem; font-weight: 600; vertical-align: 1px; }
+.hours b { font-family: var(--f-ui); font-weight: 600; font-variant-numeric: tabular-nums; color: var(--ink-2); text-align: end; }
+.hours li.is-now { background: #E8F6F0; box-shadow: none; font-weight: 700; color: #0B5A45; }
+.hours li.is-now + li { box-shadow: none; }
+.hours li.is-now b { color: #0B5A45; }
+.hours li.is-now span::after { content: "باز است"; margin-inline-start: 8px; padding: 1px 7px; border-radius: 3px; background: var(--ok); color: #fff; font-family: var(--f-ui); font-size: .6875rem; font-weight: 600; vertical-align: 1px; }
+.week { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; }
+.week__lab { font-family: var(--f-ui); font-size: .8125rem; color: var(--ink-3); }
+.week__days { display: flex; gap: 5px; }
+.week__days li { position: relative; display: grid; place-items: center; width: 30px; height: 30px; border-radius: var(--r1); background: var(--mist); color: var(--ink-3); font-family: var(--f-ui); font-size: .8125rem; font-weight: 600; }
+.week__days li.is-on { background: var(--blue-50); color: var(--navy-800); box-shadow: inset 0 0 0 1px #C9DAF8; }
+.week__days li.is-today::after { content: ""; position: absolute; bottom: -7px; left: 50%; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--blue); }
+.vcard__zip { margin-top: 4px; font-family: var(--f-ui); font-size: .875rem; color: var(--ink-3); }
+.vcard__tel { display: inline-flex; align-items: center; gap: 10px; margin-top: 14px; font-family: var(--f-ui); font-size: 1.375rem; font-weight: 700; color: var(--navy-800); text-decoration: none; }
+.vcard__tel .ic { width: 20px; height: 20px; color: var(--blue); }
+.vcard__tel:hover span { text-decoration: underline; text-underline-offset: 5px; }
+.social { display: inline-grid; place-items: center; width: 36px; height: 36px; border-radius: var(--r1); border: 1px solid var(--line-2); background: #fff; transition: transform .45s var(--spring), border-color .2s, box-shadow .2s; }
+.social img { display: block; width: 20px; height: 20px; }
+.social:hover { transform: translateY(-2px); border-color: var(--ink-3); box-shadow: var(--sh-1); }
 .reach { display: grid; gap: 14px; margin-top: 14px; }
 .reach li { display: flex; align-items: flex-start; gap: 12px; }
 .reach .ic { flex: none; width: 40px; height: 40px; padding: 9px; border-radius: var(--r1); background: var(--mist); color: var(--navy-800); }
 .reach b { display: block; font-size: .9375rem; line-height: 1.6; }
 .reach span { display: block; font-size: .875rem; line-height: 1.8; color: var(--ink-2); }
 
-.vmap { position: relative; margin: 0; border: 1px solid var(--line); border-radius: var(--r2); overflow: hidden; background: #E8EDF4; }
-.vmap__svg { display: block; width: 100%; height: auto; }
-.vmap__pulse { transform-box: fill-box; transform-origin: center; }
-html.motion .vmap__pulse { animation: vpulse 2.4s var(--ease-out) infinite; }
-@keyframes vpulse { 0% { transform: scale(.5); opacity: .45; } 100% { transform: scale(2.2); opacity: 0; } }
-.vmap__cap { position: absolute; right: calc(24.4% + 34px); top: calc(36.4% - 70px); display: grid; padding: 8px 12px; border-radius: var(--r1); background: #fff; box-shadow: var(--sh-2); white-space: nowrap; }
-.vmap__cap b { font-size: .9375rem; line-height: 1.5; }
-.vmap__cap span { font-family: var(--f-ui); font-size: .75rem; color: var(--ink-3); }
-.vmap__note { position: absolute; left: 10px; bottom: 10px; padding: 2px 8px; border-radius: 3px; background: rgba(255, 255, 255, .85); font-family: var(--f-ui); font-size: .6875rem; color: var(--ink-3); }
+/* ---------- نقشه‌ی مسیر: نقشه‌ی واقعی سلمان‌شهر (OpenStreetMap) و سه مسیر متحرک ---------- */
+.vstage { display: grid; gap: clamp(12px, 1.6vw, 20px); margin-bottom: clamp(12px, 1.6vw, 20px); }
+.vmap { position: relative; margin: 0; --ca: #1E5EEB; --cb: #0B9F87; --cc: #7B55F5; }
+.vmap__frame { position: relative; aspect-ratio: 2.3 / 1; border-radius: var(--r2); overflow: hidden; background: #F1F3F7; border: 1px solid var(--line); isolation: isolate; }
+.vmap__view { position: absolute; inset: 0; overflow: hidden; }
+.vmap__world { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
+.vmap__base { position: absolute; inset: 0; display: block; width: 100%; height: 100%; max-width: none; user-select: none; -webkit-user-drag: none; }
+.vmap__routes { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.rt path { fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; stroke-dasharray: 1 1; stroke-dashoffset: 1; }
+.rt__line { stroke-width: 5px; }
+.rt__glow { stroke-width: 15px; stroke-opacity: .16; }
+.rt--a { color: var(--ca); } .rt--b { color: var(--cb); } .rt--c { color: var(--cc); }
+.rt--b .rt__line { stroke-width: 6px; }
+.rt { transition: opacity .45s var(--ease-out); }
+.vmap.is-focus .rt:not(.is-hot) { opacity: .2; }
+/* برچسب‌ها و نشانگرها روی نقشه (HTML؛ متن تیز می‌ماند) */
+.vlab, .vorg, .vtag, .vpin { position: absolute; left: var(--x); top: var(--y); }
+.vlab { transform: translate(-50%, -50%) rotate(var(--r, 0deg)); white-space: nowrap; pointer-events: none; font-family: var(--f-ui); font-size: .75rem; font-weight: 600; color: #5D6A80; text-shadow: 0 0 2px #fff, 0 0 5px #fff, 0 0 9px #fff; }
+.vlab--sea { font-family: var(--f-display, inherit); font-size: 1rem; font-weight: 700; color: #3E82B4; text-shadow: none; opacity: .85; }
+.vlab--town { font-size: 1.125rem; font-weight: 800; color: #97A2B4; }
+.vlab--road { font-size: .6875rem; color: #9B6A10; }
+.vlab--poi { display: inline-flex; align-items: center; gap: 4px; font-size: .71875rem; color: #4B5870; }
+.vlab--poi .ic { width: 13px; height: 13px; }
+.vorg { width: 0; height: 0; --c: var(--ca); }
+.vorg--b { --c: var(--cb); } .vorg--c { --c: var(--cc); }
+.vorg i { position: absolute; left: -8px; top: -8px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 4px var(--c), 0 4px 10px rgba(13, 27, 48, .3); }
+.vorg b, .vorg em { position: absolute; white-space: nowrap; left: 50%; transform: translateX(var(--ax, -50%)); font-style: normal; }
+.vorg b { bottom: 14px; padding: 3px 9px 2px; border-radius: 6px 6px 0 0; background: var(--c); color: #fff; font-size: .75rem; font-weight: 700; line-height: 1.6; box-shadow: 0 6px 14px -6px rgba(13, 27, 48, .45); }
+.vorg em { bottom: 34px; font-family: var(--f-ui); font-size: .625rem; font-weight: 600; color: #fff; opacity: .85; display: none; }
+.vorg--c { --ax: -88%; }
+.vorg--b { --ax: -22%; }
+.vtag { transform: translate(-50%, -50%); padding: 3px 9px; border-radius: 999px; background: #fff; color: var(--c, var(--ca)); font-family: var(--f-ui); font-size: .6875rem; font-weight: 700; white-space: nowrap; box-shadow: 0 0 0 1.5px currentColor, 0 8px 18px -8px rgba(13, 27, 48, .35); pointer-events: none; }
+.vtag--b { --c: var(--cb); } .vtag--c { --c: var(--cc); }
+.vhead { position: absolute; left: 0; top: 0; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 4px var(--c, var(--ca)), 0 0 18px 4px var(--c, var(--ca)); opacity: 0; will-change: transform, opacity; pointer-events: none; }
+.vhead--b { --c: var(--cb); } .vhead--c { --c: var(--cc); }
+/* مقصد: لوگوی کلینیک */
+.vpin { width: 0; height: 0; z-index: 3; }
+.vpin__badge { position: absolute; left: -27px; bottom: 12px; display: grid; place-items: center; width: 54px; height: 54px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 3px #0B1A33, 0 14px 26px -10px rgba(13, 27, 48, .55); --lg-ink: #0B1A33; --lg-blue: #9DD9EE; --lg-fill: #fff; }
+.vpin__badge::after { content: ""; position: absolute; left: 50%; bottom: -10px; width: 12px; height: 12px; margin-left: -6px; background: #0B1A33; clip-path: polygon(0 0, 100% 0, 50% 100%); }
+.vpin__mark { width: 38px; height: 38px; }
+.vpin__ring { position: absolute; left: -22px; top: -9px; width: 44px; height: 18px; border-radius: 50%; border: 2px solid #0B1A33; opacity: 0; }
+html.motion .vpin.is-live .vpin__ring { animation: vRing 2.6s var(--ease-out) infinite; }
+html.motion .vpin.is-live .vpin__ring--2 { animation-delay: 1.3s; }
+@keyframes vRing { 0% { transform: scale(.35); opacity: .55; } 100% { transform: scale(2.4); opacity: 0; } }
+.vpin__cap { position: absolute; bottom: 30px; left: 34px; display: grid; padding: 6px 11px 5px; border-radius: var(--r1); background: #0B1A33; color: #fff; white-space: nowrap; box-shadow: 0 10px 24px -10px rgba(13, 27, 48, .6); }
+.vpin__cap b { font-size: .8125rem; line-height: 1.5; }
+.vpin__cap span { font-family: var(--f-ui); font-size: .6875rem; color: rgba(255, 255, 255, .72); }
+/* کلیدهای نوع نقشه */
+.vtabs { position: absolute; top: 12px; inset-inline-start: 12px; z-index: 6; display: flex; padding: 4px; border-radius: 10px; background: rgba(255, 255, 255, .96); box-shadow: 0 0 0 1px rgba(13, 27, 48, .08), 0 10px 24px -12px rgba(13, 27, 48, .35); }
+.vtabs__btn { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 7px; height: 36px; padding: 0 14px; border-radius: 7px; font-family: var(--f-ui); font-size: .8125rem; font-weight: 700; color: var(--ink-2); transition: color .3s; }
+.vtabs__btn .ic { width: 16px; height: 16px; }
+.vtabs__btn img { width: 12px; height: auto; }
+.vtabs__btn.is-on { color: #fff; }
+.vtabs__btn.is-busy::after { content: ""; width: 12px; height: 12px; border-radius: 50%; border: 2px solid currentColor; border-top-color: transparent; animation: vSpin .8s linear infinite; }
+@keyframes vSpin { to { transform: rotate(360deg); } }
+.vtabs__ind { position: absolute; z-index: 0; top: 4px; left: 0; height: 36px; width: var(--w, 90px); border-radius: 7px; background: #0B1A33; transform: translateX(var(--tx, 0)); transition: transform .55s var(--spring), width .55s var(--spring); }
+.vmap__attr { position: absolute; z-index: 5; bottom: 8px; inset-inline-end: 10px; padding: 2px 8px; border-radius: 3px; background: rgba(255, 255, 255, .85); font-family: var(--f-ui); font-size: .625rem; color: var(--ink-3); }
+.vmap__attr a { color: inherit; }
+/* نقشه‌ی واقعی گوگل */
+.vmap__gmap { position: absolute; inset: 0; z-index: 4; background: #E9EEF4; }
+.vmap__gmap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.vmap__load { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 12px; font-family: var(--f-ui); font-size: .8125rem; color: var(--ink-3); }
+.vmap__load i { width: 26px; height: 26px; border-radius: 50%; border: 3px solid #C9D3E0; border-top-color: #1A73E8; animation: vSpin .8s linear infinite; }
+.vmap[data-view="google"] .vroutes { opacity: .45; pointer-events: none; }
+/* راه‌های رسیدن */
+.vroutes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 10px; transition: opacity .4s; }
+.vroute { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 12px; align-items: center; width: 100%; height: 100%; padding: 12px 14px; border-radius: var(--r2); background: #fff; text-align: start; box-shadow: 0 0 0 1px var(--line); transition: transform .5s var(--spring), box-shadow .3s; --c: var(--ca); }
+.vroutes li:nth-child(2) .vroute { --c: var(--cb); } .vroutes li:nth-child(3) .vroute { --c: var(--cc); }
+.vroute i { grid-row: 1 / 3; width: 26px; height: 26px; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 6px var(--c); }
+.vroute b { font-size: .875rem; line-height: 1.5; color: var(--navy-800); }
+.vroute span { font-family: var(--f-ui); font-size: .6875rem; line-height: 1.6; color: var(--ink-3); }
+.vroute:hover, .vroute:focus-visible, .vroute.is-hot { transform: translateY(-2px); box-shadow: 0 0 0 2px var(--c), 0 16px 30px -18px rgba(13, 27, 48, .45); }
+/* دکمه‌های مسیریاب‌ها */
+.vapps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(10px, 1.2vw, 16px); }
+.vapp { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 14px; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--r2); background: #fff; color: var(--ink); text-decoration: none; overflow: hidden; transition: border-color .3s, box-shadow .4s var(--ease-out); --b: #1A73E8; }
+.vapp--balad { --b: #6B2BDC; } .vapp--neshan { --b: #1F8F7D; }
+.vapp::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: repeating-linear-gradient(90deg, var(--b) 0 10px, transparent 10px 16px); transform: scaleX(0); transform-origin: 100% 50%; transition: transform .7s var(--ease-out); }
+.vapp:hover, .vapp:focus-visible { border-color: color-mix(in srgb, var(--b) 38%, var(--line)); box-shadow: 0 18px 34px -22px color-mix(in srgb, var(--b) 70%, #000); }
+.vapp:hover::after, .vapp:focus-visible::after { transform: scaleX(1); }
+.vapp__ic { position: relative; display: grid; place-items: center; width: 50px; height: 50px; }
+.vapp__ic img { position: relative; z-index: 1; display: block; width: 48px; height: 48px; object-fit: contain; }
+.vapp--balad .vapp__ic img { border-radius: 12px; }
+.vapp--google .vapp__ic img { width: auto; height: 44px; }
+.vapp__shadow { position: absolute; left: 50%; bottom: -5px; width: 34px; height: 7px; margin-left: -17px; border-radius: 50%; background: radial-gradient(closest-side, rgba(13, 27, 48, .28), rgba(13, 27, 48, 0)); }
+.vapp__ring { position: absolute; left: 50%; bottom: -8px; width: 44px; height: 14px; margin-left: -22px; border-radius: 50%; border: 2px solid var(--b); opacity: 0; }
+.vapp.is-ping .vapp__ring { animation: vRing 1.1s var(--ease-out); }
+.vapp__txt b { display: block; font-size: .9375rem; line-height: 1.6; }
+.vapp__txt span { display: block; font-family: var(--f-ui); font-size: .75rem; color: var(--ink-3); }
+.vapp__go { display: grid; place-items: center; width: 38px; height: 38px; border-radius: var(--r1); background: var(--mist); color: var(--navy-800); transition: background-color .3s, color .3s; }
+.vapp__go .ic { width: 18px; height: 18px; transition: transform .5s var(--spring); }
+.vapp:hover .vapp__go, .vapp:focus-visible .vapp__go { background: var(--b); color: #fff; }
+.vapp:hover .vapp__go .ic { transform: translateX(-4px); }
 
 .callback { padding: 18px 20px 20px; border: 1px solid var(--line); border-top: 3px solid var(--blue); border-radius: var(--r2); background: #fff; }
 .callback__head b { display: block; font-size: 1.0625rem; }
@@ -579,12 +674,10 @@ html.svc-open main *, html.svc-open .foot * { animation-play-state: paused !impo
   .svc__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .faq__in { grid-template-columns: minmax(0, 1fr); }
   .faq__head { position: static; }
-  /* تبلت: کارت‌ها و نقشه در یک شبکه‌ی دوستونی کنار هم می‌نشینند */
-  .visit__info, .visit__side { display: contents; }
-  .visit__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .vcard--addr, .vcard--hours { order: 1; }
-  .vmap { order: 2; grid-column: 1 / -1; }
-  .vcard--reach, .callback { order: 3; }
+  .vmap__frame { aspect-ratio: 1.55 / 1; }
+  .vapp { grid-template-columns: auto minmax(0, 1fr); padding: 12px; gap: 10px; }
+  .vapp__go { display: none; }
+  .vapp__txt span { display: none; }
   .callback__fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .callback__fields .field:nth-child(3) { grid-column: 1 / -1; }
   .rv { grid-template-columns: 1fr; }
@@ -598,11 +691,16 @@ html.svc-open main *, html.svc-open .foot * { animation-play-state: paused !impo
 
 @media (max-width: 699.98px) {
   .visit__grid { grid-template-columns: minmax(0, 1fr); }
-  .vcard--addr { order: 1; }
-  .vmap { order: 2; }
-  .vcard--hours { order: 3; }
-  .vcard--reach { order: 4; }
-  .callback { order: 5; }
+  .vmap__frame { aspect-ratio: .9 / 1; }
+  .vroutes { grid-template-columns: minmax(0, 1fr); }
+  .vapps { grid-template-columns: minmax(0, 1fr); }
+  .vapp { grid-template-columns: auto minmax(0, 1fr) auto; padding: 12px 14px; }
+  .vapp__go { display: grid; }
+  .vapp__txt span { display: block; }
+  .vtabs { top: 10px; inset-inline-start: 10px; }
+  .vpin__cap { display: none; }
+  .vlab--town, .vlab--road { display: none; }
+  .vtabs__btn { padding: 0 11px; }
   .callback__fields { grid-template-columns: minmax(0, 1fr); }
   .vcard { padding: 18px; }
   .faq-item summary { padding: 14px 16px; }
@@ -689,7 +787,7 @@ html.hc .about__p, html.hc .fig dt, html.hc .fig dd span { color: #000; }
 html.hc .figures, html.hc .fig + .fig { border-color: #000; }
 html.hc .depts { background: #000; }
 html.hc .depts__sub { color: #fff; }
-html.hc .faq-item, html.hc .vcard, html.hc .vmap, html.hc .callback, html.hc .chip, html.hc .faq-tabs button { border: 2px solid #000; }
+html.hc .faq-item, html.hc .vcard, html.hc .vmap__frame, html.hc .vapp, html.hc .callback, html.hc .chip, html.hc .faq-tabs button { border: 2px solid #000; }
 html.hc .faq-item__a p, html.hc .reach span, html.hc .vcard__note, html.hc .hours b, html.hc .faq-item__tag, html.hc .callback__head span { color: #000; }
 html.hc .svc__item { border: 2px solid #000; }
 html.hc .svc__item p { color: #000; }
