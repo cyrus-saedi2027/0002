@@ -348,7 +348,9 @@
   const cp = { t: 0, r: 0, b: 0, l: 0, rad: 22 };
   const drawClip = () => { panel.style.clipPath = `inset(${cp.t.toFixed(1)}px ${cp.r.toFixed(1)}px ${cp.b.toFixed(1)}px ${cp.l.toFixed(1)}px round ${cp.rad.toFixed(1)}px)`; };
   const clip = (to, o) => Object.assign({}, to, o, { onUpdate: drawClip });
-  const focusables = () => $$('button:not([disabled]):not([hidden]), input:not([disabled]), textarea, [href], [tabindex]:not([tabindex="-1"])', panel).filter((el) => el.offsetParent !== null && !el.closest('[hidden]'));
+  /* فقط عنصرهای HTML قابل فوکوس (نه <use href> آیکون‌های SVG)؛ از هر گروه رادیو فقط یکی در ترتیب Tab است */
+  const focusables = () => $$('button:not([disabled]):not([hidden]), input:not([disabled]), textarea, a[href], [tabindex]:not([tabindex="-1"])', panel)
+    .filter((el) => el.offsetParent !== null && !el.closest('[hidden]') && !(el.type === 'radio' && !el.checked && $(`input[name="${el.name}"]:checked`, panel)));
   document.addEventListener('keydown', (e) => {
     if (!isOpen) return;
     if (e.key === 'Escape') { e.preventDefault(); close(); return; }

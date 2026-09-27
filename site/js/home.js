@@ -2182,6 +2182,19 @@
     }
   };
 
+  /* ---------- برگه‌های روی صفحه (مقاله و صفحه‌ی خدمات): Tab بیرون از برگه نمی‌رود ---------- */
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Tab' || (S.Book && S.Book.isOpen())) return;
+    const dlg = ['#ar', '#svc'].map((q) => $(q)).find((d) => d && !d.hidden);
+    if (!dlg) return;
+    const f = $$('button:not([disabled]), a[href], input:not([disabled]), textarea, select, [tabindex]:not([tabindex="-1"])', dlg).filter((el) => el.offsetParent !== null && !el.closest('[hidden]'));
+    if (!f.length) return;
+    const first = f[0], last = f[f.length - 1], a = document.activeElement;
+    if (!dlg.contains(a)) { e.preventDefault(); first.focus(); }
+    else if (e.shiftKey && a === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && a === last) { e.preventDefault(); first.focus(); }
+  });
+
   /* ---------- ثبت ماژول‌ها ---------- */
   Motion.add(Stage);
   Motion.add(Reel);
