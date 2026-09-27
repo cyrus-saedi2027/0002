@@ -264,7 +264,7 @@
         <div class="wrap qbook-wrap" id="book" data-fallback="callback">
           <form class="qbook" id="qbook" novalidate data-intro>
             <div class="qbook__head">
-              <b>زمان مراجعه</b>
+              <b>درخواست سریع نوبت</b>
               <span class="qbook__live"><span class="dot" aria-hidden="true"></span><span id="qbookLive">پزشک عمومی: شبانه‌روزی</span></span>
             </div>
             <div class="qbook__fields">
@@ -285,16 +285,12 @@
                 </select>
               </label>
               <label class="field">
-                <span class="field__label">زمان مناسب</span>
-                <select id="qbWhen" name="when">
-                  <option value="any" data-ic="i-pulse" data-hint="نزدیک‌ترین زمانی که پذیرش دارد">اولین زمان ممکن</option>
-                  <option value="am" data-ic="i-clock" data-hint="۱۰ صبح تا ۲ بعدازظهر">صبح</option>
-                  <option value="pm" data-ic="i-clock" data-hint="۲ بعدازظهر تا ۸ شب">عصر</option>
-                  <option value="night" data-ic="i-clock" data-hint="بعد از ۸ شب؛ فقط پزشک عمومی">شب</option>
-                </select>
+                <span class="field__label">شماره‌ی موبایل</span>
+                <input id="qbTel" name="tel" type="tel" inputmode="tel" autocomplete="tel" dir="ltr" placeholder="۰۹۱۱ ۱۲۳ ۴۵۶۷" maxlength="20">
               </label>
-              <button class="btn btn--primary qbook__submit" type="submit"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>کی می‌توانم بیایم؟</button>
+              <button class="btn btn--primary qbook__submit" type="submit"><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg>درخواست نوبت</button>
             </div>
+            <p class="qbook__note"><span class="qbook__ring" aria-hidden="true"><svg class="ic"><use href="#i-phone"/></svg></span><span>روز، ساعت و پزشک را پذیرش تلفنی با شما هماهنگ می‌کند.</span><b id="qbCall">بین ۳۰ دقیقه تا ۴ ساعت بعد تماس می‌گیریم</b></p>
             <p class="qbook__result" id="qbResult" role="status" aria-live="polite" hidden></p>
           </form>
         </div>
@@ -383,7 +379,7 @@
           <h2 class="depts__title" id="depts-title">هر بخش، تیم و تجهیزات خودش را دارد</h2>
           <p class="depts__sub">از جرم‌گیری تا ایمپلنت، از بوتاکس تا لیزر، و پزشک عمومی که شبانه‌روز در کلینیک است. روی هر بخش بزنید تا خدمات و زمان هر درمان را ببینید.</p>
         </div>
-        <a class="link-arrow link-arrow--light" href="#dental" data-svc="dental">فهرست کامل خدمات<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        <a class="link-arrow link-arrow--light" href="#services-all" data-svc="all">فهرست کامل خدمات<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
       </header>
 
       <div class="deck" id="deck">
@@ -504,7 +500,8 @@
       </header>
       <div class="docs__in">
         <div class="docs__stage" aria-hidden="true">
-          <div class="docs__frame"><div class="docs__img is-on" data-i="0"><img src="img/doc-1.webp" alt="" width="720" height="900" decoding="async"></div><div class="docs__img" data-i="1"><img src="img/doc-2.webp" alt="" width="720" height="900" loading="lazy" decoding="async"></div><div class="docs__img" data-i="2"><img src="img/doc-5.webp" alt="" width="720" height="900" loading="lazy" decoding="async"></div><div class="docs__img" data-i="3"><img src="img/doc-3.webp" alt="" width="720" height="900" loading="lazy" decoding="async"></div><div class="docs__img" data-i="4"><img src="img/doc-4.webp" alt="" width="720" height="900" loading="lazy" decoding="async"></div></div>
+          <i class="docs__beam"><i></i></i>
+          <div class="docs__frame"><div class="docs__img is-on" data-i="0"><img src="img/doc-1.webp" alt="" width="720" height="900" decoding="async"></div><div class="docs__img" data-i="1"><img src="img/doc-2.webp" alt="" width="720" height="900" loading="lazy" decoding="async"></div><div class="docs__img" data-i="2"><img src="img/doc-5.webp" alt="" width="720" height="900" loading="lazy" decoding="async"></div><div class="docs__img" data-i="3"><img src="img/doc-3.webp" alt="" width="720" height="900" loading="lazy" decoding="async"></div><div class="docs__img" data-i="4"><img src="img/doc-4.webp" alt="" width="720" height="900" loading="lazy" decoding="async"></div><i class="docs__sheen"></i></div>
           <p class="docs__count"><span class="docs__num"><b>۰۱</b></span><span class="docs__of">/ ۰۵</span></p>
         </div>
         <i class="docs__ind" aria-hidden="true"></i>
@@ -641,6 +638,40 @@
         <li data-rv><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg><span><b>ضدعفونی بین هر دو بیمار</b>یونیت، سطوح و دسته‌ی چراغ</span></li>
         <li data-rv><svg class="ic" aria-hidden="true"><use href="#i-file"/></svg><span><b>ثبت در پرونده</b>هر درمان با تاریخ و نام پزشک در پرونده‌تان می‌ماند</span></li>
       </ul>
+    </div>
+  </section>
+
+  <!-- ========== بخش ۴٫۷: ساعت ساسان؛ شبانه‌روز در کلینیک (موشن‌گرافیک ساعت ۲۴ ساعته) ========== -->
+  <section class="clk" id="clock" aria-labelledby="clk-title" data-part="day">
+    <div class="clk__sky" aria-hidden="true"><i class="clk__night"></i><i class="clk__stars"></i><i class="clk__day"></i><i class="clk__glow"></i></div>
+    <div class="wrap clk__in">
+      <div class="clk__txt">
+        <p class="kicker kicker--light">شبانه‌روزی</p>
+        <h2 class="sec-title clk__title" id="clk-title">هر ساعتی از شبانه‌روز، پزشک در کلینیک است</h2>
+        <p class="clk__sub">عقربه را بچرخانید یا روز هفته را عوض کنید تا ببینید آن ساعت کدام بخش پذیرش دارد و برای چه کارهایی می‌توانید بیایید.</p>
+        <div class="clk__days" role="group" aria-label="روز هفته"><button type="button" data-d="0" aria-pressed="false" aria-label="شنبه"><span class="clk__dl">شنبه</span><span class="clk__ds" aria-hidden="true">ش</span><i class="clk__dd" aria-hidden="true"></i></button><button type="button" data-d="1" aria-pressed="false" aria-label="یکشنبه"><span class="clk__dl">یکشنبه</span><span class="clk__ds" aria-hidden="true">ی</span><i class="clk__dd" aria-hidden="true"></i></button><button type="button" data-d="2" aria-pressed="false" aria-label="دوشنبه"><span class="clk__dl">دوشنبه</span><span class="clk__ds" aria-hidden="true">د</span><i class="clk__dd" aria-hidden="true"></i></button><button type="button" data-d="3" aria-pressed="false" aria-label="سه‌شنبه"><span class="clk__dl">سه‌شنبه</span><span class="clk__ds" aria-hidden="true">س</span><i class="clk__dd" aria-hidden="true"></i></button><button type="button" data-d="4" aria-pressed="false" aria-label="چهارشنبه"><span class="clk__dl">چهارشنبه</span><span class="clk__ds" aria-hidden="true">چ</span><i class="clk__dd" aria-hidden="true"></i></button><button type="button" data-d="5" aria-pressed="false" aria-label="پنجشنبه"><span class="clk__dl">پنجشنبه</span><span class="clk__ds" aria-hidden="true">پ</span><i class="clk__dd" aria-hidden="true"></i></button><button type="button" data-d="6" aria-pressed="false" aria-label="جمعه"><span class="clk__dl">جمعه</span><span class="clk__ds" aria-hidden="true">ج</span><i class="clk__dd" aria-hidden="true"></i></button></div>
+        <ul class="clk__list" aria-live="polite">
+          <li class="clk__row" data-k="medicine"><i class="clk__dot" aria-hidden="true"></i><span class="clk__rt"><b>پزشک عمومی</b><span class="clk__rs">در کلینیک است</span></span></li>
+          <li class="clk__row" data-k="dental"><i class="clk__dot" aria-hidden="true"></i><span class="clk__rt"><b>دندانپزشکی</b><span class="clk__rs">پذیرش دارد</span></span></li>
+          <li class="clk__row" data-k="beauty"><i class="clk__dot" aria-hidden="true"></i><span class="clk__rt"><b>زیبایی و لیزر</b><span class="clk__rs">همه‌روزه، با هماهنگی قبلی</span></span></li>
+        </ul>
+        <p class="clk__can" id="clkCan"></p>
+        <div class="clk__acts">
+          <button type="button" class="btn btn--light clk__now" hidden><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>برگشت به همین حالا</button>
+          <a class="btn btn--outline-light" href="#book"><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg>درخواست نوبت</a>
+        </div>
+      </div>
+      <div class="clk__dial">
+        <canvas class="clk__cv" aria-hidden="true"></canvas>
+        <div class="clk__hand" aria-hidden="true"><i class="clk__arm"></i><i class="clk__knob"></i></div>
+        <div class="clk__center" aria-hidden="true">
+          <span class="clk__orb"><svg class="clk__sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg><svg class="clk__moon" viewBox="0 0 24 24"><path d="M20 14.6A8.2 8.2 0 0 1 9.4 4a8.2 8.2 0 1 0 10.6 10.6z"/></svg></span>
+          <b class="clk__time" id="clkTime">۱۲:۰۰</b>
+          <span class="clk__part" id="clkPart">ظهر · شنبه</span>
+        </div>
+        <label class="clk__range-l"><span class="sr-only">ساعت</span><input class="clk__range" type="range" min="0" max="1425" step="15" value="720"></label>
+        <span class="clk__lg" aria-hidden="true"><i data-k="medicine"></i>پزشک عمومی · ۲۴ ساعت<i data-k="dental"></i>دندانپزشکی · ۱۰ تا ۲۰</span>
+      </div>
     </div>
   </section>
 
@@ -1047,7 +1078,7 @@
               </span>
             </div>
           </div>
-          <div class="vmap__gmap" id="vgmap" hidden data-src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d315.05215236382094!2d51.203538137472734!3d36.70964590123717!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3f8c07358e673563%3A0xee0e6841a236f67c!2z2K_YsdmF2KfZhtqv2KfZhyDYtNio2KfZhtmHINix2YjYstuMINiz2KfYs9in2YYg2YXYqtmEINmC2Yg!5e0!3m2!1sfa!2sam!4v1790461665332!5m2!1sfa!2sam"><p class="vmap__load"><i></i>در حال باز کردن نقشه‌ی گوگل…</p></div>
+          <div class="vmap__gmap" id="vgmap" hidden data-src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d9000!2d51.203538137472734!3d36.70964590123717!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3f8c07358e673563%3A0xee0e6841a236f67c!2z2K_YsdmF2KfZhtqv2KfZhyDYtNio2KfZhtmHINix2YjYstuMINiz2KfYs9in2YYg2YXYqtmEINmC2Yg!5e0!3m2!1sfa!2sam!4v1790461665332!5m2!1sfa!2sam"><p class="vmap__load"><i></i>در حال باز کردن نقشه‌ی گوگل…</p></div>
           <div class="vtabs" role="tablist" aria-label="نوع نقشه">
             <button type="button" role="tab" class="vtabs__btn is-on" aria-selected="true" data-view="route"><svg class="ic" aria-hidden="true"><use href="#i-route"/></svg>مسیرها</button>
             <button type="button" role="tab" class="vtabs__btn" aria-selected="false" data-view="google"><img src="img/brand/google-maps.svg" alt="" width="12" height="17">نقشه‌ی گوگل</button>
@@ -1241,14 +1272,25 @@
         <h1 class="svc__title" id="svcTitle">دندانپزشکی</h1>
         <p class="svc__lead" id="svcLead"></p>
         <div class="svc__ctas">
-          <a class="btn btn--light btn--lg" href="#book" data-close-svc><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg>نوبت در این بخش</a>
+          <a class="btn btn--light btn--lg" href="#book" data-close-svc id="svcBook"><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg><span>درخواست نوبت در این بخش</span></a>
           <span class="svc__slot" id="svcSlot"></span>
         </div>
       </div>
     </div>
     <div class="svc__main">
-      <div class="wrap svc__body">
-        <h2 class="svc__h2">خدمات این بخش</h2>
+      <nav class="svc__tabs" aria-label="بخش‌های کلینیک">
+        <div class="wrap">
+          <div class="svc__seg" role="tablist">
+            <button type="button" role="tab" data-tab="all"><svg class="ic" aria-hidden="true"><use href="#i-file"/></svg><span>همه‌ی خدمات</span></button>
+            <button type="button" role="tab" data-tab="dental"><svg class="ic" aria-hidden="true"><use href="#i-tooth"/></svg><span>دندانپزشکی</span></button>
+            <button type="button" role="tab" data-tab="beauty"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg><span>زیبایی و لیزر</span></button>
+            <button type="button" role="tab" data-tab="medicine"><svg class="ic" aria-hidden="true"><use href="#i-steth"/></svg><span>پزشکی شبانه‌روزی</span></button>
+            <i class="svc__seg-ind" aria-hidden="true"></i>
+          </div>
+        </div>
+      </nav>
+      <div class="wrap svc__body" id="svcBody" role="tabpanel">
+        <h2 class="svc__h2" id="svcH2">خدمات این بخش</h2>
         <div class="svc__list" id="svcList"></div>
         <p class="svc__note">برای زمان مراجعه و هماهنگی با پذیرش تماس بگیرید: <a href="tel:+981154611560" dir="ltr">۰۱۱ ۵۴۶۱ ۱۵۶۰</a></p>
       </div>
@@ -1291,8 +1333,10 @@
         <button type="button" class="bk__icb bk__x" data-bk-close aria-label="بستن"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button>
       </header>
       <ol class="bk__prog" aria-hidden="true">
-        <li class="is-on">بخش</li><li>مشخصات</li><li>تأیید شماره</li>
-        <i class="bk__bar"><i></i></i>
+        <li class="is-on" style="--i:0"><span class="bk__pl"><i class="bk__pn"><b>۱</b><svg class="ic"><use href="#i-check"/></svg></i>بخش</span><i class="bk__seg"><i></i></i></li>
+        <li style="--i:1"><span class="bk__pl"><i class="bk__pn"><b>۲</b><svg class="ic"><use href="#i-check"/></svg></i>مشخصات</span><i class="bk__seg"><i></i></i></li>
+        <li style="--i:2"><span class="bk__pl"><i class="bk__pn"><b>۳</b><svg class="ic"><use href="#i-check"/></svg></i>تأیید شماره</span><i class="bk__seg"><i></i></i></li>
+        <li style="--i:3"><span class="bk__pl"><i class="bk__pn"><b>۴</b><svg class="ic"><use href="#i-check"/></svg></i>ثبت</span><i class="bk__seg"><i></i></i></li>
       </ol>
 
       <div class="bk__view" data-lenis-prevent>
@@ -1341,7 +1385,8 @@
               <input id="bkCode" inputmode="numeric" autocomplete="one-time-code" maxlength="5" dir="ltr" aria-label="کد تأیید ۵ رقمی" aria-describedby="bkTimerRow">
               <span class="bk-code__cells" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
             </div>
-            <div class="bk-timer" id="bkTimerRow"><i class="bk-timer__bar"><i></i></i><span>اعتبار کد: <b id="bkTimer">۲:۰۰</b></span><button type="button" class="bk-link" id="bkResend" disabled>ارسال دوباره</button></div>
+            <div class="bk-timer" id="bkTimerRow"><i class="bk-timer__bar"><i></i></i><span id="bkTimerTxt">اعتبار کد: <b id="bkTimer">۲:۰۰</b></span><button type="button" class="bk-link" id="bkResend" disabled>ارسال دوباره</button></div>
+            <p class="bk-demo" id="bkDemo" hidden>این پیش‌نمایش به سرور پیامک وصل نیست و پیامکی فرستاده نمی‌شود. برای دیدن ادامه‌ی مسیر، هر کد ۵ رقمی را وارد کنید.</p>
           </div>
         </section>
 
@@ -1370,10 +1415,6 @@
         </div>
       </footer>
     </div>
-  </div>
-  <div class="bk-sms" id="bkSms" hidden>
-    <span class="bk-sms__app" aria-hidden="true"><svg class="ic"><use href="#i-chat"/></svg></span>
-    <span class="bk-sms__t"><b>پیامک · کلینیک ساسان</b><span id="bkSmsText"></span><small>پیش‌نمایش؛ در این نسخه پیامک واقعی فرستاده نمی‌شود. برای پر کردن کد بزنید.</small></span>
   </div>
 </div>
 

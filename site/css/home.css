@@ -43,6 +43,18 @@ html.intro [data-intro] { opacity: 0; }
 .qbook__live { display: inline-flex; align-items: center; gap: 8px; font-family: var(--f-ui); font-size: .8125rem; color: var(--ink-2); }
 .qbook__fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; gap: 12px; align-items: end; }
 .qbook__submit { height: 48px; }
+.qbook__submit .ic { width: 19px; height: 19px; }
+.qbook .field.is-bad input { border-color: #C23A32; box-shadow: 0 0 0 4px rgba(194, 58, 50, .12); }
+/* خط زیر فرم: پذیرش زمان را هماهنگ می‌کند و بازه‌ی تماس با ساعت همین حالا */
+.qbook__note { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line-2); font-size: .875rem; line-height: 1.7; color: var(--ink-2); }
+.qbook__note b { margin-inline-start: auto; font-family: var(--f-ui); font-size: .8125rem; font-weight: 700; color: var(--navy-800); font-variant-numeric: tabular-nums; }
+.qbook__ring { position: relative; flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--blue-50); color: var(--blue); }
+.qbook__ring .ic { width: 15px; height: 15px; }
+/* دو موج آرام دور گوشی، سه بار و بعد آرام می‌گیرد (فقط transform و opacity) */
+.qbook__ring::before, .qbook__ring::after { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 1.5px solid var(--blue); opacity: 0; animation: qbRing 1.8s cubic-bezier(.16, 1, .3, 1) 2.4s 3; }
+.qbook__ring::after { animation-delay: 2.75s; }
+@keyframes qbRing { 0% { transform: scale(1); opacity: .55; } 100% { transform: scale(1.75); opacity: 0; } }
+html.rm .qbook__ring::before, html.rm .qbook__ring::after { animation: none; }
 .qbook__result { margin-top: 14px; padding: 12px 14px; border-radius: var(--r1); background: var(--blue-50); border-inline-start: 3px solid var(--blue); display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; font-size: .96875rem; }
 .qbook__result b { font-weight: 800; }
 .qbook__result a { margin-inline-start: auto; }
@@ -343,15 +355,23 @@ html.hc .jsky { display: none; }
 /* ---------- دسکتاپ ---------- */
 @media (min-width: 1000px) {
   .docs__in {
-    --sh: min(72svh, 640px); --ov: 190px;
-    position: relative; display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(32px, 4vw, 64px); align-items: center;
+    --sh: min(72svh, 640px); --ov: 190px; --g: clamp(32px, 4vw, 64px); --cw: 316px; --sr: .55;
+    position: relative; display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: var(--g); align-items: center;
   }
+  /* صفحه‌ی پهن: ستون عکس جای بیشتری می‌گیرد تا کارت معرفی کمتر روی عکس بیفتد */
+  @media (min-width: 1200px) { .docs__in { grid-template-columns: minmax(0, .76fr) minmax(0, 1.24fr); --sr: .62; --cw: 340px; } }
   @supports (width: 1cqi) {
     .docs__in { container-type: inline-size; --sh: min(72svh, 640px, 50cqi); }
   }
   .docs__list { grid-column: 1; grid-row: 1; }
   .docs__stage { grid-column: 2; grid-row: 1; position: relative; height: var(--sh); }
   .docs__frame { position: absolute; top: 0; bottom: 0; inset-inline-end: 0; aspect-ratio: 4 / 5; border-radius: 12px; overflow: hidden; background: #1A2130; box-shadow: 0 0 0 1px rgba(255, 255, 255, .08), 0 50px 90px -40px rgba(0, 0, 0, .8); }
+  /* نور دور قاب (js: sweep)؛ زیر قاب است و فقط لبه‌ی ۲ پیکسلی‌اش پیداست */
+  .docs__beam { position: absolute; top: -7px; bottom: -7px; inset-inline-end: -7px; width: calc(var(--sh) * .8 + 14px); border-radius: 19px; overflow: hidden; opacity: 0; pointer-events: none;
+    /* لبه‌ی نزدیک قاب روشن و به بیرون محو: نور مثل هاله دور قاب می‌گردد */
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); padding: 7px; }
+  .docs__beam i { position: absolute; left: 50%; top: 50%; width: 170%; aspect-ratio: 1; translate: -50% -50%; background: conic-gradient(from 0deg, transparent 0turn .6turn, color-mix(in srgb, var(--tone, #8CC2FF) 35%, transparent) .76turn, color-mix(in srgb, var(--tone, #8CC2FF) 85%, #fff) .88turn, #fff .9turn, color-mix(in srgb, var(--tone, #8CC2FF) 50%, transparent) .94turn, transparent 1turn); filter: blur(3px); }
+  .docs__sheen { position: absolute; inset: 0; z-index: 3; pointer-events: none; transform: translate3d(-110%, 0, 0); background: linear-gradient(100deg, rgba(255, 255, 255, 0) 36%, rgba(255, 255, 255, .12) 46%, rgba(255, 255, 255, .26) 50%, rgba(255, 255, 255, .12) 54%, rgba(255, 255, 255, 0) 64%); }
   .docs__img { position: absolute; inset: 0; overflow: hidden; visibility: hidden; }
   .docs__img.is-on { visibility: visible; z-index: 2; }
   .docs__img.is-under { visibility: visible; z-index: 1; }
@@ -366,22 +386,24 @@ html.hc .jsky { display: none; }
   .docs__list { counter-reset: none; }
   .doc { border-bottom: 1px solid rgba(255, 255, 255, .09); }
   .doc:first-child { border-top: 1px solid rgba(255, 255, 255, .09); }
-  .doc__head { position: relative; z-index: 1; display: grid; grid-template-columns: 52px 28px minmax(0, 1fr) auto; align-items: center; gap: 16px; width: 100%; padding: 14px 16px; text-align: start; color: rgba(217, 226, 241, .6); cursor: pointer; transition: color .35s; }
+  /* حالت فعال و هاور فقط با opacity عوض می‌شود (ترنزیشن رنگ روی کامپوزیتور اجرا نمی‌شد و هر فریمش کل صفحه را دوباره می‌ساخت) */
+  .doc__head { position: relative; z-index: 1; display: grid; grid-template-columns: 52px 28px minmax(0, 1fr) auto; align-items: center; gap: 16px; width: 100%; padding: 14px 16px; text-align: start; color: rgb(217, 226, 241); cursor: pointer; }
+  .doc__no, .doc__role { opacity: .6; transition: opacity .35s; }
   .doc__av { width: 52px; height: 52px; border-radius: 50%; overflow: hidden; background: #1A2130; opacity: .55; transition: opacity .35s; }
   .doc__av img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 12%; transform: scale(1.5); transform-origin: 50% 18%; }
   .doc__no { font-family: var(--f-ui); font-size: .8125rem; font-variant-numeric: tabular-nums; }
   .doc__who { display: grid; gap: 2px; min-width: 0; }
-  .doc__name { font-size: clamp(1.08rem, .95rem + .45vw, 1.35rem); font-weight: 800; line-height: 1.5; color: rgba(255, 255, 255, .78); transition: color .35s, translate .6s var(--ease-out); }
+  .doc__name { font-size: clamp(1.08rem, .95rem + .45vw, 1.35rem); font-weight: 800; line-height: 1.5; color: #fff; opacity: .78; transition: opacity .35s, translate .6s var(--ease-out); }
   .doc__role { font-size: .875rem; line-height: 1.6; }
   .doc__head .doc__cat { opacity: .75; transition: opacity .35s; }
-  .doc.is-on .doc__head, .doc__head:hover { color: rgba(217, 226, 241, .85); }
-  .doc.is-on .doc__name, .doc__head:hover .doc__name { color: #fff; }
+  .doc.is-on .doc__no, .doc.is-on .doc__role, .doc__head:hover .doc__no, .doc__head:hover .doc__role { opacity: .85; }
+  .doc.is-on .doc__name, .doc__head:hover .doc__name { opacity: 1; }
   .doc.is-on .doc__name { translate: -6px 0; }
   .doc.is-on .doc__av, .doc__head:hover .doc__av, .doc.is-on .doc__head .doc__cat { opacity: 1; }
   .doc__head:focus-visible { outline-offset: -3px; border-radius: 10px; }
   /* نشانگر: یک کادر روشن با نوار رنگ بخش که با فنر زیر پزشک انتخاب‌شده می‌لغزد */
   .docs__ind { position: absolute; top: 0; left: 0; z-index: 0; display: block; border-radius: 10px; pointer-events: none; background: linear-gradient(270deg, rgba(255, 255, 255, .09), rgba(255, 255, 255, .03)); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08); transition: transform .7s cubic-bezier(.3, 1.25, .5, 1); }
-  .docs__ind::before { content: ""; position: absolute; inset-block: 14px; right: 0; width: 3px; border-radius: 3px; background: var(--tone); transition: background-color .5s; }
+  .docs__ind::before { content: ""; position: absolute; inset-block: 14px; right: 0; width: 3px; border-radius: 3px; background: var(--tone); }
   .docs__list { position: static; }
   .doc { position: static; }
 
@@ -392,8 +414,17 @@ html.hc .jsky { display: none; }
     display: flex; flex-direction: column; gap: 12px; padding: 22px 22px 20px; border-radius: 12px; background: #fff; color: var(--ink);
     box-shadow: 0 2px 6px rgba(6, 16, 34, .2), 0 40px 70px -30px rgba(0, 0, 0, .7); visibility: hidden;
   }
+  /* جای کارت: تا جایی که ستون عکس اجازه می‌دهد به راست می‌رود؛ همیشه کمی (دست‌کم ۷۶ پیکسل) روی عکس می‌ماند
+     و هیچ‌وقت از ستون عکس بیرون نمی‌زند و به فهرست نمی‌رسد */
+  @supports (width: 1cqi) {
+    .doc__body { width: var(--cw); left: max(calc(var(--sh) * .8 * .3), min(calc(var(--sh) * .8 - 76px), calc((100cqi - var(--g)) * var(--sr) - var(--cw)))); }
+  }
   .doc.is-on .doc__body { visibility: visible; z-index: 5; }
   .doc.is-under .doc__body { visibility: visible; z-index: 4; }
+  /* فرزندان کارت visibility را با قاعده‌ی خودشان می‌گیرند، نه با ارث از کارت: در جابه‌جایی خیلی سریع،
+     کروم برای فرزندی که انیمیشن داشت مقدار کهنه‌ی ارث‌رسیده (پنهان) را نگه می‌داشت و یک ردیف کارت خالی می‌ماند */
+  .doc__body > * { visibility: hidden; }
+  .doc.is-on .doc__body > *, .doc.is-under .doc__body > * { visibility: visible; }
   .doc__img { display: none; }
   .doc__book { margin-top: auto; }
 }
@@ -478,6 +509,88 @@ html:not(.motion) .sf .sf__txt span, html.rm .sf .sf__txt span { color: var(--in
   .sfx__node .ic { width: 19px; height: 19px; }
 }
 html.hc .safe { background: #fff; }
+/* ==========================================================================
+   ساعت ساسان (js: Clock): ساعت ۲۴ ساعته؛ آسمان پشت بخش با ساعت انتخاب‌شده روز و شب می‌شود
+   ========================================================================== */
+.clk { position: relative; overflow: clip; isolation: isolate; color: #fff; background: #070A1E; padding-block: clamp(80px, 12vh, 130px); }
+.clk__sky { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+.clk__sky > i { position: absolute; inset: 0; will-change: opacity; }
+.clk__night { background: radial-gradient(70% 60% at 78% 18%, rgba(52, 62, 150, .55), rgba(52, 62, 150, 0) 70%), linear-gradient(180deg, #050817 0%, #0B1233 100%); }
+.clk__stars { opacity: 1; background-image: radial-gradient(1.2px 1.2px at 20px 30px, #fff, transparent), radial-gradient(1px 1px at 120px 80px, rgba(255, 255, 255, .8), transparent), radial-gradient(1.4px 1.4px at 60px 150px, #fff, transparent), radial-gradient(1px 1px at 170px 170px, rgba(255, 255, 255, .7), transparent), radial-gradient(1.2px 1.2px at 230px 40px, rgba(255, 255, 255, .9), transparent), radial-gradient(1px 1px at 90px 230px, rgba(255, 255, 255, .6), transparent); background-size: 260px 260px; }
+.clk__day { opacity: 0; background: radial-gradient(60% 55% at 80% 10%, rgba(255, 244, 214, .35), rgba(255, 244, 214, 0) 70%), linear-gradient(180deg, #164BB8 0%, #2A6CD6 55%, #4E8FE6 100%); }
+.clk__glow { opacity: 0; background: radial-gradient(70% 55% at 50% 105%, rgba(255, 138, 76, .7), rgba(255, 138, 76, 0) 70%), radial-gradient(40% 40% at 15% 90%, rgba(255, 96, 128, .35), rgba(255, 96, 128, 0) 70%); }
+.clk__in { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(40px, 6vw, 96px); align-items: center; }
+.clk__title { color: #fff; max-width: 18ch; }
+.clk .kicker--light { transition: color .6s; }
+.clk[data-part="day"] .kicker--light { color: #fff; }
+.clk__sub { max-width: 46ch; margin-top: 14px; font-size: var(--fs-lead, 1.0625rem); line-height: 1.95; color: rgba(229, 236, 250, .8); }
+.clk__days { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 26px; }
+.clk__days button { position: relative; height: 40px; padding-inline: 13px; border-radius: 999px; background: rgba(255, 255, 255, .08); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14); font-family: var(--f-ui); font-size: .8125rem; font-weight: 600; color: rgba(255, 255, 255, .82); transition: background-color .3s, color .3s, box-shadow .3s, scale .5s var(--spring); }
+.clk__days button:hover { background: rgba(255, 255, 255, .16); }
+.clk__days button:active { scale: .94; transition-duration: .1s; }
+.clk__days button[aria-pressed="true"] { background: #fff; color: var(--navy-800); box-shadow: 0 10px 24px -12px rgba(0, 0, 0, .6); }
+.clk__days button.is-today::after { content: "امروز"; position: absolute; top: -9px; inset-inline-end: 6px; padding: 0 6px; border-radius: 999px; background: #3EE0AE; color: #04261C; font-size: .625rem; font-weight: 800; line-height: 1.6; }
+.clk__ds { display: none; }
+.clk__dd { position: absolute; bottom: 5px; left: 50%; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: #6EA8FF; opacity: 0; }
+.clk__days button.is-dental .clk__dd { opacity: 1; }
+.clk__list { display: grid; gap: 10px; margin: 22px 0 0; padding: 0; list-style: none; }
+.clk__row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 14px; background: rgba(255, 255, 255, .07); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .1); transition: opacity .45s, background-color .45s; }
+.clk__row.is-off { opacity: .55; background: rgba(255, 255, 255, .03); }
+.clk__rt { display: grid; gap: 1px; min-width: 0; }
+.clk__rt b { font-size: 1rem; font-weight: 800; }
+.clk__rs { font-family: var(--f-ui); font-size: .8125rem; color: rgba(229, 236, 250, .78); }
+.clk__dot { position: relative; flex: none; width: 12px; height: 12px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 4px color-mix(in srgb, var(--c) 22%, transparent), 0 0 18px var(--c); transition: background-color .4s, box-shadow .4s; }
+.clk__row[data-k="medicine"] { --c: #3EE0AE; }
+.clk__row[data-k="dental"] { --c: #6EA8FF; }
+.clk__row[data-k="beauty"] { --c: #FF8FB6; }
+.clk__row.is-off .clk__dot { background: transparent; box-shadow: inset 0 0 0 2px var(--c); }
+.clk__can { max-width: 52ch; margin-top: 16px; font-size: .9375rem; line-height: 1.95; color: rgba(229, 236, 250, .86); }
+.clk__can b { color: #fff; }
+.clk__acts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+.clk__acts .btn[hidden] { display: none; }
+
+/* صفحه‌ی ساعت: حلقه‌ها روی بوم؛ عقربه فقط transform می‌گیرد */
+/* لمسی: صفحه روی ساعت هم اسکرول می‌شود؛ ضربه ساعت را عوض می‌کند و فقط دکمه‌ی گرد عقربه کشیدنی است */
+.clk__dial { position: relative; justify-self: center; width: min(520px, 100%); aspect-ratio: 1; touch-action: pan-y; cursor: grab; user-select: none; -webkit-user-select: none; }
+.clk__dial.is-drag { cursor: grabbing; }
+.clk__cv { position: absolute; inset: 0; width: 100%; height: 100%; }
+.clk__hand { position: absolute; inset: 0; transform: rotate(var(--a, 180deg)); transition: transform .9s cubic-bezier(.22, 1.1, .36, 1); pointer-events: none; will-change: transform; }
+.clk__dial.is-drag .clk__hand, .clk__dial.is-intro .clk__hand { transition: none; }
+.clk__arm { position: absolute; left: calc(50% - 1.5px); top: 71.5%; width: 3px; height: 16%; border-radius: 3px; background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, .95)); }
+.clk__knob { position: absolute; left: calc(50% - 14px); top: calc(94% - 14px); width: 28px; height: 28px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 7px rgba(255, 255, 255, .16), 0 0 28px rgba(255, 255, 255, .75); pointer-events: auto; touch-action: none; }
+.clk__knob::before { content: ""; position: absolute; inset: -14px; border-radius: 50%; }
+.clk__center { position: absolute; inset: 30%; display: grid; place-content: center; justify-items: center; gap: 2px; text-align: center; pointer-events: none; }
+.clk__orb { position: relative; width: 40px; height: 40px; margin-bottom: 4px; }
+.clk__orb svg { position: absolute; inset: 0; width: 100%; height: 100%; fill: none; stroke: #fff; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.clk__sun circle { fill: #FFD76A; stroke: #FFD76A; }
+.clk__sun path { stroke: #FFD76A; }
+.clk__moon path { fill: #E9EEFF; stroke: #E9EEFF; }
+.clk__time { font-family: var(--f-ui); font-size: clamp(2.2rem, 1.6rem + 2.2vw, 3.4rem); font-weight: 800; line-height: 1.1; letter-spacing: .01em; font-variant-numeric: tabular-nums; }
+.clk__part { font-family: var(--f-ui); font-size: .875rem; color: rgba(229, 236, 250, .78); }
+.clk__range-l { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
+.clk__range { width: 100%; }
+.clk__dial:has(.clk__range:focus-visible) { outline: 3px solid #fff; outline-offset: 6px; border-radius: 50%; }
+.clk__lg { position: absolute; left: 50%; bottom: -34px; translate: -50% 0; display: flex; align-items: center; gap: 6px; white-space: nowrap; font-family: var(--f-ui); font-size: .75rem; color: rgba(229, 236, 250, .7); }
+.clk__lg i { width: 8px; height: 8px; border-radius: 50%; margin-inline-start: 10px; }
+.clk__lg i:first-child { margin-inline-start: 0; }
+.clk__lg i[data-k="medicine"] { background: #3EE0AE; }
+.clk__lg i[data-k="dental"] { background: #6EA8FF; }
+@media (max-width: 999.98px) {
+  .clk__in { grid-template-columns: minmax(0, 1fr); gap: 64px; }
+  .clk__dial { order: -1; width: min(420px, 88vw); }
+  .clk__title { max-width: none; }
+}
+@media (max-width: 699.98px) {
+  .clk__days { gap: 5px; }
+  .clk__days button { width: 40px; padding: 0; }
+  .clk__dl { display: none; }
+  .clk__ds { display: inline; font-size: .875rem; }
+  .clk__days button.is-today::after { inset-inline-end: 50%; translate: -50% 0; }
+  .clk__lg { font-size: .6875rem; }
+}
+html.hc .clk__sky { display: none; }
+html.hc .clk { background: #000; }
+
 html.hc .sfx__node { box-shadow: 0 0 0 2px #000; }
 html.hc .sf.is-on .sf__btn { box-shadow: inset 0 0 0 3px #000; }
 .tile figcaption { transition: transform .6s var(--ease-out); }
@@ -860,6 +973,8 @@ html.svc-open main, html.svc-open .hdr, html.svc-open .foot { visibility: hidden
 html.svc-open main *, html.svc-open .foot * { animation-play-state: paused !important; }
 .svc[data-k="dental"], .svc-morph[data-k="dental"], .pcard--dental { --a0: 6 12 46; --a0h: 14 30 104; --a1: 30 68 242; --a2: 45 212 240; --a3: 123 97 255; --a4: 165 175 255; --tone: #1E44F2; }
 .svc[data-k="beauty"], .svc-morph[data-k="beauty"], .pcard--beauty { --a0: 34 7 44; --a0h: 88 16 78; --a1: 232 67 111; --a2: 203 141 255; --a3: 116 25 214; --a4: 255 116 70; --tone: #C2315D; }
+/* «همه‌ی خدمات»: آبی کلینیک با رگه‌های صورتی و سبز سه بخش */
+.svc[data-k="all"], .svc-morph[data-k="all"] { --a0: 8 12 42; --a0h: 20 30 98; --a1: 30 68 242; --a2: 232 67 111; --a3: 18 170 140; --a4: 165 175 255; --tone: #1E44F2; }
 .svc[data-k="medicine"], .svc-morph[data-k="medicine"], .pcard--med { --a0: 3 30 30; --a0h: 8 74 70; --a1: 18 170 140; --a2: 85 216 191; --a3: 30 68 242; --a4: 167 243 228; --tone: #0E8C73; }
 /* لایه‌ی انتقال همیشه اندازه‌ی کل صفحه است و فقط با transform کوچک و بزرگ می‌شود */
 .svc-morph { position: fixed; z-index: 101; inset: 0; overflow: hidden; background: rgb(var(--a0)); transform-origin: 50% 50%; pointer-events: none; will-change: transform, opacity; contain: strict; }
@@ -870,7 +985,7 @@ html.svc-open main *, html.svc-open .foot * { animation-play-state: paused !impo
 .svc__bg .aur__sp svg { opacity: .4; }
 .svc__main { background: var(--mist); min-height: 60vh; }
 .svc__scroll { position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; }
-.svc__main { flex: 1; }
+.svc__main { flex: 1 0 auto; }
 .svc__band { color: #fff; padding-bottom: clamp(32px, 6vh, 56px); }
 .svc__top { display: flex; align-items: center; gap: 16px; min-height: 76px; padding-top: env(safe-area-inset-top, 0px); border-bottom: 1px solid rgba(255, 255, 255, .16); }
 .svc__back { display: inline-flex; align-items: center; gap: 8px; height: 42px; padding-inline: 14px 16px; border-radius: var(--r1); background: rgba(255, 255, 255, .14); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .25); font-weight: 700; transition: background-color .2s; }
@@ -892,6 +1007,33 @@ html.svc-open main *, html.svc-open .foot * { animation-play-state: paused !impo
 .svc__dur { display: inline-flex; align-items: center; gap: 6px; margin-top: 4px; font-family: var(--f-ui); font-size: .8125rem; color: var(--ink-3); }
 .svc__dur .ic { width: 16px; height: 16px; }
 .svc__note { margin-top: 24px; font-family: var(--f-ui); font-size: .8125rem; color: var(--ink-3); }
+.svc { background: rgb(var(--a0, 8 12 42)); }
+/* زبانه‌های بخش: بالای فهرست می‌چسبد؛ نشانگر رنگی با فنر زیر زبانه‌ی انتخاب‌شده می‌لغزد */
+.svc__tabs { position: sticky; top: 0; z-index: 3; padding-block: 14px; background: var(--mist); box-shadow: 0 1px 0 var(--line); }
+.svc__seg { position: relative; display: inline-flex; gap: 4px; max-width: 100%; padding: 4px; border-radius: 999px; background: #fff; box-shadow: inset 0 0 0 1px var(--line), var(--sh-1); overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.svc__seg::-webkit-scrollbar { display: none; }
+.svc__seg button { position: relative; z-index: 1; flex: none; display: inline-flex; align-items: center; gap: 8px; height: 42px; padding-inline: 16px 18px; border-radius: 999px; font-family: var(--f-ui); font-size: .9063rem; font-weight: 700; color: var(--ink-2); white-space: nowrap; transition: color .35s; }
+.svc__seg button .ic { width: 18px; height: 18px; }
+.svc__seg button:hover { color: var(--navy-800); }
+.svc__seg button.is-on { color: #fff; }
+.svc__seg-ind { position: absolute; top: 4px; bottom: 4px; left: 0; width: var(--w, 0); border-radius: 999px; background: var(--tone); transform: translateX(var(--x, 0)); transition: transform .6s var(--spring), width .6s var(--spring), background-color .45s; pointer-events: none; }
+.svc__list.is-all { display: grid; grid-template-columns: minmax(0, 1fr); gap: 44px; }
+.svc__grp { display: grid; gap: 16px; }
+.svc__grp[data-k="dental"] { --tone: #1E44F2; --tb: #E8EDFE; }
+.svc__grp[data-k="beauty"] { --tone: #C2315D; --tb: #FBEAF0; }
+.svc__grp[data-k="medicine"] { --tone: #0E8C73; --tb: #E3F5F0; }
+.svc__grp-h { display: flex; align-items: center; gap: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.svc__grp-ic { flex: none; width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; background: var(--tb); color: var(--tone); }
+.svc__grp-ic .ic { width: 24px; height: 24px; }
+.svc__grp-t { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.svc__grp-t b { font-size: 1.25rem; font-weight: 800; color: var(--navy-800); }
+.svc__grp-t small { font-family: var(--f-ui); font-size: .8125rem; color: var(--ink-3); }
+.svc__grp-go { flex: none; display: inline-flex; align-items: center; gap: 6px; height: 38px; padding-inline: 14px; border-radius: 999px; font-family: var(--f-ui); font-size: .8125rem; font-weight: 700; color: var(--tone); background: var(--tb); transition: background-color .25s, scale .5s var(--spring); }
+.svc__grp-go:hover { background: color-mix(in srgb, var(--tb) 70%, var(--tone) 12%); }
+.svc__grp-go:active { scale: .96; transition-duration: .1s; }
+.svc__grp-go .ic { width: 16px; height: 16px; }
+html.hc .svc__seg-ind { background: #000; }
+html.hc .svc__grp-go { box-shadow: inset 0 0 0 2px #000; color: #000; }
 
 /* ==========================================================================
    واکنش‌گرا
@@ -954,6 +1096,12 @@ html.svc-open main *, html.svc-open .foot * { animation-play-state: paused !impo
   .pcard { min-height: 0; }
   .pcard__back { position: relative; }
   .svc__list { grid-template-columns: 1fr; }
+  .svc__tabs { padding-block: 10px; }
+  .svc__tabs .wrap { padding-inline: 0; }
+  .svc__seg { display: flex; border-radius: 0; box-shadow: none; background: none; padding-inline: 16px; }
+  .svc__seg button { height: 40px; padding-inline: 12px 14px; font-size: .875rem; box-shadow: inset 0 0 0 1px var(--line); background: #fff; }
+  .svc__seg button.is-on { box-shadow: none; background: transparent; }
+  .svc__grp-go span, .svc__grp-go { font-size: .75rem; }
   .rv-sum { grid-template-columns: 1fr; }
   .rv-bars { grid-column: 1; grid-row: auto; padding-top: 12px; border-top: 1px solid var(--line); }
   .rv-nav { display: none; }
@@ -1037,7 +1185,7 @@ html.hc .tile::after { background: linear-gradient(0deg, rgba(0, 0, 0, .92) 0%, 
    تعامل‌ها (دور ۱۰): زبانه‌های کپسولی با نشانگر فنری، حالت‌های دکمه‌ی ارسال
    ========================================================================== */
 /* وقتی جاوااسکریپت نشانگر را ساخت، زبانه‌ها یک کپسول می‌شوند و نشانگر تیره زیر زبانه‌ی انتخاب‌شده می‌لغزد */
-.rv-tabs.has-pill, .faq-tabs.has-pill { position: relative; gap: 2px; width: fit-content; max-width: 100%; padding: 4px; background: #fff; border: 1px solid var(--line-2); border-radius: calc(var(--r1) + 4px); }
+.rv-tabs.has-pill, .faq-tabs.has-pill, .ar-tabs.has-pill { position: relative; gap: 2px; width: fit-content; max-width: 100%; padding: 4px; background: #fff; border: 1px solid var(--line-2); border-radius: calc(var(--r1) + 4px); }
 .has-pill > button { position: relative; z-index: 1; height: 36px; border: 0; background: transparent; }
 .has-pill > button:hover:not([aria-selected="true"]):not([aria-pressed="true"]) { background: var(--mist); color: var(--ink); }
 .has-pill > button[aria-selected="true"], .has-pill > button[aria-pressed="true"] { background: transparent; color: #fff; }
@@ -1182,6 +1330,79 @@ html.rm *:active { scale: none !important; }
 .ar-card small { font-family: var(--f-ui); font-size: .75rem; color: var(--ink-3); }
 
 html.ar-open main *, html.ar-open .foot * { animation-play-state: paused !important; }
+
+/* ---------- «همه‌ی مقاله‌ها» (js: indexHTML و wireIndex) ---------- */
+.ar__page.is-index { max-width: 980px; padding: clamp(22px, 4vw, 40px) clamp(16px, 4vw, 40px) 80px; }
+.ari-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 22px 40px; }
+.ari-head__t { max-width: 560px; }
+.ari-head .ar-lead { margin-top: 10px; }
+.ari-stats { display: flex; margin: 0; }
+.ari-stats > div { display: grid; gap: 2px; padding-inline: 22px; border-inline-start: 1px solid var(--line); }
+.ari-stats > div:first-child { padding-inline-start: 0; border: 0; }
+.ari-stats dd { margin: 0; font-family: var(--f-ui); font-size: clamp(1.6rem, 1.3rem + 1vw, 2.2rem); font-weight: 800; line-height: 1.2; color: var(--navy-800); font-variant-numeric: tabular-nums; }
+.ari-stats dt { font-family: var(--f-ui); font-size: .75rem; color: var(--ink-3); }
+
+/* اسلایدر برگزیده‌ها: قاب‌ها روی هم؛ پرده و عکس فقط با transform حرکت می‌کنند */
+.ari-feat { margin-top: 28px; }
+.ari-feat__stage { position: relative; aspect-ratio: 16 / 8; border-radius: 16px; overflow: hidden; isolation: isolate; background: #0B1A33; touch-action: pan-y; }
+.ari-slide { position: absolute; inset: 0; z-index: 0; overflow: hidden; visibility: hidden; box-shadow: 0 0 90px 10px rgba(3, 8, 24, .5); }
+.ari-slide.is-on { visibility: visible; z-index: 2; }
+.ari-slide.is-under { visibility: visible; z-index: 1; }
+.ari-slide__in, .ari-slide picture { position: absolute; inset: 0; display: block; }
+.ari-slide img { width: 100%; height: 100%; object-fit: cover; -webkit-user-drag: none; user-select: none; }
+.ari-slide:focus-visible { outline: none; }
+.ari-feat__stage:has(.ari-slide:focus-visible) { box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--blue); }
+.ari-feat__shade { position: absolute; inset: 0; z-index: 3; pointer-events: none; background: linear-gradient(0deg, rgba(6, 12, 30, .86) 0%, rgba(6, 12, 30, .45) 38%, rgba(6, 12, 30, 0) 66%), linear-gradient(270deg, rgba(6, 12, 30, .35), rgba(6, 12, 30, 0) 60%); }
+.ari-feat__txt { position: absolute; z-index: 4; inset-inline: clamp(20px, 4vw, 40px) auto; bottom: clamp(20px, 3.4vw, 34px); max-width: min(600px, calc(100% - 200px)); display: grid; justify-items: start; gap: 10px; color: #fff; pointer-events: none; }
+.ari-feat__txt .ar-cat { background: rgba(255, 255, 255, .16); color: #fff; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .22); }
+.ari-feat__t { font-size: clamp(1.25rem, .95rem + 1.35vw, 2.05rem); font-weight: 800; line-height: 1.5; }
+.ari-feat__t .w { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .1em; margin-bottom: -.1em; }
+.ari-feat__t .wi { display: inline-block; }
+.ari-feat__m { display: inline-flex; align-items: center; gap: 6px; font-family: var(--f-ui); font-size: .8125rem; color: rgba(255, 255, 255, .8); }
+.ari-feat__m .ic { width: 15px; height: 15px; }
+.ari-feat__go { position: absolute; z-index: 4; left: clamp(20px, 3.4vw, 34px); bottom: clamp(20px, 3.4vw, 34px); display: inline-flex; align-items: center; gap: 8px; height: 44px; padding-inline: 18px 14px; border-radius: 999px; background: #fff; color: var(--navy-800); font-size: .9063rem; font-weight: 700; pointer-events: none; transition: transform .5s var(--spring), box-shadow .3s; }
+.ari-feat__go .ic { width: 18px; height: 18px; transition: transform .5s var(--spring); }
+.ari-feat__stage:hover .ari-feat__go { transform: translate3d(-4px, 0, 0); box-shadow: 0 14px 30px -12px rgba(0, 0, 0, .6); }
+.ari-feat__stage:hover .ari-feat__go .ic { transform: translate3d(-4px, 0, 0); }
+.ari-feat__nav { display: flex; align-items: center; gap: 18px; margin-top: 14px; }
+.ari-idx { flex: 1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
+.ari-idx button { width: 100%; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: baseline; gap: 4px 8px; padding: 6px 0 0; text-align: start; color: var(--ink-3); transition: color .3s; }
+.ari-idx button:hover, .ari-idx button[aria-current] { color: var(--navy-800); }
+.ari-idx__no { font-family: var(--f-ui); font-size: .75rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.ari-idx__t { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: .8125rem; font-weight: 600; }
+.ari-idx__bar { grid-column: 1 / -1; position: relative; display: block; height: 2px; margin-top: 4px; border-radius: 2px; background: var(--line); overflow: hidden; }
+.ari-idx__bar i { position: absolute; inset: 0; background: var(--navy-800); transform-origin: 100% 50%; transform: scaleX(0); }
+.ari-idx button[aria-current] .ari-idx__bar i { transform: scaleX(1); }
+.ari-arrows { display: flex; gap: 8px; }
+.ari-arrow { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: var(--navy-800); box-shadow: inset 0 0 0 1px var(--line-2); transition: background-color .25s, color .25s, box-shadow .25s, scale .5s var(--spring); }
+.ari-arrow:hover { background: var(--navy-800); color: #fff; box-shadow: none; }
+.ari-arrow:active { scale: .92; transition-duration: .1s; }
+.ari-arrow .ic { width: 18px; height: 18px; }
+
+/* نوار فیلتر بالای فهرست می‌چسبد */
+.ari-bar { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 36px; padding-block: 12px; background: #fff; box-shadow: 0 1px 0 var(--line); }
+.ari-bar .ar-tabs { margin: 0; }
+.ari-count { flex: none; font-family: var(--f-ui); font-size: .8125rem; color: var(--ink-3); }
+.ari-count b { font-weight: 700; color: var(--navy-800); }
+
+.ari-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 30px 20px; margin-top: 26px; }
+.ari-grid .ar-card { display: grid; align-content: start; gap: 12px; padding: 0; border: 0; border-radius: 0; box-shadow: none; translate: none; }
+.ari-grid .ar-card:hover { box-shadow: none; translate: none; }
+.ari-grid .ar-card.is-pre { opacity: 0; }
+.ari-grid .ar-card__img { position: relative; display: block; aspect-ratio: 4 / 3; margin: 0; border-radius: 14px; overflow: hidden; background: #DCE5EF; }
+.ari-grid .ar-card__img img { width: 100%; height: 100%; object-fit: cover; transition: scale 1s var(--ease-out); }
+.ari-grid .ar-card:hover .ar-card__img img { scale: 1.06; }
+.ar-card__no { position: absolute; top: 12px; right: 12px; padding: 1px 9px; border-radius: 999px; background: rgba(255, 255, 255, .9); font-family: var(--f-ui); font-size: .75rem; font-style: normal; font-weight: 700; line-height: 1.9; color: var(--navy-800); }
+.ar-card__go { position: absolute; left: 12px; bottom: 12px; width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; background: #fff; color: var(--navy-800); opacity: 0; transform: translate3d(8px, 8px, 0) scale(.8); transition: opacity .3s, transform .55s var(--spring); }
+.ar-card__go .ic { width: 18px; height: 18px; }
+.ar-card:hover .ar-card__go, .ar-card:focus-visible .ar-card__go { opacity: 1; transform: none; }
+.ar-card__txt { display: grid; gap: 8px; }
+.ar-card__meta { display: flex; align-items: center; gap: 10px; }
+.ar-card__meta small, .ar-card__by { font-family: var(--f-ui); font-size: .75rem; color: var(--ink-3); }
+.ari-grid .ar-card b { font-size: 1.0625rem; font-weight: 800; line-height: 1.75; color: var(--navy-800); background: linear-gradient(currentColor, currentColor) no-repeat 100% 100% / 0 1.5px; transition: background-size .55s var(--ease-out), color .25s; }
+.ari-grid .ar-card:hover b { background-size: 100% 1.5px; color: var(--tone-ink, var(--navy-800)); }
+html.hc .ari-feat__shade { background: rgba(0, 0, 0, .7); }
+html.hc .ari-idx__bar i { background: #000; }
 html.hc .ar__sheet { border: 2px solid #000; }
 html.hc .ar-lead, html.hc .ar-meta, html.hc .ar-note, html.hc .ar__crumb { color: #000; }
 html.hc .ar-box { border: 2px solid #000; }
@@ -1190,6 +1411,26 @@ html.hc .ar-box { border: 2px solid #000; }
   .ar__all span { display: none; }
   .ar__all { padding-inline: 10px; }
   .ar-grid { grid-template-columns: minmax(0, 1fr); }
+  .ari-head { gap: 18px; }
+  .ari-stats > div { padding-inline: 16px; }
+  .ari-feat { margin-top: 22px; margin-inline: -4px; }
+  .ari-feat__stage { aspect-ratio: 4 / 5; border-radius: 14px; }
+  .ari-feat__txt { inset-inline: 18px; max-width: none; bottom: 78px; }
+  .ari-feat__go { left: auto; right: 18px; bottom: 18px; height: 42px; }
+  .ari-feat__nav { margin-top: 12px; }
+  .ari-idx__t, .ari-arrows { display: none; }
+  .ari-idx { gap: 8px; }
+  .ari-bar { margin-top: 28px; margin-inline: -16px; padding-inline: 16px; }
+  .ari-bar .ar-tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .ari-bar .ar-tabs::-webkit-scrollbar { display: none; }
+  .ari-bar .ar-tabs button { flex: none; }
+  .ari-count { display: none; }
+  .ari-grid { gap: 16px; margin-top: 18px; }
+  .ari-grid .ar-card { grid-template-columns: 116px minmax(0, 1fr); align-items: center; gap: 14px; }
+  .ari-grid .ar-card__img { aspect-ratio: 1; border-radius: 12px; }
+  .ar-card__no { top: 8px; right: 8px; font-size: .6875rem; }
+  .ar-card__go { display: none; }
+  .ari-grid .ar-card b { font-size: .9688rem; line-height: 1.7; }
   .ar-next { grid-template-columns: 88px minmax(0, 1fr); }
   .ar-next__go { display: none; }
   .ar-cmp { font-size: .875rem; }

@@ -258,40 +258,39 @@
   const shake = (el) => { if (anim()) gsap.fromTo(el, { x: 0 }, { keyframes: { x: [0, -7, 6, -4, 3, 0] }, duration: 0.45, ease: 'power1.out', clearProps: 'transform' }); };
 
 
-  /* ---------- فرم نوبت: زمان مراجعه را بر اساس ساعت واقعی هر بخش می‌گوید ---------- */
-  const WHEN = { am: [10, 14, 'صبح'], pm: [14, 20, 'عصر'], night: [20, 24, 'شب'] };
-  function dentalFor(pref) {
-    const n = Clinic.now(), D = Clinic.DENTAL;
-    if (pref === 'night') return null;
-    for (let off = 0; off < 8; off++) {
-      const di = (n.d + off) % 7, h = D[di]; if (!h) continue;
-      let from = h[0], to = h[1];
-      if (WHEN[pref]) { from = Math.max(from, WHEN[pref][0]); to = Math.min(to, WHEN[pref][1]); }
-      if (off === 0) { if (n.min >= to * 60) continue; from = Math.max(from, Math.ceil(n.min / 60)); }
-      if (from >= to) continue;
-      const day = off === 0 ? 'امروز' : off === 1 ? 'فردا' : Clinic.DAYS[di];
-      return `${day}، ${Clinic.hourFa(from)} تا ${Clinic.hourFa(to)}`;
-    }
-    return null;
-  }
+  /* ---------- درخواست سریع نوبت (هیرو): بخش، نوع مراجعه و موبایل؛ کپسول نوبت با همین‌ها باز می‌شود.
+     بیمار زمان انتخاب نمی‌کند؛ بازه‌ی تماس پذیرش (۳۰ دقیقه تا ۴ ساعت بعد) با ساعت همین حالا نشان داده می‌شود ---------- */
   const qb = $('#qbook');
   if (qb) {
-    qb.addEventListener('submit', async (e) => {
+    const qTel = $('#qbTel'), qCall = $('#qbCall'), out = $('#qbResult');
+    const digitsEn = (v) => v.replace(/[۰-۹]/g, (c) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(c)).replace(/[٠-٩]/g, (c) => '٠١٢٣٤٥٦٧٨٩'.indexOf(c));
+    const normTel = (v) => digitsEn(v).replace(/[\s\-().]/g, '').replace(/^(\+98|0098|98(?=9\d{9}$))/, '0').replace(/^9(?=\d{9}$)/, '09');
+    const hm = (d) => '\u2066' + toFa(`${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`) + '\u2069';
+    const paintCall = () => {
+      if (!qCall) return;
+      /* به ده دقیقه‌ی بعد گرد می‌شود */
+      const t0 = new Date(Date.now() + 30 * 60e3); t0.setMinutes(Math.ceil(t0.getMinutes() / 10) * 10, 0, 0);
+      const t1 = new Date(t0.getTime() + 210 * 60e3);
+      const day = t1.getDate() !== new Date().getDate() ? (t0.getDate() !== new Date().getDate() ? 'فردا ' : '') : '';
+      qCall.textContent = `اگر همین حالا ثبت کنید: حدود ${day}${hm(t0)} تا ${t1.getDate() !== t0.getDate() ? 'فردا ' : ''}${hm(t1)}`;
+    };
+    paintCall();
+    setInterval(paintCall, 60e3);
+    const markTel = (bad) => { qTel.closest('.field').classList.toggle('is-bad', bad); qTel.setAttribute('aria-invalid', String(bad)); };
+    qTel.addEventListener('input', () => { markTel(false); if (!out.hidden) { out.hidden = true; out.innerHTML = ''; } });
+    qb.addEventListener('submit', (e) => {
       e.preventDefault();
-      const btn = $('.qbook__submit', qb);
-      if (btn.classList.contains('is-busy')) return;
-      const k = $('#qbDept').value, pref = $('#qbWhen').value;
-      const out = $('#qbResult');
-      let html;
-      if (k === 'medicine') html = '<b>پزشک عمومی شبانه‌روزی است</b> <span>همین حالا هم می‌توانید بیایید؛ برای تزریقات، سرم‌تراپی، بخیه و نوار قلب هم همین‌طور.</span>';
-      else if (k === 'beauty') html = `<b>زیبایی و لیزر: همه‌روزه با هماهنگی قبلی</b> <span>${WHEN[pref] ? 'برای ' + WHEN[pref][2] + '، ' : ''}زمان را تلفنی با پذیرش هماهنگ کنید.</span>`;
-      else {
-        const w = dentalFor(pref);
-        html = w ? `<span>نزدیک‌ترین زمان پذیرش دندانپزشکی:</span> <b>${w}</b>` : '<b>دندانپزشکی شب پذیرش ندارد.</b> <span>شنبه، یکشنبه، دوشنبه و پنجشنبه از ۱۰ صبح تا ۸ شب.</span>';
+      const btn = $('.qbook__submit', qb), raw = qTel.value.trim(), t = normTel(raw);
+      if (raw && !/^09\d{9}$/.test(t)) {
+        markTel(true); shake(qTel.closest('.field'));
+        swap(out, '<b>شماره‌ی موبایل کامل نیست.</b> <span>با ۰۹ و یازده رقم بنویسید؛ مثلاً ۰۹۱۲ ۱۲۳ ۴۵۶۷. می‌توانید خالی هم بگذارید و در مرحله‌ی بعد بنویسید.</span>');
+        qTel.focus();
+        return;
       }
-      await busy(btn, 420);
       const type = $('#qbType').value;
-      swap(out, `${html} <span class="qbook__acts"><button type="button" class="btn btn--primary qbook__go" data-book="${k}" data-type="${type === 'مشاوره پیش از درمان' ? 'مشاوره' : type}"><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg>درخواست نوبت</button><a class="link-arrow" href="tel:+981154611560">تماس با پذیرش: <span dir="ltr">${TEL}</span><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a></span>`);
+      const o = { k: $('#qbDept').value, type: type === 'مشاوره پیش از درمان' ? 'مشاوره' : type, tel: raw ? t : '', from: btn };
+      if (S.Book) S.Book.open(o);
+      else { const c = document.getElementById('callback'); if (c) Motion.scrollTo(c, -20); }
     });
   }
 
@@ -846,8 +845,23 @@
       heads.forEach((h, k) => { h.setAttribute('aria-expanded', String(!d || k === cur)); h.tabIndex = d ? 0 : -1; });
       sizeCards(); placeInd();
     };
+    /* جابه‌جایی پزشک‌ها فقط با انیمیشن بومی مرورگر (WAAPI) روی transform و opacity: روی کامپوزیتور اجرا می‌شود،
+       پس نه جاوااسکریپتی در هر فریم دارد، نه رسم دوباره‌ی صفحه (پرده‌ی clip-path قبلی هر فریم کل صفحه را دوباره می‌ساخت) */
+    const EXPO = 'cubic-bezier(.16, 1, .3, 1)', INOUT = 'cubic-bezier(.65, 0, .35, 1)';
+    const beam = $('.docs__beam', docsSec), beamI = beam && $('i', beam), sheen = $('.docs__sheen', docsSec);
+    let runs = [];
+    const wa = (el, kf, o) => { if (!el || typeof el.animate !== 'function') return null; const a = el.animate(kf, o); runs.push(a); return a; };
+    const stopAll = () => { runs.forEach((a) => a.cancel()); runs = []; };
+    /* نور دور قاب: یک نوار روشن به رنگ بخش یک دور دور لبه‌ی قاب می‌چرخد و محو می‌شود؛ درخشش هم از روی عکس رد می‌شود */
+    const sweep = (delay = 0) => {
+      if (!beam) return;
+      wa(beam, [{ opacity: 0 }, { opacity: 1, offset: 0.2 }, { opacity: 1, offset: 0.7 }, { opacity: 0 }], { duration: 1500, delay, easing: 'linear', fill: 'both' });
+      wa(beamI, [{ transform: 'rotate(-40deg)' }, { transform: 'rotate(320deg)' }], { duration: 1500, delay, easing: INOUT, fill: 'both' });
+      wa(sheen, [{ transform: 'translate3d(-110%, 0, 0)' }, { transform: 'translate3d(110%, 0, 0)' }], { duration: 1100, delay: delay + 250, easing: INOUT, fill: 'both' });
+    };
     const resetFrame = (f) => { gsap.killTweensOf([f, $('img', f)]); gsap.set([f, $('img', f)], { clearProps: 'transform' }); };
     const resetBody = (b) => { gsap.killTweensOf([b, ...b.children]); gsap.set([b, ...b.children], { clearProps: 'clipPath,transform,opacity,visibility' }); };
+    let underT = 0;
     function set(i) {
       if (i === cur || i < 0 || i >= docs.length) return;
       const prev = cur, dir = i > prev ? 1 : -1;
@@ -857,34 +871,41 @@
       docsSec.dataset.k = docs[i].dataset.k;
       num.textContent = toFa(String(i + 1).padStart(2, '0'));
       placeInd();
-      const fIn = frames[i], fOut = frames[prev], bIn = bodies[i], bOut = bodies[prev];
-      if (!anim() || !deskMq.matches) {
+      const fIn = frames[i], fOut = frames[prev], bIn = bodies[i];
+      clearTimeout(underT);
+      stopAll();
+      if (!anim() || !deskMq.matches || typeof fIn.animate !== 'function') {
         frames.forEach((f, k) => { f.classList.toggle('is-on', k === i); f.classList.remove('is-under'); });
         docs.forEach((d) => d.classList.remove('is-under'));
         return;
       }
-      /* نیمه‌کاره‌ها همان لحظه تمام می‌شوند؛ تصویر و کارت قبلی زیر تصویر و کارت تازه می‌مانند تا پرده رویشان کشیده شود */
-      frames.forEach((f) => { resetFrame(f); f.classList.remove('is-under'); if (f !== fIn) f.classList.remove('is-on'); });
+      /* عکس و کارت قبلی زیر تازه‌ها می‌مانند تا پرده رویشان کشیده شود */
+      frames.forEach((f) => { f.classList.remove('is-under'); if (f !== fIn) f.classList.remove('is-on'); });
       fOut.classList.add('is-under'); fIn.classList.add('is-on');
       docs.forEach((d) => d.classList.remove('is-under'));
-      bodies.forEach(resetBody);
       docs[prev].classList.add('is-under');
       const imIn = $('img', fIn), imOut = $('img', fOut);
-      const done = () => { fOut.classList.remove('is-under'); resetFrame(fOut); };
-      gsap.fromTo(fIn, { yPercent: 100 * dir }, { yPercent: 0, duration: 1, ease: 'expo.out', onComplete: done });
-      gsap.fromTo(imIn, { yPercent: -100 * dir, scale: 1.12 }, { yPercent: 0, scale: 1, duration: 1, ease: 'expo.out' });
-      gsap.to(imOut, { yPercent: -14 * dir, duration: 1, ease: 'expo.out' });
-      gsap.fromTo(bIn, { clipPath: dir > 0 ? 'inset(100% 0% 0% 0% round 12px)' : 'inset(0% 0% 100% 0% round 12px)' },
-        { clipPath: 'inset(0% 0% 0% 0% round 12px)', duration: 0.85, ease: 'expo.out', delay: 0.06, clearProps: 'clipPath', onComplete: () => docs[prev].classList.remove('is-under') });
-      gsap.fromTo([...bIn.children].filter((c) => c.offsetParent), { y: 16 * dir, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.7, ease: 'expo.out', stagger: 0.04, delay: 0.14, clearProps: 'transform,opacity,visibility' });
-      gsap.fromTo(num, { yPercent: 100 * dir }, { yPercent: 0, duration: 0.7, ease: 'expo.out', clearProps: 'transform' });
+      const D = 950;
+      wa(fIn, [{ transform: `translate3d(0, ${100 * dir}%, 0)` }, { transform: 'translate3d(0, 0, 0)' }], { duration: D, easing: EXPO, fill: 'backwards' });
+      wa(imIn, [{ transform: `translate3d(0, ${-100 * dir}%, 0) scale(1.12)` }, { transform: 'translate3d(0, 0, 0) scale(1)' }], { duration: D, easing: EXPO, fill: 'backwards' });
+      wa(imOut, [{ transform: 'translate3d(0, 0, 0)' }, { transform: `translate3d(0, ${-14 * dir}%, 0)` }], { duration: D, easing: EXPO, fill: 'forwards' });
+      /* کارت تازه روی کارت قبلی بالا می‌آید و پیدا می‌شود؛ کارت قبلی تا آخر زیرش می‌ماند تا وسط کار چیزی خالی نشود */
+      wa(bIn, [{ opacity: 0, transform: `translate3d(0, ${18 * dir}px, 0) scale(.985)` }, { opacity: 1, transform: 'none' }], { duration: 620, delay: 40, easing: EXPO, fill: 'backwards' });
+      [...bIn.children].filter((c) => c.offsetParent).forEach((c, k) => wa(c, [{ opacity: 0, transform: `translate3d(0, ${12 * dir}px, 0)` }, { opacity: 1, transform: 'none' }], { duration: 640, delay: 110 + k * 35, easing: EXPO, fill: 'backwards' }));
+      wa(num, [{ transform: `translate3d(0, ${100 * dir}%, 0)` }, { transform: 'none' }], { duration: 700, easing: EXPO, fill: 'backwards' });
+      sweep(120);
+      underT = setTimeout(() => {
+        fOut.classList.remove('is-under'); docs[prev].classList.remove('is-under');
+        runs = runs.filter((a) => { if (a.effect && a.effect.target === imOut) { a.cancel(); return false; } return true; });
+      }, D + 30);
     }
     heads.forEach((h, i) => {
       h.addEventListener('click', () => { if (deskMq.matches) set(i); });
       h.addEventListener('focus', () => { if (deskMq.matches) set(i); });
+      /* تأخیر کوتاه فقط برای این‌که رد شدن سریع نشانگر از روی فهرست، همه‌ی پزشک‌ها را پشت سر هم عوض نکند */
       h.addEventListener('pointerenter', (e) => {
         if (e.pointerType !== 'mouse' || !deskMq.matches) return;
-        clearTimeout(ht); ht = setTimeout(() => set(i), 110);
+        clearTimeout(ht); ht = setTimeout(() => set(i), 55);
       });
       h.addEventListener('pointerleave', () => clearTimeout(ht));
       h.addEventListener('keydown', (e) => {
@@ -920,7 +941,8 @@
             .fromTo(frame, { clipPath: 'inset(100% 0% 0% 0% round 12px)' }, { clipPath: 'inset(0% 0% 0% 0% round 12px)', duration: 1.3, ease: 'expo.inOut', clearProps: 'clipPath' }, 0)
             .from($('img', frames[cur]), { scale: 1.3, yPercent: 6, duration: 1.8, ease: 'expo.out', clearProps: 'transform' }, 0.15)
             .from(bodies[cur], { y: 48, autoAlpha: 0, duration: 1.1, ease: 'expo.out', clearProps: 'transform,opacity,visibility' }, 0.55)
-            .from($('.docs__count', docsSec), { y: -12, autoAlpha: 0, duration: 0.8, ease: 'expo.out', clearProps: 'transform,opacity,visibility' }, 0.8);
+            .from($('.docs__count', docsSec), { y: -12, autoAlpha: 0, duration: 0.8, ease: 'expo.out', clearProps: 'transform,opacity,visibility' }, 0.8)
+            .add(() => { if (anim()) sweep(0); }, 1.1);
         } else {
           gsap.from(docs, { y: 34, autoAlpha: 0, duration: 0.9, stagger: 0.08, ease: 'expo.out', clearProps: 'transform,opacity,visibility', scrollTrigger: { trigger: inn, start: 'top 86%' } });
         }
@@ -928,6 +950,7 @@
     };
     Docs.kill = function () {
       if (this.ctx) { this.ctx.revert(); this.ctx = null; }
+      clearTimeout(underT); stopAll();
       frames.forEach(resetFrame); bodies.forEach(resetBody);
       frames.forEach((f, k) => { f.classList.toggle('is-on', k === cur); f.classList.remove('is-under'); });
       docs.forEach((d) => d.classList.remove('is-under'));
@@ -1175,20 +1198,57 @@
   vscroll.addEventListener('scroll', () => Aurora.hold(220), { passive: true });
   let current = null, opener = null;
 
-  function fill(key) {
-    const d = SVC[key];
-    view.dataset.k = key;
-    $('#svcTitle').textContent = d.title;
-    $('#svcCrumb').textContent = 'خدمات / ' + d.title;
-    $('#svcLead').textContent = d.lead;
-    $('#svcIc use').setAttribute('href', '#i-' + d.icon);
-    $('#svcSlot').textContent = Clinic.avail(key);
-    $('#svcList').innerHTML = d.items.map((it) => `
+  /* «همه‌ی خدمات»: سه بخش پشت سر هم، هر کدام با رنگ خودش */
+  const ALL = {
+    title: 'همه‌ی خدمات کلینیک', icon: 'file',
+    lead: 'خدمات سه بخش کلینیک در یک صفحه: دندانپزشکی، زیبایی و لیزر، و پزشکی شبانه‌روزی. از زبانه‌های پایین هر بخش را جدا ببینید؛ روز و ساعت مراجعه را پذیرش تلفنی با شما هماهنگ می‌کند.'
+  };
+  const isKey = (k) => k === 'all' || !!SVC[k];
+  const hashOf = (k) => (k === 'all' ? 'services-all' : k);
+  const keyOf = (h) => (h === 'services-all' ? 'all' : h);
+  const itemsHtml = (items) => items.map((it) => `
       <article class="svc__item">
         <b>${it[0]}</b>
         <p>${it[1]}</p>
         <span class="svc__dur"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>${it[2]}</span>
       </article>`).join('');
+  const tabs = $$('.svc__seg [data-tab]', view), seg = $('.svc__seg', view), segInd = $('.svc__seg-ind', view);
+  const paintTabs = (key) => {
+    tabs.forEach((t) => { const on = t.dataset.tab === key; t.setAttribute('aria-selected', String(on)); t.tabIndex = on ? 0 : -1; t.classList.toggle('is-on', on); });
+    const on = tabs.find((t) => t.dataset.tab === key);
+    if (!on || !segInd) return;
+    segInd.style.setProperty('--x', on.offsetLeft + 'px');
+    segInd.style.setProperty('--w', on.offsetWidth + 'px');
+    /* روی صفحه‌ی باریک زبانه‌ی انتخاب‌شده وسط نوار می‌آید */
+    if (seg.scrollWidth > seg.clientWidth + 2) seg.scrollTo({ left: on.offsetLeft - (seg.clientWidth - on.offsetWidth) / 2, behavior: Motion.on ? 'smooth' : 'auto' });
+  };
+  function fill(key) {
+    const all = key === 'all', d = all ? ALL : SVC[key];
+    view.dataset.k = key;
+    $('#svcTitle').textContent = d.title;
+    $('#svcCrumb').textContent = all ? 'خدمات' : 'خدمات / ' + d.title;
+    $('#svcLead').textContent = d.lead;
+    $('#svcIc use').setAttribute('href', '#i-' + d.icon);
+    $('#svcSlot').textContent = all ? 'پزشک عمومی شبانه‌روزی · دندانپزشکی: ' + Clinic.dental().when : Clinic.avail(key);
+    $('#svcH2').textContent = all ? 'خدمات سه بخش' : 'خدمات این بخش';
+    const book = $('#svcBook');
+    $('span', book).textContent = all ? 'درخواست نوبت' : 'درخواست نوبت در این بخش';
+    /* از «همه‌ی خدمات» کپسول از انتخاب بخش شروع می‌شود */
+    if (all) book.dataset.book = 'any'; else delete book.dataset.book;
+    const list = $('#svcList');
+    list.classList.toggle('is-all', all);
+    list.innerHTML = all
+      ? KEYS.map((k) => `
+      <section class="svc__grp" data-k="${k}">
+        <header class="svc__grp-h">
+          <span class="svc__grp-ic"><svg class="ic" aria-hidden="true"><use href="#i-${SVC[k].icon}"/></svg></span>
+          <span class="svc__grp-t"><b>${SVC[k].title}</b><small>${toFa(SVC[k].items.length)} خدمت · ${Clinic.avail(k)}</small></span>
+          <button type="button" class="svc__grp-go" data-tab="${k}">فقط این بخش<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+        </header>
+        <div class="svc__list">${itemsHtml(SVC[k].items)}</div>
+      </section>`).join('')
+      : itemsHtml(SVC[key].items);
+    paintTabs(key);
   }
   /* لایه‌ی انتقال: از قاب کارت تا تمام صفحه بزرگ می‌شود و برعکس. گرادیانش همان گرادیان پشت کارت و زمینه‌ی صفحه است،
      و چرخش و جابه‌جایی کارت را هم کپی می‌کند؛ پس خود کارت تکان نمی‌خورد و رنگ هیچ‌جا نمی‌پرد */
@@ -1245,13 +1305,46 @@
   const lockScroll = S.lockScroll;
   const showView = () => {
     view.hidden = false;
+    if (current) paintTabs(current);
     Aurora.refresh(svcBg); Aurora.now(svcBg);
   };
   /* وقتی صفحه‌ی بخش کل صفحه را پوشانده، صفحه‌ی زیرین نه رسم می‌شود نه ترکیب؛ پیمایش صفحه‌ی بخش سبک می‌ماند */
   const cover = (on) => root.classList.toggle('svc-open', on);
 
+  /* عوض کردن بخش داخل همین صفحه: متن و فهرست کمی پایین می‌روند و محو می‌شوند، رنگ پس‌زمینه عوض می‌شود و محتوای تازه بالا می‌آید */
+  let tabTl = null;
+  function setTab(key, focus) {
+    if (!current || key === current || !isKey(key)) return;
+    current = key;
+    try { history.replaceState({ svc: key }, '', '#' + hashOf(key)); } catch (e) { /* محیط محدود */ }
+    const out = [...$('.svc__hero', view).children, $('#svcH2'), $('#svcList')];
+    if (tabTl) tabTl.kill();
+    const swap = () => { fill(key); Aurora.refresh(svcBg); Aurora.now(svcBg); };
+    if (!Motion.on || !window.gsap) { swap(); if (focus) focus.focus(); return; }
+    paintTabs(key);
+    /* اگر پایین صفحه هستیم، نرم به ابتدای فهرست برمی‌گردیم */
+    const top = $('.svc__main', view).offsetTop;
+    if (vscroll.scrollTop > top) vscroll.scrollTo({ top, behavior: 'smooth' });
+    tabTl = gsap.timeline()
+      .to(out, { opacity: 0, y: 14, duration: 0.22, ease: 'power2.in', stagger: 0.02 })
+      .to(svcBg, { opacity: 0.35, duration: 0.22, ease: 'power1.in' }, 0)
+      .add(swap)
+      .to(svcBg, { opacity: 1, duration: 0.6, ease: 'power1.out', clearProps: 'opacity' })
+      .fromTo(out, { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.7, ease: 'expo.out', stagger: 0.05, clearProps: 'opacity,transform' }, '<');
+  }
+  view.addEventListener('click', (e) => { const t = e.target.closest('[data-tab]'); if (t) setTab(t.dataset.tab); });
+  seg.addEventListener('keydown', (e) => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
+    e.preventDefault();
+    const i = tabs.findIndex((t) => t.dataset.tab === current);
+    /* راست‌به‌چپ: فلش چپ یعنی زبانه‌ی بعدی */
+    const n = e.key === 'Home' ? 0 : e.key === 'End' ? tabs.length - 1 : (i + (e.key === 'ArrowLeft' ? 1 : -1) + tabs.length) % tabs.length;
+    tabs[n].focus(); setTab(tabs[n].dataset.tab);
+  });
+  window.addEventListener('resize', () => { if (current) paintTabs(current); });
+
   function openSvc(key, from, push = true) {
-    if (!SVC[key]) return;
+    if (!isKey(key)) return;
     current = key; opener = from || null;
     fill(key);
     vscroll.scrollTop = 0;
@@ -1259,7 +1352,7 @@
     const g = Motion.on && from ? (card ? cardGeo(card) : rectGeo(from)) : null;
     lockScroll(true);
     Motion.pause();
-    if (push) { try { history.pushState({ svc: key }, '', '#' + key); } catch (e) { /* محیط محدود */ } }
+    if (push) { try { history.pushState({ svc: key }, '', '#' + hashOf(key)); } catch (e) { /* محیط محدود */ } }
     const parts = viewParts();
     gsap.killTweensOf([morph, M, view, ...parts]);
 
@@ -1340,7 +1433,7 @@
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && current) goBack(); });
   window.addEventListener('popstate', (e) => {
     const k = e.state && e.state.svc;
-    if (k && SVC[k]) { if (current !== k) openSvc(k, $(`.pcard[data-svc="${k}"]`), false); }
+    if (k && isKey(k)) { if (!current) openSvc(k, $(`.pcard[data-svc="${k}"]`), false); else if (current !== k) setTab(k); }
     else if (current) closeSvc();
   });
   document.addEventListener('click', (e) => {
@@ -1395,24 +1488,53 @@
   </a>
 </article>`;
     };
-    const card = (a) => `<a class="ar-card" href="#mag-${a.id}" data-ar-go="${a.id}" data-k="${a.k}">
-  <span class="ar-card__img"><img src="${a.img}" alt="" width="1120" height="700" loading="lazy" decoding="async"></span>
-  <span class="ar-cat">${a.cat}</span><b>${a.title}</b><small>${a.mins} دقیقه مطالعه · ${a.by}</small>
+    /* ---------- «همه‌ی مقاله‌ها»: اسلایدر مقاله‌های برگزیده (پرده‌ی کشویی با عکس و متن جدا)، فیلتر با چیدمان متحرک، ورود کارت‌ها با اسکرول ---------- */
+    const FEAT = ['implant', 'laser-hair', 'blood-pressure', 'botox'].map(byId).filter(Boolean);
+    const portrait = (src) => src.replace(/-l\.webp$/, '-p.webp');
+    const words = (t) => t.split(/\s+/).map((w) => `<span class="w"><span class="wi">${w}</span></span>`).join(' ');
+    const num = (n) => toFa(String(n).padStart(2, '0'));
+    const card = (a, i) => `<a class="ar-card" href="#mag-${a.id}" data-ar-go="${a.id}" data-k="${a.k}">
+  <span class="ar-card__img"><img src="${a.img}" alt="" width="1120" height="700" loading="lazy" decoding="async"><i class="ar-card__no">${num(i + 1)}</i><i class="ar-card__go" aria-hidden="true"><svg class="ic"><use href="#i-arrow"/></svg></i></span>
+  <span class="ar-card__txt"><span class="ar-card__meta"><span class="ar-cat">${a.cat}</span><small>${a.mins} دقیقه</small></span><b>${a.title}</b><small class="ar-card__by">${a.by}</small></span>
 </a>`;
-    const indexHTML = () => `<div class="ar-index">
-  <header class="ar-head">
-    <span class="ar-kick">مجله‌ی سلامت ساسان</span>
-    <h2 class="ar-title" id="arTitle">همه‌ی مقاله‌ها</h2>
-    <p class="ar-lead">راهنماهای کوتاه برای پیش و پس از درمان، از سه بخش کلینیک.</p>
+    const featTxt = (a) => `<span class="ar-cat">${a.cat}</span><b class="ari-feat__t">${words(a.title)}</b><span class="ari-feat__m"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>${a.mins} دقیقه مطالعه · ${a.by}</span>`;
+    const indexHTML = () => {
+      const mins = ARTS.reduce((s, a) => s + (+String(a.mins).replace(/[۰-۹]/g, (c) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(c)) || 0), 0);
+      return `<div class="ar-index">
+  <header class="ari-head">
+    <div class="ari-head__t">
+      <span class="ar-kick">مجله‌ی سلامت ساسان</span>
+      <h2 class="ar-title" id="arTitle">همه‌ی مقاله‌ها</h2>
+      <p class="ar-lead">راهنماهای کوتاه پزشکان کلینیک برای پیش و پس از درمان؛ از دندان و پوست تا فشار خون و بخیه.</p>
+    </div>
+    <dl class="ari-stats"><div><dd>${toFa(ARTS.length)}</dd><dt>مقاله</dt></div><div><dd>۳</dd><dt>بخش</dt></div><div><dd>${toFa(mins)}</dd><dt>دقیقه مطالعه</dt></div></dl>
   </header>
-  <div class="ar-tabs" role="toolbar" aria-label="دسته‌ی مقاله‌ها">
-    <button type="button" aria-pressed="true" data-f="all">همه</button>
-    <button type="button" aria-pressed="false" data-f="dental">دندانپزشکی</button>
-    <button type="button" aria-pressed="false" data-f="beauty">زیبایی و لیزر</button>
-    <button type="button" aria-pressed="false" data-f="medicine">پزشکی</button>
+  <section class="ari-feat" aria-roledescription="carousel" aria-label="مقاله‌های برگزیده">
+    <div class="ari-feat__stage">
+      ${FEAT.map((a, i) => `<a class="ari-slide${i ? '' : ' is-on'}" href="#mag-${a.id}" data-ar-go="${a.id}" data-k="${a.k}" aria-label="${a.title}" tabindex="${i ? -1 : 0}" draggable="false"><span class="ari-slide__in"><picture><source media="(max-width: 699.98px)" srcset="${portrait(a.img)}"><img src="${a.img}" alt="" width="1120" height="700" decoding="async"${i ? ' loading="lazy"' : ''}></picture></span></a>`).join('')}
+      <i class="ari-feat__shade" aria-hidden="true"></i>
+      <div class="ari-feat__txt" aria-live="polite">${featTxt(FEAT[0])}</div>
+      <span class="ari-feat__go" aria-hidden="true">خواندن مقاله<svg class="ic"><use href="#i-arrow"/></svg></span>
+    </div>
+    <div class="ari-feat__nav">
+      <ol class="ari-idx">${FEAT.map((a, i) => `<li><button type="button" data-i="${i}" aria-label="مقاله‌ی ${toFa(i + 1)}: ${a.title}"${i ? '' : ' aria-current="true"'}><span class="ari-idx__no">${num(i + 1)}</span><span class="ari-idx__t">${a.cat}</span><i class="ari-idx__bar"><i></i></i></button></li>`).join('')}</ol>
+      <div class="ari-arrows"><button type="button" class="ari-arrow" data-d="-1" aria-label="مقاله‌ی قبلی"><svg class="ic" aria-hidden="true"><use href="#i-arrow-r"/></svg></button><button type="button" class="ari-arrow" data-d="1" aria-label="مقاله‌ی بعدی"><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></button></div>
+    </div>
+  </section>
+  <div class="ari-bar">
+    <div class="ar-tabs" role="toolbar" aria-label="دسته‌ی مقاله‌ها">
+      <button type="button" aria-pressed="true" data-f="all">همه</button>
+      <button type="button" aria-pressed="false" data-f="dental">دندانپزشکی</button>
+      <button type="button" aria-pressed="false" data-f="beauty">زیبایی و لیزر</button>
+      <button type="button" aria-pressed="false" data-f="medicine">پزشکی</button>
+    </div>
+    <span class="ari-count" aria-live="polite"><b>${toFa(ARTS.length)}</b> مقاله</span>
   </div>
-  <div class="ar-grid">${ARTS.map(card).join('')}</div>
+  <div class="ar-grid ari-grid">${ARTS.map(card).join('')}</div>
 </div>`;
+    };
+    /* چیزهایی که با بسته شدن برگه یا رفتن به یک مقاله باید متوقف شوند */
+    let idxOff = null;
 
     /* نوار پیشرفت خواندن */
     let praf = 0;
@@ -1424,27 +1546,166 @@
     scroller.addEventListener('scroll', () => { if (!praf) praf = requestAnimationFrame(setProg); }, { passive: true });
 
     const wireIndex = () => {
-      const tabs = $('.ar-tabs', page), cards = $$('.ar-card', page);
+      const offs = [];
+      const idx = $('.ar-index', page);
+      /* ---------- اسلایدر برگزیده‌ها ---------- */
+      const feat = $('.ari-feat', idx), stage = $('.ari-feat__stage', feat), slides = $$('.ari-slide', feat), txt = $('.ari-feat__txt', feat);
+      const idxBtns = $$('.ari-idx button', feat);
+      let fi = 0, busyT = 0, auto = null, steps = 0, visible = false, hover = false;
+      const AUTO = 6500, MAX_STEPS = FEAT.length * 2;
+      const stopAuto = () => { if (auto) { auto.cancel(); auto = null; } };
+      /* نوار زیر شماره‌ی فعال در مدت نمایش پر می‌شود (فقط transform)؛ پس از دو دور کامل اسلایدر آرام می‌گیرد */
+      const runAuto = () => {
+        stopAuto();
+        const bar = $('.ari-idx__bar i', idxBtns[fi]);
+        if (!can() || !visible || hover || document.hidden || steps >= MAX_STEPS) return;
+        auto = bar.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: AUTO, easing: 'linear' });
+        auto.onfinish = () => { auto = null; steps++; go(fi + 1, 1); };
+      };
+      const paintIdx = () => idxBtns.forEach((b, k) => { if (k === fi) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); });
+      const swapTxt = (a, d) => {
+        if (!can()) { txt.innerHTML = featTxt(a); return; }
+        const old = [...txt.children];
+        const out = old.map((el, k) => el.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: `translate3d(0, ${-10}px, 0)` }], { duration: 220, delay: k * 30, easing: 'cubic-bezier(.4, 0, 1, 1)', fill: 'forwards' }));
+        out[out.length - 1].onfinish = () => {
+          txt.innerHTML = featTxt(a);
+          const [cat, t, m] = txt.children;
+          cat.animate([{ opacity: 0, transform: 'translate3d(0, 12px, 0)' }, { opacity: 1, transform: 'none' }], { duration: 600, easing: EXPO, fill: 'backwards' });
+          $$('.wi', t).forEach((w, k) => w.animate([{ transform: 'translate3d(0, 110%, 0)' }, { transform: 'none' }], { duration: 900, delay: 60 + k * 32, easing: EXPO, fill: 'backwards' }));
+          m.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 600, delay: 260, easing: 'ease-out', fill: 'backwards' });
+        };
+      };
+      /* پرده‌ی کشویی: قاب اسلاید تازه از کنار وارد می‌شود و عکسش برعکس حرکت می‌کند، پس عکس سر جایش می‌ماند و پرده رویش باز می‌شود */
+      function go(n, d) {
+        const to = (n + FEAT.length) % FEAT.length;
+        if (to === fi) return;
+        if (!d) d = to > fi ? 1 : -1;
+        const from = slides[fi], inS = slides[to];
+        fi = to; paintIdx();
+        slides.forEach((s, k) => { s.tabIndex = k === to ? 0 : -1; });
+        stage.dataset.k = FEAT[to].k;
+        swapTxt(FEAT[to], d);
+        if (!can()) { from.classList.remove('is-on'); inS.classList.add('is-on'); runAuto(); return; }
+        slides.forEach((s) => { s.getAnimations({ subtree: true }).forEach((x) => x.finish()); s.classList.remove('is-under'); });
+        from.classList.add('is-under'); from.classList.remove('is-on'); inS.classList.add('is-on');
+        /* راست‌به‌چپ: «بعدی» از چپ وارد می‌شود */
+        const x = d > 0 ? -100 : 100, D = 1100, E = 'cubic-bezier(.77, 0, .18, 1)';
+        const inner = $('.ari-slide__in', inS), oInner = $('.ari-slide__in', from);
+        inS.animate([{ transform: `translate3d(${x}%, 0, 0)` }, { transform: 'none' }], { duration: D, easing: E });
+        inner.animate([{ transform: `translate3d(${-x}%, 0, 0) scale(1.18)` }, { transform: 'none' }], { duration: D, easing: E });
+        const oa = oInner.animate([{ transform: 'none' }, { transform: `translate3d(${-x * 0.28}%, 0, 0) scale(1.06)` }], { duration: D, easing: E, fill: 'forwards' });
+        oa.onfinish = () => { from.classList.remove('is-under'); oa.cancel(); };
+        clearTimeout(busyT); busyT = setTimeout(runAuto, 200);
+      }
+      feat.addEventListener('click', (e) => {
+        const b = e.target.closest('.ari-idx button, .ari-arrow');
+        if (!b) return;
+        steps = MAX_STEPS; /* کاربر خودش ورق زد: دیگر خودکار جلو نمی‌رود */
+        if (b.dataset.i != null) go(+b.dataset.i); else go(fi + +b.dataset.d, +b.dataset.d);
+      });
+      feat.addEventListener('keydown', (e) => {
+        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+        e.preventDefault(); steps = MAX_STEPS;
+        go(fi + (e.key === 'ArrowLeft' ? 1 : -1), e.key === 'ArrowLeft' ? 1 : -1);
+        slides[fi].focus({ preventScroll: true });
+      });
+      feat.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') { hover = true; stopAuto(); } });
+      feat.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') { hover = false; runAuto(); } });
+      /* کشیدن با انگشت (یا ماوس) برای ورق زدن؛ کلیک کوتاه همچنان مقاله را باز می‌کند */
+      let sx = null, sy = 0, moved = false;
+      stage.addEventListener('dragstart', (e) => e.preventDefault());
+      stage.addEventListener('pointerdown', (e) => { if (e.button > 0) return; sx = e.clientX; sy = e.clientY; moved = false; });
+      stage.addEventListener('pointermove', (e) => { if (sx !== null && Math.abs(e.clientX - sx) > 8 && Math.abs(e.clientX - sx) > Math.abs(e.clientY - sy)) moved = true; });
+      stage.addEventListener('pointerup', (e) => {
+        if (sx === null) return;
+        const dx = e.clientX - sx; sx = null;
+        if (moved && Math.abs(dx) > 40) { steps = MAX_STEPS; go(fi + (dx > 0 ? 1 : -1), dx > 0 ? 1 : -1); }
+      });
+      stage.addEventListener('pointercancel', () => { sx = null; });
+      stage.addEventListener('click', (e) => { if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; } }, true);
+      if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver((es) => { visible = es.some((x) => x.isIntersecting); if (visible) runAuto(); else stopAuto(); }, { root: scroller, threshold: 0.5 });
+        io.observe(stage); offs.push(() => io.disconnect());
+      }
+      const vis = () => { if (document.hidden) stopAuto(); else runAuto(); };
+      document.addEventListener('visibilitychange', vis);
+      offs.push(() => { document.removeEventListener('visibilitychange', vis); stopAuto(); clearTimeout(busyT); });
+
+      /* ---------- فیلتر: کارت‌هایی که می‌روند محو می‌شوند، بقیه با FLIP سر جای تازه‌شان می‌لغزند و تازه‌ها بالا می‌آیند ---------- */
+      const tabs = $('.ar-tabs', idx), cards = $$('.ar-card', idx), count = $('.ari-count b', idx), grid = $('.ari-grid', idx);
       Pill(tabs, 'aria-pressed');
-      $$('button', tabs).forEach((b) => b.addEventListener('click', () => {
-        const f = b.dataset.f;
-        $$('button', tabs).forEach((t) => t.setAttribute('aria-pressed', String(t === b)));
+      let fT = 0;
+      const filter = (f) => {
         const show = cards.filter((c) => f === 'all' || c.dataset.k === f);
-        cards.forEach((c) => { c.hidden = !show.includes(c); });
-        if (can()) show.forEach((c, i) => c.animate([{ opacity: 0, transform: 'translate3d(0, 14px, 0)' }, { opacity: 1, transform: 'none' }], { duration: 500, delay: i * 50, easing: EXPO, fill: 'backwards' }));
+        count.textContent = toFa(show.length);
+        cards.forEach((c) => c.getAnimations().forEach((x) => x.finish()));
+        const was = cards.filter((c) => !c.hidden);
+        if (!can()) { cards.forEach((c) => { c.hidden = !show.includes(c); }); return; }
+        const first = new Map(was.map((c) => [c, c.getBoundingClientRect()]));
+        const leave = was.filter((c) => !show.includes(c));
+        const outs = leave.map((c) => c.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(.94)' }], { duration: 240, easing: 'cubic-bezier(.4, 0, 1, 1)', fill: 'forwards' }));
+        clearTimeout(fT);
+        fT = setTimeout(() => {
+          outs.forEach((x) => x.cancel());
+          cards.forEach((c) => { c.hidden = !show.includes(c); });
+          /* اگر بالای فهرست از دید بیرون رفته، نرم به آن برمی‌گردیم */
+          const gt = grid.getBoundingClientRect().top - scroller.getBoundingClientRect().top;
+          if (gt < 0) scroller.scrollBy({ top: gt - 90, behavior: 'smooth' });
+          let k = 0;
+          show.forEach((c) => {
+            c.classList.remove('is-pre');
+            const r0 = first.get(c);
+            if (r0) {
+              const r1 = c.getBoundingClientRect(), dx = r0.left - r1.left, dy = r0.top - r1.top;
+              if (Math.abs(dx) > 1 || Math.abs(dy) > 1) c.animate([{ transform: `translate3d(${dx}px, ${dy}px, 0)` }, { transform: 'none' }], { duration: 720, easing: 'cubic-bezier(.22, 1, .36, 1)' });
+            } else {
+              c.animate([{ opacity: 0, transform: 'translate3d(0, 26px, 0) scale(.96)' }, { opacity: 1, transform: 'none' }], { duration: 700, delay: 60 + k++ * 55, easing: EXPO, fill: 'backwards' });
+            }
+          });
+        }, leave.length ? 240 : 0);
+      };
+      $$('button', tabs).forEach((b) => b.addEventListener('click', () => {
+        $$('button', tabs).forEach((t) => t.setAttribute('aria-pressed', String(t === b)));
+        filter(b.dataset.f);
       }));
+      offs.push(() => clearTimeout(fT));
+
+      /* ---------- ورود کارت‌ها با اسکرول داخل برگه: عکس از زیر پرده بالا می‌آید ---------- */
+      if (can() && 'IntersectionObserver' in window) {
+        const vh = scroller.clientHeight;
+        const pre = cards.filter((c) => c.getBoundingClientRect().top - scroller.getBoundingClientRect().top > vh * 0.92);
+        pre.forEach((c) => c.classList.add('is-pre'));
+        const rio = new IntersectionObserver((es) => {
+          let k = 0;
+          es.forEach((en) => {
+            if (!en.isIntersecting) return;
+            const c = en.target; rio.unobserve(c);
+            if (!c.classList.contains('is-pre')) return;
+            c.classList.remove('is-pre');
+            const d = k++ * 80;
+            c.animate([{ opacity: 0, transform: 'translate3d(0, 40px, 0)' }, { opacity: 1, transform: 'none' }], { duration: 900, delay: d, easing: EXPO, fill: 'backwards' });
+            const im = $('.ar-card__img img', c);
+            if (im) im.animate([{ transform: 'scale(1.18)' }, { transform: 'none' }], { duration: 1300, delay: d, easing: EXPO, fill: 'backwards' });
+          });
+        }, { root: scroller, rootMargin: '0px 0px -8% 0px' });
+        pre.forEach((c) => rio.observe(c));
+        offs.push(() => rio.disconnect());
+      }
+      idxOff = () => { offs.forEach((f) => f()); idxOff = null; };
     };
     const render = (id) => {
       cur = id;
+      if (idxOff) idxOff();
       const a = id === 'all' ? null : byId(id);
       arEl.dataset.k = a ? a.k : '';
+      page.classList.toggle('is-index', !a);
       page.innerHTML = a ? artHTML(a) : indexHTML();
       crumb.textContent = a ? `مجله‌ی سلامت ساسان · ${a.cat}` : 'مجله‌ی سلامت ساسان';
       allBtn.hidden = !a;
       scroller.scrollTop = 0; setProg();
       if (!a) wireIndex();
     };
-    const parts = (skipCover) => [...$$('.ar-head > *', page), skipCover ? null : $('.ar-cover', page), $('.ar-tabs', page), $('.ar-body', page), $('.ar-grid', page)].filter(Boolean);
+    const parts = (skipCover) => [...$$('.ar-head > *, .ari-head__t > *, .ari-stats', page), skipCover ? null : $('.ar-cover', page), $('.ari-feat', page), $('.ari-bar', page), $('.ar-body', page), $('.ari-grid', page)].filter(Boolean);
     const stagger = (list, base = 0) => list.forEach((el, i) => el.animate([{ opacity: 0, transform: 'translate3d(0, 18px, 0)' }, { opacity: 1, transform: 'none' }], { duration: 700, delay: base + i * 60, easing: EXPO, fill: 'backwards' }));
 
     /* عکسی که از آن پرواز می‌کنیم: پیش‌نمایش شناور روی دسکتاپ، عکس کارت روی موبایل */
@@ -1519,6 +1780,7 @@
       isOpen = false; pushed = false;
       root.classList.remove('ar-open');
       const done = () => {
+        if (idxOff) idxOff();
         arEl.hidden = true; page.innerHTML = ''; cur = null;
         [sheet, scrim].forEach((el) => el.getAnimations().forEach((x) => x.cancel()));
         lockScroll(false); Motion.resume();
@@ -2038,7 +2300,8 @@
         frame.title = 'نقشه‌ی گوگل: درمانگاه شبانه‌روزی ساسان، سلمان‌شهر';
         frame.setAttribute('allowfullscreen', '');
         frame.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
-        frame.src = gl.dataset.src;
+        /* بزرگ‌نمایی: کلینیک، دریا و حدود نیمی از سلمان‌شهر دیده شود؛ روی صفحه‌ی باریک یک پله دورتر تا همان محدوده جا شود */
+        frame.src = gl.dataset.src.replace(/!1d[\d.]+/, '!1d' + (view.clientWidth < 700 ? 16000 : 9000));
         gl.appendChild(frame);
       }
       const done = () => { loaded = true; res(); };
@@ -2195,6 +2458,231 @@
     else if (!e.shiftKey && a === last) { e.preventDefault(); first.focus(); }
   });
 
+  /* ==========================================================================
+     ساعت ساسان: ساعت ۲۴ ساعته. حلقه‌ی سبز پزشک عمومی (شبانه‌روزی)، حلقه‌ی آبی دندانپزشکی (۱۰ تا ۲۰ در روزهای پذیرش)،
+     لبه‌ی بیرونی رنگ آسمان همان ساعت. عقربه با کشیدن، کلیدهای جهت یا روزهای هفته عوض می‌شود و آسمان پشت بخش روز و شب می‌شود.
+     حلقه‌ها فقط وقتی روز عوض می‌شود دوباره کشیده می‌شوند؛ عقربه و آسمان فقط transform و opacity می‌گیرند.
+     با اولین دیده شدن، عقربه یک شبانه‌روز کامل می‌چرخد و روی همین حالا می‌ایستد (یک بار)
+     ========================================================================== */
+  const clkSec = $('#clock');
+  if (clkSec) {
+    const dial = $('.clk__dial', clkSec), cv = $('.clk__cv', clkSec), ctx = cv.getContext ? cv.getContext('2d') : null;
+    const hand = $('.clk__hand', clkSec), range = $('.clk__range', clkSec), dayBtns = $$('.clk__days button', clkSec);
+    const tEl = $('#clkTime'), pEl = $('#clkPart'), canEl = $('#clkCan'), nowBtn = $('.clk__now', clkSec);
+    const rows = { medicine: $('.clk__row[data-k="medicine"]', clkSec), dental: $('.clk__row[data-k="dental"]', clkSec), beauty: $('.clk__row[data-k="beauty"]', clkSec) };
+    const sky = { night: $('.clk__night', clkSec), stars: $('.clk__stars', clkSec), day: $('.clk__day', clkSec), glow: $('.clk__glow', clkSec) };
+    const sun = $('.clk__sun', clkSec), moon = $('.clk__moon', clkSec);
+    const { DAYS, DENTAL, hourFa } = Clinic;
+    const canAnim = () => Motion.on && !root.classList.contains('rm');
+    const st = { d: -1, m: 720, ang: 180, p: 1, dp: 1 };
+    let S = 0, dpr = 1;
+    const TAU = Math.PI * 2, A0 = Math.PI / 2; /* نیمه‌شب پایین، ظهر بالا؛ ساعتگرد */
+    const angOf = (h) => A0 + (h / 24) * TAU;
+    const smooth = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+    const dayness = (m) => smooth(330, 450, m) * (1 - smooth(1050, 1170, m));
+    const warm = (m) => Math.max(Math.exp(-(((m - 380) / 75) ** 2)), Math.exp(-(((m - 1110) / 75) ** 2)));
+    const partOf = (m) => (m < 300 ? 'بامداد' : m < 720 ? 'صبح' : m < 780 ? 'ظهر' : m < 1020 ? 'بعدازظهر' : m < 1200 ? 'عصر' : 'شب');
+    const hhmm = (m) => toFa(`${String(Math.floor(m / 60) % 24).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`);
+    const dentalOpen = (d, m) => { const h = DENTAL[d]; return !!h && m >= h[0] * 60 && m < h[1] * 60; };
+    const dentalNext = (d, m) => {
+      for (let off = 0; off < 8; off++) {
+        const di = (d + off) % 7, h = DENTAL[di];
+        if (!h || (off === 0 && m >= h[0] * 60)) continue;
+        return `پذیرش بعدی: ${DAYS[di]}، ${hourFa(h[0])}`;
+      }
+      return '';
+    };
+
+    /* ---------- بوم: لبه‌ی آسمان، خط‌های ساعت، حلقه‌ها (p = پیشرفت کشیده شدن در ورود) ---------- */
+    const draw = () => {
+      if (!ctx || !S) return;
+      st.dirty = false;
+      const c = S / 2, p = st.p;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, S, S);
+      ctx.lineCap = 'round';
+      /* لبه‌ی بیرونی: رنگ آسمان هر ساعت (شب، سپیده، روز، غروب) */
+      const R0 = S * 0.47, w0 = S * 0.018;
+      let sg = '#3B4FA8';
+      if (ctx.createConicGradient) {
+        sg = ctx.createConicGradient(A0, c, c);
+        [[0, '#1B2466'], [4.8, '#3A2F7C'], [6, '#FF9A5A'], [7.4, '#5AA8FF'], [12, '#9ED8FF'], [16.6, '#5AA8FF'], [18.3, '#FF7F58'], [19.6, '#3A2F7C'], [24, '#1B2466']].forEach(([h, col]) => sg.addColorStop(h / 24, col));
+      }
+      ctx.beginPath(); ctx.arc(c, c, R0, A0, A0 + TAU * p); ctx.strokeStyle = sg; ctx.lineWidth = w0; ctx.stroke();
+      /* خط‌های ربع‌ساعت و ساعت، و عدد هر سه ساعت */
+      const R1 = S * 0.425;
+      for (let k = 0; k < 96; k++) {
+        if (k / 96 > p) break;
+        const a = A0 + (k / 96) * TAU, hr = k % 4 === 0, len = hr ? S * 0.022 : S * 0.009;
+        ctx.beginPath(); ctx.moveTo(c + Math.cos(a) * R1, c + Math.sin(a) * R1); ctx.lineTo(c + Math.cos(a) * (R1 - len), c + Math.sin(a) * (R1 - len));
+        ctx.strokeStyle = hr ? 'rgba(255, 255, 255, .55)' : 'rgba(255, 255, 255, .22)'; ctx.lineWidth = hr ? 1.6 : 1; ctx.stroke();
+      }
+      ctx.fillStyle = 'rgba(229, 236, 250, .75)'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.font = `600 ${Math.round(S * 0.032)}px ${getComputedStyle(clkSec).getPropertyValue('--f-ui') || 'sans-serif'}`;
+      for (let h = 0; h < 24; h += 3) {
+        if (h / 24 > p) break;
+        const a = angOf(h), r = R1 - S * 0.058;
+        ctx.fillText(toFa(h === 0 ? 24 : h), c + Math.cos(a) * r, c + Math.sin(a) * r);
+      }
+      /* حلقه‌ی پزشک عمومی: کامل (شبانه‌روزی) */
+      const Rg = S * 0.33, wr = S * 0.03;
+      ctx.beginPath(); ctx.arc(c, c, Rg, 0, TAU); ctx.strokeStyle = 'rgba(255, 255, 255, .07)'; ctx.lineWidth = wr; ctx.stroke();
+      let gg = '#3EE0AE';
+      if (ctx.createConicGradient) { gg = ctx.createConicGradient(A0, c, c); gg.addColorStop(0, '#15A07C'); gg.addColorStop(0.5, '#3EE0AE'); gg.addColorStop(1, '#15A07C'); }
+      ctx.beginPath(); ctx.arc(c, c, Rg, A0, A0 + TAU * p); ctx.strokeStyle = gg; ctx.lineWidth = wr; ctx.stroke();
+      /* حلقه‌ی دندانپزشکی: فقط ۱۰ تا ۲۰ روزهای پذیرش */
+      const Rd = S * 0.265;
+      ctx.beginPath(); ctx.arc(c, c, Rd, 0, TAU); ctx.strokeStyle = 'rgba(255, 255, 255, .07)'; ctx.lineWidth = wr; ctx.stroke();
+      const h = DENTAL[st.d];
+      if (h) {
+        const a0 = angOf(h[0]), a1 = angOf(h[0] + (h[1] - h[0]) * st.dp);
+        if (a1 > a0 + 0.001) {
+          let dg = '#6EA8FF';
+          if (ctx.createLinearGradient) { dg = ctx.createLinearGradient(c - Rd, c, c + Rd, c); dg.addColorStop(0, '#3E7BFF'); dg.addColorStop(1, '#8FC0FF'); }
+          ctx.beginPath(); ctx.arc(c, c, Rd, a0, a1); ctx.strokeStyle = dg; ctx.lineWidth = wr; ctx.stroke();
+        }
+      } else {
+        ctx.save(); ctx.setLineDash([2, S * 0.022]);
+        ctx.beginPath(); ctx.arc(c, c, Rd, angOf(10), angOf(20)); ctx.strokeStyle = 'rgba(110, 168, 255, .45)'; ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
+      }
+      /* نقطه‌ی «همین حالا» روی لبه، فقط برای امروز */
+      const n = Clinic.now();
+      if (n.d === st.d && p >= 1) {
+        const a = angOf(n.min / 60);
+        ctx.beginPath(); ctx.arc(c + Math.cos(a) * R0, c + Math.sin(a) * R0, S * 0.013, 0, TAU); ctx.fillStyle = '#fff'; ctx.fill();
+      }
+    };
+    st.dp = 1;
+    const size = () => {
+      S = dial.clientWidth; dpr = Math.min(2, window.devicePixelRatio || 1);
+      if (!S || !ctx) return;
+      cv.width = Math.round(S * dpr); cv.height = Math.round(S * dpr);
+      draw();
+    };
+
+    /* ---------- خوانش: ساعت وسط صفحه، وضعیت بخش‌ها، آسمان ---------- */
+    let lastKey = '';
+    const paint = () => {
+      const m = ((Math.round(st.m) % 1440) + 1440) % 1440, q = m - (m % 15);
+      const dn = dayness(m), wm = warm(m) * (1 - Math.abs(dn - 0.5) * 0.6);
+      sky.day.style.opacity = dn.toFixed(3);
+      sky.stars.style.opacity = (1 - dn).toFixed(3);
+      sky.glow.style.opacity = wm.toFixed(3);
+      sun.style.opacity = dn.toFixed(3); moon.style.opacity = (1 - dn).toFixed(3);
+      const key = st.d + ':' + q;
+      if (key === lastKey) return;
+      lastKey = key;
+      tEl.textContent = hhmm(q);
+      pEl.textContent = `${partOf(q)} · ${DAYS[st.d]}`;
+      clkSec.dataset.part = dn > 0.5 ? 'day' : 'night';
+      range.value = q;
+      range.setAttribute('aria-valuetext', `${DAYS[st.d]} ساعت ${hhmm(q)} ${partOf(q)}`);
+      const dOpen = dentalOpen(st.d, q), hh = DENTAL[st.d];
+      $('.clk__rs', rows.dental).textContent = dOpen ? `پذیرش دارد تا ${hourFa(hh[1])}` : (hh && q < hh[0] * 60 ? `بسته؛ از ${hourFa(hh[0])} پذیرش دارد` : `بسته؛ ${dentalNext(st.d, q)}`);
+      rows.dental.classList.toggle('is-off', !dOpen);
+      canEl.innerHTML = dOpen
+        ? '<b>در این ساعت هر سه بخش پذیرش دارند:</b> ویزیت پزشک عمومی، تزریقات و سرم، بخیه و نوار قلب؛ و دندانپزشکی از جرم‌گیری و ترمیم تا عصب‌کشی و ایمپلنت.'
+        : '<b>در این ساعت پزشک عمومی در کلینیک است:</b> برای ویزیت، تزریقات، سرم‌تراپی، بخیه، شست‌وشوی گوش و نوار قلب مستقیم بیایید.';
+      const n = Clinic.now();
+      nowBtn.hidden = n.d === st.d && Math.abs(n.min - q) < 15;
+    };
+    /* زاویه‌ی عقربه پیوسته می‌ماند (از ۲۳:۴۵ به ۰۰:۱۵ نیم‌دور برعکس نمی‌چرخد) */
+    const setHand = (m) => {
+      const target = (m / 1440) * 360;
+      let a = target + Math.round((st.ang - target) / 360) * 360;
+      st.ang = a;
+      hand.style.setProperty('--a', a.toFixed(2) + 'deg');
+    };
+    const setM = (m, instant) => {
+      st.m = ((m % 1440) + 1440) % 1440;
+      if (instant) { dial.classList.add('is-drag'); setHand(st.m); void hand.offsetWidth; dial.classList.remove('is-drag'); }
+      else setHand(st.m);
+      paint();
+    };
+    let dpT = null;
+    const setDay = (d) => {
+      if (d === st.d) return;
+      st.d = d;
+      dayBtns.forEach((b, k) => b.setAttribute('aria-pressed', String(k === d)));
+      lastKey = '';
+      if (dpT) { dpT.kill(); dpT = null; }
+      /* قوس دندانپزشکی دوباره کشیده می‌شود */
+      if (canAnim() && window.gsap && DENTAL[d]) { st.dp = 0; dpT = gsap.to(st, { dp: 1, duration: 0.8, ease: 'expo.out', onUpdate: draw }); } else st.dp = 1;
+      draw(); paint();
+    };
+    const markDays = () => {
+      const today = Clinic.today();
+      dayBtns.forEach((b, k) => { b.classList.toggle('is-today', k === today); b.classList.toggle('is-dental', !!DENTAL[k]); });
+    };
+    const goNow = (instant) => { const n = Clinic.now(); setDay(n.d); setM(n.min, instant); };
+
+    /* ---------- کشیدن عقربه ---------- */
+    let drag = false, tap = null;
+    const mFromEvent = (e) => {
+      const r = dial.getBoundingClientRect(), x = e.clientX - (r.left + r.width / 2), y = e.clientY - (r.top + r.height / 2);
+      let a = Math.atan2(y, x) - A0; a = ((a % TAU) + TAU) % TAU;
+      return Math.round((a / TAU) * 1440 / 15) * 15 % 1440;
+    };
+    dial.addEventListener('pointerdown', (e) => {
+      if (e.button > 0) return;
+      /* لمس بیرون از دکمه‌ی عقربه: شاید کاربر می‌خواهد صفحه را اسکرول کند؛ فقط ضربه‌ی کوتاه ساعت را عوض می‌کند */
+      if (e.pointerType === 'touch' && !e.target.closest('.clk__knob')) { tap = { x: e.clientX, y: e.clientY }; return; }
+      stopIntro();
+      drag = true; dial.classList.add('is-drag');
+      try { dial.setPointerCapture(e.pointerId); } catch (err) { /* قدیمی */ }
+      dial.classList.remove('is-drag'); setM(mFromEvent(e)); dial.classList.add('is-drag');
+    });
+    dial.addEventListener('pointermove', (e) => { if (drag) setM(mFromEvent(e)); });
+    const end = () => { if (!drag) return; drag = false; dial.classList.remove('is-drag'); };
+    dial.addEventListener('pointerup', (e) => {
+      if (tap) { const t = tap; tap = null; if (Math.hypot(e.clientX - t.x, e.clientY - t.y) < 10) { stopIntro(); setM(mFromEvent(e)); } return; }
+      end();
+    });
+    dial.addEventListener('pointercancel', () => { tap = null; end(); });
+    range.addEventListener('input', () => { stopIntro(); setM(+range.value); });
+    /* کلیدهای جهت: راست‌به‌چپ؛ چپ یعنی جلو */
+    range.addEventListener('keydown', (e) => {
+      const d = { ArrowLeft: 15, ArrowUp: 15, ArrowRight: -15, ArrowDown: -15, PageUp: 60, PageDown: -60 }[e.key];
+      if (d === undefined) return;
+      e.preventDefault(); stopIntro(); setM(st.m + d);
+    });
+    dial.addEventListener('click', () => range.focus({ preventScroll: true }));
+    dayBtns.forEach((b, k) => b.addEventListener('click', () => { stopIntro(); setDay(k); }));
+    nowBtn.addEventListener('click', () => { stopIntro(); goNow(false); });
+
+    /* ---------- ورود: حلقه‌ها کشیده می‌شوند و عقربه یک شبانه‌روز می‌چرخد تا روی همین حالا بایستد ---------- */
+    let intro = null, played = false;
+    function stopIntro() {
+      if (!intro) return;
+      intro.kill(); intro = null;
+      dial.classList.remove('is-intro');
+      st.p = 1; st.dp = 1; draw();
+    }
+    const playIntro = () => {
+      if (played) return; played = true;
+      const n = Clinic.now();
+      if (!canAnim() || !window.gsap) { goNow(true); return; }
+      setDay(n.d); st.p = 0; st.dp = 1;
+      dial.classList.add('is-intro');
+      const o = { m: 0 };
+      setM(0, true);
+      intro = gsap.timeline({ onComplete: () => { intro = null; dial.classList.remove('is-intro'); paint(); } })
+        .to(st, { p: 1, duration: 1.5, ease: 'power2.inOut', onUpdate: draw }, 0)
+        .to(o, { m: 1440 + n.min, duration: 3.4, ease: 'power3.inOut', onUpdate: () => { st.m = o.m % 1440; setHand(o.m); paint(); } }, 0.35);
+    };
+    markDays();
+    goNow(true);
+    size();
+    if ('ResizeObserver' in window) new ResizeObserver(size).observe(dial);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { io.disconnect(); playIntro(); } }, { threshold: 0.4 });
+      io.observe(dial);
+    } else playIntro();
+    /* هر دقیقه: نقطه‌ی «همین حالا» و روز امروز */
+    setInterval(() => { markDays(); if (!intro) { draw(); lastKey = ''; paint(); } }, 60e3);
+  }
+
   /* ---------- ثبت ماژول‌ها ---------- */
   Motion.add(Stage);
   Motion.add(Reel);
@@ -2236,8 +2724,8 @@
   document.addEventListener('DOMContentLoaded', () => {
     brandIntro(intro);
     if (!Motion.on) counters(document, false);
-    const k = location.hash.slice(1);
-    if (SVC[k]) openSvc(k, null, false);
+    const k = keyOf(location.hash.slice(1));
+    if (isKey(k)) openSvc(k, null, false);
     setInterval(fillSlots, 5 * 60 * 1000);
   });
 })();

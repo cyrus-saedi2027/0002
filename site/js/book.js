@@ -4,7 +4,8 @@
    اول پهن و بعد بلند می‌شود و به برگه‌ی درخواست تبدیل می‌شود: بخش ← مشخصات ← کد تأیید ← ثبت.
    بیمار روز، ساعت و پزشک را انتخاب نمی‌کند؛ پذیرش بین ۳۰ دقیقه تا ۴ ساعت بعد تماس می‌گیرد و هماهنگ می‌کند.
    ارسال کد و ثبت درخواست با سرور کلینیک (پوشه‌ی server/) انجام می‌شود. اگر سرور در دسترس نباشد
-   (مثل پیش‌نمایش ایستا)، همان مسیر به‌شکل نمایشی و بدون ارسال پیامک اجرا می‌شود.
+   (مثل پیش‌نمایش ایستا)، همان مسیر بدون ارسال پیامک اجرا می‌شود و یک خط توضیح روشن زیر کد می‌آید
+   (هیچ پیامک ساختگی روی صفحه نشان داده نمی‌شود).
    ========================================================================== */
 (function () {
   'use strict';
@@ -17,7 +18,7 @@
   if (!bk) return;
 
   const panel = $('.bk__panel', bk), scrim = $('.bk__scrim', bk), skin = $('.bk__skin', bk), pill = $('.bk__pill', bk), inn = $('.bk__in', bk);
-  const view = $('.bk__view', bk), steps = $$('.bk__step', bk), progLis = $$('.bk__prog li', bk), bar = $('.bk__bar i', bk);
+  const view = $('.bk__view', bk), steps = $$('.bk__step', bk), prog = $('.bk__prog', bk), progLis = $$('.bk__prog li', bk);
   const nextBtn = $('#bkNext'), backBtn = $('.bk__back', bk), msg = $('#bkMsg'), sumEl = $('#bkSum'), foot = $('.bk__foot', bk);
   const titleEl = $('#bkTitle'), subEl = $('#bkSub');
   /* شماره‌ها در متن راست‌به‌چپ جدا (isolate) و بدون شکستن خط می‌مانند */
@@ -59,10 +60,10 @@
   const CALL = 'بین ۳۰ دقیقه تا ۴ ساعت بعد';
 
   /* ---------- وضعیت ---------- */
-  const fresh = () => ({ step: 0, k: null, type: 'ویزیت اول', name: '', tel: '', note: '', sentAt: 0, ttl: 120, resend: 60, demo: null, ref: null, smsOk: false, busy: false });
+  const fresh = () => ({ step: 0, k: null, type: 'ویزیت اول', name: '', tel: '', note: '', sentAt: 0, ttl: 120, resend: 120, demo: false, ref: null, smsOk: false, busy: false });
   const st = fresh();
   const reset = () => { const keep = { name: st.name, tel: st.tel }; Object.assign(st, fresh(), keep); };
-  const TITLES = ['بخش را انتخاب کنید', 'نام و شماره‌ی موبایل', 'کد تأیید پیامک‌شده را وارد کنید', 'درخواست شما ثبت شد'];
+  const TITLES = ['بخش را انتخاب کنید', 'نام و شماره‌ی موبایل', 'کد تأیید را وارد کنید', 'درخواست شما ثبت شد'];
   const NEXT = ['ادامه', 'دریافت کد تأیید', 'تأیید و ثبت درخواست'];
   const LAST = 3;
 
@@ -114,9 +115,8 @@
   };
 
   /* ---------- مرحله‌ی ۳: کد تأیید ---------- */
-  const codeIn = $('#bkCode'), codeBox = $('.bk-code', bk), cells = $$('.bk-code__cells i', bk), timerEl = $('#bkTimer'), timerRow = $('#bkTimerRow'), resendBtn = $('#bkResend'), tbar = $('.bk-timer__bar i', bk);
-  const sms = $('#bkSms');
-  let tmr = 0, smsT = 0;
+  const codeIn = $('#bkCode'), codeBox = $('.bk-code', bk), cells = $$('.bk-code__cells i', bk), timerRow = $('#bkTimerRow'), timerTxt = $('#bkTimerTxt'), resendBtn = $('#bkResend'), tbar = $('.bk-timer__bar i', bk), demoNote = $('#bkDemo');
+  let tmr = 0;
   const paintCode = () => {
     const v = digits(codeIn.value).replace(/\D/g, '').slice(0, 5);
     if (codeIn.value !== v) codeIn.value = v;
@@ -136,34 +136,18 @@
   });
   codeIn.addEventListener('focus', () => { codeBox.classList.add('is-focus'); paintCode(); });
   codeIn.addEventListener('blur', () => codeBox.classList.remove('is-focus'));
+  /* یک شمارش معکوس: کد ۲ دقیقه معتبر است و ارسال دوباره هم درست وقتی باز می‌شود که همین زمان تمام شود */
   const tick = () => {
     const el = (Date.now() - st.sentAt) / 1000;
     const left = Math.max(0, Math.ceil(st.ttl - el)), rl = Math.max(0, Math.ceil(st.resend - el));
-    timerEl.textContent = toFa(`${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`);
+    const txt = left > 0 ? `اعتبار کد: <b>${toFa(`${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`)}</b>` : 'زمان این کد تمام شد؛ کد تازه بگیرید.';
+    if (timerTxt.innerHTML !== txt) timerTxt.innerHTML = txt;
     tbar.style.setProperty('--t', (left / st.ttl).toFixed(3));
     timerRow.classList.toggle('is-exp', left === 0);
     resendBtn.disabled = rl > 0 || st.busy;
-    resendBtn.textContent = rl > 0 ? `ارسال دوباره (${toFa(rl)} ثانیه)` : 'ارسال دوباره';
     if (left === 0 && rl === 0) clearInterval(tmr);
   };
   const startTimer = () => { clearInterval(tmr); tick(); tmr = setInterval(tick, 1000); };
-  const showSms = (code) => {
-    $('#bkSmsText').textContent = `کد تأیید درخواست نوبت: ${toFa(code)}`;
-    sms.hidden = false;
-    if (can()) gsap.fromTo(sms, { yPercent: -140, opacity: 0, scale: 0.9 }, { yPercent: 0, opacity: 1, scale: 1, duration: 0.8, ease: 'back.out(1.6)' });
-    clearTimeout(smsT); smsT = setTimeout(hideSms, 9000);
-  };
-  const hideSms = () => {
-    clearTimeout(smsT);
-    if (sms.hidden) return;
-    if (!can()) { sms.hidden = true; return; }
-    gsap.to(sms, { yPercent: -140, opacity: 0, duration: 0.4, ease: 'power2.in', onComplete: () => { sms.hidden = true; gsap.set(sms, { clearProps: 'all' }); } });
-  };
-  sms.addEventListener('click', () => {
-    if (!st.demo) return;
-    codeIn.value = st.demo; hideSms(); codeIn.focus({ preventScroll: true });
-    codeIn.dispatchEvent(new Event('input'));
-  });
   const ERR = {
     network: `اتصال به سرور برقرار نشد. اینترنت را بررسی کنید یا با پذیرش تماس بگیرید: ${TEL}`,
     server: `سامانه‌ی نوبت الان جواب نمی‌دهد. لطفاً با پذیرش تماس بگیرید: ${TEL}`,
@@ -184,13 +168,12 @@
     if (await probe()) {
       const r = await post('/otp/send', { mobile: st.tel });
       if (!r.ok) { say(errText(r)); return false; }
-      st.ttl = r.ttl || 120; st.resend = r.resend || 60; st.demo = null;
+      st.ttl = r.ttl || 120; st.resend = r.resend || st.ttl; st.demo = false;
     } else {
-      st.demo = String(Math.floor(10000 + Math.random() * 90000));
-      st.ttl = 120; st.resend = 60;
-      /* ارسال دوباره (در مرحله‌ی کد)؛ بار اول ورود به مرحله‌ی کد خودش پیامک را نشان می‌دهد */
-      if (st.step === 2) setTimeout(() => { if (isOpen && st.step === 2 && st.demo) showSms(st.demo); }, 1300);
+      /* بدون سرور: پیامکی فرستاده نمی‌شود و هر کد ۵ رقمی مسیر را ادامه می‌دهد (خط توضیح زیر کد) */
+      st.demo = true; st.ttl = 120; st.resend = 120;
     }
+    demoNote.hidden = !st.demo;
     st.sentAt = Date.now();
     return true;
   }
@@ -213,12 +196,12 @@
       r = await post('/booking', { mobile: st.tel, code, name: st.name, note: st.note, dept: st.k, type: st.type });
     } else {
       await new Promise((res) => setTimeout(res, 650));
-      r = code === st.demo ? { ok: true, ref: 'SS-' + String(Date.now()).slice(-5) } : { ok: false, error: 'code' };
+      r = { ok: true, ref: 'SS-' + String(Date.now()).slice(-5) };
     }
     st.busy = false; nextBtn.classList.remove('is-busy');
     if (!r.ok) { codeBox.classList.add('is-bad'); shake(codeBox); say(errText(r)); codeIn.select(); return; }
     codeBox.classList.add('is-ok');
-    st.ref = r.ref; st.smsOk = !!r.sms; st.demo = null; clearInterval(tmr); hideSms();
+    st.ref = r.ref; st.smsOk = !!r.sms; clearInterval(tmr);
     setTimeout(() => go(LAST, 1), can() ? 380 : 0);
   }
 
@@ -262,15 +245,17 @@
     tone();
     subEl.textContent = TITLES[n];
     backBtn.hidden = n === 0 || n === LAST;
-    progLis.forEach((li, i) => { li.classList.toggle('is-on', i === Math.min(n, LAST - 1)); li.classList.toggle('is-done', i < n); });
-    bar.style.setProperty('--p', Math.min(1, (n + 1) / LAST).toFixed(3));
+    /* مرحله‌ی آخر (ثبت شد) خودش هم «انجام‌شده» است */
+    const prev = progLis.filter((li) => li.classList.contains('is-on') || li.classList.contains('is-done')).length;
+    prog.classList.toggle('is-seq', n + 1 - prev > 1);
+    progLis.forEach((li, i) => { li.classList.toggle('is-on', i === n && n !== LAST); li.classList.toggle('is-done', i < n || n === LAST); });
     foot.hidden = n === LAST;
     $('span', nextBtn).textContent = NEXT[n] || '';
   }
   function enter(n) {
     if (n === 0) paintDepts();
     if (n === 1) paintStep1();
-    if (n === 2) { $('#bkTelShow').textContent = faTel(st.tel); codeIn.value = ''; codeBox.classList.remove('is-bad', 'is-ok'); paintCode(); startTimer(); if (st.demo && sms.hidden) setTimeout(() => { if (isOpen && st.step === 2 && st.demo) showSms(st.demo); }, 700); }
+    if (n === 2) { $('#bkTelShow').textContent = faTel(st.tel); $('.bk-otp__t', bk).firstChild.textContent = st.demo ? 'کد ۵ رقمی برای ' : 'کد ۵ رقمی به '; $('.bk-otp__t', bk).lastChild.textContent = st.demo ? ' (پیش‌نمایش؛ پیامک فرستاده نمی‌شود)' : ' پیامک شد.'; codeIn.value = ''; codeBox.classList.remove('is-bad', 'is-ok'); paintCode(); startTimer(); }
     if (n === LAST) paintDone();
   }
   function focusStep(n) {
@@ -282,7 +267,7 @@
     if (n === st.step && !steps[n].hidden) return;
     const from = steps[st.step], to = steps[n];
     say('');
-    if (st.step === 2 && n !== LAST) { clearInterval(tmr); hideSms(); }
+    if (st.step === 2 && n !== LAST) clearInterval(tmr);
     st.step = n;
     enter(n); paintChrome(n); paintSum();
     const swap = () => { steps.forEach((s) => { s.hidden = s !== to; }); view.scrollTop = 0; };
@@ -371,6 +356,8 @@
       if (st.step === 0) st.step = 1;
     }
     if (st.step === 2) st.step = 1;
+    /* شماره‌ای که در فرم سریع هیرو نوشته شده */
+    if (o.tel && /^09\d{9}$/.test(o.tel)) st.tel = o.tel;
     steps.forEach((s, i) => { s.hidden = i !== st.step; });
     enter(st.step); paintChrome(st.step); paintSum();
   }
@@ -380,6 +367,9 @@
     isOpen = true;
     opener = o.from || document.activeElement;
     probe();
+    /* نوار مرحله‌ها از صفر شروع می‌شود و بعد از باز شدن کپسول، تکه‌به‌تکه پر می‌شود */
+    progLis.forEach((li) => li.classList.remove('is-on', 'is-done'));
+    prog.classList.add('is-enter'); clearTimeout(prog._t); prog._t = setTimeout(() => prog.classList.remove('is-enter'), 1600);
     apply(o);
     bk.hidden = false;
     root.classList.add('bk-open');
@@ -414,7 +404,7 @@
   function close(fromPop) {
     if (!isOpen) return;
     isOpen = false;
-    clearInterval(tmr); hideSms();
+    clearInterval(tmr);
     if (pushed && !fromPop) { pushed = false; try { history.back(); } catch (e) { /* محیط محدود */ } }
     pushed = false;
     const done = () => {

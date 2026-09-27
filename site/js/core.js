@@ -92,13 +92,20 @@
         this.lenis.on('scroll', ScrollTrigger.update);
         this.lenis.on('scroll', () => Aurora.hold(220));
         /* هنگام اسکرول، کارت‌ها زیر نشانگرِ ثابت رد می‌شوند و هاورشان هر فریم صفحه را دوباره رسم می‌کند؛
-           تا اسکرول آرام نگرفته، محتوا به نشانگر جواب نمی‌دهد (هدر همچنان فعال است) */
-        if (finePointer) {
-          let t = 0;
+           تا اسکرول آرام نگرفته، یک لایه‌ی شفاف زیر هدر نشانگر را می‌گیرد (هدر همچنان فعال است).
+           قبلاً کلاس is-scrolling روی html عوض می‌شد و با هر شروع و پایان اسکرول کل صفحه دوباره استایل می‌خورد (ایست محسوس)؛
+           حالا فقط همین یک لایه نمایش داده یا پنهان می‌شود */
+        if (finePointer && document.body) {
+          const shield = this.shield || (this.shield = document.body.appendChild(Object.assign(document.createElement('div'), { className: 'scroll-shield' })));
+          shield.setAttribute('aria-hidden', 'true');
+          let t = 0, on = false;
+          const off = () => { on = false; shield.style.display = ''; };
           this.lenis.on('scroll', () => {
-            if (!root.classList.contains('is-scrolling')) root.classList.add('is-scrolling');
-            clearTimeout(t); t = setTimeout(() => root.classList.remove('is-scrolling'), 160);
+            /* نشانگر روی فهرست مجله است: پیش‌نمایش عکس باید هنگام اسکرول هم با نشانگر بماند */
+            if (!on && !document.querySelector('.mag__list.is-pv')) { on = true; shield.style.display = 'block'; }
+            clearTimeout(t); t = setTimeout(off, 160);
           });
+          this._shieldOff = () => { clearTimeout(t); off(); };
         }
         if (this.paused) this.lenis.stop();
         this._raf = (t) => this.lenis && this.lenis.raf(t * 1000);
@@ -111,6 +118,7 @@
     stop() {
       this.mods.slice().reverse().forEach((m) => m.kill());
       if (this.lenis) { gsap.ticker.remove(this._raf); this.lenis.destroy(); this.lenis = null; }
+      if (this._shieldOff) { this._shieldOff(); this._shieldOff = null; }
       this.on = false;
       root.classList.remove('motion', 'is-scrolling');
       this.statics(true);
