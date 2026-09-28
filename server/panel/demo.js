@@ -16,11 +16,13 @@
     'doc-5': { k: 'beauty', name: 'دکتر کیانی' }, 'doc-3': { k: 'medicine', name: 'دکتر صالحی' }, 'doc-4': { k: 'medicine', name: 'دکتر شریفی' }
   };
   const TYPES = ['ویزیت اول', 'ادامه‌ی درمان', 'مشاوره'];
-  const STATUSES = ['new', 'called', 'scheduled', 'done', 'cancelled', 'no-show'];
+  const STATUSES = ['new', 'called', 'scheduled', 'arrived', 'done', 'cancelled', 'no-show'];
   const ROLES = { admin: 'مدیر', reception: 'پذیرش', doctor: 'پزشک' };
   const CAN = { admin: ['write', 'phone', 'callbacks', 'sms', 'users', 'audit'], reception: ['write', 'phone', 'callbacks', 'sms'], doctor: [] };
 
   const dayFmt = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tehran', year: 'numeric', month: '2-digit', day: '2-digit' });
+  const hmFmt = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Tehran', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+  const nowMin = () => { const [h, m] = hmFmt.format(new Date()).split(':').map(Number); return h * 60 + m; };
   const today = () => dayFmt.format(new Date());
   const addDays = (iso, n) => { const d = new Date(iso + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
   const wd = (iso) => new Date(iso + 'T12:00:00Z').getUTCDay();
@@ -62,16 +64,17 @@
     received(b, 3 * HOUR);
     b.log.push({ at: at(2 * HOUR + 40 * MIN), by: RECEPTION, ev: 'status', v: 'called' }, { at: at(2 * HOUR + 39 * MIN), by: RECEPTION, ev: 'note', v: '' });
 
-    /* امروز */
+    /* امروز: ساعت‌ها نسبت به همین حالا چیده می‌شوند تا برنامه‌ی روز همیشه زنده باشد (یکی انجام شده، یکی در کلینیک، بقیه در راه) */
+    const nm = Math.max(120, Math.min(1320, nowMin()));
+    const slot = (d) => Math.max(0, Math.min(1425, Math.round((nm + d) / 15) * 15));
+    b = sched(add({ dept: 'medicine', type: 'ویزیت اول', name: 'علی رضایی', mobile: '09001234575', createdAt: at(2 * DAY) }), t, slot(-100), 'doc-3', 2 * DAY - HOUR);
+    b.status = 'done'; b.log.push({ at: at(HOUR), by: RECEPTION, ev: 'status', v: 'arrived' }, { at: at(40 * MIN), by: RECEPTION, ev: 'status', v: 'done' });
+    b = sched(add({ dept: 'medicine', type: 'ادامه‌ی درمان', name: 'فاطمه حسینی', mobile: '09001234576', createdAt: at(DAY + 4 * HOUR), source: 'phone', createdBy: RECEPTION }), t, slot(-15), 'doc-4', DAY + 4 * HOUR);
+    b.status = 'arrived'; b.log.push({ at: at(12 * MIN), by: RECEPTION, ev: 'status', v: 'arrived' });
+    sched(add({ dept: 'beauty', type: 'مشاوره', name: 'سمیرا نوری', mobile: '09001234577', note: 'مشاوره‌ی تزریق فیلر لب', createdAt: at(DAY + 6 * HOUR) }), t, slot(45), 'doc-5', DAY + 5 * HOUR);
     let [dp, dc] = fit(t, 'dental', 'doc-1');
-    b = sched(add({ dept: dp, type: 'ویزیت اول', name: 'علی رضایی', mobile: '09001234575', createdAt: at(2 * DAY) }), t, 630, dc, 2 * DAY - HOUR);
-    b.status = 'done'; b.log.push({ at: at(3 * HOUR), by: RECEPTION, ev: 'status', v: 'done' });
-    [dp, dc] = fit(t, 'dental', 'doc-2');
-    sched(add({ dept: dp, type: 'ادامه‌ی درمان', name: 'فاطمه حسینی', mobile: '09001234576', createdAt: at(DAY + 4 * HOUR), source: 'phone', createdBy: RECEPTION }), t, 735, dc, DAY + 4 * HOUR);
-    sched(add({ dept: 'beauty', type: 'مشاوره', name: 'سمیرا نوری', mobile: '09001234577', note: 'مشاوره‌ی تزریق فیلر لب', createdAt: at(DAY + 6 * HOUR) }), t, 990, 'doc-5', DAY + 5 * HOUR);
-    [dp, dc] = fit(t, 'dental', 'doc-1');
-    sched(add({ dept: dp, type: 'مشاوره', name: 'امیر جعفری', mobile: '09001234578', note: 'لمینت دندان‌های جلو', createdAt: at(DAY) }), t, 1140, dc, DAY - HOUR);
-    sched(add({ dept: 'medicine', type: 'ویزیت اول', name: 'محمدرضا فتحی', mobile: '09001234579', createdAt: at(5 * HOUR), source: 'phone', createdBy: RECEPTION }), t, 1290, 'doc-4', 5 * HOUR);
+    sched(add({ dept: dp, type: 'مشاوره', name: 'امیر جعفری', mobile: '09001234578', note: 'لمینت دندان‌های جلو', createdAt: at(DAY) }), t, slot(120), dc, DAY - HOUR);
+    sched(add({ dept: 'medicine', type: 'ویزیت اول', name: 'محمدرضا فتحی', mobile: '09001234579', createdAt: at(5 * HOUR), source: 'phone', createdBy: RECEPTION }), t, slot(200), 'doc-4', 5 * HOUR);
 
     /* روزهای بعد */
     const t1 = addDays(t, 1);
@@ -156,7 +159,7 @@
           b.sms.push({ at: b.createdAt, kind: 'received', ok: true, id: msgId(), err: '', dlv: null });
           db.B.push(b);
         }
-        const list = role === 'doctor' ? db.B.filter((b) => b.doctor === u.doctor && ['scheduled', 'done', 'no-show'].includes(b.status)).map((b) => Object.assign(clone(b), { mobile: '', sms: undefined })) : db.B;
+        const list = role === 'doctor' ? db.B.filter((b) => b.doctor === u.doctor && ['scheduled', 'arrived', 'done', 'no-show'].includes(b.status)).map((b) => Object.assign(clone(b), { mobile: '', sms: undefined })) : db.B;
         return ok({ bookings: list, today: today() });
       }
       const write = /^\/bookings/.test(p) && m !== 'GET';
@@ -179,8 +182,8 @@
           if (body.noAnswer) { b.attempts = (b.attempts || 0) + 1; b.log.push({ at: now, by, ev: 'noanswer', v: b.attempts }); }
           else {
             const next = Object.assign({}, b, body);
-            if (next.status === 'scheduled' && (!next.date || next.time == null || next.time === '')) return fail(400, 'when');
-            if (body.date && body.date !== b.date && body.date < today()) return fail(400, 'past');
+            if (['scheduled', 'arrived'].includes(next.status) && (!next.date || next.time == null || next.time === '')) return fail(400, 'when');
+            if (next.status === 'scheduled' && body.date && body.date !== b.date && body.date < today()) return fail(400, 'past');
             if (body.status && body.status !== b.status) { b.status = body.status; b.log.push({ at: now, by, ev: 'status', v: body.status }); }
             if ((body.date && body.date !== b.date) || (body.time != null && body.time !== b.time)) { b.date = body.date || b.date; b.time = body.time != null ? body.time : b.time; b.log.push({ at: now, by, ev: 'when', v: { date: b.date, time: b.time } }); delete b.remindedAt; }
             if (body.doctor !== undefined && body.doctor !== (b.doctor || '')) { b.doctor = body.doctor; b.log.push({ at: now, by, ev: 'doctor', v: body.doctor }); }

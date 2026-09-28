@@ -134,8 +134,15 @@ test('درخواست‌ها: نوبت تلفنی با پیامک تأیید، ت
   const sch = await b.req('PATCH', '/api/panel/bookings/' + plain.body.booking.ref, { status: 'scheduled', date: day, time: 1260, doctor: 'doc-3' });
   assert.strictEqual(sch.status, 200);
   assert.deepStrictEqual(sch.body.booking.log.map((e) => e.ev), ['create', 'status', 'when', 'doctor']);
+  /* «آمد»: بیمار در کلینیک است؛ بدون روز و ساعت پذیرفته نمی‌شود */
+  const arr = await b.req('PATCH', '/api/panel/bookings/' + plain.body.booking.ref, { status: 'arrived', v: sch.body.booking.v });
+  assert.strictEqual(arr.status, 200); assert.strictEqual(arr.body.booking.status, 'arrived');
+  const fin = await b.req('PATCH', '/api/panel/bookings/' + plain.body.booking.ref, { status: 'done', v: arr.body.booking.v });
+  assert.strictEqual(fin.body.booking.status, 'done');
+  const other = await b.req('POST', '/api/panel/bookings', { name: 'رضا نیکو', mobile: '09125556688', dept: 'medicine', type: 'مشاوره' });
+  assert.strictEqual((await b.req('PATCH', '/api/panel/bookings/' + other.body.booking.ref, { status: 'arrived' })).body.error, 'when');
   const list = await b.req('GET', '/api/panel/bookings');
-  assert.strictEqual(list.body.bookings.length, 2);
+  assert.strictEqual(list.body.bookings.length, 3);
   s.done();
 });
 

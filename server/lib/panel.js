@@ -32,7 +32,9 @@ const sha = (s) => crypto.createHash('sha256').update(String(s)).digest('hex');
 const mask = (m) => m.slice(0, 4) + '***' + m.slice(-4);
 const digits = (s) => String(s || '').replace(/[۰-۹]/g, (c) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(c)).replace(/[٠-٩]/g, (c) => '٠١٢٣٤٥٦٧٨٩'.indexOf(c));
 const CB_STATUSES = ['new', 'called', 'done'];
-const SEEN = ['scheduled', 'done', 'no-show'];
+const SEEN = ['scheduled', 'arrived', 'done', 'no-show'];
+/* وضعیت‌هایی که روز و ساعت لازم دارند */
+const TIMED = ['scheduled', 'arrived'];
 
 function createPanel(ctx) {
   const { cfg, store, sms, log, lim, json, readBody, ipOf, originOk } = ctx;
@@ -237,9 +239,9 @@ function createPanel(ctx) {
     const patch = body.noAnswer ? {} : B.validatePatch(body, cur);
     if (!patch) return json(res, 400, { ok: false, error: 'input' });
     const next = Object.assign({}, cur, patch);
-    if (next.status === 'scheduled') {
+    if (TIMED.includes(next.status)) {
       if (!next.date || next.time === '' || next.time == null) return json(res, 400, { ok: false, error: 'when' });
-      if (patch.date && patch.date !== cur.date && patch.date < T.today()) return json(res, 400, { ok: false, error: 'past' });
+      if (next.status === 'scheduled' && patch.date && patch.date !== cur.date && patch.date < T.today()) return json(res, 400, { ok: false, error: 'past' });
     }
     const changes = [];
     const b = await store.mutate(ref, (x) => {

@@ -24,8 +24,8 @@ const DOCTORS = {
   'doc-4': { k: 'medicine', name: 'دکتر شریفی' }
 };
 const TYPES = ['ویزیت اول', 'ادامه‌ی درمان', 'مشاوره'];
-/* وضعیت‌ها: تازه ← تماس گرفته شد ← نوبت داده شد ← انجام شد / لغو / نیامد */
-const STATUSES = ['new', 'called', 'scheduled', 'done', 'cancelled', 'no-show'];
+/* وضعیت‌ها: تازه ← تماس گرفته شد ← نوبت داده شد ← در کلینیک (آمد) ← انجام شد / لغو / نیامد */
+const STATUSES = ['new', 'called', 'scheduled', 'arrived', 'done', 'cancelled', 'no-show'];
 const OPEN = ['new', 'called'];
 
 const clean = (s, max) => String(s == null ? '' : s).replace(/[\u0000-\u001f\u007f<>]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max);
