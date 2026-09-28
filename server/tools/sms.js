@@ -10,15 +10,22 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const crypto = require('crypto');
-const readline = require('readline');
 const smsir = require('../lib/smsir');
+const { ask, green, red, dim, bold } = require('./cli');
 
 const ENV = process.env.SASAN_ENV_FILE || path.join(__dirname, '..', '.env');
 const BASE = 'https://api.sms.ir/v1';
 const TEMPLATE_TITLE = 'کد تأیید کلینیک ساسان';
 const TEMPLATE_TEXT = 'کلینیک ساسان\nکد تأیید شما: #CODE#\nاین کد را به کسی ندهید.';
-
-const green = (s) => `\x1b[32m${s}\x1b[0m`, red = (s) => `\x1b[31m${s}\x1b[0m`, dim = (s) => `\x1b[2m${s}\x1b[0m`, bold = (s) => `\x1b[1m${s}\x1b[0m`;
+/* قالب‌های پنل پذیرش (نوع ۲، اطلاع‌رسانی و یادآوری)؛ هر متغیر حداکثر ۲۵ نویسه */
+const PARAMS = [
+  { name: 'NAME', description: 'نام بیمار' }, { name: 'DEPT', description: 'بخش (مثلاً دندانپزشکی)' },
+  { name: 'DATE', description: 'روز نوبت، مثلاً شنبه ۱۲ مهر' }, { name: 'TIME', description: 'ساعت نوبت، مثلاً ۱۰:۳۰' }
+];
+const PANEL_TEMPLATES = [
+  { env: 'SMSIR_APPT_TEMPLATE_ID', label: 'تأیید نوبت', title: 'تأیید نوبت کلینیک ساسان', text: '#NAME# عزیز، نوبت #DEPT# شما در کلینیک ساسان برای #DATE# ساعت #TIME# ثبت شد.\nبرای تغییر یا لغو: ۰۱۱۵۴۶۱۱۵۶۰' },
+  { env: 'SMSIR_REMIND_TEMPLATE_ID', label: 'یادآوری یک روز قبل', title: 'یادآوری نوبت کلینیک ساسان', text: 'یادآوری: #NAME# عزیز، فردا #DATE# ساعت #TIME# نوبت #DEPT# در کلینیک ساسان دارید.\nبرای تغییر یا لغو: ۰۱۱۵۴۶۱۱۵۶۰' }
+];
 
 /* ---------- server/.env ---------- */
 function readEnv() {
@@ -32,25 +39,13 @@ function readEnv() {
   return out;
 }
 function writeEnv(v) {
-  const order = ['SMSIR_MODE', 'SMSIR_SANDBOX_KEY', 'SMSIR_API_KEY', 'SMSIR_TEMPLATE_ID', 'SMSIR_TEMPLATE_PARAM', 'SMSIR_CONFIRM_TEMPLATE_ID', 'SMSIR_RECEPTION_TEMPLATE_ID', 'RECEPTION_MOBILE', 'OTP_SECRET', 'ADMIN_TOKEN', 'PORT', 'HOST', 'TRUST_PROXY', 'HSTS', 'ALLOWED_ORIGIN'];
+  const order = ['SMSIR_MODE', 'SMSIR_SANDBOX_KEY', 'SMSIR_API_KEY', 'SMSIR_TEMPLATE_ID', 'SMSIR_TEMPLATE_PARAM', 'SMSIR_CONFIRM_TEMPLATE_ID', 'SMSIR_RECEPTION_TEMPLATE_ID', 'RECEPTION_MOBILE', 'SMSIR_APPT_TEMPLATE_ID', 'SMSIR_REMIND_TEMPLATE_ID', 'SMSIR_REMIND_HOUR', 'OTP_SECRET', 'ADMIN_TOKEN', 'PANEL_2FA', 'PORT', 'HOST', 'TRUST_PROXY', 'HSTS', 'ALLOWED_ORIGIN'];
   const keys = [...order.filter((k) => k in v), ...Object.keys(v).filter((k) => !order.includes(k))];
   const body = '# ساخته‌شده با npm run setup — این فایل را به کسی ندهید و وارد git نکنید\n' + keys.map((k) => `${k}=${v[k]}`).join('\n') + '\n';
   const tmp = ENV + '.tmp';
   fs.writeFileSync(tmp, body, { mode: 0o600 });
   fs.renameSync(tmp, ENV);
   try { fs.chmodSync(ENV, 0o600); } catch (e) { /* ویندوز */ }
-}
-
-/* ---------- پرسش (ورودی کلید پنهان می‌ماند) ---------- */
-function ask(q, { hidden = false, def = '' } = {}) {
-  return new Promise((res) => {
-    const rl = readline.createInterface({ input: process.stdin, output: process.stdout, terminal: true });
-    if (hidden) {
-      let shown = false;
-      rl._writeToOutput = (s) => { if (!shown) { rl.output.write(s); shown = true; } else if (s !== '\r\n' && s !== '\n') rl.output.write('*'); };
-    }
-    rl.question(q + (def ? dim(` [${def}] `) : ' '), (a) => { rl.close(); if (hidden) process.stdout.write('\n'); res(a.trim() || def); });
-  });
 }
 
 const client = (key) => smsir.create({ apiKey: key, baseUrl: BASE });
@@ -87,6 +82,13 @@ async function check() {
   const t = await showTemplate(c, id, v.SMSIR_TEMPLATE_PARAM || 'CODE');
   if (!t || t.bad) { process.exitCode = 1; return; }
   if (live && t.status !== 2) { console.log(bold('  تا قالب تأیید نشود پیامک فرستاده نمی‌شود. چند ساعت بعد دوباره npm run check را بزنید.')); process.exitCode = 1; return; }
+  if (live) {
+    for (const pt of PANEL_TEMPLATES) {
+      if (!v[pt.env]) { console.log(dim(`  پنل پذیرش · ${pt.label}: تنظیم نشده (اختیاری؛ npm run setup می‌سازدش)`)); continue; }
+      console.log(dim(`  پنل پذیرش · ${pt.label}:`));
+      await showTemplate(c, v[pt.env]);
+    }
+  }
   if (!v.OTP_SECRET || v.OTP_SECRET.length < 32) console.log(red('  OTP_SECRET کوتاه است؛ npm run setup را دوباره اجرا کنید.'));
   console.log(green('همه‌چیز آماده است. npm start را بزنید و سایت را باز کنید.'));
 }
@@ -131,6 +133,19 @@ async function setup() {
         console.log(dim('  می‌توانید قالب را در پنل (برنامه‌نویسان ← لیست قالب‌ها) با همین متن بسازید و دوباره npm run setup بزنید.'));
       }
     }
+    const c2 = client(v.SMSIR_API_KEY);
+    const missing = PANEL_TEMPLATES.filter((pt) => !v[pt.env]);
+    if (missing.length) {
+      const yes = await ask('قالب‌های پیامک پنل پذیرش (تأیید نوبت و یادآوری یک روز قبل) هم در پنل ساخته شوند؟ (بله/نه)', { def: 'بله' });
+      if (/^(y|yes|بله|آره|۱|1)$/i.test(yes)) {
+        for (const pt of missing) {
+          console.log(dim('  متن: ' + pt.text.replace(/\n/g, ' ⏎ ')));
+          const r = await c2.addTemplate(pt.title, pt.text, 2, PARAMS);
+          if (r.ok) { v[pt.env] = String(r.data); console.log(green(`  قالب ${pt.label} ثبت شد (شناسه ${r.data}) و در انتظار تأیید است.`)); }
+          else console.log(red(`  قالب ${pt.label} ساخته نشد: ${r.message}`));
+        }
+      }
+    }
   } else {
     delete v.SMSIR_TEMPLATE_PARAM;
   }
@@ -147,6 +162,7 @@ async function setup() {
   console.log(green('\nserver/.env ذخیره شد.'));
   console.log(`اجرا:  ${bold('npm start')}`);
   console.log(`سایت:  http://127.0.0.1:${v.PORT}`);
+  console.log(`پنل پذیرش:  http://127.0.0.1:${v.PORT}/panel/  ${dim('(اولین بار: npm run user برای ساخت حساب مدیر)')}`);
   if (v.HOST === '0.0.0.0') lanIps().forEach((ip) => console.log(`از گوشی: http://${ip}:${v.PORT}`));
   if (!live) console.log(dim('در حالت آزمایشی پیامک واقعی نمی‌آید؛ کد در همین ترمینال چاپ می‌شود.'));
 }

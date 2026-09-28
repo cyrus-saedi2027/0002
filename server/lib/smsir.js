@@ -1,5 +1,5 @@
 /* ==========================================================================
-   کلاینت sms.ir (متد Verify، اعتبار و قالب‌ها). کلید فقط در سربرگ x-api-key فرستاده می‌شود،
+   کلاینت sms.ir (متد Verify، گزارش رسیدن، اعتبار و قالب‌ها). کلید فقط در سربرگ x-api-key فرستاده می‌شود،
    نه در آدرس؛ و در هیچ پیام خطا یا لاگی تکرار نمی‌شود.
    ========================================================================== */
 'use strict';
@@ -32,6 +32,10 @@ const STATUS = {
 };
 /* وضعیت بررسی قالب در پنل */
 const TEMPLATE_STATUS = { 1: 'در حال بررسی', 2: 'تأیید شده', 3: 'رد شده' };
+/* وضعیت رسیدن پیامک (گزارش پیامک با شناسه) */
+const DELIVERY = { 1: 'رسید', 2: 'به گوشی نرسید', 3: 'رسیده به مخابرات', 4: 'به مخابرات نرسید', 5: 'رسیده به اپراتور', 6: 'ناموفق', 7: 'لیست سیاه', 8: 'نامشخص' };
+/* وضعیت‌هایی که دیگر عوض نمی‌شوند */
+const DELIVERY_FINAL = [1, 2, 4, 6, 7];
 
 function create(cfg, { fetchImpl = globalThis.fetch, timeoutMs = 8000 } = {}) {
   async function call(method, path, body) {
@@ -60,10 +64,12 @@ function create(cfg, { fetchImpl = globalThis.fetch, timeoutMs = 8000 } = {}) {
     parameters: Object.entries(parameters).map(([name, value]) => ({ name, value: String(value).slice(0, 25) }))
   });
   const credit = () => call('GET', '/credit');
+  /* گزارش یک پیامک با شناسه‌ای که ارسال برگردانده: deliveryState و deliveryDateTime */
+  const report = (messageId) => call('GET', '/send/' + encodeURIComponent(messageId));
   const template = (id) => call('GET', '/templates/' + encodeURIComponent(id));
   /* type: 1 = کد یکبار مصرف */
   const addTemplate = (title, text, type, params) => call('POST', '/templates', { title, templateText: text, type, parameters: params });
-  return { verify, credit, template, addTemplate };
+  return { verify, credit, report, template, addTemplate };
 }
 
-module.exports = { create, STATUS, TEMPLATE_STATUS };
+module.exports = { create, STATUS, TEMPLATE_STATUS, DELIVERY, DELIVERY_FINAL };

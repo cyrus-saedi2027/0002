@@ -34,12 +34,17 @@ function load(env = process.env) {
   if (!apiKey) warn.push(`کلید ${mode === 'live' ? 'SMSIR_API_KEY' : 'SMSIR_SANDBOX_KEY'} تنظیم نشده؛ ارسال پیامک کار نمی‌کند.`);
   const templateId = Number(mode === 'live' ? env.SMSIR_TEMPLATE_ID : (env.SMSIR_SANDBOX_TEMPLATE_ID || 123456));
   if (mode === 'live' && !templateId) throw new Error('SMSIR_TEMPLATE_ID برای حالت live لازم است.');
+  const remindHour = Number(env.SMSIR_REMIND_HOUR || 17);
+  if (!(Number.isInteger(remindHour) && remindHour >= 8 && remindHour <= 21)) throw new Error('SMSIR_REMIND_HOUR باید عددی بین ۸ تا ۲۱ باشد.');
   const adminToken = env.ADMIN_TOKEN || '';
   if (adminToken && adminToken.length < 24) throw new Error('ADMIN_TOKEN باید دست‌کم ۲۴ نویسه باشد.');
   return {
     port: Number(env.PORT || 8080),
     host: env.HOST || '127.0.0.1',
     siteDir: path.resolve(env.SITE_DIR || path.join(__dirname, '..', '..', 'site')),
+    panelDir: path.resolve(env.PANEL_DIR || path.join(__dirname, '..', 'panel')),
+    /* کد پیامکی ورود پنل (پیش‌فرض روشن؛ فقط برای آزمایش روی کامپیوتر خودتان PANEL_2FA=0) */
+    panel2fa: env.PANEL_2FA !== '0',
     dataDir: path.resolve(env.DATA_DIR || path.join(__dirname, '..', 'data')),
     trustProxy: env.TRUST_PROXY === '1',
     allowedOrigin: env.ALLOWED_ORIGIN || '',
@@ -55,7 +60,11 @@ function load(env = process.env) {
       param: env.SMSIR_TEMPLATE_PARAM || 'CODE',
       confirmTemplateId: Number(env.SMSIR_CONFIRM_TEMPLATE_ID || 0),
       receptionTemplateId: Number(env.SMSIR_RECEPTION_TEMPLATE_ID || 0),
-      receptionMobile: env.RECEPTION_MOBILE || ''
+      receptionMobile: env.RECEPTION_MOBILE || '',
+      /* پنل پذیرش (قالب نوع ۲، اطلاع‌رسانی)؛ پارامترها: NAME, DEPT, DATE, TIME */
+      apptTemplateId: Number(env.SMSIR_APPT_TEMPLATE_ID || 0),
+      remindTemplateId: Number(env.SMSIR_REMIND_TEMPLATE_ID || 0),
+      remindHour
     },
     warn
   };

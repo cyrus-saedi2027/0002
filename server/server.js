@@ -11,6 +11,7 @@
    - GET  /api/bookings      فهرست درخواست‌ها برای پنل مدیریت (فقط با ADMIN_TOKEN)
    - PATCH /api/bookings/:ref پذیرش: وضعیت (called, scheduled, done, cancelled, no-show)
                              و بعد از تماس، روز و ساعت و پزشک
+   - /panel/ و /api/panel/*  پنل پذیرش (ویزیتور) با ورود کارکنان — lib/panel.js
    اجرا: node server/server.js   (تنظیمات: server/.env.example)
    ========================================================================== */
 'use strict';
@@ -23,6 +24,7 @@ const smsir = require('./lib/smsir');
 const { Limiter } = require('./lib/limit');
 const { OtpStore, TTL, RESEND } = require('./lib/otp');
 const B = require('./lib/bookings');
+const { createPanel } = require('./lib/panel');
 
 const MIME = {
   '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'application/javascript; charset=utf-8',
@@ -39,6 +41,11 @@ const CSP = [
   "connect-src 'self'",
   'frame-src https://www.google.com',
   "object-src 'none'", "base-uri 'self'", "form-action 'self'", "frame-ancestors 'self'"
+].join('; ');
+/* پنل پذیرش سخت‌گیرتر است: هیچ اسکریپت یا استایل درون‌خطی، هیچ قاب و هیچ منبع بیرونی */
+const PANEL_CSP = [
+  "default-src 'self'", "script-src 'self'", "style-src 'self'", "font-src 'self'", "img-src 'self' data:",
+  "connect-src 'self'", "object-src 'none'", "base-uri 'none'", "form-action 'self'", "frame-ancestors 'none'"
 ].join('; ');
 const mask = (m) => m.slice(0, 4) + '***' + m.slice(-4);
 
@@ -84,6 +91,13 @@ function createApp(cfg, deps = {}) {
     if (cfg.allowedOrigin && o === cfg.allowedOrigin) return true;
     try { return new URL(o).host === req.headers.host; } catch (e) { return false; }
   };
+  /* پنل فقط از همین سایت؛ ALLOWED_ORIGIN برای پنل پذیرفته نمی‌شود */
+  const sameOrigin = (req) => {
+    const o = req.headers.origin;
+    if (!o) return true;
+    try { return new URL(o).host === req.headers.host; } catch (e) { return false; }
+  };
+  const panel = createPanel({ cfg, store, sms, log, lim, json, readBody, ipOf, originOk: sameOrigin, users: deps.users, sessions: deps.sessions });
 
   /* ---------- API ---------- */
   async function sendOtp(req, res) {
@@ -128,7 +142,7 @@ function createApp(cfg, deps = {}) {
     log('request', b.ref, b.dept, mask(b.mobile));
     /* پیامک‌های بعد از ثبت (اختیاری)؛ شکستشان درخواست را باطل نمی‌کند */
     const dept = B.DEPT[b.dept].t;
-    if (cfg.sms.confirmTemplateId) sms.verify(b.mobile, cfg.sms.confirmTemplateId, { DEPT: dept, REF: b.ref }).then((r) => { if (!r.ok) log('confirm sms failed', r.status); });
+    if (cfg.sms.confirmTemplateId) sms.verify(b.mobile, cfg.sms.confirmTemplateId, { DEPT: dept, REF: b.ref }).then((r) => { if (!r.ok) log('confirm sms failed', r.status); return panel.recordSms(b.ref, 'received', r); }).catch((e) => log('confirm sms error', e && e.message));
     if (cfg.sms.receptionTemplateId && B.validMobile(cfg.sms.receptionMobile)) sms.verify(cfg.sms.receptionMobile, cfg.sms.receptionTemplateId, { NAME: b.name, DEPT: dept, MOBILE: b.mobile }).then((r) => { if (!r.ok) log('reception sms failed', r.status); });
     return json(res, 200, { ok: true, ref: b.ref, sms: !!cfg.sms.confirmTemplateId });
   }
@@ -148,6 +162,7 @@ function createApp(cfg, deps = {}) {
 
   async function api(req, res, url) {
     const p = url.pathname;
+    if (p.startsWith('/api/panel/')) return panel.handle(req, res, url);
     if (req.method === 'OPTIONS' && cfg.allowedOrigin) {
       headers(res, { 'Access-Control-Allow-Origin': cfg.allowedOrigin, 'Access-Control-Allow-Methods': 'GET, POST, PATCH', 'Access-Control-Allow-Headers': 'content-type, authorization', 'Access-Control-Max-Age': '600', Vary: 'Origin' });
       res.writeHead(204); return res.end();
@@ -197,9 +212,14 @@ function createApp(cfg, deps = {}) {
     if (req.method !== 'GET' && req.method !== 'HEAD') { headers(res); res.writeHead(405, { Allow: 'GET, HEAD' }); return res.end(); }
     let rel;
     try { rel = decodeURIComponent(url.pathname); } catch (e) { headers(res); res.writeHead(400); return res.end(); }
+    /* پنل پذیرش: پوشه‌ی جدا، CSP سخت‌گیرتر، بدون کش و بدون نمایه در موتورهای جست‌وجو */
+    if (rel === '/panel') { headers(res, { Location: '/panel/' }); res.writeHead(301); return res.end(); }
+    const inPanel = rel.startsWith('/panel/');
+    const root = inPanel ? cfg.panelDir || path.join(__dirname, 'panel') : cfg.siteDir;
+    if (inPanel) rel = rel.slice('/panel'.length);
     if (rel.endsWith('/')) rel += 'index.html';
-    const file = path.resolve(cfg.siteDir, '.' + rel);
-    if (!file.startsWith(cfg.siteDir + path.sep) || /(^|[\\/])\./.test(path.relative(cfg.siteDir, file))) { headers(res); res.writeHead(404); return res.end(); }
+    const file = path.resolve(root, '.' + rel);
+    if (!file.startsWith(root + path.sep) || /(^|[\\/])\./.test(path.relative(root, file))) { headers(res); res.writeHead(404); return res.end(); }
     fs.stat(file, (err, st) => {
       if (err || !st.isFile()) return notFound(req, res);
       const ext = path.extname(file).toLowerCase();
@@ -208,13 +228,16 @@ function createApp(cfg, deps = {}) {
         fs.readFile(file, 'utf8', (e2, html) => {
           if (e2) { res.writeHead(500); return res.end(); }
           const out = html.replace(/<head>/i, '<head>\n' + META);
-          headers(res, { 'Content-Type': type, 'Cache-Control': 'no-cache', 'Content-Security-Policy': CSP });
+          headers(res, inPanel
+            ? { 'Content-Type': type, 'Cache-Control': 'no-store', 'Content-Security-Policy': PANEL_CSP, 'X-Robots-Tag': 'noindex, nofollow', 'X-Frame-Options': 'DENY' }
+            : { 'Content-Type': type, 'Cache-Control': 'no-cache', 'Content-Security-Policy': CSP });
           res.writeHead(200);
           res.end(req.method === 'HEAD' ? undefined : out);
         });
         return;
       }
-      headers(res, { 'Content-Type': type, 'Content-Length': st.size, 'Cache-Control': 'public, max-age=604800' });
+      /* فایل‌های پنل با هر نسخه عوض می‌شوند؛ همیشه با مرورگر بررسی می‌شوند */
+      headers(res, { 'Content-Type': type, 'Content-Length': st.size, 'Cache-Control': inPanel ? 'no-cache' : 'public, max-age=604800' });
       res.writeHead(200);
       if (req.method === 'HEAD') return res.end();
       fs.createReadStream(file).pipe(res);
@@ -234,7 +257,8 @@ function createApp(cfg, deps = {}) {
     }
     serveStatic(req, res, url);
   };
-  handler.store = store; handler.otp = otp; handler.close = () => clearInterval(sweep);
+  handler.store = store; handler.otp = otp; handler.panel = panel;
+  handler.close = () => { clearInterval(sweep); panel.close(); };
   return handler;
 }
 
@@ -246,6 +270,7 @@ if (require.main === module) {
     const any = cfg.host === '0.0.0.0' || cfg.host === '::';
     console.log(`سرور کلینیک ساسان روشن شد (پیامک: ${cfg.sms.mode === 'live' ? 'اصلی' : 'آزمایشی / Sandbox؛ کد در همین‌جا چاپ می‌شود'})`);
     console.log(`  سایت: http://${any ? '127.0.0.1' : cfg.host}:${cfg.port}`);
+    console.log(`  پنل پذیرش: http://${any ? '127.0.0.1' : cfg.host}:${cfg.port}/panel/` + (app.panel.users.all().length ? '' : '  (اول با npm run user یک مدیر بسازید)'));
     /* با HOST=0.0.0.0 از گوشیِ همان شبکه هم باز می‌شود */
     if (any) Object.values(require('os').networkInterfaces()).flat().filter((i) => i && i.family === 'IPv4' && !i.internal).forEach((i) => console.log(`  از گوشی: http://${i.address}:${cfg.port}`));
   });

@@ -2,13 +2,14 @@
   "name": "sasan-clinic-server",
   "version": "1.0.0",
   "private": true,
-  "description": "سرور نوبت آنلاین و کد تأیید پیامکی کلینیک ساسان (بدون وابستگی)",
+  "description": "سرور سایت، نوبت آنلاین، کد تأیید پیامکی و پنل پذیرش کلینیک ساسان (بدون وابستگی)",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "setup": "node tools/sms.js setup",
     "check": "node tools/sms.js check",
-    "test": "node --test test/api.test.js"
+    "user": "node tools/users.js",
+    "test": "node --test test/api.test.js test/panel.test.js"
   },
   "engines": {
     "node": ">=18.17"
