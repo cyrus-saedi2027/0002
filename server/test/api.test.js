@@ -39,6 +39,11 @@ test('health و فایل‌های سایت با متای API و سربرگ‌ه�
   assert.strictEqual(trav.status, 404);
   const trav2 = await s.req('GET', '/%2e%2e/server/server.js');
   assert.strictEqual(trav2.status, 404);
+  /* نشانی ناموجود: صفحه‌ی ۴۰۴ سایت با وضعیت 404 و <base> برای بارگیری درست از هر مسیری */
+  const nf = await s.req('GET', '/no-such/page');
+  assert.strictEqual(nf.status, 404);
+  assert.match(nf.body, /<base href="\/">/);
+  assert.match(nf.body, /data-page="404"/);
   s.done();
 });
 

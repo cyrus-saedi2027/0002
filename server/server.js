@@ -182,6 +182,16 @@ function createApp(cfg, deps = {}) {
 
   /* ---------- فایل‌های سایت ---------- */
   const META = '<meta name="sasan-api" content="/api">';
+  /* صفحه‌ی ۴۰۴ سایت (اگر هست) با وضعیت 404؛ <base href="/"> تا عکس‌ها و استایل‌ها از هر نشانی درست بارگیری شوند */
+  function notFound(req, res) {
+    fs.readFile(path.join(cfg.siteDir, '404.html'), 'utf8', (e, html) => {
+      if (e) { headers(res, { 'Content-Type': 'text/plain; charset=utf-8' }); res.writeHead(404); return res.end('Not found'); }
+      headers(res, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache', 'Content-Security-Policy': CSP });
+      res.writeHead(404);
+      res.end(req.method === 'HEAD' ? undefined : html.replace(/<head>/i, '<head>\n<base href="/">\n' + META));
+    });
+  }
+
   function serveStatic(req, res, url) {
     if (req.method !== 'GET' && req.method !== 'HEAD') { headers(res); res.writeHead(405, { Allow: 'GET, HEAD' }); return res.end(); }
     let rel;
@@ -190,7 +200,7 @@ function createApp(cfg, deps = {}) {
     const file = path.resolve(cfg.siteDir, '.' + rel);
     if (!file.startsWith(cfg.siteDir + path.sep) || /(^|[\\/])\./.test(path.relative(cfg.siteDir, file))) { headers(res); res.writeHead(404); return res.end(); }
     fs.stat(file, (err, st) => {
-      if (err || !st.isFile()) { headers(res, { 'Content-Type': 'text/plain; charset=utf-8' }); res.writeHead(404); return res.end('Not found'); }
+      if (err || !st.isFile()) return notFound(req, res);
       const ext = path.extname(file).toLowerCase();
       const type = MIME[ext] || 'application/octet-stream';
       if (ext === '.html') {

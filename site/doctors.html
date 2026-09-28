@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>پزشکان | کلینیک ساسان</title>
-<meta name="description" content="پزشکان کلینیک ساسان سلمان‌شهر: دندانپزشکی، زیبایی و لیزر و پزشک عمومی شبانه‌روزی؛ کارهای هر پزشک، روزهای حضور و برنامه‌ی هفتگی.">
+<meta name="description" content="پزشکان کلینیک ساسان سلمان‌شهر: دندانپزشکی، زیبایی و لیزر و پزشک عمومی شبانه‌روزی؛ معرفی هر پزشک و ساعت کاری بخش‌ها.">
 <!-- LAYOUT:head (مشترک همه‌ی صفحه‌ها؛ فقط در index.html ویرایش کنید و بعد: python3 tools/sync-layout.py) -->
 <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
@@ -114,10 +114,10 @@
         <span class="nav__ind" aria-hidden="true"></span>
         <button type="button" class="nav__link nav__link--menu" aria-expanded="false" aria-controls="mega">خدمات<svg class="ic ic--s" aria-hidden="true"><use href="#i-chev-d"/></svg></button>
         <a class="nav__link" href="doctors.html" aria-current="page">پزشکان</a>
-        <a class="nav__link" href="index.html#cases">نمونه‌کارها</a>
+        <a class="nav__link" href="cases.html">نمونه‌کارها</a>
         <a class="nav__link" href="index.html#mag-all" data-article="all">مقالات</a>
         <a class="nav__link" href="about.html">درباره‌ی ما</a>
-        <a class="nav__link" href="index.html#contact">تماس</a>
+        <a class="nav__link" href="contact.html">تماس</a>
       </nav>
 
       <div class="bar__end">
@@ -199,10 +199,10 @@
       </div>
       <nav class="sheet__nav" aria-label="منوی موبایل">
         <a href="doctors.html" aria-current="page">پزشکان<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
-        <a href="index.html#cases">نمونه‌کارها<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
+        <a href="cases.html">نمونه‌کارها<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
         <a href="index.html#mag-all" data-article="all">مقالات<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
         <a href="about.html">درباره‌ی ما<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
-        <a href="index.html#contact">تماس و آدرس<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
+        <a href="contact.html">تماس و آدرس<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
       </nav>
       <div class="sheet__a11y">
         <p class="sheet__label">نمایش</p>
@@ -234,7 +234,7 @@
         <nav class="pg-crumb pg-in" style="--d:0" aria-label="مسیر صفحه"><ol><li><a href="index.html">خانه</a></li><li aria-current="page">پزشکان</li></ol></nav>
         <p class="kicker kicker--light pg-in" style="--d:1">پزشکان ساسان</p>
         <h1 class="pg-title pg-in" style="--d:2" id="dr-title">پزشکانی که <em>برایتان وقت می‌گذارند</em></h1>
-        <p class="pg-lead pg-in" style="--d:3">پنج پزشک در سه بخش. پزشک عمومی شبانه‌روز در کلینیک است و دندانپزشکی و زیبایی با نوبت. کارهایی که هر پزشک انجام می‌دهد، روزهای حضورش و چیزهایی که بهتر است همراه بیاورید را اینجا ببینید.</p>
+        <p class="pg-lead pg-in" style="--d:3">پنج پزشک در سه بخش. پزشک عمومی شبانه‌روز در کلینیک است و دندانپزشکی و زیبایی با نوبت. هر پزشک را بشناسید، کارهایی که انجام می‌دهد و چیزهایی که بهتر است همراه بیاورید را ببینید.</p>
         <dl class="pg-stats pg-in" style="--d:4">
           <div><dt>پزشک</dt><dd data-count="5">۵</dd></div>
           <div><dt>بخش</dt><dd data-count="3">۳</dd></div>
@@ -253,16 +253,16 @@
   </section>
 
   <section class="dr-list" id="profiles" aria-label="پروفایل پزشکان">
-    <i class="dr-list__top" aria-hidden="true"></i>
-    <div class="dr-bar">
-      <div class="wrap dr-bar__in">
+    <i class="pg-bar__top" aria-hidden="true"></i>
+    <div class="pg-bar">
+      <div class="wrap pg-bar__in">
         <div class="ar-tabs dr-tabs" role="group" aria-label="نمایش پزشکان بر اساس بخش">
           <button type="button" data-f="all" aria-pressed="true">همه</button>
           <button type="button" data-f="dental" aria-pressed="false">دندانپزشکی</button>
           <button type="button" data-f="beauty" aria-pressed="false">زیبایی و لیزر</button>
           <button type="button" data-f="medicine" aria-pressed="false">پزشکی عمومی</button>
         </div>
-        <p class="dr-count" aria-live="polite"><b>۵</b> پزشک</p>
+        <p class="pg-count" aria-live="polite"><b>۵</b> پزشک</p>
       </div>
     </div>
     <div class="wrap dr-cards">
@@ -283,10 +283,10 @@
                 <p class="dr-box__t">کارهای اصلی</p>
                 <ul class="dr-tags"><li>ایمپلنت</li><li>دندان عقل</li><li>جراحی لثه</li><li>روکش</li></ul>
               </div>
-              <div class="dr-box">
-                <p class="dr-box__t">روزهای حضور</p>
-                <ol class="dr-week" aria-label="روزهای حضور: شنبه، دوشنبه، پنجشنبه"><li class="is-on" title="شنبه"><span aria-hidden="true">ش</span></li><li title="یکشنبه"><span aria-hidden="true">ی</span></li><li class="is-on" title="دوشنبه"><span aria-hidden="true">د</span></li><li title="سه‌شنبه"><span aria-hidden="true">س</span></li><li title="چهارشنبه"><span aria-hidden="true">چ</span></li><li class="is-on" title="پنجشنبه"><span aria-hidden="true">پ</span></li><li title="جمعه"><span aria-hidden="true">ج</span></li></ol>
-                <p class="dr-card__hours"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>۱۰ صبح تا ۸ شب</p>
+              <div class="dr-box dr-box--hrs">
+                <p class="dr-box__t">ساعت کاری بخش دندانپزشکی</p>
+                <p class="dr-card__hours"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>شنبه، یکشنبه، دوشنبه و پنجشنبه · ۱۰ صبح تا ۸ شب</p>
+                <p class="hrs__now" data-now="dental"><i aria-hidden="true"></i><span>با نوبت</span></p>
               </div>
             </div>
             <p class="dr-card__prep"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg><span><b>پیش از مراجعه:</b> اگر عکس OPG یا رادیولوژی قبلی دارید همراه بیاورید و داروهای مصرفی‌تان، به‌خصوص رقیق‌کننده‌های خون، را به پزشک بگویید.</span></p>
@@ -313,10 +313,10 @@
                 <p class="dr-box__t">کارهای اصلی</p>
                 <ul class="dr-tags"><li>لمینت</li><li>کامپوزیت</li><li>بلیچینگ</li><li>عصب‌کشی</li></ul>
               </div>
-              <div class="dr-box">
-                <p class="dr-box__t">روزهای حضور</p>
-                <ol class="dr-week" aria-label="روزهای حضور: شنبه، یکشنبه، دوشنبه"><li class="is-on" title="شنبه"><span aria-hidden="true">ش</span></li><li class="is-on" title="یکشنبه"><span aria-hidden="true">ی</span></li><li class="is-on" title="دوشنبه"><span aria-hidden="true">د</span></li><li title="سه‌شنبه"><span aria-hidden="true">س</span></li><li title="چهارشنبه"><span aria-hidden="true">چ</span></li><li title="پنجشنبه"><span aria-hidden="true">پ</span></li><li title="جمعه"><span aria-hidden="true">ج</span></li></ol>
-                <p class="dr-card__hours"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>۱۰ صبح تا ۸ شب</p>
+              <div class="dr-box dr-box--hrs">
+                <p class="dr-box__t">ساعت کاری بخش دندانپزشکی</p>
+                <p class="dr-card__hours"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>شنبه، یکشنبه، دوشنبه و پنجشنبه · ۱۰ صبح تا ۸ شب</p>
+                <p class="hrs__now" data-now="dental"><i aria-hidden="true"></i><span>با نوبت</span></p>
               </div>
             </div>
             <p class="dr-card__prep"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg><span><b>پیش از مراجعه:</b> اگر عکسی از لبخند دلخواهتان دارید همراه بیاورید تا طرح را همان جلسه‌ی اول با هم نهایی کنید.</span></p>
@@ -343,10 +343,10 @@
                 <p class="dr-box__t">کارهای اصلی</p>
                 <ul class="dr-tags"><li>بوتاکس</li><li>فیلر</li><li>لیزر موهای زائد</li><li>جوان‌سازی پوست</li></ul>
               </div>
-              <div class="dr-box">
-                <p class="dr-box__t">روزهای حضور</p>
-                <ol class="dr-week" aria-label="روزهای حضور: همه‌ی روزهای هفته"><li class="is-on" title="شنبه"><span aria-hidden="true">ش</span></li><li class="is-on" title="یکشنبه"><span aria-hidden="true">ی</span></li><li class="is-on" title="دوشنبه"><span aria-hidden="true">د</span></li><li class="is-on" title="سه‌شنبه"><span aria-hidden="true">س</span></li><li class="is-on" title="چهارشنبه"><span aria-hidden="true">چ</span></li><li class="is-on" title="پنجشنبه"><span aria-hidden="true">پ</span></li><li class="is-on" title="جمعه"><span aria-hidden="true">ج</span></li></ol>
-                <p class="dr-card__hours"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>همه‌روزه با هماهنگی قبلی</p>
+              <div class="dr-box dr-box--hrs">
+                <p class="dr-box__t">ساعت کاری بخش زیبایی و لیزر</p>
+                <p class="dr-card__hours"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>همه‌روزه، با هماهنگی قبلی</p>
+                <p class="hrs__now" data-now="beauty"><i aria-hidden="true"></i><span>با هماهنگی</span></p>
               </div>
             </div>
             <p class="dr-card__prep"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg><span><b>پیش از مراجعه:</b> روز تزریق آرایش نداشته باشید. برای لیزر، از چند هفته قبل موها را با موم یا اپیلاتور برندارید و از برنزه شدن پرهیز کنید.</span></p>
@@ -365,7 +365,7 @@
           <div class="dr-card__body">
             <p class="dr-card__meta"><span class="dr-chip" data-k="medicine">پزشکی عمومی</span><span class="dr-card__exp">۱۹ سال سابقه‌ی کار</span></p>
             <h2 class="dr-card__name" id="dr-n-salehi">دکتر امید صالحی</h2>
-            <p class="dr-card__role">پزشک عمومی · شیفت روز</p>
+            <p class="dr-card__role">پزشک عمومی · ویزیت و بیماری‌های مزمن</p>
             <blockquote class="dr-card__quote"><p>با حوصله معاینه می‌کند، نتیجه‌ی آزمایش‌ها را ساده توضیح می‌دهد و هر جا لازم باشد بیمار را به متخصص مناسب ارجاع می‌دهد.</p></blockquote>
             <p class="dr-card__more">ویزیت عمومی، سرم‌تراپی، بخیه و نوار قلب را انجام می‌دهد و برای بیماری‌های مزمن مثل فشار خون و دیابت، پیگیری منظم را با خود بیمار برنامه‌ریزی می‌کند.</p>
             <div class="dr-card__grid">
@@ -373,10 +373,10 @@
                 <p class="dr-box__t">کارهای اصلی</p>
                 <ul class="dr-tags"><li>ویزیت</li><li>سرم‌تراپی</li><li>بخیه</li><li>نوار قلب</li></ul>
               </div>
-              <div class="dr-box">
-                <p class="dr-box__t">روزهای حضور</p>
-                <ol class="dr-week" aria-label="روزهای حضور: همه‌ی روزهای هفته"><li class="is-on" title="شنبه"><span aria-hidden="true">ش</span></li><li class="is-on" title="یکشنبه"><span aria-hidden="true">ی</span></li><li class="is-on" title="دوشنبه"><span aria-hidden="true">د</span></li><li class="is-on" title="سه‌شنبه"><span aria-hidden="true">س</span></li><li class="is-on" title="چهارشنبه"><span aria-hidden="true">چ</span></li><li class="is-on" title="پنجشنبه"><span aria-hidden="true">پ</span></li><li class="is-on" title="جمعه"><span aria-hidden="true">ج</span></li></ol>
-                <p class="dr-card__hours"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>هر روز · ۸ صبح تا ۸ شب</p>
+              <div class="dr-box dr-box--hrs">
+                <p class="dr-box__t">ساعت کاری بخش پزشکی عمومی</p>
+                <p class="dr-card__hours"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>شبانه‌روزی، همه‌ی روزهای هفته</p>
+                <p class="hrs__now" data-now="medicine"><i aria-hidden="true"></i><span>بدون نوبت</span></p>
               </div>
             </div>
             <p class="dr-card__prep"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg><span><b>پیش از مراجعه:</b> برای ویزیت نوبت لازم نیست. جواب آزمایش‌ها و فهرست داروهای مصرفی‌تان را همراه بیاورید.</span></p>
@@ -395,18 +395,18 @@
           <div class="dr-card__body">
             <p class="dr-card__meta"><span class="dr-chip" data-k="medicine">پزشکی عمومی</span><span class="dr-card__exp">۶ سال سابقه‌ی کار</span></p>
             <h2 class="dr-card__name" id="dr-n-sharifi">دکتر پویا شریفی</h2>
-            <p class="dr-card__role">پزشک عمومی · شیفت شب</p>
-            <blockquote class="dr-card__quote"><p>شب‌ها در کلینیک است؛ از تب بچه‌ها تا بخیه‌ی نیمه‌شب، مراجعه‌کننده‌ها را بدون نوبت قبلی می‌بیند.</p></blockquote>
-            <p class="dr-card__more">بیشتر مراجعه‌های شب را می‌بیند: تب و عفونت، زخم و بریدگی، تزریقات و حال بد ناگهانی. اگر وضعیت اورژانسی باشد، بعد از اقدامات اولیه، انتقال به بیمارستان را هماهنگ می‌کند.</p>
+            <p class="dr-card__role">پزشک عمومی · زخم، بخیه و تزریقات</p>
+            <blockquote class="dr-card__quote"><p>از تب و عفونت تا زخم و بخیه، مراجعه‌کننده‌ها را بدون نوبت قبلی می‌بیند و هر جا لازم باشد، انتقال به بیمارستان را هماهنگ می‌کند.</p></blockquote>
+            <p class="dr-card__more">تب و عفونت، زخم و بریدگی، تزریقات و حال بد ناگهانی را می‌بیند. زخم را با حوصله تمیز و بخیه می‌کند و مراقبت‌های بعدی و زمان کشیدن بخیه را روی کاغذ به بیمار می‌دهد.</p>
             <div class="dr-card__grid">
               <div class="dr-box">
                 <p class="dr-box__t">کارهای اصلی</p>
                 <ul class="dr-tags"><li>تب و عفونت</li><li>بخیه</li><li>تزریقات</li><li>شست‌وشوی گوش</li></ul>
               </div>
-              <div class="dr-box">
-                <p class="dr-box__t">روزهای حضور</p>
-                <ol class="dr-week" aria-label="روزهای حضور: همه‌ی روزهای هفته"><li class="is-on" title="شنبه"><span aria-hidden="true">ش</span></li><li class="is-on" title="یکشنبه"><span aria-hidden="true">ی</span></li><li class="is-on" title="دوشنبه"><span aria-hidden="true">د</span></li><li class="is-on" title="سه‌شنبه"><span aria-hidden="true">س</span></li><li class="is-on" title="چهارشنبه"><span aria-hidden="true">چ</span></li><li class="is-on" title="پنجشنبه"><span aria-hidden="true">پ</span></li><li class="is-on" title="جمعه"><span aria-hidden="true">ج</span></li></ol>
-                <p class="dr-card__hours"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>هر شب · ۸ شب تا ۸ صبح</p>
+              <div class="dr-box dr-box--hrs">
+                <p class="dr-box__t">ساعت کاری بخش پزشکی عمومی</p>
+                <p class="dr-card__hours"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>شبانه‌روزی، همه‌ی روزهای هفته</p>
+                <p class="hrs__now" data-now="medicine"><i aria-hidden="true"></i><span>بدون نوبت</span></p>
               </div>
             </div>
             <p class="dr-card__prep"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg><span><b>پیش از مراجعه:</b> نوبت لازم نیست؛ مستقیم بیایید. در وضعیت خطرناک مثل درد قفسه‌ی سینه، تنگی نفس شدید یا بیهوشی، اول با ۱۱۵ تماس بگیرید.</span></p>
@@ -419,50 +419,48 @@
     </div>
   </section>
 
-  <section class="dr-sch" id="schedule" data-sel="0" aria-labelledby="dr-sch-title">
+  <section class="hrs" id="worktime" aria-labelledby="hrs-title">
     <div class="wrap">
       <header class="sec-head" data-rv>
         <div>
-          <p class="kicker">برنامه‌ی هفتگی</p>
-          <h2 class="sec-title" id="dr-sch-title">چه روزی، کدام پزشک</h2>
+          <p class="kicker">ساعت کاری</p>
+          <h2 class="sec-title" id="hrs-title">هر بخش، چه زمانی باز است</h2>
         </div>
-        <p class="sec-sub">ساعت‌ها به وقت تهران است. پزشک عمومی بدون نوبت شما را می‌بیند؛ برای دندانپزشکی و زیبایی، پذیرش روز و ساعت را با شما هماهنگ می‌کند.</p>
+        <p class="sec-sub">ساعت‌ها به وقت تهران است. پزشک عمومی بدون نوبت شما را می‌بیند؛ برای دندانپزشکی و زیبایی، پذیرش روز، ساعت و پزشک را با شما هماهنگ می‌کند.</p>
       </header>
-      <div class="dr-sch__days ar-tabs" role="group" aria-label="انتخاب روز"><button type="button" data-d="0" aria-pressed="false">شنبه</button><button type="button" data-d="1" aria-pressed="false">یکشنبه</button><button type="button" data-d="2" aria-pressed="false">دوشنبه</button><button type="button" data-d="3" aria-pressed="false">سه‌شنبه</button><button type="button" data-d="4" aria-pressed="false">چهارشنبه</button><button type="button" data-d="5" aria-pressed="false">پنجشنبه</button><button type="button" data-d="6" aria-pressed="false">جمعه</button></div>
-      <div class="dr-sch__box">
-        <table class="dr-sch__t">
-          <caption class="sr-only">برنامه‌ی حضور پزشکان در روزهای هفته</caption>
-          <thead><tr><th scope="col" class="dr-sch__c0">پزشک</th><th scope="col" data-d="0"><span class="dr-sch__dl">شنبه</span><span class="dr-sch__ds" aria-hidden="true">ش</span></th><th scope="col" data-d="1"><span class="dr-sch__dl">یکشنبه</span><span class="dr-sch__ds" aria-hidden="true">ی</span></th><th scope="col" data-d="2"><span class="dr-sch__dl">دوشنبه</span><span class="dr-sch__ds" aria-hidden="true">د</span></th><th scope="col" data-d="3"><span class="dr-sch__dl">سه‌شنبه</span><span class="dr-sch__ds" aria-hidden="true">س</span></th><th scope="col" data-d="4"><span class="dr-sch__dl">چهارشنبه</span><span class="dr-sch__ds" aria-hidden="true">چ</span></th><th scope="col" data-d="5"><span class="dr-sch__dl">پنجشنبه</span><span class="dr-sch__ds" aria-hidden="true">پ</span></th><th scope="col" data-d="6"><span class="dr-sch__dl">جمعه</span><span class="dr-sch__ds" aria-hidden="true">ج</span></th></tr></thead>
-          <tbody>
-              <tr data-k="dental">
-                <th scope="row"><a class="dr-sch__doc" href="#dr-nikpour"><span class="dr-sch__av" aria-hidden="true"><img src="img/doc-1.webp" alt="" width="720" height="900" loading="lazy" decoding="async"></span><span><b>دکتر آرش نیک‌پور</b><small>دندانپزشکی</small></span></a></th>
-                <td data-d="0"><span class="dr-pill dr-pill--day" data-k="dental">۱۰ تا ۲۰</span></td><td data-d="1" class="is-off"><span aria-hidden="true">—</span><span class="sr-only">حضور ندارد</span></td><td data-d="2"><span class="dr-pill dr-pill--day" data-k="dental">۱۰ تا ۲۰</span></td><td data-d="3" class="is-off"><span aria-hidden="true">—</span><span class="sr-only">حضور ندارد</span></td><td data-d="4" class="is-off"><span aria-hidden="true">—</span><span class="sr-only">حضور ندارد</span></td><td data-d="5"><span class="dr-pill dr-pill--day" data-k="dental">۱۰ تا ۲۰</span></td><td data-d="6" class="is-off"><span aria-hidden="true">—</span><span class="sr-only">حضور ندارد</span></td>
-              </tr>
-              <tr data-k="dental">
-                <th scope="row"><a class="dr-sch__doc" href="#dr-rahmani"><span class="dr-sch__av" aria-hidden="true"><img src="img/doc-2.webp" alt="" width="720" height="900" loading="lazy" decoding="async"></span><span><b>دکتر سینا رحمانی</b><small>دندانپزشکی</small></span></a></th>
-                <td data-d="0"><span class="dr-pill dr-pill--day" data-k="dental">۱۰ تا ۲۰</span></td><td data-d="1"><span class="dr-pill dr-pill--day" data-k="dental">۱۰ تا ۲۰</span></td><td data-d="2"><span class="dr-pill dr-pill--day" data-k="dental">۱۰ تا ۲۰</span></td><td data-d="3" class="is-off"><span aria-hidden="true">—</span><span class="sr-only">حضور ندارد</span></td><td data-d="4" class="is-off"><span aria-hidden="true">—</span><span class="sr-only">حضور ندارد</span></td><td data-d="5" class="is-off"><span aria-hidden="true">—</span><span class="sr-only">حضور ندارد</span></td><td data-d="6" class="is-off"><span aria-hidden="true">—</span><span class="sr-only">حضور ندارد</span></td>
-              </tr>
-              <tr data-k="beauty">
-                <th scope="row"><a class="dr-sch__doc" href="#dr-kiani"><span class="dr-sch__av" aria-hidden="true"><img src="img/doc-5.webp" alt="" width="720" height="900" loading="lazy" decoding="async"></span><span><b>دکتر فرهاد کیانی</b><small>زیبایی و لیزر</small></span></a></th>
-                <td data-d="0"><span class="dr-pill dr-pill--appt" data-k="beauty">با هماهنگی</span></td><td data-d="1"><span class="dr-pill dr-pill--appt" data-k="beauty">با هماهنگی</span></td><td data-d="2"><span class="dr-pill dr-pill--appt" data-k="beauty">با هماهنگی</span></td><td data-d="3"><span class="dr-pill dr-pill--appt" data-k="beauty">با هماهنگی</span></td><td data-d="4"><span class="dr-pill dr-pill--appt" data-k="beauty">با هماهنگی</span></td><td data-d="5"><span class="dr-pill dr-pill--appt" data-k="beauty">با هماهنگی</span></td><td data-d="6"><span class="dr-pill dr-pill--appt" data-k="beauty">با هماهنگی</span></td>
-              </tr>
-              <tr data-k="medicine">
-                <th scope="row"><a class="dr-sch__doc" href="#dr-salehi"><span class="dr-sch__av" aria-hidden="true"><img src="img/doc-3.webp" alt="" width="720" height="900" loading="lazy" decoding="async"></span><span><b>دکتر امید صالحی</b><small>پزشکی عمومی</small></span></a></th>
-                <td data-d="0"><span class="dr-pill dr-pill--day" data-k="medicine">۸ تا ۲۰</span></td><td data-d="1"><span class="dr-pill dr-pill--day" data-k="medicine">۸ تا ۲۰</span></td><td data-d="2"><span class="dr-pill dr-pill--day" data-k="medicine">۸ تا ۲۰</span></td><td data-d="3"><span class="dr-pill dr-pill--day" data-k="medicine">۸ تا ۲۰</span></td><td data-d="4"><span class="dr-pill dr-pill--day" data-k="medicine">۸ تا ۲۰</span></td><td data-d="5"><span class="dr-pill dr-pill--day" data-k="medicine">۸ تا ۲۰</span></td><td data-d="6"><span class="dr-pill dr-pill--day" data-k="medicine">۸ تا ۲۰</span></td>
-              </tr>
-              <tr data-k="medicine">
-                <th scope="row"><a class="dr-sch__doc" href="#dr-sharifi"><span class="dr-sch__av" aria-hidden="true"><img src="img/doc-4.webp" alt="" width="720" height="900" loading="lazy" decoding="async"></span><span><b>دکتر پویا شریفی</b><small>پزشکی عمومی</small></span></a></th>
-                <td data-d="0"><span class="dr-pill dr-pill--night" data-k="medicine">۲۰ تا ۸</span></td><td data-d="1"><span class="dr-pill dr-pill--night" data-k="medicine">۲۰ تا ۸</span></td><td data-d="2"><span class="dr-pill dr-pill--night" data-k="medicine">۲۰ تا ۸</span></td><td data-d="3"><span class="dr-pill dr-pill--night" data-k="medicine">۲۰ تا ۸</span></td><td data-d="4"><span class="dr-pill dr-pill--night" data-k="medicine">۲۰ تا ۸</span></td><td data-d="5"><span class="dr-pill dr-pill--night" data-k="medicine">۲۰ تا ۸</span></td><td data-d="6"><span class="dr-pill dr-pill--night" data-k="medicine">۲۰ تا ۸</span></td>
-              </tr>
-          </tbody>
-        </table>
+      <div class="hrs__grid">
+        <article class="hrs__card" data-k="medicine">
+          <div class="hrs__dial"><svg viewBox="0 0 140 140" aria-hidden="true" focusable="false"><g class="hrs__ticks"><line x1="70.00" y1="9.00" x2="70.00" y2="3.00" class="is-major"/><line x1="86.31" y1="9.15" x2="87.08" y2="6.25"/><line x1="101.50" y1="15.44" x2="103.00" y2="12.84"/><line x1="114.55" y1="25.45" x2="116.67" y2="23.33"/><line x1="124.56" y1="38.50" x2="127.16" y2="37.00"/><line x1="130.85" y1="53.69" x2="133.75" y2="52.92"/><line x1="131.00" y1="70.00" x2="137.00" y2="70.00" class="is-major"/><line x1="130.85" y1="86.31" x2="133.75" y2="87.08"/><line x1="124.56" y1="101.50" x2="127.16" y2="103.00"/><line x1="114.55" y1="114.55" x2="116.67" y2="116.67"/><line x1="101.50" y1="124.56" x2="103.00" y2="127.16"/><line x1="86.31" y1="130.85" x2="87.08" y2="133.75"/><line x1="70.00" y1="131.00" x2="70.00" y2="137.00" class="is-major"/><line x1="53.69" y1="130.85" x2="52.92" y2="133.75"/><line x1="38.50" y1="124.56" x2="37.00" y2="127.16"/><line x1="25.45" y1="114.55" x2="23.33" y2="116.67"/><line x1="15.44" y1="101.50" x2="12.84" y2="103.00"/><line x1="9.15" y1="86.31" x2="6.25" y2="87.08"/><line x1="9.00" y1="70.00" x2="3.00" y2="70.00" class="is-major"/><line x1="9.15" y1="53.69" x2="6.25" y2="52.92"/><line x1="15.44" y1="38.50" x2="12.84" y2="37.00"/><line x1="25.45" y1="25.45" x2="23.33" y2="23.33"/><line x1="38.50" y1="15.44" x2="37.00" y2="12.84"/><line x1="53.69" y1="9.15" x2="52.92" y2="6.25"/></g><g class="hrs__labs"><text x="70" y="31">۲۴</text><text x="109" y="70">۶</text><text x="70" y="109">۱۲</text><text x="31" y="70">۱۸</text></g><circle class="hrs__track" cx="70" cy="70" r="52"/><circle class="hrs__arc" cx="70" cy="70" r="52" pathLength="24" style="--n:24" stroke-dasharray="24 0" transform="rotate(-90 70 70)"/><g class="hrs__hand"><circle cx="70" cy="18" r="6"/></g></svg><p class="hrs__mid"><b>۲۴</b><small>ساعته</small></p></div>
+          <div class="hrs__txt">
+            <h3 class="hrs__t"><span class="hrs__ic"><svg class="ic" aria-hidden="true"><use href="#i-steth"/></svg></span>پزشکی عمومی</h3>
+            <p class="hrs__when">شبانه‌روزی، همه‌ی روزهای هفته</p>
+            <ol class="hrs__week" aria-hidden="true"><li data-d="0" class="is-on"><span>ش</span></li><li data-d="1" class="is-on"><span>ی</span></li><li data-d="2" class="is-on"><span>د</span></li><li data-d="3" class="is-on"><span>س</span></li><li data-d="4" class="is-on"><span>چ</span></li><li data-d="5" class="is-on"><span>پ</span></li><li data-d="6" class="is-on"><span>ج</span></li></ol>
+            <p class="hrs__now" data-now="medicine"><i aria-hidden="true"></i><span>بدون نوبت</span></p>
+            <a class="link-arrow hrs__book" href="tel:+981154611560">تماس با پذیرش<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          </div>
+        </article>
+        <article class="hrs__card" data-k="dental">
+          <div class="hrs__dial"><svg viewBox="0 0 140 140" aria-hidden="true" focusable="false"><g class="hrs__ticks"><line x1="70.00" y1="9.00" x2="70.00" y2="3.00" class="is-major"/><line x1="86.31" y1="9.15" x2="87.08" y2="6.25"/><line x1="101.50" y1="15.44" x2="103.00" y2="12.84"/><line x1="114.55" y1="25.45" x2="116.67" y2="23.33"/><line x1="124.56" y1="38.50" x2="127.16" y2="37.00"/><line x1="130.85" y1="53.69" x2="133.75" y2="52.92"/><line x1="131.00" y1="70.00" x2="137.00" y2="70.00" class="is-major"/><line x1="130.85" y1="86.31" x2="133.75" y2="87.08"/><line x1="124.56" y1="101.50" x2="127.16" y2="103.00"/><line x1="114.55" y1="114.55" x2="116.67" y2="116.67"/><line x1="101.50" y1="124.56" x2="103.00" y2="127.16"/><line x1="86.31" y1="130.85" x2="87.08" y2="133.75"/><line x1="70.00" y1="131.00" x2="70.00" y2="137.00" class="is-major"/><line x1="53.69" y1="130.85" x2="52.92" y2="133.75"/><line x1="38.50" y1="124.56" x2="37.00" y2="127.16"/><line x1="25.45" y1="114.55" x2="23.33" y2="116.67"/><line x1="15.44" y1="101.50" x2="12.84" y2="103.00"/><line x1="9.15" y1="86.31" x2="6.25" y2="87.08"/><line x1="9.00" y1="70.00" x2="3.00" y2="70.00" class="is-major"/><line x1="9.15" y1="53.69" x2="6.25" y2="52.92"/><line x1="15.44" y1="38.50" x2="12.84" y2="37.00"/><line x1="25.45" y1="25.45" x2="23.33" y2="23.33"/><line x1="38.50" y1="15.44" x2="37.00" y2="12.84"/><line x1="53.69" y1="9.15" x2="52.92" y2="6.25"/></g><g class="hrs__labs"><text x="70" y="31">۲۴</text><text x="109" y="70">۶</text><text x="70" y="109">۱۲</text><text x="31" y="70">۱۸</text></g><circle class="hrs__track" cx="70" cy="70" r="52"/><circle class="hrs__arc" cx="70" cy="70" r="52" pathLength="24" style="--n:10" stroke-dasharray="10 14" transform="rotate(60 70 70)"/><g class="hrs__hand"><circle cx="70" cy="18" r="6"/></g></svg><p class="hrs__mid"><b>۱۰ تا ۲۰</b><small>ساعت</small></p></div>
+          <div class="hrs__txt">
+            <h3 class="hrs__t"><span class="hrs__ic"><svg class="ic" aria-hidden="true"><use href="#i-tooth"/></svg></span>دندانپزشکی</h3>
+            <p class="hrs__when">شنبه، یکشنبه، دوشنبه و پنجشنبه · ۱۰ صبح تا ۸ شب</p>
+            <ol class="hrs__week" aria-hidden="true"><li data-d="0" class="is-on"><span>ش</span></li><li data-d="1" class="is-on"><span>ی</span></li><li data-d="2" class="is-on"><span>د</span></li><li data-d="3"><span>س</span></li><li data-d="4"><span>چ</span></li><li data-d="5" class="is-on"><span>پ</span></li><li data-d="6"><span>ج</span></li></ol>
+            <p class="hrs__now" data-now="dental"><i aria-hidden="true"></i><span>با نوبت</span></p>
+            <button type="button" class="link-arrow hrs__book" data-book="dental">درخواست نوبت<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+          </div>
+        </article>
+        <article class="hrs__card" data-k="beauty">
+          <div class="hrs__dial"><svg viewBox="0 0 140 140" aria-hidden="true" focusable="false"><g class="hrs__ticks"><line x1="70.00" y1="9.00" x2="70.00" y2="3.00" class="is-major"/><line x1="86.31" y1="9.15" x2="87.08" y2="6.25"/><line x1="101.50" y1="15.44" x2="103.00" y2="12.84"/><line x1="114.55" y1="25.45" x2="116.67" y2="23.33"/><line x1="124.56" y1="38.50" x2="127.16" y2="37.00"/><line x1="130.85" y1="53.69" x2="133.75" y2="52.92"/><line x1="131.00" y1="70.00" x2="137.00" y2="70.00" class="is-major"/><line x1="130.85" y1="86.31" x2="133.75" y2="87.08"/><line x1="124.56" y1="101.50" x2="127.16" y2="103.00"/><line x1="114.55" y1="114.55" x2="116.67" y2="116.67"/><line x1="101.50" y1="124.56" x2="103.00" y2="127.16"/><line x1="86.31" y1="130.85" x2="87.08" y2="133.75"/><line x1="70.00" y1="131.00" x2="70.00" y2="137.00" class="is-major"/><line x1="53.69" y1="130.85" x2="52.92" y2="133.75"/><line x1="38.50" y1="124.56" x2="37.00" y2="127.16"/><line x1="25.45" y1="114.55" x2="23.33" y2="116.67"/><line x1="15.44" y1="101.50" x2="12.84" y2="103.00"/><line x1="9.15" y1="86.31" x2="6.25" y2="87.08"/><line x1="9.00" y1="70.00" x2="3.00" y2="70.00" class="is-major"/><line x1="9.15" y1="53.69" x2="6.25" y2="52.92"/><line x1="15.44" y1="38.50" x2="12.84" y2="37.00"/><line x1="25.45" y1="25.45" x2="23.33" y2="23.33"/><line x1="38.50" y1="15.44" x2="37.00" y2="12.84"/><line x1="53.69" y1="9.15" x2="52.92" y2="6.25"/></g><g class="hrs__labs"><text x="70" y="31">۲۴</text><text x="109" y="70">۶</text><text x="70" y="109">۱۲</text><text x="31" y="70">۱۸</text></g><circle class="hrs__track" cx="70" cy="70" r="52"/><circle class="hrs__arc hrs__arc--appt" cx="70" cy="70" r="52" pathLength="24" transform="rotate(-90 70 70)"/><g class="hrs__hand"><circle cx="70" cy="18" r="6"/></g></svg><p class="hrs__mid"><b>هر روز</b><small>با هماهنگی</small></p></div>
+          <div class="hrs__txt">
+            <h3 class="hrs__t"><span class="hrs__ic"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg></span>زیبایی و لیزر</h3>
+            <p class="hrs__when">همه‌روزه، با هماهنگی قبلی</p>
+            <ol class="hrs__week" aria-hidden="true"><li data-d="0" class="is-on"><span>ش</span></li><li data-d="1" class="is-on"><span>ی</span></li><li data-d="2" class="is-on"><span>د</span></li><li data-d="3" class="is-on"><span>س</span></li><li data-d="4" class="is-on"><span>چ</span></li><li data-d="5" class="is-on"><span>پ</span></li><li data-d="6" class="is-on"><span>ج</span></li></ol>
+            <p class="hrs__now" data-now="beauty"><i aria-hidden="true"></i><span>با هماهنگی</span></p>
+            <button type="button" class="link-arrow hrs__book" data-book="beauty">درخواست نوبت<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+          </div>
+        </article>
       </div>
-      <ul class="dr-sch__note">
-        <li><i class="dr-pill dr-pill--day" aria-hidden="true"></i>حضور در روز</li>
-        <li><i class="dr-pill dr-pill--night" aria-hidden="true"></i>شیفت شب</li>
-        <li><i class="dr-pill dr-pill--appt" aria-hidden="true"></i>با هماهنگی قبلی</li>
-        <li class="dr-sch__warn"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>در تعطیلات رسمی ممکن است برنامه تغییر کند؛ پیش از مراجعه با پذیرش تماس بگیرید.</li>
-      </ul>
+      <p class="hrs__note"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>در تعطیلات رسمی ممکن است ساعت‌ها تغییر کند؛ پیش از مراجعه با پذیرش تماس بگیرید.</p>
     </div>
   </section>
 </main>
@@ -509,11 +507,11 @@
         <li><a href="about.html">درباره‌ی ما</a></li>
         <li><a href="doctors.html" aria-current="page">پزشکان</a></li>
         <li><a href="index.html#journey">مسیر درمان</a></li>
-        <li><a href="index.html#cases">نمونه‌ی درمان‌ها</a></li>
+        <li><a href="cases.html">نمونه‌ی درمان‌ها</a></li>
         <li><a href="index.html#reviews">نظر بیماران</a></li>
         <li><a href="index.html#mag-all" data-article="all">مجله‌ی سلامت</a></li>
-        <li><a href="index.html#faq">سؤال‌های پرتکرار</a></li>
-        <li><a href="index.html#contact">مسیر و تماس</a></li>
+        <li><a href="faq.html">سؤال‌های پرتکرار</a></li>
+        <li><a href="contact.html">مسیر و تماس</a></li>
       </ul>
     </nav>
     <div class="foot__col">
@@ -545,7 +543,7 @@
     <svg class="fword__star fword__star--s" viewBox="1322 -1 290 334"><use href="#lgp-star-l"/></svg>
   </div>
   <div class="wrap foot__bottom">
-    <p>© ۱۴۰۵ کلینیک ساسان. همه‌ی حقوق محفوظ است.</p>
+    <p>© ۱۴۰۵ کلینیک ساسان. همه‌ی حقوق محفوظ است. <a class="foot__legal" href="privacy.html">حریم خصوصی و شرایط استفاده</a></p>
     <p class="foot__sample">نظرها، آمار نظرسنجی و نمونه‌پرونده‌ها نمونه‌ی طراحی‌اند.</p>
     <a class="foot__top" href="#top">بالای صفحه<svg class="ic" aria-hidden="true"><use href="#i-arrow-ul"/></svg></a>
   </div>
@@ -666,7 +664,7 @@
             <label class="field"><span class="field__label">شماره‌ی موبایل</span><input id="bkTel" name="tel" type="tel" inputmode="tel" autocomplete="tel" dir="ltr" placeholder="۰۹۱۱ ۱۲۳ ۴۵۶۷" maxlength="20" required></label>
             <label class="field"><span class="field__label">توضیح کوتاه <small>(اختیاری)</small></span><textarea id="bkNoteIn" name="note" rows="2" maxlength="300" placeholder="مثلاً: دندان عقل پایین چپ درد دارد"></textarea></label>
           </div>
-          <p class="bk-safe"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg>شماره‌تان فقط برای تأیید درخواست و تماس پذیرش به کار می‌رود.</p>
+          <p class="bk-safe"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg><span>شماره‌تان فقط برای تأیید درخواست و تماس پذیرش به کار می‌رود. <a href="privacy.html">حریم خصوصی</a></span></p>
         </section>
 
         <!-- ۳. کد تأیید -->

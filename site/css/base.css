@@ -283,6 +283,8 @@ html.hc .pick-opt__txt small { color: #000; }
 .nav__link[aria-current="page"]::after { content: ""; position: absolute; left: 50%; bottom: 7px; width: 16px; height: 2px; margin-left: -8px; border-radius: 2px; background: currentColor; }
 .sheet__nav a[aria-current="page"] { color: var(--blue); }
 .foot a[aria-current="page"] { color: #fff; }
+.foot__legal { margin-inline-start: 10px; color: rgba(226, 233, 245, .8); text-decoration: underline; text-decoration-color: rgba(255, 255, 255, .3); text-underline-offset: 4px; transition: color .2s; }
+.foot__legal:hover { color: #fff; }
 .nav__link--menu .ic { transition: transform .4s var(--spring); opacity: .7; }
 .nav__link--menu[aria-expanded="true"] .ic { transform: rotate(180deg); }
 .bar__end { display: flex; align-items: center; gap: 10px; flex: none; }

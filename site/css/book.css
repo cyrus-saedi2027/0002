@@ -121,6 +121,7 @@
 .bk-form .field.is-bad input { border-color: #D6453D; box-shadow: 0 0 0 4px rgba(214, 69, 61, .12); }
 .bk-safe { display: flex; align-items: flex-start; gap: 8px; font-size: .8125rem; line-height: 1.7; color: var(--ink-3); }
 .bk-safe .ic { flex: none; width: 17px; height: 17px; margin-top: 2px; color: var(--ok); }
+.bk-safe a { color: var(--blue); text-decoration: underline; text-underline-offset: 3px; }
 .bk-link { display: inline; padding: 0; font-size: .875rem; font-weight: 700; color: var(--blue); text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px; }
 .bk-link:disabled { color: var(--ink-3); text-decoration: none; cursor: default; }
 

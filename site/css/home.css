@@ -695,6 +695,7 @@ html.hc .mag__meta, html.hc .mag__note, html.hc .mag__no { color: #fff; }
 .faq__in { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: clamp(28px, 5vw, 88px); align-items: start; }
 .faq__head { position: sticky; top: calc(var(--bar-gap) + var(--bar-h) + 32px); }
 .faq__ask { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+.faq__all { margin-top: 22px; }
 .faq-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
 .faq-tabs button { height: 38px; padding: 0 14px; border-radius: var(--r1); border: 1px solid var(--line-2); font-size: .875rem; font-weight: 600; color: var(--ink-2); background: #fff; transition: background-color .2s, color .2s, border-color .2s; }
 .faq-tabs button:hover { border-color: var(--ink-3); color: var(--ink); }

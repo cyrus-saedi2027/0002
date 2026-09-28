@@ -7,6 +7,8 @@
     <!-- LAYOUT:top -->       ...  <!-- /LAYOUT:top -->
     <!-- LAYOUT:bottom -->    ...  <!-- /LAYOUT:bottom -->
 هر صفحه‌ی دیگر در site/ که همین نشانه‌ها را دارد، همان بخش‌ها را می‌گیرد.
+بخش‌های اختیاری هم هستند: <!-- PART:نام --> ... <!-- /PART:نام -->
+(مثل نقشه‌ی مسیر)؛ فقط صفحه‌هایی که همین نشانه را دارند آن را از index.html می‌گیرند.
 لینک‌های هدر، منوی موبایل و فوتر که به خود همان صفحه اشاره می‌کنند aria-current="page" می‌گیرند.
 
 اجرا:      python3 tools/sync-layout.py
@@ -20,12 +22,12 @@ SITE = pathlib.Path(__file__).resolve().parent.parent / 'site'
 BLOCKS = ('head', 'top', 'bottom')
 
 
-def span(text, name):
-    m = re.search(r'<!-- LAYOUT:%s\b[^>]*-->' % name, text)
-    e = text.find('<!-- /LAYOUT:%s -->' % name)
+def span(text, name, kind='LAYOUT'):
+    m = re.search(r'<!-- %s:%s\b[^>]*-->' % (kind, re.escape(name)), text)
+    e = text.find('<!-- /%s:%s -->' % (kind, name))
     if not m or e < 0:
         return None
-    return m.start(), e + len('<!-- /LAYOUT:%s -->' % name)
+    return m.start(), e + len('<!-- /%s:%s -->' % (kind, name))
 
 
 def mark_current(block, page):
@@ -42,6 +44,11 @@ def main():
         if not sp:
             sys.exit('index.html: نشانه‌ی LAYOUT:%s پیدا نشد' % b)
         blocks[b] = src[sp[0]:sp[1]]
+    parts = {}
+    for name in re.findall(r'<!-- PART:([\w-]+)', src):
+        sp = span(src, name, 'PART')
+        if sp:
+            parts[name] = src[sp[0]:sp[1]]
     stale = []
     for page in sorted(SITE.glob('*.html')):
         if page.name == 'index.html':
@@ -53,6 +60,10 @@ def main():
             if not sp:
                 sys.exit('%s: نشانه‌ی LAYOUT:%s پیدا نشد' % (page.name, b))
             out = out[:sp[0]] + mark_current(blocks[b], page.name) + out[sp[1]:]
+        for name, block in parts.items():
+            sp = span(out, name, 'PART')
+            if sp:
+                out = out[:sp[0]] + block + out[sp[1]:]
         if out != text:
             stale.append(page.name)
             if not check:
