@@ -1,5 +1,5 @@
 /* ==========================================================================
-   پنل پذیرش کلینیک ساسان (بدون کتابخانه)
+   پنل پذیرش ساسان کلینیک (بدون کتابخانه)
    - اگر صفحه از سرور کلینیک باز شده باشد (متای sasan-api) به API واقعی وصل است؛
      وگرنه نسخه‌ی نمایشی با داده‌ی ساختگی اجرا می‌شود (demo.js)
    - زمان‌ها به وقت تهران و تاریخ‌ها شمسی نمایش داده می‌شوند؛ ذخیره: میلادی YYYY-MM-DD و دقیقه از نیمه‌شب
@@ -188,7 +188,7 @@
     $('#codeForm').hidden = true;
     lgErr(msg || '');
     $('#lgPass').value = '';
-    document.title = 'ورود · پنل پذیرش کلینیک ساسان';
+    document.title = 'ورود · پنل پذیرش ساسان کلینیک';
     setTimeout(() => ($('#lgUser').value ? $('#lgPass') : $('#lgUser')).focus(), 60);
   }
   $('#lgEye').addEventListener('click', (e) => {
@@ -354,7 +354,7 @@
       el.textContent = fa(v);
       if (v && prev && prev !== el.textContent) { el.classList.remove('is-pop'); void el.offsetWidth; el.classList.add('is-pop'); }
     });
-    document.title = (n && !isDoctor() ? `(${fa(n + c)}) ` : '') + 'پنل پذیرش · کلینیک ساسان';
+    document.title = (n && !isDoctor() ? `(${fa(n + c)}) ` : '') + 'پنل پذیرش · ساسان کلینیک';
   }
 
   /* ---------- مسیرها ---------- */
@@ -764,7 +764,7 @@
       d.hidden = false; $('#scrim').hidden = false;
       d.classList.remove('is-closing');
       requestAnimationFrame(() => requestAnimationFrame(() => { d.classList.add('is-on'); $('#scrim').classList.add('is-on'); }));
-      document.body.style.setProperty('overflow', 'hidden');
+      document.documentElement.style.setProperty('overflow', 'hidden');
       setTimeout(() => { const c = $('[data-act="close"]', d); if (c) c.focus({ preventScroll: true }); }, 60);
     }
     if (opts.pick) setTimeout(() => { const p = $('#pick', d); if (p) p.scrollIntoView({ behavior: motion() ? 'smooth' : 'auto', block: 'start' }); }, opening ? 420 : 60);
@@ -778,7 +778,7 @@
     $$('.row.is-sel').forEach((x) => x.classList.remove('is-sel'));
     d.classList.add('is-closing');
     d.classList.remove('is-on'); $('#scrim').classList.remove('is-on');
-    document.body.style.removeProperty('overflow');
+    document.documentElement.style.removeProperty('overflow');
     const done = () => { if (!d.classList.contains('is-on')) { d.hidden = true; $('#scrim').hidden = true; d.innerHTML = ''; } };
     if (instant || reduce.matches) done(); else setTimeout(done, 320);
     if (lastFocus && document.contains(lastFocus)) lastFocus.focus({ preventScroll: true });

@@ -1470,7 +1470,7 @@
       <a class="btn btn--outline-light" href="#book" data-ar-book><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg>درخواست نوبت</a>
     </div>
   </section>
-  <p class="ar-note">این مطلب را پزشکان کلینیک ساسان برای آگاهی عمومی نوشته‌اند و جای معاینه را نمی‌گیرد.</p>
+  <p class="ar-note">این مطلب را پزشکان ساسان کلینیک برای آگاهی عمومی نوشته‌اند و جای معاینه را نمی‌گیرد.</p>
   <a class="ar-next" href="#mag-${next.id}" data-ar-go="${next.id}">
     <span class="ar-next__img"><img src="${next.img}" alt="" width="1120" height="700" loading="lazy" decoding="async"></span>
     <span class="ar-next__txt"><small>مقاله‌ی بعدی · ${next.cat}</small><b>${next.title}</b></span>

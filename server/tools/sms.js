@@ -15,16 +15,16 @@ const { ask, green, red, dim, bold } = require('./cli');
 
 const ENV = process.env.SASAN_ENV_FILE || path.join(__dirname, '..', '.env');
 const BASE = 'https://api.sms.ir/v1';
-const TEMPLATE_TITLE = 'کد تأیید کلینیک ساسان';
-const TEMPLATE_TEXT = 'کلینیک ساسان\nکد تأیید شما: #CODE#\nاین کد را به کسی ندهید.';
+const TEMPLATE_TITLE = 'کد تأیید ساسان کلینیک';
+const TEMPLATE_TEXT = 'ساسان کلینیک\nکد تأیید شما: #CODE#\nاین کد را به کسی ندهید.';
 /* قالب‌های پنل پذیرش (نوع ۲، اطلاع‌رسانی و یادآوری)؛ هر متغیر حداکثر ۲۵ نویسه */
 const PARAMS = [
   { name: 'NAME', description: 'نام بیمار' }, { name: 'DEPT', description: 'بخش (مثلاً دندانپزشکی)' },
   { name: 'DATE', description: 'روز نوبت، مثلاً شنبه ۱۲ مهر' }, { name: 'TIME', description: 'ساعت نوبت، مثلاً ۱۰:۳۰' }
 ];
 const PANEL_TEMPLATES = [
-  { env: 'SMSIR_APPT_TEMPLATE_ID', label: 'تأیید نوبت', title: 'تأیید نوبت کلینیک ساسان', text: '#NAME# عزیز، نوبت #DEPT# شما در کلینیک ساسان برای #DATE# ساعت #TIME# ثبت شد.\nبرای تغییر یا لغو: ۰۱۱۵۴۶۱۱۵۶۰' },
-  { env: 'SMSIR_REMIND_TEMPLATE_ID', label: 'یادآوری یک روز قبل', title: 'یادآوری نوبت کلینیک ساسان', text: 'یادآوری: #NAME# عزیز، فردا #DATE# ساعت #TIME# نوبت #DEPT# در کلینیک ساسان دارید.\nبرای تغییر یا لغو: ۰۱۱۵۴۶۱۱۵۶۰' }
+  { env: 'SMSIR_APPT_TEMPLATE_ID', label: 'تأیید نوبت', title: 'تأیید نوبت ساسان کلینیک', text: '#NAME# عزیز، نوبت #DEPT# شما در ساسان کلینیک برای #DATE# ساعت #TIME# ثبت شد.\nبرای تغییر یا لغو: ۰۱۱۵۴۶۱۱۵۶۰' },
+  { env: 'SMSIR_REMIND_TEMPLATE_ID', label: 'یادآوری یک روز قبل', title: 'یادآوری نوبت ساسان کلینیک', text: 'یادآوری: #NAME# عزیز، فردا #DATE# ساعت #TIME# نوبت #DEPT# در ساسان کلینیک دارید.\nبرای تغییر یا لغو: ۰۱۱۵۴۶۱۱۵۶۰' }
 ];
 
 /* ---------- server/.env ---------- */
@@ -97,7 +97,7 @@ async function check() {
 async function setup() {
   if (!process.stdin.isTTY) { console.log(red('این دستور پرسش‌وپاسخ است؛ آن را در ترمینال اجرا کنید.')); process.exitCode = 1; return; }
   const v = readEnv();
-  console.log(bold('\nراه‌اندازی پیامک کلینیک ساسان'));
+  console.log(bold('\nراه‌اندازی پیامک ساسان کلینیک'));
   console.log(dim('کلیدها فقط در server/.env روی همین کامپیوتر ذخیره می‌شوند.\n'));
   const m = await ask('حالت؟ ۱ = آزمایشی (Sandbox، پیامک واقعی نمی‌آید)   ۲ = اصلی (پیامک واقعی به گوشی)', { def: v.SMSIR_MODE === 'live' ? '2' : '1' });
   const live = /^[2۲]$/.test(m);

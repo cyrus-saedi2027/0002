@@ -992,7 +992,7 @@
       <div class="field"><label for="bkName">نام و نام خانوادگی</label><input id="bkName" name="name" autocomplete="name" placeholder="مثلاً مریم احمدی" value="${bk.name.replace(/"/g, '&quot;')}"><span class="err" id="eName" aria-live="polite"></span></div>
       <div class="field"><label for="bkPhone">شماره‌ی موبایل</label><input id="bkPhone" name="phone" inputmode="tel" autocomplete="tel" dir="ltr" style="text-align:right" placeholder="۰۹۱۲ ۳۴۵ ۶۷۸۹" value="${bk.phone.replace(/"/g, '&quot;')}"><span class="err" id="ePhone" aria-live="polite"></span></div>
       <div class="field full"><label for="bkNote">دلیل مراجعه <em>(اختیاری)</em></label><textarea id="bkNote" name="note" placeholder="مثلاً: جوش‌های صورت از دو ماه پیش">${bk.note.replace(/</g, '&lt;')}</textarea></div>
-      <label class="check full" for="bkFirst"><input type="checkbox" id="bkFirst" ${bk.first ? 'checked' : ''}>اولین بار است به کلینیک ساسان می‌آیم</label>
+      <label class="check full" for="bkFirst"><input type="checkbox" id="bkFirst" ${bk.first ? 'checked' : ''}>اولین بار است به ساسان کلینیک می‌آیم</label>
       <button type="submit" hidden></button>
     </form>`;
   }

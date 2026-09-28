@@ -1,5 +1,5 @@
 /* ==========================================================================
-   پنل پذیرش کلینیک ساسان
+   پنل پذیرش ساسان کلینیک
    همان رنگ‌ها و قلم سایت. فقط transform و opacity متحرک‌اند؛ «حرکت کمتر» سیستم رعایت می‌شود.
    هیچ استایل درون‌خطی در HTML نیست (CSP پنل: style-src 'self')؛ متغیرها با style.setProperty گذاشته می‌شوند.
    ========================================================================== */
@@ -57,7 +57,8 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+/* جای نوار اسکرول همیشه نگه داشته می‌شود: با باز شدن کشو یا پنجره صفحه افقی جابه‌جا نمی‌شود */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; overflow-x: clip; scrollbar-gutter: stable; }
 body { margin: 0; font-family: var(--f); font-size: 15px; line-height: 1.6; color: var(--ink); background: var(--bg); -webkit-font-smoothing: antialiased; }
 [hidden] { display: none !important; }
 button, input, select, textarea { font: inherit; color: inherit; }

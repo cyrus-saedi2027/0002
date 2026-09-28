@@ -1,5 +1,5 @@
 /* ==========================================================================
-   سرور نوبت کلینیک ساسان
+   سرور نوبت ساسان کلینیک
    - فایل‌های سایت (پوشه‌ی site/) را می‌فرستد و متای sasan-api را به صفحه اضافه می‌کند
      تا کپسول نوبت بداند سرور هست و کد واقعی پیامک شود
    - POST /api/otp/send      ارسال کد ۵ رقمی با متد Verify سامانه‌ی sms.ir
@@ -268,7 +268,7 @@ if (require.main === module) {
   const app = createApp(cfg);
   http.createServer(app).listen(cfg.port, cfg.host, () => {
     const any = cfg.host === '0.0.0.0' || cfg.host === '::';
-    console.log(`سرور کلینیک ساسان روشن شد (پیامک: ${cfg.sms.mode === 'live' ? 'اصلی' : 'آزمایشی / Sandbox؛ کد در همین‌جا چاپ می‌شود'})`);
+    console.log(`سرور ساسان کلینیک روشن شد (پیامک: ${cfg.sms.mode === 'live' ? 'اصلی' : 'آزمایشی / Sandbox؛ کد در همین‌جا چاپ می‌شود'})`);
     console.log(`  سایت: http://${any ? '127.0.0.1' : cfg.host}:${cfg.port}`);
     console.log(`  پنل پذیرش: http://${any ? '127.0.0.1' : cfg.host}:${cfg.port}/panel/` + (app.panel.users.all().length ? '' : '  (اول با npm run user یک مدیر بسازید)'));
     /* با HOST=0.0.0.0 از گوشیِ همان شبکه هم باز می‌شود */

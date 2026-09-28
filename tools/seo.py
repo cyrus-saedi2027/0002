@@ -26,7 +26,7 @@ def clinic_ld(domain):
     ld = {
         '@context': 'https://schema.org',
         '@type': 'MedicalClinic',
-        'name': 'کلینیک ساسان',
+        'name': 'ساسان کلینیک',
         'alternateName': 'درمانگاه شبانه‌روزی ساسان',
         'telephone': '+981154611560',
         'address': {'@type': 'PostalAddress', 'streetAddress': 'روبه‌روی شهرداری، بالای داروخانه‌ی شبانه‌روزی، طبقه‌ی اول',
@@ -36,7 +36,7 @@ def clinic_ld(domain):
                                        'dayOfWeek': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
                                        'opens': '00:00', 'closes': '23:59'}],
         'medicalSpecialty': ['Dentistry', 'Dermatology', 'PrimaryCare'],
-        'department': [{'@type': 'Dentist', 'name': 'دندانپزشکی کلینیک ساسان', 'telephone': '+981154611560',
+        'department': [{'@type': 'Dentist', 'name': 'دندانپزشکی ساسان کلینیک', 'telephone': '+981154611560',
                         'openingHoursSpecification': [{'@type': 'OpeningHoursSpecification', 'dayOfWeek': ['Saturday', 'Sunday', 'Monday', 'Thursday'], 'opens': '10:00', 'closes': '20:00'}]}],
         'sameAs': ['https://www.instagram.com/clinic_sasan/', 'https://behtarino.com/p/zoawouktdx'],
     }
@@ -58,7 +58,7 @@ def block(page, text, domain):
     if url and page != '404.html':
         out.append(f'<link rel="canonical" href="{e(url)}">')
     out += [f'<meta property="og:type" content="website">',
-            f'<meta property="og:site_name" content="کلینیک ساسان">',
+            f'<meta property="og:site_name" content="ساسان کلینیک">',
             f'<meta property="og:locale" content="fa_IR">',
             f'<meta property="og:title" content="{e(title)}">',
             f'<meta property="og:description" content="{e(desc)}">']
@@ -67,7 +67,7 @@ def block(page, text, domain):
     out += [f'<meta property="og:image" content="{e(img)}">',
             '<meta property="og:image:width" content="1200">',
             '<meta property="og:image:height" content="630">',
-            '<meta property="og:image:alt" content="کلینیک ساسان، سلمان‌شهر">',
+            '<meta property="og:image:alt" content="ساسان کلینیک، سلمان‌شهر">',
             '<meta name="twitter:card" content="summary_large_image">']
     if page == 'index.html':
         out.append('<script type="application/ld+json">' + json.dumps(clinic_ld(domain), ensure_ascii=False) + '</script>')

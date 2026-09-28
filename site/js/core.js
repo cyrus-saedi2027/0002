@@ -189,8 +189,10 @@
   const lockScroll = (on) => {
     const was = locks;
     locks = Math.max(0, locks + (on ? 1 : -1));
-    if (!was && locks) { if (window.innerWidth - root.clientWidth > 0) root.style.scrollbarGutter = 'stable'; document.body.style.overflow = 'hidden'; }
-    else if (was && !locks) { document.body.style.overflow = ''; root.style.scrollbarGutter = ''; }
+    /* قفل روی خود html (نه body): ریشه overflow-x: clip دارد و overflow بدنه دیگر به صفحه منتقل نمی‌شود؛
+       جای نوار اسکرول هم با scrollbar-gutter: stable ثابت است، پس صفحه جابه‌جا نمی‌شود */
+    if (!was && locks) root.style.overflow = 'hidden';
+    else if (was && !locks) root.style.overflow = '';
   };
 
   /* ---------- نقطه‌ی «باز است»: هر ۵ ثانیه یک پینگ، فقط وقتی روی صفحه است ---------- */
