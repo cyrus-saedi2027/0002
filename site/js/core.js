@@ -16,6 +16,8 @@
     set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* ذخیره‌سازی در دسترس نیست */ } }
   };
   const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  /* گوشی و تبلت لمسی: اسکرول بومی خود مرورگر (روی کامپوزیتور، بدون شنونده‌ی لمسی که اسکرول را منتظر نگه دارد) */
+  const touchUI = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
 
   /* ---------- فنر ساده برای حرکت‌های دنبال‌کننده (نشانگر منو، کشیدن شیت) ---------- */
   class Spring {
@@ -79,14 +81,29 @@
     mods: [],
     _raf: null,
     /* ماژول always بدون حرکت هم ساخته می‌شود (نسخه‌ی ایستا)، مثل نقشه */
-    add(mod) { this.mods.push(mod); if (this.on || (mod.always && this.ready)) mod.build(); },
+    add(mod) {
+      this.mods.push(mod);
+      if (this.booting) this._queue.push(mod);
+      else if (this.on || (mod.always && this.ready)) mod.build();
+    },
+    /* کارهایی که باید بعد از ساخته شدن همه‌ی ماژول‌ها و اندازه‌گیری نهایی انجام شوند (مثل پرش به #بخش) */
+    booting: false, _gen: 0, _after: [], _queue: [],
+    afterBoot(fn) { if (this.booting) this._after.push(fn); else fn(); },
     statics(on) { this.mods.forEach((m) => { if (m.always) { m.kill(); if (on) m.build(); } }); },
     start() {
       if (!hasGsap) return;
       this.statics(false);
       this.on = true;
       root.classList.add('motion');
-      if (window.Lenis) {
+      const gen = ++this._gen;
+      /* روی صفحه‌ی لمسی Lenis ساخته نمی‌شود: اسکرول لمسی آن‌جا همیشه بومی بود و Lenis فقط شنونده‌های touchstart/touchmove
+         غیرپسیو اضافه می‌کرد که هر حرکت انگشت را منتظر رشته‌ی اصلی نگه می‌داشت (هنگ و لگ روی موبایل) */
+      if (touchUI) {
+        if (!this._native) {
+          this._native = () => { this._lastScroll = performance.now(); Aurora.hold(220); };
+          window.addEventListener('scroll', this._native, { passive: true });
+        }
+      } else if (window.Lenis) {
         this.lenis = new Lenis({ lerp: 0.1, smoothWheel: true, wheelMultiplier: 1 });
         springify(this.lenis);
         this.lenis.on('scroll', ScrollTrigger.update);
@@ -112,10 +129,28 @@
         gsap.ticker.add(this._raf);
         gsap.ticker.lagSmoothing(0);
       }
-      this.mods.forEach((m) => m.build());
-      ScrollTrigger.refresh();
+      /* ساخت ماژول‌ها تکه‌تکه: هر تکه حداکثر حدود ۴۰ میلی‌ثانیه، بعد مرورگر نفس می‌کشد (رسم، لمس) و تکه‌ی بعد.
+         ماژول‌ها به ترتیب صفحه (از بالا) ساخته می‌شوند، پس بخش‌های بالای صفحه همان اول آماده‌اند */
+      const queue = this._queue = this.mods.slice();
+      this.booting = true;
+      const run = () => {
+        if (gen !== this._gen) return;
+        const t0 = performance.now();
+        while (queue.length) {
+          queue.shift().build();
+          if (queue.length && performance.now() - t0 > 40) { setTimeout(run, 0); return; }
+        }
+        ScrollTrigger.refresh();
+        this.booting = false;
+        const after = this._after; this._after = [];
+        after.forEach((fn) => fn());
+      };
+      run();
     },
+    /* اگر وسط ساخت تکه‌تکه، حرکت خاموش یا دوباره ساخته شد، ادامه‌ی ساخت قبلی لغو می‌شود */
+    _cancelBoot() { this._gen++; if (this.booting) { this.booting = false; const a = this._after; this._after = []; a.forEach((fn) => fn()); } },
     stop() {
+      this._cancelBoot();
       this.mods.slice().reverse().forEach((m) => m.kill());
       if (this.lenis) { gsap.ticker.remove(this._raf); this.lenis.destroy(); this.lenis = null; }
       if (this._shieldOff) { this._shieldOff(); this._shieldOff = null; }
@@ -126,6 +161,7 @@
     },
     rebuild() {
       if (!this.on) return;
+      this._cancelBoot();
       const y = window.scrollY;
       this.mods.slice().reverse().forEach((m) => m.kill());
       this.mods.forEach((m) => m.build());
@@ -143,8 +179,9 @@
     },
     /* شمارنده‌دار: چند لایه‌ی روی هم (منو، مقاله، کپسول نوبت) اسکرول نرم را با هم نگه می‌دارند و آخری آزادش می‌کند */
     paused: 0,
-    pause() { this.paused++; if (this.lenis) this.lenis.stop(); },
-    resume() { this.paused = Math.max(0, this.paused - 1); if (this.lenis && !this.paused) this.lenis.start(); }
+    /* بدون Lenis (صفحه‌ی لمسی) اسکرول صفحه‌ی زیرین با قفل بدنه نگه داشته می‌شود */
+    pause() { this.paused++; if (this.lenis) this.lenis.stop(); else if (touchUI && this.paused === 1) lockScroll(true); },
+    resume() { const was = this.paused; this.paused = Math.max(0, this.paused - 1); if (this.lenis && !this.paused) this.lenis.start(); else if (touchUI && was === 1 && !this.paused) lockScroll(false); }
   };
 
   /* قفل اسکرول صفحه‌ی زیرین (شمارنده‌دار)؛ اگر نوار اسکرول واقعی هست، جایش نگه داشته می‌شود تا صفحه تکان نخورد */
@@ -597,8 +634,16 @@
     }
   };
 
+  /* ---------- لایه‌های سنگین فقط نزدیک دید ----------
+     بخش‌هایی که پس‌زمینه‌ی تمام‌قد متحرک دارند، will-change را فقط وقتی تا یک صفحه با دید فاصله دارند می‌گیرند (کلاس is-near)؛
+     روی گوشی هر لایه‌ی تمام‌صفحه چند ده مگابایت حافظه‌ی گرافیک است */
+  if ('IntersectionObserver' in window) {
+    const near = new IntersectionObserver((es) => es.forEach((e) => e.target.classList.toggle('is-near', e.isIntersecting)), { rootMargin: '100% 0px' });
+    $$('.journey, .docs, .safe, .foot').forEach((el) => near.observe(el));
+  } else $$('.journey, .docs, .safe, .foot').forEach((el) => el.classList.add('is-near'));
+
   /* ---------- راه‌اندازی ---------- */
-  window.Sasan = { $, $$, clamp, lerp, toFa, Spring, Motion, Prefs, Clinic, store, finePointer, Aurora, lockScroll };
+  window.Sasan = { $, $$, clamp, lerp, toFa, Spring, Motion, Prefs, Clinic, store, finePointer, touchUI, Aurora, lockScroll };
   document.addEventListener('DOMContentLoaded', () => {
     Motion.ready = true;
     if (!root.classList.contains('rm')) Motion.start(); else Motion.statics(true);
@@ -614,14 +659,21 @@
       window.scrollTo(0, y);
       if (Motion.lenis) Motion.lenis.scrollTo(y, { immediate: true, force: true });
     };
-    if (location.hash) { requestAnimationFrame(hashJump); window.addEventListener('load', () => requestAnimationFrame(hashJump), { once: true }); }
+    if (location.hash) {
+      requestAnimationFrame(hashJump);
+      /* بعد از ساخته شدن همه‌ی پین‌ها و بعد از بارگیری کامل، دوباره به همان بخش */
+      Motion.afterBoot(() => requestAnimationFrame(hashJump));
+      window.addEventListener('load', () => Motion.afterBoot(() => requestAnimationFrame(hashJump)), { once: true });
+    }
     /* اگر فونت یا عکسی دیر رسید و چیدمان واقعاً عوض شد، فقط وقتی اسکرول آرام گرفته دوباره اندازه می‌گیریم */
     const sig = () => [document.body.scrollHeight, ...$$('main > section, footer').map((el) => el.offsetHeight)].join(',');
     let base = sig(), wait = null;
     const settle = () => {
       if (!Motion.on) return;
+      if (Motion.booting) { Motion.afterBoot(settle); return; }
       const l = Motion.lenis;
-      if (l && (l.isScrolling || Math.abs(l.targetScroll - l.animatedScroll) > 1)) { clearTimeout(wait); wait = setTimeout(settle, 250); return; }
+      const busy = l ? (l.isScrolling || Math.abs(l.targetScroll - l.animatedScroll) > 1) : performance.now() - (Motion._lastScroll || 0) < 250;
+      if (busy) { clearTimeout(wait); wait = setTimeout(settle, 250); return; }
       const now = sig();
       if (now !== base) { ScrollTrigger.refresh(); base = sig(); }
     };

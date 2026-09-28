@@ -5,11 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>کلینیک ساسان | سلمان‌شهر</title>
 <meta name="description" content="کلینیک (درمانگاه شبانه‌روزی) ساسان در سلمان‌شهر، روبه‌روی شهرداری: پزشک عمومی شبانه‌روزی، دندانپزشکی، زیبایی و لیزر. تلفن ۰۱۱۵۴۶۱۱۵۶۰.">
+<!-- SEO (ساخته‌شده با python3 tools/seo.py؛ دستی ویرایش نکنید) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="کلینیک ساسان">
+<meta property="og:locale" content="fa_IR">
+<meta property="og:title" content="کلینیک ساسان | سلمان‌شهر">
+<meta property="og:description" content="کلینیک (درمانگاه شبانه‌روزی) ساسان در سلمان‌شهر، روبه‌روی شهرداری: پزشک عمومی شبانه‌روزی، دندانپزشکی، زیبایی و لیزر. تلفن ۰۱۱۵۴۶۱۱۵۶۰.">
+<meta property="og:image" content="img/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="کلینیک ساسان، سلمان‌شهر">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "MedicalClinic", "name": "کلینیک ساسان", "alternateName": "درمانگاه شبانه‌روزی ساسان", "telephone": "+981154611560", "address": {"@type": "PostalAddress", "streetAddress": "روبه‌روی شهرداری، بالای داروخانه‌ی شبانه‌روزی، طبقه‌ی اول", "addressLocality": "سلمان‌شهر", "addressRegion": "مازندران", "addressCountry": "IR"}, "geo": {"@type": "GeoCoordinates", "latitude": 36.709646, "longitude": 51.203538}, "openingHoursSpecification": [{"@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], "opens": "00:00", "closes": "23:59"}], "medicalSpecialty": ["Dentistry", "Dermatology", "PrimaryCare"], "department": [{"@type": "Dentist", "name": "دندانپزشکی کلینیک ساسان", "telephone": "+981154611560", "openingHoursSpecification": [{"@type": "OpeningHoursSpecification", "dayOfWeek": ["Saturday", "Sunday", "Monday", "Thursday"], "opens": "10:00", "closes": "20:00"}]}], "sameAs": ["https://www.instagram.com/clinic_sasan/", "https://behtarino.com/p/zoawouktdx"]}</script>
+<!-- /SEO -->
 <link rel="preload" as="image" href="img/hero-dental.webp" fetchpriority="high">
 <!-- LAYOUT:head (مشترک همه‌ی صفحه‌ها؛ فقط در index.html ویرایش کنید و بعد: python3 tools/sync-layout.py) -->
 <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
 <meta name="theme-color" content="#081427">
+<link rel="manifest" href="manifest.webmanifest">
 <script>
   /* تنظیمات نمایش را قبل از اولین رنگ‌آمیزی اعمال می‌کند */
   (function () {
@@ -30,9 +44,9 @@
     }
   })();
 </script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300..900&amp;family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;display=swap">
+<!-- قلم‌ها از خود سایت؛ قلم اصلی فارسی از همان اول بارگیری می‌شود تا متن یک بار و با قلم درست چیده شود -->
+<link rel="preload" href="fonts/vazirmatn-300-900-arabic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/fonts.css">
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/home.css">
 <link rel="stylesheet" href="css/book.css">
@@ -439,7 +453,7 @@
       <div class="jr">
         <div class="jr-steps">
           <article class="jr-step" data-i="0">
-            <figure class="jr-step__img"><img src="img/journey-1.webp" alt="پذیرش کلینیک و بررسی عکس رادیولوژی دندان روی تبلت" width="1800" height="1200" loading="lazy" decoding="async"></figure>
+            <figure class="jr-step__img"><img src="img/journey-1.webp" srcset="img/journey-1-600.webp 600w, img/journey-1-900.webp 900w, img/journey-1-1200.webp 1200w, img/journey-1.webp 1800w" sizes="(min-width: 1000px) 46vw, 94vw" alt="پذیرش کلینیک و بررسی عکس رادیولوژی دندان روی تبلت" width="1800" height="1200" loading="lazy" decoding="async"></figure>
             <div class="jr-step__txt">
               <p class="jr-step__no">مرحله‌ی ۱ از ۴ · پذیرش و پرونده</p>
               <h3 class="jr-step__title">اول پرونده‌تان را کامل می‌کنیم</h3>
@@ -448,7 +462,7 @@
             </div>
           </article>
           <article class="jr-step" data-i="1">
-            <figure class="jr-step__img"><img src="img/journey-2.webp" alt="پزشک و بیمار در حال مرور نتایج روی تبلت" width="1800" height="1440" loading="lazy" decoding="async"></figure>
+            <figure class="jr-step__img"><img src="img/journey-2.webp" srcset="img/journey-2-600.webp 600w, img/journey-2-900.webp 900w, img/journey-2-1200.webp 1200w, img/journey-2.webp 1800w" sizes="(min-width: 1000px) 46vw, 94vw" alt="پزشک و بیمار در حال مرور نتایج روی تبلت" width="1800" height="1440" loading="lazy" decoding="async"></figure>
             <div class="jr-step__txt">
               <p class="jr-step__no">مرحله‌ی ۲ از ۴ · معاینه و گفت‌وگو</p>
               <h3 class="jr-step__title">پزشک وقت می‌گذارد و توضیح می‌دهد</h3>
@@ -457,7 +471,7 @@
             </div>
           </article>
           <article class="jr-step" data-i="2">
-            <figure class="jr-step__img"><img src="img/journey-3.webp" alt="دندانپزشک در حال تنظیم دستگاه رادیوگرافی برای بیمار" width="1800" height="1200" loading="lazy" decoding="async"></figure>
+            <figure class="jr-step__img"><img src="img/journey-3.webp" srcset="img/journey-3-600.webp 600w, img/journey-3-900.webp 900w, img/journey-3-1200.webp 1200w, img/journey-3.webp 1800w" sizes="(min-width: 1000px) 46vw, 94vw" alt="دندانپزشک در حال تنظیم دستگاه رادیوگرافی برای بیمار" width="1800" height="1200" loading="lazy" decoding="async"></figure>
             <div class="jr-step__txt">
               <p class="jr-step__no">مرحله‌ی ۳ از ۴ · درمان با برنامه‌ی مکتوب</p>
               <h3 class="jr-step__title">هزینه و مراحل را از قبل می‌دانید</h3>
@@ -466,7 +480,7 @@
             </div>
           </article>
           <article class="jr-step" data-i="3">
-            <figure class="jr-step__img"><img src="img/journey-4.webp" alt="بیمار بعد از درمان با آینه لبخندش را نگاه می‌کند" width="1800" height="1200" loading="lazy" decoding="async"></figure>
+            <figure class="jr-step__img"><img src="img/journey-4.webp" srcset="img/journey-4-600.webp 600w, img/journey-4-900.webp 900w, img/journey-4-1200.webp 1200w, img/journey-4.webp 1800w" sizes="(min-width: 1000px) 46vw, 94vw" alt="بیمار بعد از درمان با آینه لبخندش را نگاه می‌کند" width="1800" height="1200" loading="lazy" decoding="async"></figure>
             <div class="jr-step__txt">
               <p class="jr-step__no">مرحله‌ی ۴ از ۴ · پیگیری و کنترل</p>
               <h3 class="jr-step__title">بعد از درمان هم تنهایتان نمی‌گذاریم</h3>
@@ -477,10 +491,10 @@
         </div>
         <div class="jr-side" aria-hidden="true">
           <div class="jr-frame">
-            <div class="jr-frame__img" data-i="0"><img src="img/journey-1.webp" alt="" width="1800" height="1200" decoding="async"></div>
-            <div class="jr-frame__img" data-i="1"><img src="img/journey-2.webp" alt="" width="1800" height="1440" decoding="async"></div>
-            <div class="jr-frame__img" data-i="2"><img src="img/journey-3.webp" alt="" width="1800" height="1200" decoding="async"></div>
-            <div class="jr-frame__img" data-i="3"><img src="img/journey-4.webp" alt="" width="1800" height="1200" decoding="async"></div>
+            <div class="jr-frame__img" data-i="0"><img src="img/journey-1.webp" srcset="img/journey-1-600.webp 600w, img/journey-1-900.webp 900w, img/journey-1-1200.webp 1200w, img/journey-1.webp 1800w" sizes="(min-width: 1000px) 46vw, 94vw" alt="" width="1800" height="1200" decoding="async"></div>
+            <div class="jr-frame__img" data-i="1"><img src="img/journey-2.webp" srcset="img/journey-2-600.webp 600w, img/journey-2-900.webp 900w, img/journey-2-1200.webp 1200w, img/journey-2.webp 1800w" sizes="(min-width: 1000px) 46vw, 94vw" alt="" width="1800" height="1440" decoding="async"></div>
+            <div class="jr-frame__img" data-i="2"><img src="img/journey-3.webp" srcset="img/journey-3-600.webp 600w, img/journey-3-900.webp 900w, img/journey-3-1200.webp 1200w, img/journey-3.webp 1800w" sizes="(min-width: 1000px) 46vw, 94vw" alt="" width="1800" height="1200" decoding="async"></div>
+            <div class="jr-frame__img" data-i="3"><img src="img/journey-4.webp" srcset="img/journey-4-600.webp 600w, img/journey-4-900.webp 900w, img/journey-4-1200.webp 1200w, img/journey-4.webp 1800w" sizes="(min-width: 1000px) 46vw, 94vw" alt="" width="1800" height="1200" decoding="async"></div>
           </div>
           <ol class="jr-dots">
               <li><span>۱</span>پذیرش و پرونده</li>
@@ -664,7 +678,7 @@
       <div class="cs-list">
         <article class="cs" data-k="dental">
           <div class="cs__media">
-            <figure class="cs__img cs__img--a" style="--ar: 4 / 3"><img src="img/case-veneer-a.webp" alt="دندانپزشک طرح لبخند را روی مانیتور توضیح می‌دهد" width="1400" height="1050" loading="lazy" decoding="async"></figure>
+            <figure class="cs__img cs__img--a" style="--ar: 4 / 3"><img src="img/case-veneer-a.webp" srcset="img/case-veneer-a-600.webp 600w, img/case-veneer-a-900.webp 900w, img/case-veneer-a.webp 1400w" sizes="(min-width: 1000px) 30vw, 78vw" alt="دندانپزشک طرح لبخند را روی مانیتور توضیح می‌دهد" width="1400" height="1050" loading="lazy" decoding="async"></figure>
             <figure class="cs__img cs__img--b"><img src="img/case-veneer-b.webp" alt="راهنمای رنگ دندان" width="760" height="760" loading="lazy" decoding="async"></figure>
           </div>
           <div class="cs__txt" data-rv>
@@ -679,7 +693,7 @@
         </article>
         <article class="cs" data-k="beauty">
           <div class="cs__media">
-            <figure class="cs__img cs__img--a" style="--ar: 4 / 3"><img src="img/case-acne-a.webp" alt="بیمار پوستش را در آینه بررسی می‌کند" width="1400" height="1050" loading="lazy" decoding="async"></figure>
+            <figure class="cs__img cs__img--a" style="--ar: 4 / 3"><img src="img/case-acne-a.webp" srcset="img/case-acne-a-600.webp 600w, img/case-acne-a-900.webp 900w, img/case-acne-a.webp 1400w" sizes="(min-width: 1000px) 30vw, 78vw" alt="بیمار پوستش را در آینه بررسی می‌کند" width="1400" height="1050" loading="lazy" decoding="async"></figure>
             <figure class="cs__img cs__img--b"><img src="img/case-acne-b.webp" alt="بررسی پوست با ذره‌بین" width="760" height="760" loading="lazy" decoding="async"></figure>
           </div>
           <div class="cs__txt" data-rv>
@@ -694,7 +708,7 @@
         </article>
         <article class="cs cs--tall" data-k="medicine">
           <div class="cs__media">
-            <figure class="cs__img cs__img--a" style="--ar: 4 / 5"><img src="img/case-serum-a.webp" alt="دست بیمار با آنژیوکت و لوله‌ی سرم" width="1120" height="1400" loading="lazy" decoding="async"></figure>
+            <figure class="cs__img cs__img--a" style="--ar: 4 / 5"><img src="img/case-serum-a.webp" srcset="img/case-serum-a-600.webp 600w, img/case-serum-a-900.webp 900w, img/case-serum-a.webp 1400w" sizes="(min-width: 1000px) 30vw, 78vw" alt="دست بیمار با آنژیوکت و لوله‌ی سرم" width="1120" height="1400" loading="lazy" decoding="async"></figure>
             <figure class="cs__img cs__img--b"><img src="img/case-serum-b.webp" alt="محفظه‌ی قطره‌شمار سرم" width="760" height="760" loading="lazy" decoding="async"></figure>
           </div>
           <div class="cs__txt" data-rv>
@@ -709,7 +723,7 @@
         </article>
         <article class="cs" data-k="dental">
           <div class="cs__media">
-            <figure class="cs__img cs__img--a" style="--ar: 4 / 3"><img src="img/case-implant-a.webp" alt="بیمار در دستگاه عکس سه‌بعدی دندان" width="1400" height="1050" loading="lazy" decoding="async"></figure>
+            <figure class="cs__img cs__img--a" style="--ar: 4 / 3"><img src="img/case-implant-a.webp" srcset="img/case-implant-a-600.webp 600w, img/case-implant-a-900.webp 900w, img/case-implant-a.webp 1400w" sizes="(min-width: 1000px) 30vw, 78vw" alt="بیمار در دستگاه عکس سه‌بعدی دندان" width="1400" height="1050" loading="lazy" decoding="async"></figure>
             <figure class="cs__img cs__img--b"><img src="img/case-implant-b.webp" alt="دندانپزشک با لوپ در حال درمان" width="760" height="760" loading="lazy" decoding="async"></figure>
           </div>
           <div class="cs__txt" data-rv>
@@ -1400,10 +1414,11 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrollTrigger.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/Flip.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.min.js"></script>
+<!-- کتابخانه‌های حرکت از خود سایت (GSAP 3.15.0 و Lenis 1.3.26؛ js/vendor) -->
+<script src="js/vendor/gsap.min.js"></script>
+<script src="js/vendor/ScrollTrigger.min.js"></script>
+<script src="js/vendor/Flip.min.js"></script>
+<script src="js/vendor/lenis.min.js"></script>
 <script src="js/core.js"></script>
 <script src="js/articles.js"></script>
 <script src="js/home.js"></script>

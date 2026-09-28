@@ -5,7 +5,8 @@
    ========================================================================== */
 
 .w { display: inline-block; vertical-align: top; overflow: hidden; padding-block: .1em .18em; margin-block: -.1em -.18em; }
-.wi { display: inline-block; will-change: transform; }
+/* بدون will-change دائمی: هر کلمه فقط هنگام حرکت خودش لایه می‌گیرد (مرورگر خودش برای انیمیشن transform لایه می‌سازد) */
+.wi { display: inline-block; }
 html.intro .hero__title { opacity: 0; }
 html.intro [data-intro] { opacity: 0; }
 
@@ -296,7 +297,8 @@ html.motion .deck.is-flipped .pcard:hover .pcard__face { translate: 0 -10px; }
 
 /* آسمان روشن مسیر درمان: لایه‌ی چسبان تمام‌صفحه با چهار رنگ ملایم */
 .jsky { position: sticky; top: 0; height: 100svh; margin-bottom: -100svh; z-index: -1; overflow: hidden; pointer-events: none; }
-.jsky__l { position: absolute; inset: 0; display: block; will-change: opacity; }
+.jsky__l { position: absolute; inset: 0; display: block; }
+.journey.is-near .jsky__l { will-change: opacity; }
 .jsky__l--1 { background: radial-gradient(40% 46% at 82% 22%, rgba(30, 68, 242, .13), rgba(30, 68, 242, 0) 70%), radial-gradient(40% 44% at 12% 80%, rgba(157, 217, 238, .42), rgba(157, 217, 238, 0) 70%), #F3F6FA; }
 .jsky__l--2 { opacity: 0; background: radial-gradient(40% 46% at 80% 26%, rgba(45, 212, 240, .2), rgba(45, 212, 240, 0) 70%), radial-gradient(40% 44% at 14% 78%, rgba(85, 216, 191, .24), rgba(85, 216, 191, 0) 70%), #EDF5F3; }
 .jsky__l--3 { opacity: 0; background: radial-gradient(40% 46% at 78% 24%, rgba(123, 97, 255, .16), rgba(123, 97, 255, 0) 70%), radial-gradient(40% 44% at 16% 80%, rgba(165, 175, 255, .3), rgba(165, 175, 255, 0) 70%), #F1F0FB; }
@@ -321,7 +323,8 @@ html.hc .jsky { display: none; }
 .doc[data-i="4"] { --fy: 42%; }
 /* سه نور رنگی پشت بخش؛ رنگ بخشِ پزشک انتخاب‌شده آرام پررنگ می‌شود */
 .docs__sky { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
-.docs__sky i { position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s var(--ease-out); will-change: opacity; }
+.docs__sky i { position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s var(--ease-out); }
+.docs.is-near .docs__sky i { will-change: opacity; }
 .docs__sky i[data-k="dental"] { background: radial-gradient(40% 55% at 22% 40%, rgba(30, 94, 235, .34), rgba(30, 94, 235, 0) 70%), radial-gradient(30% 40% at 90% 96%, rgba(45, 212, 240, .14), rgba(45, 212, 240, 0) 70%); }
 .docs__sky i[data-k="beauty"] { background: radial-gradient(40% 55% at 22% 40%, rgba(214, 90, 131, .3), rgba(214, 90, 131, 0) 70%), radial-gradient(30% 40% at 90% 96%, rgba(123, 97, 255, .16), rgba(123, 97, 255, 0) 70%); }
 .docs__sky i[data-k="medicine"] { background: radial-gradient(40% 55% at 22% 40%, rgba(31, 174, 134, .3), rgba(31, 174, 134, 0) 70%), radial-gradient(30% 40% at 90% 96%, rgba(30, 94, 235, .14), rgba(30, 94, 235, 0) 70%); }
@@ -468,7 +471,7 @@ html.hc .doc__body, html.hc .doc { box-shadow: inset 0 0 0 2px #000; }
 .sfx__no { font-family: var(--f-ui); font-size: clamp(2rem, 1.4rem + 2vw, 2.8rem); font-weight: 700; line-height: 1.1; color: var(--navy-800); }
 .sfx__t { font-size: clamp(1rem, .9rem + .4vw, 1.2rem); font-weight: 800; color: var(--navy-800); }
 .sfx__s { font-family: var(--f-ui); font-size: .75rem; color: var(--ink-3); }
-.sfx__mid > * { will-change: transform, opacity; }
+.safe.is-near .sfx__mid > * { will-change: transform, opacity; }
 
 /* مرحله‌ها */
 .safe__steps { display: grid; gap: 8px; }

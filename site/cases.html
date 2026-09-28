@@ -5,10 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>نمونه‌کارها | کلینیک ساسان</title>
 <meta name="description" content="نمونه‌ی درمان‌ها در کلینیک ساسان سلمان‌شهر: لمینت، ایمپلنت، میکرونیدلینگ و پزشک عمومی شبانه‌روزی؛ مشکل، مراحل درمان و نتیجه.">
+<!-- SEO (ساخته‌شده با python3 tools/seo.py؛ دستی ویرایش نکنید) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="کلینیک ساسان">
+<meta property="og:locale" content="fa_IR">
+<meta property="og:title" content="نمونه‌کارها | کلینیک ساسان">
+<meta property="og:description" content="نمونه‌ی درمان‌ها در کلینیک ساسان سلمان‌شهر: لمینت، ایمپلنت، میکرونیدلینگ و پزشک عمومی شبانه‌روزی؛ مشکل، مراحل درمان و نتیجه.">
+<meta property="og:image" content="img/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="کلینیک ساسان، سلمان‌شهر">
+<meta name="twitter:card" content="summary_large_image">
+<!-- /SEO -->
 <!-- LAYOUT:head (مشترک همه‌ی صفحه‌ها؛ فقط در index.html ویرایش کنید و بعد: python3 tools/sync-layout.py) -->
 <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
 <meta name="theme-color" content="#081427">
+<link rel="manifest" href="manifest.webmanifest">
 <script>
   /* تنظیمات نمایش را قبل از اولین رنگ‌آمیزی اعمال می‌کند */
   (function () {
@@ -29,9 +42,9 @@
     }
   })();
 </script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300..900&amp;family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;display=swap">
+<!-- قلم‌ها از خود سایت؛ قلم اصلی فارسی از همان اول بارگیری می‌شود تا متن یک بار و با قلم درست چیده شود -->
+<link rel="preload" href="fonts/vazirmatn-300-900-arabic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/fonts.css">
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/home.css">
 <link rel="stylesheet" href="css/book.css">
@@ -255,7 +268,7 @@
       <div class="cs-list">
         <article class="cs" data-k="dental">
           <div class="cs__media">
-            <figure class="cs__img cs__img--a" style="--ar: 4 / 3"><img src="img/case-veneer-a.webp" alt="دندانپزشک طرح لبخند را روی مانیتور توضیح می‌دهد" width="1400" height="1050" loading="lazy" decoding="async"></figure>
+            <figure class="cs__img cs__img--a" style="--ar: 4 / 3"><img src="img/case-veneer-a.webp" srcset="img/case-veneer-a-600.webp 600w, img/case-veneer-a-900.webp 900w, img/case-veneer-a.webp 1400w" sizes="(min-width: 1000px) 30vw, 78vw" alt="دندانپزشک طرح لبخند را روی مانیتور توضیح می‌دهد" width="1400" height="1050" loading="lazy" decoding="async"></figure>
             <figure class="cs__img cs__img--b"><img src="img/case-veneer-b.webp" alt="راهنمای رنگ دندان" width="760" height="760" loading="lazy" decoding="async"></figure>
           </div>
           <div class="cs__txt" data-rv>
@@ -270,7 +283,7 @@
         </article>
         <article class="cs" data-k="beauty">
           <div class="cs__media">
-            <figure class="cs__img cs__img--a" style="--ar: 4 / 3"><img src="img/case-acne-a.webp" alt="بیمار پوستش را در آینه بررسی می‌کند" width="1400" height="1050" loading="lazy" decoding="async"></figure>
+            <figure class="cs__img cs__img--a" style="--ar: 4 / 3"><img src="img/case-acne-a.webp" srcset="img/case-acne-a-600.webp 600w, img/case-acne-a-900.webp 900w, img/case-acne-a.webp 1400w" sizes="(min-width: 1000px) 30vw, 78vw" alt="بیمار پوستش را در آینه بررسی می‌کند" width="1400" height="1050" loading="lazy" decoding="async"></figure>
             <figure class="cs__img cs__img--b"><img src="img/case-acne-b.webp" alt="بررسی پوست با ذره‌بین" width="760" height="760" loading="lazy" decoding="async"></figure>
           </div>
           <div class="cs__txt" data-rv>
@@ -285,7 +298,7 @@
         </article>
         <article class="cs cs--tall" data-k="medicine">
           <div class="cs__media">
-            <figure class="cs__img cs__img--a" style="--ar: 4 / 5"><img src="img/case-serum-a.webp" alt="دست بیمار با آنژیوکت و لوله‌ی سرم" width="1120" height="1400" loading="lazy" decoding="async"></figure>
+            <figure class="cs__img cs__img--a" style="--ar: 4 / 5"><img src="img/case-serum-a.webp" srcset="img/case-serum-a-600.webp 600w, img/case-serum-a-900.webp 900w, img/case-serum-a.webp 1400w" sizes="(min-width: 1000px) 30vw, 78vw" alt="دست بیمار با آنژیوکت و لوله‌ی سرم" width="1120" height="1400" loading="lazy" decoding="async"></figure>
             <figure class="cs__img cs__img--b"><img src="img/case-serum-b.webp" alt="محفظه‌ی قطره‌شمار سرم" width="760" height="760" loading="lazy" decoding="async"></figure>
           </div>
           <div class="cs__txt" data-rv>
@@ -300,7 +313,7 @@
         </article>
         <article class="cs" data-k="dental">
           <div class="cs__media">
-            <figure class="cs__img cs__img--a" style="--ar: 4 / 3"><img src="img/case-implant-a.webp" alt="بیمار در دستگاه عکس سه‌بعدی دندان" width="1400" height="1050" loading="lazy" decoding="async"></figure>
+            <figure class="cs__img cs__img--a" style="--ar: 4 / 3"><img src="img/case-implant-a.webp" srcset="img/case-implant-a-600.webp 600w, img/case-implant-a-900.webp 900w, img/case-implant-a.webp 1400w" sizes="(min-width: 1000px) 30vw, 78vw" alt="بیمار در دستگاه عکس سه‌بعدی دندان" width="1400" height="1050" loading="lazy" decoding="async"></figure>
             <figure class="cs__img cs__img--b"><img src="img/case-implant-b.webp" alt="دندانپزشک با لوپ در حال درمان" width="760" height="760" loading="lazy" decoding="async"></figure>
           </div>
           <div class="cs__txt" data-rv>
@@ -622,10 +635,11 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrollTrigger.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/Flip.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.min.js"></script>
+<!-- کتابخانه‌های حرکت از خود سایت (GSAP 3.15.0 و Lenis 1.3.26؛ js/vendor) -->
+<script src="js/vendor/gsap.min.js"></script>
+<script src="js/vendor/ScrollTrigger.min.js"></script>
+<script src="js/vendor/Flip.min.js"></script>
+<script src="js/vendor/lenis.min.js"></script>
 <script src="js/core.js"></script>
 <script src="js/articles.js"></script>
 <script src="js/home.js"></script>

@@ -450,11 +450,14 @@ html.bi .hdr .brand__mark { opacity: 0; }
    فوتر: روی دسکتاپ زیر صفحه ثابت است و آخرین بخش مثل پرده از رویش کنار می‌رود
    ========================================================================== */
 .foot { position: relative; overflow: hidden; isolation: isolate; background: #070A1E; color: #D9E2F1; }
-.foot__in { position: relative; z-index: 1; will-change: transform; }
-.fsky { position: absolute; inset: 0; z-index: 0; pointer-events: none; background: #070A1E; will-change: transform, opacity; }
+.foot__in { position: relative; z-index: 1; }
+.fsky { position: absolute; inset: 0; z-index: 0; pointer-events: none; background: #070A1E; }
 .fsky__cv { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
 .foot__word { position: relative; padding-block: 8px 20px; }
-.fword { display: block; width: min(100%, 960px); height: auto; margin-inline: auto; overflow: visible; will-change: transform; }
+.fword { display: block; width: min(100%, 960px); height: auto; margin-inline: auto; overflow: visible; }
+/* لایه‌ی جدا (will-change) فقط وقتی فوتر نزدیک دید است؛ دور از دید حافظه‌ی گرافیک گوشی را نمی‌گیرد (core.js: is-near) */
+.foot.is-near .foot__in, .foot.is-near .fword { will-change: transform; }
+.foot.is-near .fsky { will-change: transform, opacity; }
 .fword__star { position: absolute; width: clamp(18px, 2.6vw, 34px); aspect-ratio: 290 / 334; fill: #fff; filter: drop-shadow(0 0 10px rgba(165, 175, 255, .8)); }
 .fword__star--l { left: calc(50% + min(50%, 480px) - 1%); top: 0; }
 .fword__star--s { left: calc(50% + min(50%, 480px) - 5%); top: 30%; width: clamp(10px, 1.4vw, 18px); }

@@ -5,10 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>درباره‌ی ما | کلینیک ساسان</title>
 <meta name="description" content="کلینیک ساسان، درمانگاه شبانه‌روزی سلمان‌شهر روبه‌روی شهرداری: دندانپزشکی، زیبایی و لیزر و پزشک عمومی شبانه‌روزی زیر یک سقف.">
+<!-- SEO (ساخته‌شده با python3 tools/seo.py؛ دستی ویرایش نکنید) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="کلینیک ساسان">
+<meta property="og:locale" content="fa_IR">
+<meta property="og:title" content="درباره‌ی ما | کلینیک ساسان">
+<meta property="og:description" content="کلینیک ساسان، درمانگاه شبانه‌روزی سلمان‌شهر روبه‌روی شهرداری: دندانپزشکی، زیبایی و لیزر و پزشک عمومی شبانه‌روزی زیر یک سقف.">
+<meta property="og:image" content="img/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="کلینیک ساسان، سلمان‌شهر">
+<meta name="twitter:card" content="summary_large_image">
+<!-- /SEO -->
 <!-- LAYOUT:head (مشترک همه‌ی صفحه‌ها؛ فقط در index.html ویرایش کنید و بعد: python3 tools/sync-layout.py) -->
 <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
 <meta name="theme-color" content="#081427">
+<link rel="manifest" href="manifest.webmanifest">
 <script>
   /* تنظیمات نمایش را قبل از اولین رنگ‌آمیزی اعمال می‌کند */
   (function () {
@@ -29,9 +42,9 @@
     }
   })();
 </script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300..900&amp;family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;display=swap">
+<!-- قلم‌ها از خود سایت؛ قلم اصلی فارسی از همان اول بارگیری می‌شود تا متن یک بار و با قلم درست چیده شود -->
+<link rel="preload" href="fonts/vazirmatn-300-900-arabic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/fonts.css">
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/home.css">
 <link rel="stylesheet" href="css/book.css">
@@ -263,8 +276,8 @@
       <div class="ab-story__in">
         <div class="ab-story__media" aria-hidden="true">
           <div class="ab-story__frame">
-            <div class="ab-story__img is-on" data-i="0"><img src="img/journey-1.webp" alt="" width="1800" height="1200" decoding="async"></div>
-            <div class="ab-story__img" data-i="1"><img src="img/journey-2.webp" alt="" width="1800" height="1440" loading="lazy" decoding="async"></div>
+            <div class="ab-story__img is-on" data-i="0"><img src="img/journey-1.webp" srcset="img/journey-1-600.webp 600w, img/journey-1-900.webp 900w, img/journey-1-1200.webp 1200w, img/journey-1.webp 1800w" sizes="(min-width: 961px) 38vw, 92vw" alt="" width="1800" height="1200" decoding="async"></div>
+            <div class="ab-story__img" data-i="1"><img src="img/journey-2.webp" srcset="img/journey-2-600.webp 600w, img/journey-2-900.webp 900w, img/journey-2-1200.webp 1200w, img/journey-2.webp 1800w" sizes="(min-width: 961px) 38vw, 92vw" alt="" width="1800" height="1440" loading="lazy" decoding="async"></div>
             <div class="ab-story__img" data-i="2"><img src="img/glance-ecg.webp" alt="" width="700" height="1050" loading="lazy" decoding="async"></div>
             <div class="ab-story__img" data-i="3"><img src="img/glance-desk.webp" alt="" width="900" height="1350" loading="lazy" decoding="async"></div>
             <p class="ab-story__count"><b>۰۱</b><span>/ ۰۴</span></p>
@@ -272,13 +285,13 @@
         </div>
         <ol class="ab-story__steps">
           <li class="ab-step is-on" data-i="0">
-            <figure class="ab-step__img"><img src="img/journey-1.webp" alt="مشاور کلینیک عکس رادیولوژی دندان را روی تبلت به بیمار نشان می‌دهد" width="1800" height="1200" loading="lazy" decoding="async"></figure>
+            <figure class="ab-step__img"><img src="img/journey-1.webp" srcset="img/journey-1-600.webp 600w, img/journey-1-900.webp 900w, img/journey-1-1200.webp 1200w, img/journey-1.webp 1800w" sizes="(min-width: 961px) 38vw, 92vw" alt="مشاور کلینیک عکس رادیولوژی دندان را روی تبلت به بیمار نشان می‌دهد" width="1800" height="1200" loading="lazy" decoding="async"></figure>
             <span class="ab-step__no" aria-hidden="true">۰۱</span>
             <h3 class="ab-step__t">قبل از درمان، روشن حرف می‌زنیم</h3>
             <p class="ab-step__p">پیش از هر درمان، پزشک مراحل، تعداد جلسه‌ها و هزینه را توضیح می‌دهد و اگر لازم باشد روی عکس رادیولوژی نشانتان می‌دهد. تا خودتان تصمیم نگرفته‌اید، کاری شروع نمی‌شود.</p>
           </li>
           <li class="ab-step" data-i="1">
-            <figure class="ab-step__img"><img src="img/journey-2.webp" alt="دو نفر از کادر کلینیک پرونده‌ی بیمار را روی تبلت مرور می‌کنند" width="1800" height="1440" loading="lazy" decoding="async"></figure>
+            <figure class="ab-step__img"><img src="img/journey-2.webp" srcset="img/journey-2-600.webp 600w, img/journey-2-900.webp 900w, img/journey-2-1200.webp 1200w, img/journey-2.webp 1800w" sizes="(min-width: 961px) 38vw, 92vw" alt="دو نفر از کادر کلینیک پرونده‌ی بیمار را روی تبلت مرور می‌کنند" width="1800" height="1440" loading="lazy" decoding="async"></figure>
             <span class="ab-step__no" aria-hidden="true">۰۲</span>
             <h3 class="ab-step__t">یک پرونده برای هر سه بخش</h3>
             <p class="ab-step__p">دندانپزشکی، زیبایی و پزشکی عمومی زیر یک سقف‌اند و سابقه‌ی درمانتان در یک پرونده می‌ماند. هر جا درمانی به نظر پزشک بخش دیگر نیاز داشته باشد، پزشکان با هم مشورت می‌کنند و لازم نیست همه‌چیز را از اول تعریف کنید.</p>
@@ -624,10 +637,11 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrollTrigger.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/Flip.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.min.js"></script>
+<!-- کتابخانه‌های حرکت از خود سایت (GSAP 3.15.0 و Lenis 1.3.26؛ js/vendor) -->
+<script src="js/vendor/gsap.min.js"></script>
+<script src="js/vendor/ScrollTrigger.min.js"></script>
+<script src="js/vendor/Flip.min.js"></script>
+<script src="js/vendor/lenis.min.js"></script>
 <script src="js/core.js"></script>
 <script src="js/articles.js"></script>
 <script src="js/home.js"></script>

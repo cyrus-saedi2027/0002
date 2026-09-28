@@ -5,10 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>حریم خصوصی و شرایط استفاده | کلینیک ساسان</title>
 <meta name="description" content="حریم خصوصی و شرایط استفاده‌ی سایت کلینیک ساسان: چه اطلاعاتی گرفته می‌شود، برای چه استفاده می‌شود و درخواست نوبت چه شرایطی دارد.">
+<!-- SEO (ساخته‌شده با python3 tools/seo.py؛ دستی ویرایش نکنید) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="کلینیک ساسان">
+<meta property="og:locale" content="fa_IR">
+<meta property="og:title" content="حریم خصوصی و شرایط استفاده | کلینیک ساسان">
+<meta property="og:description" content="حریم خصوصی و شرایط استفاده‌ی سایت کلینیک ساسان: چه اطلاعاتی گرفته می‌شود، برای چه استفاده می‌شود و درخواست نوبت چه شرایطی دارد.">
+<meta property="og:image" content="img/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="کلینیک ساسان، سلمان‌شهر">
+<meta name="twitter:card" content="summary_large_image">
+<!-- /SEO -->
 <!-- LAYOUT:head (مشترک همه‌ی صفحه‌ها؛ فقط در index.html ویرایش کنید و بعد: python3 tools/sync-layout.py) -->
 <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
 <meta name="theme-color" content="#081427">
+<link rel="manifest" href="manifest.webmanifest">
 <script>
   /* تنظیمات نمایش را قبل از اولین رنگ‌آمیزی اعمال می‌کند */
   (function () {
@@ -29,9 +42,9 @@
     }
   })();
 </script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300..900&amp;family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;display=swap">
+<!-- قلم‌ها از خود سایت؛ قلم اصلی فارسی از همان اول بارگیری می‌شود تا متن یک بار و با قلم درست چیده شود -->
+<link rel="preload" href="fonts/vazirmatn-300-900-arabic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/fonts.css">
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/home.css">
 <link rel="stylesheet" href="css/book.css">
@@ -274,7 +287,7 @@
           </section>
           <section class="lg-sec" id="p-third" data-rv>
             <h3 class="lg-sec__t"><span class="lg-sec__ic"><svg class="ic" aria-hidden="true"><use href="#i-route"/></svg></span>سرویس‌های بیرونی</h3>
-            <ul class="lg-sec__list"><li>قلم‌های سایت از Google Fonts و کتابخانه‌های حرکت از jsDelivr بارگیری می‌شوند؛ این سرویس‌ها مثل هر سایت دیگری نشانی اینترنتی (IP) شما را می‌بینند.</li><li>نقشه‌ی گوگل فقط وقتی باز می‌شود که خودتان «نقشه‌ی گوگل» را بزنید.</li><li>لینک‌های بلد، نشان، گوگل‌مپ، اینستاگرام و بهترینو سایت خود آن‌ها را باز می‌کنند و قوانین حریم خصوصی خودشان را دارند.</li></ul>
+            <ul class="lg-sec__list"><li>قلم‌ها و کتابخانه‌های حرکت سایت از خود سایت کلینیک بارگیری می‌شوند، نه از سرویس بیرونی.</li><li>نقشه‌ی گوگل فقط وقتی باز می‌شود که خودتان «نقشه‌ی گوگل» را بزنید.</li><li>لینک‌های بلد، نشان، گوگل‌مپ، اینستاگرام و بهترینو سایت خود آن‌ها را باز می‌کنند و قوانین حریم خصوصی خودشان را دارند.</li></ul>
           </section>
           <section class="lg-sec" id="p-rights" data-rv>
             <h3 class="lg-sec__t"><span class="lg-sec__ic"><svg class="ic" aria-hidden="true"><use href="#i-user-round"/></svg></span>حق شما</h3>
@@ -563,10 +576,11 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrollTrigger.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/Flip.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.min.js"></script>
+<!-- کتابخانه‌های حرکت از خود سایت (GSAP 3.15.0 و Lenis 1.3.26؛ js/vendor) -->
+<script src="js/vendor/gsap.min.js"></script>
+<script src="js/vendor/ScrollTrigger.min.js"></script>
+<script src="js/vendor/Flip.min.js"></script>
+<script src="js/vendor/lenis.min.js"></script>
 <script src="js/core.js"></script>
 <script src="js/articles.js"></script>
 <script src="js/home.js"></script>
