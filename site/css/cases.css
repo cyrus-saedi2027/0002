@@ -1,108 +1,16 @@
 /* ==========================================================================
    ساسان کلینیک · صفحه‌ی نمونه‌کارها
-   ۱. معرفی چسبان: پس‌زمینه آرام کوچک می‌شود، پرده از یک خط وسط باز می‌شود، سه عکس از وسط بزرگ می‌شوند
-      و آخر صفحه‌ی رنگی از وسط دو نیم می‌شود تا بخش بعد پیدا شود.
+   ۱. پرونده‌ها: همان بخش صفحه‌ی اصلی (عکس‌ها کاشی‌به‌کاشی با fx.js باز می‌شوند).
    ۲. قبل و بعد: خط وسط هر عکس کشیدنی است و وقتی کسی با آن کار ندارد، آرام تکان می‌خورد.
-   ۳. دیوار عکس: ردیف‌ها با اسکرول بزرگ‌تر می‌شوند.
-   همه‌ی حرکت‌ها فقط transform و opacity اند؛ بدون اسکریپت یا با «کاهش حرکت» صفحه ساده و کامل دیده می‌شود.
+   ۳. مراحل کار: ردیف‌های عکس که با اسکرول پهن‌تر می‌شوند (همان اندازه‌ها و رفتار مرجع).
+   بدون اسکریپت یا با «کاهش حرکت» صفحه ساده و کامل دیده می‌شود.
    ========================================================================== */
 
-/* ---------- ۱. معرفی ---------- */
-.cx-intro { position: relative; z-index: 2; color: #fff; background: #070A1E; }
-.cx-intro__stage { position: relative; isolation: isolate; overflow: hidden; height: 100vh; height: 100svh; min-height: 620px; background: #070A1E; }
-.cx-intro.is-pin { height: calc(100vh * var(--len, 5.4)); background: transparent; }
-.cx-intro.is-pin .cx-intro__stage { position: sticky; top: 0; height: 100vh; min-height: 0; }
-.cx-intro.is-pin + .cx-gal { margin-top: -100vh; }
-/* قاب معرفی روی ابتدای بخش بعد می‌ماند؛ فقط متن و لینک‌های خودش کلیک می‌گیرند */
-.cx-intro.is-pin { pointer-events: none; }
-.cx-intro.is-pin :is(.cx-hero__in, .cx-cue) { pointer-events: auto; }
-
-.cx-bg, .cx-hero, .cx-rev, .cx-casc, .cx-casc__i, .cx-out { position: absolute; inset: 0; }
-/* عکس لبخند نیمه‌ی چپ قاب را پر می‌کند و لبه‌اش در رنگ صفحه محو می‌شود؛ متن در نیمه‌ی راست */
-.cx-intro__stage { background: radial-gradient(40% 55% at 85% 28%, rgba(30, 94, 235, .3), transparent 70%), radial-gradient(30% 45% at 88% 96%, rgba(214, 90, 131, .16), transparent 70%), #070A1E; }
-.cx-bg { z-index: 0; inset: 0 auto 0 0; width: 50%; overflow: hidden; background: #0B1A33; }
-.cx-bg img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; }
-.cx-bg::after {
-  content: ""; position: absolute; inset: 0;
-  background:
-    linear-gradient(270deg, #070A1E 0%, rgba(7, 10, 30, .55) 16%, rgba(7, 10, 30, 0) 42%),
-    linear-gradient(0deg, rgba(7, 10, 30, .5) 0%, rgba(7, 10, 30, 0) 30%);
-}
-.cx-hero { z-index: 1; display: flex; flex-direction: column; justify-content: center; padding-top: var(--hdr-h); }
-.cx-hero__in > * { max-width: min(600px, 44vw); }
-.cx-hero__t { max-width: 11ch; }
-.cx-hero__lead { max-width: 44ch; }
-.cx-hero__chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: clamp(22px, 4vh, 34px); }
-.cx-hero__chips li { padding: 8px 14px; border-radius: 999px; background: rgba(255, 255, 255, .08); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .16); font-family: var(--f-ui); font-size: .875rem; color: rgba(217, 226, 241, .86); }
-.cx-hero__chips b { margin-inline-end: 4px; color: #fff; font-weight: 700; }
-.cx-cue { position: absolute; bottom: clamp(18px, 4vh, 36px); left: 50%; display: flex; flex-direction: column; align-items: center; gap: 10px; margin-left: -60px; width: 120px; font-family: var(--f-ui); font-size: .8125rem; color: rgba(217, 226, 241, .72); transition: color .2s; }
-.cx-cue:hover { color: #fff; }
-.cx-cue i { position: relative; overflow: hidden; width: 2px; height: 46px; border-radius: 2px; background: rgba(255, 255, 255, .18); }
-.cx-cue i::after { content: ""; position: absolute; inset: 0 0 auto; height: 40%; border-radius: inherit; background: #fff; transform: translate3d(0, -100%, 0); }
-@keyframes cxCue { 0% { transform: translate3d(0, -100%, 0); } 70%, 100% { transform: translate3d(0, 260%, 0); } }
-html:not(.rm) .cx-cue i::after { animation: cxCue 2.2s cubic-bezier(.65, 0, .35, 1) 1.2s 3; }
-
-/* پرده: دو خط روشن از وسط بالا و پایین کشیده می‌شوند و بعد مثل دو لبه‌ی پرده باز می‌شوند */
-.cx-rev { z-index: 2; pointer-events: none; }
-.cx-rev__p {
-  position: absolute; inset: 0; transform: scale3d(0, 1, 1);
-  background:
-    radial-gradient(55% 60% at 85% 12%, rgba(30, 94, 235, .5), transparent 70%),
-    radial-gradient(45% 55% at 10% 88%, rgba(214, 90, 131, .32), transparent 70%),
-    #0B1A33;
-}
-.cx-rev__l { position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; margin-left: -1px; transform: scale3d(1, 0, 1); background: linear-gradient(180deg, #9EC5FF, #C4B2FF 50%, #FFA9C8); box-shadow: 0 0 22px rgba(158, 197, 255, .65); }
-
-/* سه عکس پشت سر هم از وسط بزرگ می‌شوند */
-.cx-casc { z-index: 3; pointer-events: none; }
-.cx-casc__i { overflow: hidden; transform: scale3d(0, 0, 1); background: #0B1A33; }
-.cx-casc__i img { width: 100%; height: 100%; object-fit: cover; object-position: var(--op, 50% 50%); transform: scale3d(1.45, 1.45, 1); }
-.cx-casc__i::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(7, 10, 30, .55) 0%, transparent 35%); }
-.cx-casc__cap { position: absolute; z-index: 1; bottom: clamp(22px, 5vh, 48px); inset-inline-start: var(--gutter); display: flex; align-items: center; gap: 10px; padding: 8px 16px 8px 8px; border-radius: 999px; background: rgba(7, 10, 30, .58); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .2); font-family: var(--f-ui); font-size: .9375rem; font-weight: 600; }
-.cx-casc__cap b { display: grid; place-items: center; min-width: 32px; height: 32px; padding: 0 6px; border-radius: 999px; background: #fff; color: var(--navy-800); font-size: .8125rem; }
-
-/* صفحه‌ی آخر: دو نیمه (نیمه‌ی دوم را اسکریپت می‌سازد) که از وسط جدا می‌شوند */
-.cx-out { z-index: 4; pointer-events: none; transform: scale3d(0, 0, 1); }
-.cx-out__h { position: absolute; top: 0; bottom: 0; left: 0; width: 100%; overflow: hidden; direction: ltr; }
-.cx-out__h + .cx-out__h { left: 50%; width: 50%; }
-.cx-out.is-split .cx-out__h:first-child { width: 50%; }
-.cx-out__h > .cx-out__in { width: 100%; }
-.cx-out.is-split .cx-out__h > .cx-out__in { width: 200%; }
-.cx-out__h + .cx-out__h > .cx-out__in { margin-left: -100%; }
-.cx-out__in {
-  direction: rtl; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: var(--gutter); text-align: center;
-  background:
-    radial-gradient(50% 60% at 50% 0%, rgba(30, 94, 235, .55), transparent 70%),
-    radial-gradient(45% 50% at 15% 100%, rgba(214, 90, 131, .35), transparent 70%),
-    radial-gradient(40% 50% at 90% 95%, rgba(138, 108, 245, .35), transparent 70%),
-    #0B1A33;
-}
-.cx-out__k { font-family: var(--f-ui); font-size: var(--fs-label); font-weight: 600; letter-spacing: .02em; color: #9EC0FF; }
-.cx-out__t { max-width: 18ch; font-size: clamp(1.9rem, 1.1rem + 3vw, 3.6rem); font-weight: 800; line-height: 1.35; }
-.cx-out__t em { font-style: normal; background: linear-gradient(100deg, #9EC5FF 0%, #C4B2FF 45%, #FFA9C8 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
-/* یک مقایسه‌ی کوچک: رنگ زرد و سفید با خطی که با اسکرول جابه‌جا می‌شود */
-.cx-out__demo { position: relative; overflow: hidden; width: min(280px, 70vw); height: 64px; margin-top: 10px; border-radius: 999px; background: #F6F1E6; box-shadow: 0 0 0 1px rgba(255, 255, 255, .25), 0 18px 40px -18px rgba(0, 0, 0, .6); }
-.cx-out__b { position: absolute; inset: 0; background: #E1C99C; }
-.cx-out__m { position: absolute; inset: 0; }
-.cx-out__ln { position: absolute; top: 0; bottom: 0; left: -1px; width: 2px; background: #fff; }
-.cx-out__kn { position: absolute; top: 50%; left: 0; display: grid; place-items: center; width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 50%; background: #fff; color: var(--navy-800); box-shadow: 0 6px 16px -6px rgba(6, 16, 34, .6); }
-.cx-out__kn svg, .ba__k svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-
-/* بدون حرکت: فقط سربرگ دیده می‌شود */
-.cx-intro:not(.is-pin) :is(.cx-rev, .cx-casc, .cx-out) { display: none; }
-.cx-intro.is-pin .cx-bg img { transform: scale3d(1.22, 1.22, 1); }
-.cx-intro.is-pin :is(.cx-bg img, .cx-rev__p, .cx-rev__l, .cx-casc__i, .cx-casc__i img, .cx-out, .cx-out__h) { will-change: transform; }
-.cx-intro.is-done :is(.cx-bg img, .cx-rev__p, .cx-rev__l, .cx-casc__i, .cx-casc__i img) { will-change: auto; }
-
 /* ---------- ۲. قبل و بعد ---------- */
-.cx-gal { position: relative; z-index: 1; background: #fff; color: var(--ink); padding-block: clamp(88px, 14vh, 150px) clamp(72px, 11vh, 120px); }
+.cx-gal { position: relative; background: #fff; color: var(--ink); padding-block: clamp(88px, 14vh, 150px) clamp(72px, 11vh, 120px); }
 .cx-gal .sec-title em, .cx-wall .sec-title em { font-style: normal; background: linear-gradient(100deg, var(--blue) 0%, #8A6CF5 55%, #D65A83 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.cx-wall .sec-title em { background-image: linear-gradient(100deg, #9EC5FF 0%, #C4B2FF 45%, #FFA9C8 100%); }
-.cx-bar__mark { display: block; height: 1px; margin-bottom: -1px; pointer-events: none; }
-.cx-tabs button small { margin-inline-start: 4px; font-family: var(--f-ui); font-size: .75rem; font-weight: 600; opacity: .6; }
 .cx-list { display: grid; gap: clamp(64px, 11vh, 128px); margin-top: clamp(36px, 6vh, 64px); }
 .cx { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(28px, 4.5vw, 72px); align-items: center; }
-.cx[hidden] { display: none; }
 .cx--alt .cx__media { order: 2; }
 
 .ba {
@@ -125,6 +33,7 @@ html:not(.rm) .cx-cue i::after { animation: cxCue 2.2s cubic-bezier(.65, 0, .35,
 }
 .ba__k:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
 .ba.is-drag { cursor: grabbing; }
+.ba__k svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .ba.is-drag .ba__k { transform: scale(1.12); color: var(--blue); cursor: grabbing; }
 @media (hover: hover) and (pointer: fine) { .ba:hover .ba__k { transform: scale(1.06); } }
 .ba__lb { position: absolute; top: 14px; z-index: 1; padding: 6px 13px; border-radius: 999px; background: rgba(7, 10, 30, .6); color: #fff; font-family: var(--f-ui); font-size: .8125rem; font-weight: 600; pointer-events: none; transition: opacity .3s var(--ease-out); }
@@ -167,22 +76,33 @@ html.rm .cx__seg-ind { transition: none; }
 /* ورود هر نمونه: عکس کمی بزرگ‌تر شروع می‌شود و متن پله‌ای بالا می‌آید (اسکریپت) */
 html.motion .cx.is-pre .cx__media, html.motion .cx.is-pre .cx__info > * { opacity: 0; }
 
-/* ---------- ۳. دیوار عکس ---------- */
-.cx-wall { position: relative; overflow: clip; background: #070A1E; color: #fff; padding-block: clamp(80px, 13vh, 140px); }
-.cx-wall .sec-sub { color: rgba(217, 226, 241, .72); }
-.cx-wall__rows { direction: ltr; --rw: 100vw; --g: clamp(8px, 1vw, 16px); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--g); margin-top: clamp(28px, 5vh, 56px); }
-.cx-wall__row { position: relative; left: 50%; display: flex; gap: var(--g); width: var(--rw); transform: translate3d(-50%, 0, 0); transform-origin: 50% 0; }
-.cx-wall.is-live .cx-wall__rows { --rw: 200vw; }
-.cx-wall.is-live .cx-wall__row { will-change: transform; }
-.cx-wall__i { position: relative; flex: 1 1 0; min-width: 0; margin: 0; direction: rtl; }
-.cx-wall__img { overflow: hidden; aspect-ratio: 7 / 5; border-radius: clamp(8px, .9vw, 16px); background: #0F1D38; }
-.cx-wall__img img { width: 100%; height: 100%; object-fit: cover; }
-.cx-wall__i figcaption { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-family: var(--f-ui); font-size: clamp(.8125rem, .6rem + .5vw, 1.05rem); font-weight: 600; color: rgba(217, 226, 241, .8); }
-.cx-wall__i figcaption::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #9EC5FF; }
+/* ---------- ۳. مراحل کار ----------
+   اندازه‌ها همان مرجع است: فاصله‌ی ردیف‌ها ۰٫۵rem، فاصله‌ی عکس‌ها ۱rem، هر ردیف ۹ عکس با نسبت ۷ به ۵،
+   پهنای ردیف از ۱۲۵٪ تا ۵۰۰٪ (زیر ۱۰۰۰ پیکسل: ۲۵۰٪ تا ۷۵۰٪). پهنا و ارتفاع بخش را cases.js می‌گذارد. */
+/* پایین بخش فاصله ندارد: تا ردیف‌های آخر کاملاً باز نشده‌اند، زیرشان خودبه‌خود جای خالی هست (همان رفتار مرجع) */
+.cx-wall { position: relative; background: #fff; color: var(--ink); padding-block: clamp(40px, 7vh, 88px) 0; }
+.cx-wall:not(.is-live) { padding-bottom: clamp(48px, 8vh, 96px); }
+.cx-wall__rows { position: relative; width: 100%; margin-top: clamp(28px, 5vh, 56px); padding: .5rem 0; display: flex; flex-direction: column; align-items: center; gap: .5rem; overflow: hidden; contain: layout paint; }
+.cx-wall__row { flex: none; width: 125%; display: flex; gap: 1rem; }
+/* داخل هر کاشی نه برش (overflow) هست و نه جای‌گذاری (position): عوض شدن پهنا در هر فریم فقط چیدمان ساده‌ی بلوکی دارد */
+.cx-wall__i { flex: 1; min-width: 0; margin: 0; aspect-ratio: 7 / 5; }
+.cx-wall__i img { display: block; width: 100%; height: calc(100% - 1.25rem); object-fit: cover; background: var(--mist); }
+.cx-wall__i figcaption { display: flex; justify-content: space-between; gap: 8px; height: 1.25rem; padding: .25rem 0; font-family: var(--f-ui); font-size: .75rem; font-weight: 500; line-height: 1; letter-spacing: -.01em; white-space: nowrap; color: var(--ink); }
+.cx-wall__i figcaption span + span { color: var(--ink-3); }
+/* زیرنویس ردیفی که هنوز برای متنش جا ندارد پنهان است و با باز شدن ردیف آرام پیدا می‌شود (کلاس را cases.js می‌گذارد) */
+.cx-wall__row figcaption { transition: opacity .35s var(--ease-out); }
+.cx-wall__row.no-cap figcaption { opacity: 0; visibility: hidden; transition: opacity .2s, visibility 0s linear .2s; }
+/* بدون حرکت: چهار ردیف ثابت با عکس‌های درشت‌تر */
+.cx-wall:not(.is-live) .cx-wall__row { width: 250%; }
+.cx-wall:not(.is-live) .cx-wall__row:nth-child(n+5) { display: none; }
+@media (max-width: 999px) {
+  .cx-wall__row { width: 250%; }
+  .cx-wall:not(.is-live) .cx-wall__row { width: 500%; }
+}
 
-/* ---------- ۴. پرونده‌ها، روند کار و دعوت ---------- */
-#stories.cs-page { padding-top: clamp(72px, 11vh, 120px); border-top: 0; }
-#stories .cs-list { margin-top: clamp(28px, 5vh, 48px); }
+/* ---------- پرونده‌ها ---------- */
+.cs-page#cases { padding-top: clamp(72px, 11vh, 120px); border-top: 0; }
+#cases.cs-page .cs-list { margin-top: clamp(28px, 5vh, 48px); }
 
 /* ---------- موبایل ---------- */
 @media (max-width: 899px) {
@@ -193,20 +113,7 @@ html.motion .cx.is-pre .cx__media, html.motion .cx.is-pre .cx__info > * { opacit
   .cx__facts { gap: 8px; }
   .cx__facts > div { padding: 10px 12px; }
   .cx__book { width: 100%; justify-content: center; }
-  .cx-wall.is-live .cx-wall__rows { --rw: 360vw; }
 }
-/* قاب عمودی (گوشی، تبلت ایستاده): عکس بالا و متن پایین */
-@media (max-width: 899px), (max-aspect-ratio: 1 / 1) {
-  .cx-bg { inset: 0 0 auto 0; width: 100%; height: 64%; }
-  .cx-bg img { object-position: 50% 40%; }
-  .cx-bg::after { background: linear-gradient(0deg, #070A1E 0%, rgba(7, 10, 30, .6) 26%, rgba(7, 10, 30, 0) 55%), linear-gradient(180deg, rgba(7, 10, 30, .45) 0%, rgba(7, 10, 30, 0) 22%); }
-  .cx-hero { justify-content: flex-end; padding-bottom: clamp(84px, 13vh, 130px); }
-  .cx-hero__in > * { max-width: 600px; }
-  .cx-hero__t { max-width: 12ch; }
-  .cx-hero .kicker { margin-top: 14px; }
-  .cx-intro__stage { background: #070A1E; }
-}
-@media (max-height: 760px) and (max-width: 899px) { .cx-cue { display: none; } }
 @media (max-width: 520px) {
   .cx__facts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .cx__facts dd { font-size: .875rem; }

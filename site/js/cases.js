@@ -1,94 +1,23 @@
 /* ==========================================================================
    cases.js: صفحه‌ی نمونه‌کارها
-   ۱. معرفی چسبان (پرده، سه عکس، دو نیم شدن) با ScrollTrigger؛ قاب با position: sticky ثابت می‌ماند (روی کامپوزیتور).
-   ۲. مقایسه‌ی قبل و بعد: کشیدن با موس، انگشت یا کیبورد؛ وقتی کسی با آن کار ندارد، خط وسط آرام تکان می‌خورد.
+   ۱. مقایسه‌ی قبل و بعد: کشیدن با موس، انگشت یا کیبورد؛ وقتی کسی با آن کار ندارد، خط وسط آرام تکان می‌خورد.
       هر فریم فقط transform سه لایه عوض می‌شود و فقط قاب‌هایی که روی صفحه‌اند حساب می‌شوند.
-   ۳. دیوار عکس: هر ردیف با رسیدن به بالای صفحه بزرگ‌تر می‌شود (scale، بدون تغییر چیدمان صفحه).
+   ۲. مراحل کار: هر ردیف عکس از لحظه‌ای که از پایین صفحه وارد می‌شود تا وقتی از بالا بیرون می‌رود،
+      از ۱۲۵٪ تا ۵۰۰٪ پهنای صفحه پهن می‌شود (زیر ۱۰۰۰ پیکسل ۲۵۰٪ تا ۷۵۰٪)؛ همان فرمول و اندازه‌های مرجع.
    ========================================================================== */
 (function () {
   'use strict';
 
   const S = window.Sasan;
   if (!S) return;
-  const { $, $$, clamp, toFa, Motion, touchUI } = S;
-  const Pg = S.Pages || {};
+  const { $, $$, clamp, toFa, Motion } = S;
   const root = document.documentElement;
   const rm = () => root.classList.contains('rm');
   const EASE = 'cubic-bezier(.16, 1, .3, 1)';
   const canAnim = typeof Element.prototype.animate === 'function';
-  const refresh = () => { if (Motion.on && window.ScrollTrigger) ScrollTrigger.refresh(); };
 
   /* ==========================================================================
-     ۱. معرفی چسبان
-     ========================================================================== */
-  const Intro = {
-    st: null, tl: null, clone: null,
-    build() {
-      const sec = $('.cx-intro');
-      if (!sec || !window.gsap || !window.ScrollTrigger || rm()) return;
-      const stage = $('.cx-intro__stage', sec);
-      const small = touchUI || window.innerWidth < 900;
-      /* چند صفحه اسکرول تا آخر معرفی؛ صفحه‌ی آخر همان است که بخش بعد از زیر بالا می‌آید */
-      const D = small ? 3.6 : 4.4, k = (D - 1) / 3.4;
-      sec.style.setProperty('--len', String(D + 1));
-      sec.classList.add('is-pin');
-
-      const out = $('.cx-out', sec);
-      this.clone = $('.cx-out__h', out).cloneNode(true);
-      out.appendChild(this.clone);
-      out.classList.add('is-split');
-      const halves = $$('.cx-out__h', out);
-      const bg = $('.cx-bg', sec), bgImg = $('img', bg), hero = $('.cx-hero', sec), heroIn = $('.cx-hero__in', sec), cue = $('.cx-cue', sec);
-      const rev = $('.cx-rev', sec), revP = $('.cx-rev__p', sec), lines = $$('.cx-rev__l', sec);
-      const casc = $('.cx-casc', sec), cas = $$('.cx-casc__i', sec);
-      const half = () => stage.clientWidth / 2;
-
-      const tl = this.tl = gsap.timeline({ paused: true, defaults: { ease: 'none' } });
-      tl.fromTo(bgImg, { scale: 1.22 }, { scale: 1, duration: 2.2 * k }, 0)
-        .fromTo(heroIn, { y: 0, autoAlpha: 1 }, { y: -70, autoAlpha: 0, duration: 0.85 * k, ease: 'power1.in' }, 0.25 * k)
-        .fromTo(cue, { autoAlpha: 1 }, { autoAlpha: 0, duration: 0.25 * k }, 0)
-        /* دو خط روشن از وسط قد می‌کشند، بعد مثل لبه‌ی پرده به دو طرف می‌روند و پرده پشتشان باز می‌شود */
-        .fromTo(lines, { scaleY: 0 }, { scaleY: 1, duration: 0.75 * k, ease: 'power2.inOut' }, 0.2 * k)
-        .fromTo(revP, { scaleX: 0 }, { scaleX: 1, duration: 1 * k, ease: 'power2.inOut' }, 0.95 * k)
-        .fromTo(lines[0], { x: 0 }, { x: () => -half(), duration: 1 * k, ease: 'power2.inOut' }, 0.95 * k)
-        .fromTo(lines[1], { x: 0 }, { x: () => half(), duration: 1 * k, ease: 'power2.inOut' }, 0.95 * k)
-        .fromTo(lines, { autoAlpha: 1 }, { autoAlpha: 0, duration: 0.2 * k }, 1.8 * k);
-      cas.forEach((c, i) => {
-        const at = (1.7 + i * 0.32) * k;
-        tl.fromTo(c, { scale: 0 }, { scale: 1, duration: 0.62 * k, ease: 'power2.out' }, at)
-          .fromTo($('img', c), { scale: 1.45 }, { scale: 1, duration: 0.8 * k, ease: 'power2.out' }, at);
-      });
-      const oAt = (1.8 + cas.length * 0.32) * k;
-      tl.fromTo(out, { scale: 0 }, { scale: 1, duration: 0.55 * k, ease: 'power2.out' }, oAt)
-        .fromTo($$('.cx-out__b, .cx-out__m', out), { xPercent: 85 }, { xPercent: 15, duration: 1.1 * k, ease: 'power1.inOut' }, oAt + 0.15 * k);
-      /* صفحه‌ی آخر از وسط دو نیم می‌شود؛ هم‌زمان بخش قبل و بعد از زیرش بالا می‌آید */
-      const sAt = D - 1;
-      tl.set([bg, hero, rev, casc], { autoAlpha: 0 }, sAt)
-        .set(stage, { backgroundColor: 'transparent' }, sAt)
-        .fromTo(halves[0], { xPercent: 0 }, { xPercent: -101, duration: 1, ease: 'power2.inOut' }, sAt)
-        .fromTo(halves[1], { xPercent: 0 }, { xPercent: 101, duration: 1, ease: 'power2.inOut' }, sAt);
-
-      this.st = ScrollTrigger.create({
-        trigger: sec, start: 'top top', end: 'bottom bottom', animation: tl, scrub: true, invalidateOnRefresh: true,
-        onToggle: (self) => sec.classList.toggle('is-done', !self.isActive && self.progress > 0.99)
-      });
-    },
-    kill() {
-      if (this.st) { this.st.kill(); this.st = null; }
-      if (this.tl) { this.tl.progress(0).kill(); this.tl = null; }
-      const sec = $('.cx-intro');
-      if (!sec) return;
-      if (this.clone) { this.clone.remove(); this.clone = null; }
-      const out = $('.cx-out', sec);
-      if (out) out.classList.remove('is-split');
-      sec.classList.remove('is-pin', 'is-done');
-      sec.style.removeProperty('--len');
-      if (window.gsap) gsap.set($$('.cx-intro__stage, .cx-bg, .cx-bg img, .cx-hero, .cx-hero__in, .cx-cue, .cx-rev, .cx-rev__p, .cx-rev__l, .cx-casc, .cx-casc__i, .cx-casc__i img, .cx-out, .cx-out__h, .cx-out__b, .cx-out__m', sec), { clearProps: 'all' });
-    }
-  };
-
-  /* ==========================================================================
-     ۲. مقایسه‌ی قبل و بعد
+     ۱. مقایسه‌ی قبل و بعد
      p جای خط از چپ است (۰ تا ۱)؛ سمت راست خط «قبل» و سمت چپ «بعد» است (خواندن از راست به چپ).
      ========================================================================== */
   const active = new Set();
@@ -338,132 +267,98 @@
     }
   };
 
-  /* ---------- فیلتر نوع درمان ---------- */
-  function Filter() {
-    const box = $('.cx-tabs'), list = $('.cx-list'), bar = $('.cx-bar'), mark = $('.cx-bar__mark');
-    if (!box || !list) return;
-    const rows = $$('.cx', list), count = $('.cx-count b');
-    const btns = $$(':scope > button', box);
-    let cur = 'all', fade = null;
-    if (Pg.Pill) Pg.Pill(box);
-    const paint = () => {
-      let n = 0;
-      rows.forEach((r) => {
-        const on = cur === 'all' || r.dataset.t === cur;
-        r.hidden = !on;
-        if (on) { r.classList.toggle('cx--alt', n % 2 === 1); n++; }
-      });
-      if (count) count.textContent = toFa(n);
-      if (Pg.syncLenis) Pg.syncLenis();
-    };
-    /* اگر نوار چسبیده بود، بی‌صدا به ابتدای فهرست برمی‌گردیم */
-    const toTop = () => {
-      if (!mark || !bar) return;
-      const y = Math.round(mark.getBoundingClientRect().top + window.scrollY - (parseFloat(getComputedStyle(bar).top) || 0));
-      if (window.scrollY <= y + 1) return;
-      window.scrollTo(0, y);
-      if (Motion.lenis) Motion.lenis.scrollTo(y, { immediate: true, force: true });
-    };
-    const enter = () => {
-      const vh = window.innerHeight;
-      let i = 0;
-      rows.filter((r) => !r.hidden).forEach((r) => {
-        const rc = r.getBoundingClientRect();
-        if (rc.top > vh || rc.bottom < 0) return;
-        Rows.play(r, i++ * 90);
-      });
-    };
-    const set = (f) => {
-      if (f === cur) return;
-      cur = f;
-      btns.forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.f === f)));
-      if (fade) { fade.cancel(); fade = null; }
-      if (!canAnim || rm() || !Motion.on) { paint(); toTop(); refresh(); return; }
-      fade = list.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 170, easing: 'ease-out', fill: 'forwards' });
-      fade.onfinish = () => {
-        paint(); toTop(); refresh();
-        fade.cancel(); fade = null;
-        enter();
-      };
-    };
-    btns.forEach((x) => x.addEventListener('click', () => set(x.dataset.f)));
-    /* نوار زبانه‌ها وقتی زیر هدر چسبید، پس‌زمینه‌ی سفید می‌گیرد */
-    if (bar && mark && 'IntersectionObserver' in window) {
-      let io = null;
-      const watch = () => {
-        if (io) io.disconnect();
-        const top = Math.round(parseFloat(getComputedStyle(bar).top) || 0);
-        io = new IntersectionObserver(([en]) => bar.classList.toggle('is-stuck', !en.isIntersecting && en.boundingClientRect.top < top), { rootMargin: `-${top}px 0px 0px 0px` });
-        io.observe(mark);
-      };
-      watch();
-      let rt = 0; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(watch, 200); });
-    }
-    /* لینک به یک نمونه‌ی پنهان (مثلاً #case-crown): اول همه نمایش داده می‌شوند */
-    const reveal = () => {
-      const t = location.hash && document.getElementById(location.hash.slice(1));
-      const r = t && t.closest('.cx');
-      if (r && r.hidden) { cur = '__'; set('all'); }
-    };
-    reveal();
-    window.addEventListener('hashchange', reveal);
-  }
-  Filter();
-
   /* ==========================================================================
-     ۳. دیوار عکس: ردیف‌ها با رسیدن به بالای صفحه از نصف تا اندازه‌ی کامل بزرگ می‌شوند.
-     هر ردیف به اندازه‌ی کوچک شدن ردیف‌های بالایی بالا می‌آید تا فاصله‌ها یکدست بماند.
+     ۲. مراحل کار (مرجع: انیمیشن ۳۶)
+     پیشرفت هر ردیف = (اسکرول − (بالای ردیف − ارتفاع صفحه)) ÷ (پایین ردیف − (بالای ردیف − ارتفاع صفحه))
+     و پهنا = شروع + (پایان − شروع) × پیشرفت. ارتفاع بخش به اندازه‌ی ده ردیف کاملاً باز است.
+     جای ردیف‌ها از روی اندازه‌ها حساب می‌شود (نه با خواندن از صفحه در هر فریم)، پس هر فریم فقط یک بار چیدمان دارد.
      ========================================================================== */
   const Wall = {
-    st: null, frame: null,
+    st: null, off: null, onInit: null, io: null,
     build() {
-      const sec = $('.cx-wall');
-      if (!sec || rm() || !window.gsap || !window.ScrollTrigger) return;
-      const rows = $$('.cx-wall__row', sec);
+      const sec = $('.cx-wall'), box = sec && $('.cx-wall__rows', sec);
+      if (!box || rm() || !window.gsap || !window.ScrollTrigger) return;
+      const rows = $$('.cx-wall__row', box);
       if (!rows.length) return;
       sec.classList.add('is-live');
-      let H = 0, T = [], vh = 0, s0 = 0.5;
-      const last = rows.map(() => '');
+      const n = rows.length, last = rows.map(() => ''), capOff = rows.map(() => null);
+      let need = rows.map(() => 0);
+      let ws = 125, we = 500, S = 0, g = 16, G = 8, P = 8, A = 0, B = 0, T0 = 0, vh = 0;
+      /* ارتفاع ردیف با پهنای w درصد: (پهنای ردیف − ۸ فاصله) ÷ ۹ × ۵/۷ */
+      const rowH = (w) => ((w / 100) * S - 8 * g) / 9 * 5 / 7;
       const measure = () => {
+        const small = window.innerWidth < 1000;
+        ws = small ? 250 : 125; we = small ? 750 : 500;
         vh = window.innerHeight;
-        s0 = window.innerWidth < 900 ? 0.42 : 0.5;
-        H = rows[0].offsetHeight;
-        const top = sec.getBoundingClientRect().top + window.scrollY;
-        T = rows.map((r) => top + r.offsetTop);
+        S = box.clientWidth;
+        const cs = getComputedStyle(box), rs = getComputedStyle(rows[0]);
+        G = parseFloat(cs.rowGap) || 0; P = parseFloat(cs.paddingTop) || 0; g = parseFloat(rs.columnGap) || 0;
+        A = rowH(ws); B = rowH(we) - A;
+        box.style.height = `${(rowH(we) * n + G * (n - 1) + P * 2).toFixed(2)}px`;
+        T0 = box.getBoundingClientRect().top + window.scrollY;
+        /* کمترین پهنای کاشی که زیرنویس‌های هر ردیف در آن جا می‌شوند (متن + فاصله + برچسب) */
+        need = rows.map((r) => Math.max(0, ...$$('figcaption', r).map((f) => { const [a, b] = f.children; return (a ? a.scrollWidth : 0) + (b ? b.scrollWidth : 0) + 10; })));
       };
-      measure();
-      const frame = this.frame = () => {
-        const y = window.scrollY;
-        let acc = 0;
-        for (let i = 0; i < rows.length; i++) {
-          const p = clamp((y + vh - T[i]) / (vh + H), 0, 1);
-          const sc = s0 + (1 - s0) * (1 - Math.pow(1 - p, 1.6));
-          const tr = `translate3d(-50%, ${acc.toFixed(1)}px, 0) scale(${sc.toFixed(4)})`;
-          if (tr !== last[i]) { last[i] = tr; rows[i].style.transform = tr; }
-          acc += (sc - 1) * H;
+      const frame = () => {
+        const y = window.scrollY, K = A + vh;
+        let top = T0 + P;
+        for (let i = 0; i < n; i++) {
+          /* p(A + Bp + vh) = y + vh − top  ⇒  همان پیشرفت مرجع وقتی ارتفاع خود ردیف هم با پیشرفت عوض می‌شود */
+          const D = y + vh - top;
+          let p = 0;
+          if (D > 0) { p = (Math.sqrt(K * K + 4 * B * D) - K) / (2 * B); if (p > 1) p = 1; }
+          const pw = ws + (we - ws) * p, w = `${pw.toFixed(3)}%`;
+          if (w !== last[i]) { last[i] = w; rows[i].style.width = w; }
+          const off = ((pw / 100) * S - 8 * g) / 9 < need[i];
+          if (off !== capOff[i]) { capOff[i] = off; rows[i].classList.toggle('no-cap', off); }
+          top += A + B * p + G;
         }
       };
+      /* شانزده عکس کمی پیش از رسیدن به بخش بارگیری و رمزگشایی می‌شوند تا اولین باز شدن ردیف‌ها گیر نکند (بقیه‌ی کاشی‌ها همین عکس‌ها را تکرار می‌کنند) */
+      if ('IntersectionObserver' in window) {
+        this.io = new IntersectionObserver((es) => {
+          if (!es.some((e) => e.isIntersecting)) return;
+          this.io.disconnect(); this.io = null;
+          const seen = new Set();
+          $$('img', box).forEach((img) => {
+            const k = img.getAttribute('src');
+            if (seen.has(k)) return;
+            seen.add(k);
+            img.loading = 'eager';
+            if (img.decode) img.decode().catch(() => {});
+          });
+        }, { rootMargin: '150% 0px' });
+        this.io.observe(box);
+      }
+      measure();
       frame();
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (this.st) { measure(); frame(); } });
+      /* پیش از هر اندازه‌گیری ScrollTrigger (مثلاً تغییر اندازه‌ی پنجره) ارتفاع بخش درست می‌شود تا جای بخش‌های بعدی درست حساب شود */
+      this.onInit = () => { measure(); };
+      ScrollTrigger.addEventListener('refreshInit', this.onInit);
       let on = false;
       const toggle = (v) => { if (v === on) return; on = v; if (v) gsap.ticker.add(frame); else gsap.ticker.remove(frame); };
       this.st = ScrollTrigger.create({
-        trigger: sec, start: 'top bottom', end: 'bottom top',
+        trigger: box, start: 'top bottom', end: 'bottom top',
         onToggle: (self) => { toggle(self.isActive); frame(); },
-        onRefresh: () => { measure(); frame(); }
+        onRefresh: (self) => { T0 = box.getBoundingClientRect().top + window.scrollY; vh = window.innerHeight; toggle(self.isActive); frame(); }
       });
       this.off = () => toggle(false);
     },
     kill() {
       if (this.off) { this.off(); this.off = null; }
+      if (this.io) { this.io.disconnect(); this.io = null; }
+      if (this.onInit) { ScrollTrigger.removeEventListener('refreshInit', this.onInit); this.onInit = null; }
       if (this.st) { this.st.kill(); this.st = null; }
       const sec = $('.cx-wall');
       if (!sec) return;
       sec.classList.remove('is-live');
-      $$('.cx-wall__row', sec).forEach((r) => { r.style.transform = ''; });
+      const box = $('.cx-wall__rows', sec);
+      if (box) box.style.height = '';
+      $$('.cx-wall__row', sec).forEach((r) => { r.style.width = ''; r.classList.remove('no-cap'); });
     }
   };
 
-  if ($('.cx-intro')) Motion.add(Intro);
   if ($('.cx')) Motion.add(Rows);
   if ($('.cx-wall')) Motion.add(Wall);
 })();

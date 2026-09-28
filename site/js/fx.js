@@ -120,7 +120,8 @@
   const Titles = {
     build() {
       if (!window.gsap || !('IntersectionObserver' in window)) return;
-      const els = $$('.sec-title, .foot__title, .ar-title');
+      /* تیترهایی که بخش رنگی‌شان گرادیان روی متن است (data-whole) کلمه‌به‌کلمه نمی‌آیند: گرادیان از لای کلمه‌های در حال حرکت دیده نمی‌شد */
+      const els = $$('.sec-title:not([data-whole]), .foot__title, .ar-title');
       const vh = window.innerHeight;
       this.anims = [];
       this.items = els.filter((el) => el.getClientRects().length && el.getBoundingClientRect().top > vh * 0.85);
