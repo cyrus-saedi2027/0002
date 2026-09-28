@@ -193,33 +193,6 @@
     else if (was && !locks) { document.body.style.overflow = ''; root.style.scrollbarGutter = ''; }
   };
 
-  /* ==========================================================================
-     تنظیمات دسترس‌پذیری: اندازه‌ی متن، کنتراست بالا، حرکت کمتر
-     ========================================================================== */
-  const Prefs = {
-    fs: root.classList.contains('fs-2') ? 2 : root.classList.contains('fs-1') ? 1 : 0,
-    hc: root.classList.contains('hc'),
-    rm: root.classList.contains('rm'),
-    sync() {
-      $$('.seg__btn[data-fs]').forEach((b) => b.setAttribute('aria-checked', String(+b.dataset.fs === this.fs)));
-      $$('.tgl[data-pref]').forEach((b) => b.setAttribute('aria-pressed', String(!!this[b.dataset.pref])));
-    },
-    setFs(n) {
-      this.fs = n; root.classList.remove('fs-1', 'fs-2'); if (n) root.classList.add('fs-' + n);
-      store.set('sasan:fs', String(n)); this.sync();
-      requestAnimationFrame(() => Motion.rebuild());
-    },
-    toggle(k) {
-      this[k] = !this[k]; store.set('sasan:' + k, this[k] ? '1' : '0');
-      root.classList.toggle(k, this[k]);
-      if (k === 'rm') { if (this.rm) Motion.stop(); else Motion.start(); }
-      this.sync();
-    }
-  };
-  $$('.seg__btn[data-fs]').forEach((b) => b.addEventListener('click', () => Prefs.setFs(+b.dataset.fs)));
-  $$('.tgl[data-pref]').forEach((b) => b.addEventListener('click', () => Prefs.toggle(b.dataset.pref)));
-  Prefs.sync();
-
   /* ---------- نقطه‌ی «باز است»: هر ۵ ثانیه یک پینگ، فقط وقتی روی صفحه است ---------- */
   const dots = $$('.dot');
   if (dots.length && 'IntersectionObserver' in window) {
@@ -459,34 +432,6 @@
 
 
   /* ==========================================================================
-     تنظیمات نمایش: پنجره‌ی کوچک زیر دکمه‌ی هدر
-     ========================================================================== */
-  const pBtn = $('.prefs__btn'), pPop = $('#prefsPop');
-  if (pBtn && pPop) {
-    let pAnim = null;
-    const setPrefs = (open, focusBack = true) => {
-      if (open === !pPop.hidden) return;
-      pBtn.setAttribute('aria-expanded', String(open));
-      if (pAnim) pAnim.cancel();
-      const calm = !root.classList.contains('motion') || typeof pPop.animate !== 'function';
-      if (open) {
-        pPop.hidden = false;
-        if (!calm) pAnim = pPop.animate([{ opacity: 0, transform: 'translateY(-8px) scale(.96)' }, { opacity: 1, transform: 'none' }], { duration: 420, easing: 'cubic-bezier(.22, 1.2, .36, 1)' });
-        const first = $('[aria-checked="true"], .seg__btn', pPop);
-        if (first) first.focus({ preventScroll: true });
-      } else {
-        const done = () => { pPop.hidden = true; pAnim = null; };
-        if (calm) done();
-        else { pAnim = pPop.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(-6px) scale(.97)' }], { duration: 200, easing: 'ease-in' }); pAnim.onfinish = done; }
-        if (focusBack) pBtn.focus({ preventScroll: true });
-      }
-    };
-    pBtn.addEventListener('click', () => setPrefs(pPop.hidden));
-    document.addEventListener('pointerdown', (e) => { if (!pPop.hidden && !e.target.closest('.prefs')) setPrefs(false, false); });
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !pPop.hidden) setPrefs(false); });
-  }
-
-  /* ==========================================================================
      آئورا: دانه‌ی فیلم، ساختن لایه‌ها و هم‌زمان کردن حرکتشان
      ========================================================================== */
   try {
@@ -643,7 +588,7 @@
   } else $$('.journey, .docs, .safe, .foot').forEach((el) => el.classList.add('is-near'));
 
   /* ---------- راه‌اندازی ---------- */
-  window.Sasan = { $, $$, clamp, lerp, toFa, Spring, Motion, Prefs, Clinic, store, finePointer, touchUI, Aurora, lockScroll };
+  window.Sasan = { $, $$, clamp, lerp, toFa, Spring, Motion, Clinic, store, finePointer, touchUI, Aurora, lockScroll };
   document.addEventListener('DOMContentLoaded', () => {
     Motion.ready = true;
     if (!root.classList.contains('rm')) Motion.start(); else Motion.statics(true);

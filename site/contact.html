@@ -23,14 +23,11 @@
 <meta name="theme-color" content="#081427">
 <link rel="manifest" href="manifest.webmanifest">
 <script>
-  /* تنظیمات نمایش را قبل از اولین رنگ‌آمیزی اعمال می‌کند */
+  /* پیش از اولین رنگ‌آمیزی: اگر خود دستگاه «کاهش حرکت» را خواسته، حرکت‌ها آرام می‌شوند */
   (function () {
-    var d = document.documentElement, get = function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } };
+    var d = document.documentElement;
     d.classList.remove('no-js'); d.classList.add('js');
-    var fs = get('sasan:fs'); if (fs === '1' || fs === '2') d.classList.add('fs-' + fs);
-    if (get('sasan:hc') === '1') d.classList.add('hc');
-    var rm = get('sasan:rm');
-    if (rm === '1' || (rm === null && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) d.classList.add('rm');
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) d.classList.add('rm');
     /* معرفی لوگو و ورود هیرو فقط در صفحه‌ی اصلی */
     if (!d.classList.contains('rm') && d.getAttribute('data-page') === 'home') {
       d.classList.add('intro');
@@ -55,9 +52,6 @@
 <!-- LAYOUT:top -->
 <svg class="sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
   <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 5h16" /> <path d="M4 12h16" /> <path d="M4 19h16" /></symbol>
-  <symbol id="i-text" viewBox="0 0 24 24"><path d="m15 16 2.536-7.328a1.02 1.02 1 0 1 1.928 0L22 16" /> <path d="M15.697 14h5.606" /> <path d="m2 16 4.039-9.69a.5.5 0 0 1 .923 0L11 16" /> <path d="M3.304 13h6.392" /></symbol>
-  <symbol id="i-contrast" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <path d="M12 18a6 6 0 0 0 0-12v12z" /></symbol>
-  <symbol id="i-pause" viewBox="0 0 24 24"><rect x="14" y="3" width="5" height="18" rx="1" /> <rect x="5" y="3" width="5" height="18" rx="1" /></symbol>
   <symbol id="i-arrow" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7" /> <path d="M19 12H5" /></symbol>
   <symbol id="i-arrow-ul" viewBox="0 0 24 24"><path d="M7 17V7h10" /> <path d="M17 17 7 7" /></symbol>
   <symbol id="i-chev-d" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></symbol>
@@ -75,7 +69,6 @@
   <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z" /> <path d="M20 2v4" /> <path d="M22 4h-4" /> <circle cx="4" cy="20" r="2" /></symbol>
   <symbol id="i-steth" viewBox="0 0 24 24"><path d="M11 2v2" /> <path d="M5 2v2" /> <path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1" /> <path d="M8 15a6 6 0 0 0 12 0v-3" /> <circle cx="20" cy="10" r="2" /></symbol>
   <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /> <path d="m9 12 2 2 4-4" /></symbol>
-  <symbol id="i-a11y" viewBox="0 0 24 24"><circle cx="16" cy="4" r="1" /> <path d="m18 19 1-7-6 1" /> <path d="m5 8 3-3 5.5 3-2.36 3.5" /> <path d="M4.24 14.5a5 5 0 0 0 6.88 6" /> <path d="M13.76 17.5a5 5 0 0 0-6.88-6" /></symbol>
   <symbol id="i-clip" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1" /> <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /> <path d="M12 11h4" /> <path d="M12 16h4" /> <path d="M8 11h.01" /> <path d="M8 16h.01" /></symbol>
   <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1" /> <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4" /></symbol>
   <symbol id="i-scan" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2" /> <path d="M17 3h2a2 2 0 0 1 2 2v2" /> <path d="M21 17v2a2 2 0 0 1-2 2h-2" /> <path d="M7 21H5a2 2 0 0 1-2-2v-2" /> <path d="M8 14s1.5 2 4 2 4-2 4-2" /> <path d="M9 9h.01" /> <path d="M15 9h.01" /></symbol>
@@ -134,22 +127,6 @@
       </nav>
 
       <div class="bar__end">
-        <div class="prefs">
-          <button type="button" class="prefs__btn" aria-expanded="false" aria-controls="prefsPop" aria-label="تنظیمات نمایش: اندازه‌ی متن، کنتراست و حرکت"><svg class="ic" aria-hidden="true"><use href="#i-a11y"/></svg></button>
-          <div class="prefs__pop" id="prefsPop" role="dialog" aria-label="تنظیمات نمایش" hidden>
-            <p class="prefs__title">تنظیمات نمایش</p>
-            <p class="prefs__label">اندازه‌ی متن</p>
-            <div class="seg seg--wide" role="radiogroup" aria-label="اندازه‌ی متن">
-              <button type="button" class="seg__btn" role="radio" data-fs="0">معمولی</button>
-              <button type="button" class="seg__btn" role="radio" data-fs="1">بزرگ</button>
-              <button type="button" class="seg__btn" role="radio" data-fs="2">خیلی بزرگ</button>
-            </div>
-            <div class="sheet__tgls">
-              <button type="button" class="tgl tgl--row" data-pref="hc" aria-pressed="false"><svg class="ic" aria-hidden="true"><use href="#i-contrast"/></svg>کنتراست بالا<span class="sw" aria-hidden="true"></span></button>
-              <button type="button" class="tgl tgl--row" data-pref="rm" aria-pressed="false"><svg class="ic" aria-hidden="true"><use href="#i-pause"/></svg>حرکت کمتر<span class="sw" aria-hidden="true"></span></button>
-            </div>
-          </div>
-        </div>
         <a class="btn btn--primary bar__cta" href="#book" data-magnetic><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg><span>نوبت بگیرید</span></a>
         <button type="button" class="burger" aria-expanded="false" aria-controls="sheet" aria-label="باز کردن منو"><span></span><span></span><span></span></button>
       </div>
@@ -217,18 +194,6 @@
         <a href="about.html">درباره‌ی ما<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
         <a href="contact.html" aria-current="page">تماس و آدرس<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
       </nav>
-      <div class="sheet__a11y">
-        <p class="sheet__label">نمایش</p>
-        <div class="seg seg--wide" role="radiogroup" aria-label="اندازه‌ی متن">
-          <button type="button" class="seg__btn" role="radio" data-fs="0">متن معمولی</button>
-          <button type="button" class="seg__btn" role="radio" data-fs="1">بزرگ</button>
-          <button type="button" class="seg__btn" role="radio" data-fs="2">خیلی بزرگ</button>
-        </div>
-        <div class="sheet__tgls">
-          <button type="button" class="tgl tgl--row" data-pref="hc" aria-pressed="false"><svg class="ic" aria-hidden="true"><use href="#i-contrast"/></svg>کنتراست بالا<span class="sw" aria-hidden="true"></span></button>
-          <button type="button" class="tgl tgl--row" data-pref="rm" aria-pressed="false"><svg class="ic" aria-hidden="true"><use href="#i-pause"/></svg>حرکت کمتر<span class="sw" aria-hidden="true"></span></button>
-        </div>
-      </div>
       <div class="sheet__foot">
         <a class="sheet__tel" href="tel:+981154611560"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg><span dir="ltr">۰۱۱ ۵۴۶۱ ۱۵۶۰</span></a>
         <a class="btn btn--primary btn--block" href="#book"><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg>نوبت بگیرید</a>
@@ -544,7 +509,7 @@
   </div>
   <div class="wrap foot__bottom">
     <p>© ۱۴۰۵ کلینیک ساسان. همه‌ی حقوق محفوظ است. <a class="foot__legal" href="privacy.html">حریم خصوصی و شرایط استفاده</a></p>
-    <p class="foot__sample">نظرها، آمار نظرسنجی و نمونه‌پرونده‌ها نمونه‌ی طراحی‌اند.</p>
+    <p class="foot__sample">نظرها، آمار نظرسنجی، نمونه‌پرونده‌ها و عکس‌های قبل و بعد نمونه‌ی طراحی‌اند.</p>
     <a class="foot__top" href="#top">بالای صفحه<svg class="ic" aria-hidden="true"><use href="#i-arrow-ul"/></svg></a>
   </div>
   </div>

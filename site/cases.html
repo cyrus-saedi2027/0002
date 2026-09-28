@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>نمونه‌کارها | کلینیک ساسان</title>
-<meta name="description" content="نمونه‌ی درمان‌ها در کلینیک ساسان سلمان‌شهر: لمینت، ایمپلنت، میکرونیدلینگ و پزشک عمومی شبانه‌روزی؛ مشکل، مراحل درمان و نتیجه.">
+<meta name="description" content="نمونه‌کارهای کلینیک ساسان سلمان‌شهر: قبل و بعد لمینت، بلیچینگ، روکش و ترمیم دندان از یک زاویه، همراه با مراحل درمان.">
 <!-- SEO (ساخته‌شده با python3 tools/seo.py؛ دستی ویرایش نکنید) -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="کلینیک ساسان">
 <meta property="og:locale" content="fa_IR">
 <meta property="og:title" content="نمونه‌کارها | کلینیک ساسان">
-<meta property="og:description" content="نمونه‌ی درمان‌ها در کلینیک ساسان سلمان‌شهر: لمینت، ایمپلنت، میکرونیدلینگ و پزشک عمومی شبانه‌روزی؛ مشکل، مراحل درمان و نتیجه.">
+<meta property="og:description" content="نمونه‌کارهای کلینیک ساسان سلمان‌شهر: قبل و بعد لمینت، بلیچینگ، روکش و ترمیم دندان از یک زاویه، همراه با مراحل درمان.">
 <meta property="og:image" content="img/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -23,14 +23,11 @@
 <meta name="theme-color" content="#081427">
 <link rel="manifest" href="manifest.webmanifest">
 <script>
-  /* تنظیمات نمایش را قبل از اولین رنگ‌آمیزی اعمال می‌کند */
+  /* پیش از اولین رنگ‌آمیزی: اگر خود دستگاه «کاهش حرکت» را خواسته، حرکت‌ها آرام می‌شوند */
   (function () {
-    var d = document.documentElement, get = function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } };
+    var d = document.documentElement;
     d.classList.remove('no-js'); d.classList.add('js');
-    var fs = get('sasan:fs'); if (fs === '1' || fs === '2') d.classList.add('fs-' + fs);
-    if (get('sasan:hc') === '1') d.classList.add('hc');
-    var rm = get('sasan:rm');
-    if (rm === '1' || (rm === null && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) d.classList.add('rm');
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) d.classList.add('rm');
     /* معرفی لوگو و ورود هیرو فقط در صفحه‌ی اصلی */
     if (!d.classList.contains('rm') && d.getAttribute('data-page') === 'home') {
       d.classList.add('intro');
@@ -50,14 +47,13 @@
 <link rel="stylesheet" href="css/book.css">
 <!-- /LAYOUT:head -->
 <link rel="stylesheet" href="css/pages.css">
+<link rel="stylesheet" href="css/cases.css">
+<link rel="preload" as="image" href="img/cases/smile-1280.webp" imagesrcset="img/cases/smile-1280.webp 1280w, img/cases/smile-2000.webp 2000w" imagesizes="(max-width: 899px) 100vw, 50vw" fetchpriority="high">
 </head>
 <body>
 <!-- LAYOUT:top -->
 <svg class="sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
   <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 5h16" /> <path d="M4 12h16" /> <path d="M4 19h16" /></symbol>
-  <symbol id="i-text" viewBox="0 0 24 24"><path d="m15 16 2.536-7.328a1.02 1.02 1 0 1 1.928 0L22 16" /> <path d="M15.697 14h5.606" /> <path d="m2 16 4.039-9.69a.5.5 0 0 1 .923 0L11 16" /> <path d="M3.304 13h6.392" /></symbol>
-  <symbol id="i-contrast" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <path d="M12 18a6 6 0 0 0 0-12v12z" /></symbol>
-  <symbol id="i-pause" viewBox="0 0 24 24"><rect x="14" y="3" width="5" height="18" rx="1" /> <rect x="5" y="3" width="5" height="18" rx="1" /></symbol>
   <symbol id="i-arrow" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7" /> <path d="M19 12H5" /></symbol>
   <symbol id="i-arrow-ul" viewBox="0 0 24 24"><path d="M7 17V7h10" /> <path d="M17 17 7 7" /></symbol>
   <symbol id="i-chev-d" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></symbol>
@@ -75,7 +71,6 @@
   <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z" /> <path d="M20 2v4" /> <path d="M22 4h-4" /> <circle cx="4" cy="20" r="2" /></symbol>
   <symbol id="i-steth" viewBox="0 0 24 24"><path d="M11 2v2" /> <path d="M5 2v2" /> <path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1" /> <path d="M8 15a6 6 0 0 0 12 0v-3" /> <circle cx="20" cy="10" r="2" /></symbol>
   <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /> <path d="m9 12 2 2 4-4" /></symbol>
-  <symbol id="i-a11y" viewBox="0 0 24 24"><circle cx="16" cy="4" r="1" /> <path d="m18 19 1-7-6 1" /> <path d="m5 8 3-3 5.5 3-2.36 3.5" /> <path d="M4.24 14.5a5 5 0 0 0 6.88 6" /> <path d="M13.76 17.5a5 5 0 0 0-6.88-6" /></symbol>
   <symbol id="i-clip" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1" /> <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /> <path d="M12 11h4" /> <path d="M12 16h4" /> <path d="M8 11h.01" /> <path d="M8 16h.01" /></symbol>
   <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1" /> <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4" /></symbol>
   <symbol id="i-scan" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2" /> <path d="M17 3h2a2 2 0 0 1 2 2v2" /> <path d="M21 17v2a2 2 0 0 1-2 2h-2" /> <path d="M7 21H5a2 2 0 0 1-2-2v-2" /> <path d="M8 14s1.5 2 4 2 4-2 4-2" /> <path d="M9 9h.01" /> <path d="M15 9h.01" /></symbol>
@@ -134,22 +129,6 @@
       </nav>
 
       <div class="bar__end">
-        <div class="prefs">
-          <button type="button" class="prefs__btn" aria-expanded="false" aria-controls="prefsPop" aria-label="تنظیمات نمایش: اندازه‌ی متن، کنتراست و حرکت"><svg class="ic" aria-hidden="true"><use href="#i-a11y"/></svg></button>
-          <div class="prefs__pop" id="prefsPop" role="dialog" aria-label="تنظیمات نمایش" hidden>
-            <p class="prefs__title">تنظیمات نمایش</p>
-            <p class="prefs__label">اندازه‌ی متن</p>
-            <div class="seg seg--wide" role="radiogroup" aria-label="اندازه‌ی متن">
-              <button type="button" class="seg__btn" role="radio" data-fs="0">معمولی</button>
-              <button type="button" class="seg__btn" role="radio" data-fs="1">بزرگ</button>
-              <button type="button" class="seg__btn" role="radio" data-fs="2">خیلی بزرگ</button>
-            </div>
-            <div class="sheet__tgls">
-              <button type="button" class="tgl tgl--row" data-pref="hc" aria-pressed="false"><svg class="ic" aria-hidden="true"><use href="#i-contrast"/></svg>کنتراست بالا<span class="sw" aria-hidden="true"></span></button>
-              <button type="button" class="tgl tgl--row" data-pref="rm" aria-pressed="false"><svg class="ic" aria-hidden="true"><use href="#i-pause"/></svg>حرکت کمتر<span class="sw" aria-hidden="true"></span></button>
-            </div>
-          </div>
-        </div>
         <a class="btn btn--primary bar__cta" href="#book" data-magnetic><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg><span>نوبت بگیرید</span></a>
         <button type="button" class="burger" aria-expanded="false" aria-controls="sheet" aria-label="باز کردن منو"><span></span><span></span><span></span></button>
       </div>
@@ -217,18 +196,6 @@
         <a href="about.html">درباره‌ی ما<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
         <a href="contact.html">تماس و آدرس<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
       </nav>
-      <div class="sheet__a11y">
-        <p class="sheet__label">نمایش</p>
-        <div class="seg seg--wide" role="radiogroup" aria-label="اندازه‌ی متن">
-          <button type="button" class="seg__btn" role="radio" data-fs="0">متن معمولی</button>
-          <button type="button" class="seg__btn" role="radio" data-fs="1">بزرگ</button>
-          <button type="button" class="seg__btn" role="radio" data-fs="2">خیلی بزرگ</button>
-        </div>
-        <div class="sheet__tgls">
-          <button type="button" class="tgl tgl--row" data-pref="hc" aria-pressed="false"><svg class="ic" aria-hidden="true"><use href="#i-contrast"/></svg>کنتراست بالا<span class="sw" aria-hidden="true"></span></button>
-          <button type="button" class="tgl tgl--row" data-pref="rm" aria-pressed="false"><svg class="ic" aria-hidden="true"><use href="#i-pause"/></svg>حرکت کمتر<span class="sw" aria-hidden="true"></span></button>
-        </div>
-      </div>
       <div class="sheet__foot">
         <a class="sheet__tel" href="tel:+981154611560"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg><span dir="ltr">۰۱۱ ۵۴۶۱ ۱۵۶۰</span></a>
         <a class="btn btn--primary btn--block" href="#book"><svg class="ic" aria-hidden="true"><use href="#i-cal"/></svg>نوبت بگیرید</a>
@@ -240,30 +207,253 @@
 <!-- /LAYOUT:top -->
 
 <main id="main">
-  <section class="pg-hero cs-hero" id="top" aria-labelledby="cs-title">
-    <div class="pg-hero__glow" aria-hidden="true"></div>
-    <div class="wrap cs-hero__in">
-      <nav class="pg-crumb pg-in" style="--d:0" aria-label="مسیر صفحه"><ol><li><a href="index.html">خانه</a></li><li aria-current="page">نمونه‌کارها</li></ol></nav>
-      <p class="kicker kicker--light pg-in" style="--d:1">نمونه‌کارها</p>
-      <h1 class="pg-title pg-in" style="--d:2" id="cs-title">از اولین جلسه <em>تا نتیجه</em></h1>
-      <p class="pg-lead pg-in" style="--d:3">هر پرونده را از اول تا آخر ببینید: مشکل چه بود، درمان در چند قدم پیش رفت و نتیجه چه شد. این‌ها نمونه‌اند و به‌زودی با پرونده‌های واقعی کلینیک، با رضایت کتبی خود بیماران، جایگزین می‌شوند.</p>
-      <dl class="pg-stats pg-in" style="--d:4">
-        <div><dt>نمونه‌پرونده</dt><dd data-count="4">۴</dd></div>
-        <div><dt>بخش</dt><dd data-count="3">۳</dd></div>
-        <div><dt>قدم روشن در هر درمان</dt><dd data-count="4">۴</dd></div>
-      </dl>
+  <section class="cx-intro" id="top" aria-labelledby="cs-title">
+    <div class="cx-intro__stage">
+      <div class="cx-bg" aria-hidden="true"><img src="img/cases/smile-1280.webp" srcset="img/cases/smile-1280.webp 1280w, img/cases/smile-2000.webp 2000w" sizes="(max-width: 899px) 100vw, 50vw" width="2000" height="2500" alt="" fetchpriority="high" decoding="async"></div>
+      <div class="cx-hero">
+        <div class="wrap cx-hero__in">
+          <nav class="pg-crumb pg-in" style="--d:0" aria-label="مسیر صفحه"><ol><li><a href="index.html">خانه</a></li><li aria-current="page">نمونه‌کارها</li></ol></nav>
+          <p class="kicker kicker--light pg-in" style="--d:1">نمونه‌کارهای کلینیک</p>
+          <h1 class="pg-title cx-hero__t pg-in" style="--d:2" id="cs-title">لبخندی که <em>دیده می‌شود</em></h1>
+          <p class="pg-lead cx-hero__lead pg-in" style="--d:3">لمینت، بلیچینگ، روکش و ترمیم. قبل و بعد هر درمان از یک زاویه کنار هم است؛ خط وسط را بکشید و تفاوت را خودتان ببینید.</p>
+          <ul class="cx-hero__chips pg-in" style="--d:4"><li><b>۸</b> نمونه‌ی قبل و بعد</li><li><b>۴</b> نوع درمان</li><li><b>۴</b> قدم روشن در هر درمان</li></ul>
+        </div>
+        <a class="cx-cue pg-in" style="--d:5" href="#cases"><span>دیدن نمونه‌ها</span><i aria-hidden="true"></i></a>
+      </div>
+      <div class="cx-rev" aria-hidden="true"><i class="cx-rev__p"></i><i class="cx-rev__l"></i><i class="cx-rev__l"></i></div>
+      <div class="cx-casc" aria-hidden="true">
+        <div class="cx-casc__i" style="--op:30% 40%"><img src="img/cases/c1-1280.webp" srcset="img/cases/c1-1280.webp 1280w, img/cases/c1-2200.webp 2200w" sizes="100vw" width="2200" height="1466" alt="" decoding="async"><span class="cx-casc__cap"><b>۰۱</b>رنگ‌گیری دقیق</span></div>
+        <div class="cx-casc__i" style="--op:55% 50%"><img src="img/cases/c2-1280.webp" srcset="img/cases/c2-1280.webp 1280w, img/cases/c2-2200.webp 2200w" sizes="100vw" width="2200" height="1466" alt="" decoding="async"><span class="cx-casc__cap"><b>۰۲</b>بلیچینگ با نور</span></div>
+        <div class="cx-casc__i" style="--op:40% 45%"><img src="img/cases/c3-1280.webp" srcset="img/cases/c3-1280.webp 1280w, img/cases/c3-2200.webp 2200w" sizes="100vw" width="2200" height="1466" alt="" decoding="async"><span class="cx-casc__cap"><b>۰۳</b>لبخند نهایی</span></div>
+      </div>
+      <div class="cx-out" aria-hidden="true">
+        <div class="cx-out__h"><div class="cx-out__in">
+          <p class="cx-out__k">قبل و بعد</p>
+          <p class="cx-out__t">خط وسط را بکشید؛<br><em>تفاوت را خودتان ببینید</em></p>
+          <span class="cx-out__demo"><i class="cx-out__b"></i><i class="cx-out__m"><i class="cx-out__ln"></i><i class="cx-out__kn"><svg viewBox="0 0 24 24"><path d="M9 6l-6 6 6 6M15 6l6 6-6 6"/></svg></i></i></span>
+        </div></div>
+      </div>
     </div>
   </section>
 
-  <section class="cases cs-page" id="cases" aria-label="نمونه‌پرونده‌ها">
-    <i class="pg-bar__top" aria-hidden="true"></i>
-    <div class="pg-bar">
+  <section class="cx-gal" id="cases" aria-labelledby="cx-gal-title">
+    <div class="wrap">
+      <header class="sec-head cx-gal__head" data-rv>
+        <div>
+          <p class="kicker">قبل و بعد</p>
+          <h2 class="sec-title" id="cx-gal-title">نتیجه را <em>خودتان مقایسه کنید</em></h2>
+        </div>
+        <p class="sec-sub">هر جفت عکس از یک زاویه و در یک نور است. خط وسط را با انگشت یا موس بکشید، یا روی «قبل» و «بعد» بزنید.</p>
+      </header>
+    </div>
+    <i class="cx-bar__mark" aria-hidden="true"></i>
+    <div class="pg-bar cx-bar">
       <div class="wrap pg-bar__in">
-        <div class="ar-tabs cs-tabs" role="group" aria-label="نمایش نمونه‌ها بر اساس بخش"><button type="button" data-f="all" aria-pressed="true">همه <small>۴</small></button><button type="button" data-f="dental" aria-pressed="false">دندانپزشکی <small>۲</small></button><button type="button" data-f="beauty" aria-pressed="false">زیبایی و لیزر <small>۱</small></button><button type="button" data-f="medicine" aria-pressed="false">پزشکی عمومی <small>۱</small></button></div>
-        <p class="pg-count cs-count" aria-live="polite"><b>۴</b> نمونه</p>
+        <div class="ar-tabs cx-tabs" role="group" aria-label="نمایش نمونه‌ها بر اساس نوع درمان"><button type="button" data-f="all" aria-pressed="true">همه <small>۸</small></button><button type="button" data-f="veneer" aria-pressed="false">لمینت و ونیر <small>۲</small></button><button type="button" data-f="white" aria-pressed="false">سفید کردن <small>۳</small></button><button type="button" data-f="restore" aria-pressed="false">ترمیم و روکش <small>۲</small></button><button type="button" data-f="clean" aria-pressed="false">جرم‌گیری <small>۱</small></button></div>
+        <p class="pg-count cx-count" aria-live="polite"><b>۸</b> نمونه</p>
       </div>
     </div>
     <div class="wrap">
+      <div class="cx-list">
+        <article class="cx" data-t="veneer" id="case-man" aria-labelledby="cx-t-1">
+          <div class="cx__media">
+          <figure class="ba" data-ba>
+            <img class="ba__a" src="img/ba/man-a-960.webp" srcset="img/ba/man-a-960.webp 960w, img/ba/man-a-1200.webp 1200w" sizes="(max-width: 899px) calc(100vw - 32px), 760px" width="1800" height="1200" alt="بعد از درمان: همان لبخند" loading="eager" decoding="async" draggable="false">
+            <div class="ba__b"><img src="img/ba/man-b-960.webp" srcset="img/ba/man-b-960.webp 960w, img/ba/man-b-1200.webp 1200w" sizes="(max-width: 899px) calc(100vw - 32px), 760px" width="1800" height="1200" alt="قبل از درمان: لبخند مردی با فاصله بین دندان‌های جلو" loading="eager" decoding="async" draggable="false"></div>
+            <span class="ba__lb ba__lb--b" aria-hidden="true">قبل</span><span class="ba__lb ba__lb--a" aria-hidden="true">بعد</span>
+            <div class="ba__hw"><span class="ba__ln" aria-hidden="true"></span><span class="ba__k" role="slider" tabindex="0" aria-label="جابه‌جا کردن خط مقایسه‌ی قبل و بعد" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" aria-valuetext="نیمی قبل، نیمی بعد"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l-6 6 6 6M15 6l6 6-6 6"/></svg></span></div>
+          </figure>
+            <div class="cx__seg" role="group" aria-label="نمایش سریع">
+              <button type="button" data-v="0" aria-pressed="false">قبل</button><button type="button" data-v="50" aria-pressed="true">مقایسه</button><button type="button" data-v="100" aria-pressed="false">بعد</button>
+            </div>
+          </div>
+          <div class="cx__info">
+            <p class="cx__meta"><span class="cx__n">۰۱</span><span class="cx__tag">لمینت و ونیر</span></p>
+            <h3 class="cx__t" id="cx-t-1">لمینت سرامیکی؛ فاصله‌ها بسته شد</h3>
+            <p class="cx__p">دندان‌های جلو فاصله داشتند، لبه‌هایشان ناهموار بود و رنگشان یکدست نبود. با لمینت سرامیکی نازک، فرم و رنگ هر دندان از نو طراحی شد و لبخند یکدست و طبیعی شد.</p>
+            <dl class="cx__facts"><div><dt>جلسه</dt><dd>۳ جلسه</dd></div><div><dt>مدت درمان</dt><dd>حدود ۲ هفته</dd></div><div><dt>تراش دندان</dt><dd>حداقل</dd></div></dl>
+            
+            <button type="button" class="cx__book" data-book="dental"><span>درخواست نوبت دندانپزشکی</span><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+          </div>
+        </article>
+        <article class="cx cx--alt" data-t="white" id="case-whiten-clinic" aria-labelledby="cx-t-2">
+          <div class="cx__media">
+          <figure class="ba" data-ba>
+            <img class="ba__a" src="img/ba/whiten-clinic-a-960.webp" srcset="img/ba/whiten-clinic-a-960.webp 960w, img/ba/whiten-clinic-a-1800.webp 1800w" sizes="(max-width: 899px) calc(100vw - 32px), 760px" width="1800" height="1200" alt="بعد از درمان: همان لبخند" loading="lazy" decoding="async" draggable="false">
+            <div class="ba__b"><img src="img/ba/whiten-clinic-b-960.webp" srcset="img/ba/whiten-clinic-b-960.webp 960w, img/ba/whiten-clinic-b-1800.webp 1800w" sizes="(max-width: 899px) calc(100vw - 32px), 760px" width="1800" height="1200" alt="قبل از درمان: دندان‌های زرد با بازکننده‌ی لب" loading="lazy" decoding="async" draggable="false"></div>
+            <span class="ba__lb ba__lb--b" aria-hidden="true">قبل</span><span class="ba__lb ba__lb--a" aria-hidden="true">بعد</span>
+            <div class="ba__hw"><span class="ba__ln" aria-hidden="true"></span><span class="ba__k" role="slider" tabindex="0" aria-label="جابه‌جا کردن خط مقایسه‌ی قبل و بعد" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" aria-valuetext="نیمی قبل، نیمی بعد"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l-6 6 6 6M15 6l6 6-6 6"/></svg></span></div>
+          </figure>
+            <div class="cx__seg" role="group" aria-label="نمایش سریع">
+              <button type="button" data-v="0" aria-pressed="false">قبل</button><button type="button" data-v="50" aria-pressed="true">مقایسه</button><button type="button" data-v="100" aria-pressed="false">بعد</button>
+            </div>
+          </div>
+          <div class="cx__info">
+            <p class="cx__meta"><span class="cx__n">۰۲</span><span class="cx__tag">سفید کردن</span></p>
+            <h3 class="cx__t" id="cx-t-2">بلیچینگ در مطب، در یک جلسه</h3>
+            <p class="cx__p">دندان‌ها سالم بودند اما با گذشت سال‌ها و چای و قهوه زرد شده بودند. در یک جلسه بلیچینگ با ژل حرفه‌ای و نور، رنگ چند درجه روشن‌تر شد، بدون آسیب به مینا.</p>
+            <dl class="cx__facts"><div><dt>جلسه</dt><dd>۱ جلسه</dd></div><div><dt>زمان</dt><dd>حدود ۹۰ دقیقه</dd></div><div><dt>ماندگاری</dt><dd>۱ تا ۳ سال</dd></div></dl>
+            <div class="cx__shade"><span class="cx__shade-h">رنگ دندان در راهنمای رنگ</span><span class="cx__sw" style="--c:#E1C99C"><i></i>A3<small>قبل</small></span><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg><span class="cx__sw" style="--c:#F6F1E6"><i></i>B1<small>بعد</small></span></div>
+            <button type="button" class="cx__book" data-book="dental"><span>درخواست نوبت دندانپزشکی</span><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+          </div>
+        </article>
+        <article class="cx" data-t="veneer" id="case-veneer" aria-labelledby="cx-t-3">
+          <div class="cx__media">
+          <figure class="ba" data-ba>
+            <img class="ba__a" src="img/ba/veneer-a-960.webp" srcset="img/ba/veneer-a-960.webp 960w, img/ba/veneer-a-1800.webp 1800w" sizes="(max-width: 899px) calc(100vw - 32px), 760px" width="1800" height="1200" alt="بعد از درمان: همان لبخند" loading="lazy" decoding="async" draggable="false">
+            <div class="ba__b"><img src="img/ba/veneer-b-960.webp" srcset="img/ba/veneer-b-960.webp 960w, img/ba/veneer-b-1800.webp 1800w" sizes="(max-width: 899px) calc(100vw - 32px), 760px" width="1800" height="1200" alt="قبل از درمان: لبخند با دندان‌های زرد و رژ لب قرمز" loading="lazy" decoding="async" draggable="false"></div>
+            <span class="ba__lb ba__lb--b" aria-hidden="true">قبل</span><span class="ba__lb ba__lb--a" aria-hidden="true">بعد</span>
+            <div class="ba__hw"><span class="ba__ln" aria-hidden="true"></span><span class="ba__k" role="slider" tabindex="0" aria-label="جابه‌جا کردن خط مقایسه‌ی قبل و بعد" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" aria-valuetext="نیمی قبل، نیمی بعد"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l-6 6 6 6M15 6l6 6-6 6"/></svg></span></div>
+          </figure>
+            <div class="cx__seg" role="group" aria-label="نمایش سریع">
+              <button type="button" data-v="0" aria-pressed="false">قبل</button><button type="button" data-v="50" aria-pressed="true">مقایسه</button><button type="button" data-v="100" aria-pressed="false">بعد</button>
+            </div>
+          </div>
+          <div class="cx__info">
+            <p class="cx__meta"><span class="cx__n">۰۳</span><span class="cx__tag">لمینت و ونیر</span></p>
+            <h3 class="cx__t" id="cx-t-3">کامپوزیت ونیر؛ رنگ و فرم تازه</h3>
+            <p class="cx__p">رنگ زرد و کدر دندان‌ها با سفید کردن ساده بهتر نمی‌شد. روی سطح جلوی دندان‌ها لایه‌ای نازک از کامپوزیت هم‌رنگ دندان گذاشته و پرداخت شد؛ بدون تراش زیاد و در یک روز.</p>
+            <dl class="cx__facts"><div><dt>جلسه</dt><dd>۱ تا ۲ جلسه</dd></div><div><dt>تراش دندان</dt><dd>تقریباً هیچ</dd></div><div><dt>ماده</dt><dd>کامپوزیت نانو</dd></div></dl>
+            
+            <button type="button" class="cx__book" data-book="dental"><span>درخواست نوبت دندانپزشکی</span><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+          </div>
+        </article>
+        <article class="cx cx--alt" data-t="restore" id="case-crown" aria-labelledby="cx-t-4">
+          <div class="cx__media">
+          <figure class="ba" data-ba>
+            <img class="ba__a" src="img/ba/crown-a-960.webp" srcset="img/ba/crown-a-960.webp 960w, img/ba/crown-a-1800.webp 1800w" sizes="(max-width: 899px) calc(100vw - 32px), 760px" width="1800" height="1200" alt="بعد از درمان: همان لبخند" loading="lazy" decoding="async" draggable="false">
+            <div class="ba__b"><img src="img/ba/crown-b-960.webp" srcset="img/ba/crown-b-960.webp 960w, img/ba/crown-b-1800.webp 1800w" sizes="(max-width: 899px) calc(100vw - 32px), 760px" width="1800" height="1200" alt="قبل از درمان: لبخند با یک دندان جلوی تیره" loading="lazy" decoding="async" draggable="false"></div>
+            <span class="ba__lb ba__lb--b" aria-hidden="true">قبل</span><span class="ba__lb ba__lb--a" aria-hidden="true">بعد</span>
+            <div class="ba__hw"><span class="ba__ln" aria-hidden="true"></span><span class="ba__k" role="slider" tabindex="0" aria-label="جابه‌جا کردن خط مقایسه‌ی قبل و بعد" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" aria-valuetext="نیمی قبل، نیمی بعد"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l-6 6 6 6M15 6l6 6-6 6"/></svg></span></div>
+          </figure>
+            <div class="cx__seg" role="group" aria-label="نمایش سریع">
+              <button type="button" data-v="0" aria-pressed="false">قبل</button><button type="button" data-v="50" aria-pressed="true">مقایسه</button><button type="button" data-v="100" aria-pressed="false">بعد</button>
+            </div>
+          </div>
+          <div class="cx__info">
+            <p class="cx__meta"><span class="cx__n">۰۴</span><span class="cx__tag">ترمیم و روکش</span></p>
+            <h3 class="cx__t" id="cx-t-4">روکش زیرکونیا برای دندان تیره</h3>
+            <p class="cx__p">یک دندان جلو بعد از عصب‌کشی تیره شده بود و بین بقیه به چشم می‌آمد. روکش زیرکونیا دقیقاً هم‌رنگ دندان‌های کناری ساخته شد و حالا از بقیه جدا دیده نمی‌شود.</p>
+            <dl class="cx__facts"><div><dt>جلسه</dt><dd>۲ جلسه</dd></div><div><dt>مدت درمان</dt><dd>حدود ۱ هفته</dd></div><div><dt>ماده</dt><dd>زیرکونیا</dd></div></dl>
+            
+            <button type="button" class="cx__book" data-book="dental"><span>درخواست نوبت دندانپزشکی</span><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+          </div>
+        </article>
+        <article class="cx" data-t="restore" id="case-composite" aria-labelledby="cx-t-5">
+          <div class="cx__media">
+          <figure class="ba" data-ba>
+            <img class="ba__a" src="img/ba/composite-a-960.webp" srcset="img/ba/composite-a-960.webp 960w, img/ba/composite-a-1800.webp 1800w" sizes="(max-width: 899px) calc(100vw - 32px), 760px" width="1800" height="1200" alt="بعد از درمان: همان لبخند" loading="lazy" decoding="async" draggable="false">
+            <div class="ba__b"><img src="img/ba/composite-b-960.webp" srcset="img/ba/composite-b-960.webp 960w, img/ba/composite-b-1800.webp 1800w" sizes="(max-width: 899px) calc(100vw - 32px), 760px" width="1800" height="1200" alt="قبل از درمان: لبخند با لکه‌های روی مینای دندان" loading="lazy" decoding="async" draggable="false"></div>
+            <span class="ba__lb ba__lb--b" aria-hidden="true">قبل</span><span class="ba__lb ba__lb--a" aria-hidden="true">بعد</span>
+            <div class="ba__hw"><span class="ba__ln" aria-hidden="true"></span><span class="ba__k" role="slider" tabindex="0" aria-label="جابه‌جا کردن خط مقایسه‌ی قبل و بعد" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" aria-valuetext="نیمی قبل، نیمی بعد"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l-6 6 6 6M15 6l6 6-6 6"/></svg></span></div>
+          </figure>
+            <div class="cx__seg" role="group" aria-label="نمایش سریع">
+              <button type="button" data-v="0" aria-pressed="false">قبل</button><button type="button" data-v="50" aria-pressed="true">مقایسه</button><button type="button" data-v="100" aria-pressed="false">بعد</button>
+            </div>
+          </div>
+          <div class="cx__info">
+            <p class="cx__meta"><span class="cx__n">۰۵</span><span class="cx__tag">ترمیم و روکش</span></p>
+            <h3 class="cx__t" id="cx-t-5">لکه‌های سفید و قهوه‌ای مینا</h3>
+            <p class="cx__p">روی سطح دندان‌ها لکه‌های سفید گچی و نقطه‌های قهوه‌ای دیده می‌شد. لکه‌ها با روش کم‌تهاجمی برداشته و با کامپوزیت هم‌رنگ پر شد تا سطح دندان یکدست شود.</p>
+            <dl class="cx__facts"><div><dt>جلسه</dt><dd>۱ جلسه</dd></div><div><dt>بی‌حسی</dt><dd>معمولاً لازم نیست</dd></div><div><dt>ماده</dt><dd>کامپوزیت</dd></div></dl>
+            
+            <button type="button" class="cx__book" data-book="dental"><span>درخواست نوبت دندانپزشکی</span><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+          </div>
+        </article>
+        <article class="cx cx--alt" data-t="white" id="case-makeover" aria-labelledby="cx-t-6">
+          <div class="cx__media">
+          <figure class="ba" data-ba>
+            <img class="ba__a" src="img/ba/makeover-a-960.webp" srcset="img/ba/makeover-a-960.webp 960w, img/ba/makeover-a-1800.webp 1800w" sizes="(max-width: 899px) calc(100vw - 32px), 760px" width="1800" height="1200" alt="بعد از درمان: همان لبخند" loading="lazy" decoding="async" draggable="false">
+            <div class="ba__b"><img src="img/ba/makeover-b-960.webp" srcset="img/ba/makeover-b-960.webp 960w, img/ba/makeover-b-1800.webp 1800w" sizes="(max-width: 899px) calc(100vw - 32px), 760px" width="1800" height="1200" alt="قبل از درمان: لبخند با دندان‌های کدر" loading="lazy" decoding="async" draggable="false"></div>
+            <span class="ba__lb ba__lb--b" aria-hidden="true">قبل</span><span class="ba__lb ba__lb--a" aria-hidden="true">بعد</span>
+            <div class="ba__hw"><span class="ba__ln" aria-hidden="true"></span><span class="ba__k" role="slider" tabindex="0" aria-label="جابه‌جا کردن خط مقایسه‌ی قبل و بعد" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" aria-valuetext="نیمی قبل، نیمی بعد"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l-6 6 6 6M15 6l6 6-6 6"/></svg></span></div>
+          </figure>
+            <div class="cx__seg" role="group" aria-label="نمایش سریع">
+              <button type="button" data-v="0" aria-pressed="false">قبل</button><button type="button" data-v="50" aria-pressed="true">مقایسه</button><button type="button" data-v="100" aria-pressed="false">بعد</button>
+            </div>
+          </div>
+          <div class="cx__info">
+            <p class="cx__meta"><span class="cx__n">۰۶</span><span class="cx__tag">سفید کردن</span></p>
+            <h3 class="cx__t" id="cx-t-6">جرم‌گیری و بلیچینگ، با هم</h3>
+            <p class="cx__p">جرم و رنگ‌دانه‌ها لبخند را کدر کرده بود. اول جرم‌گیری و بروساژ انجام شد و یک هفته بعد، با بلیچینگ ملایم رنگ دندان‌ها روشن‌تر و یکدست شد.</p>
+            <dl class="cx__facts"><div><dt>جلسه</dt><dd>۲ جلسه</dd></div><div><dt>فاصله‌ی جلسه‌ها</dt><dd>۱ هفته</dd></div><div><dt>حساسیت</dt><dd>کم و موقت</dd></div></dl>
+            <div class="cx__shade"><span class="cx__shade-h">رنگ دندان در راهنمای رنگ</span><span class="cx__sw" style="--c:#D9BD8B"><i></i>A3.5<small>قبل</small></span><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg><span class="cx__sw" style="--c:#F0E6D1"><i></i>A1<small>بعد</small></span></div>
+            <button type="button" class="cx__book" data-book="dental"><span>درخواست نوبت دندانپزشکی</span><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+          </div>
+        </article>
+        <article class="cx" data-t="clean" id="case-scaling" aria-labelledby="cx-t-7">
+          <div class="cx__media">
+          <figure class="ba" data-ba>
+            <img class="ba__a" src="img/ba/scaling-a-960.webp" srcset="img/ba/scaling-a-960.webp 960w, img/ba/scaling-a-1800.webp 1800w" sizes="(max-width: 899px) calc(100vw - 32px), 760px" width="1800" height="1200" alt="بعد از درمان: همان لبخند" loading="lazy" decoding="async" draggable="false">
+            <div class="ba__b"><img src="img/ba/scaling-b-960.webp" srcset="img/ba/scaling-b-960.webp 960w, img/ba/scaling-b-1800.webp 1800w" sizes="(max-width: 899px) calc(100vw - 32px), 760px" width="1800" height="1200" alt="قبل از درمان: دندان‌های پایین با جرم کنار لثه" loading="lazy" decoding="async" draggable="false"></div>
+            <span class="ba__lb ba__lb--b" aria-hidden="true">قبل</span><span class="ba__lb ba__lb--a" aria-hidden="true">بعد</span>
+            <div class="ba__hw"><span class="ba__ln" aria-hidden="true"></span><span class="ba__k" role="slider" tabindex="0" aria-label="جابه‌جا کردن خط مقایسه‌ی قبل و بعد" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" aria-valuetext="نیمی قبل، نیمی بعد"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l-6 6 6 6M15 6l6 6-6 6"/></svg></span></div>
+          </figure>
+            <div class="cx__seg" role="group" aria-label="نمایش سریع">
+              <button type="button" data-v="0" aria-pressed="false">قبل</button><button type="button" data-v="50" aria-pressed="true">مقایسه</button><button type="button" data-v="100" aria-pressed="false">بعد</button>
+            </div>
+          </div>
+          <div class="cx__info">
+            <p class="cx__meta"><span class="cx__n">۰۷</span><span class="cx__tag">جرم‌گیری</span></p>
+            <h3 class="cx__t" id="cx-t-7">جرم‌گیری و بروساژ</h3>
+            <p class="cx__p">جرم زرد و قهوه‌ای روی دندان‌ها و کنار لثه جمع شده بود. با جرم‌گیری اولتراسونیک و بروساژ، سطح دندان‌ها تمیز و صاف شد و لثه‌ها هم فرصت بهبود پیدا کردند.</p>
+            <dl class="cx__facts"><div><dt>جلسه</dt><dd>۱ جلسه</dd></div><div><dt>زمان</dt><dd>۴۵ تا ۶۰ دقیقه</dd></div><div><dt>تکرار</dt><dd>هر ۶ ماه</dd></div></dl>
+            
+            <button type="button" class="cx__book" data-book="dental"><span>درخواست نوبت دندانپزشکی</span><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+          </div>
+        </article>
+        <article class="cx cx--alt" data-t="white" id="case-whiten-home" aria-labelledby="cx-t-8">
+          <div class="cx__media">
+          <figure class="ba" data-ba>
+            <img class="ba__a" src="img/ba/whiten-home-a-960.webp" srcset="img/ba/whiten-home-a-960.webp 960w, img/ba/whiten-home-a-1800.webp 1800w" sizes="(max-width: 899px) calc(100vw - 32px), 760px" width="1800" height="1200" alt="بعد از درمان: همان لبخند" loading="lazy" decoding="async" draggable="false">
+            <div class="ba__b"><img src="img/ba/whiten-home-b-960.webp" srcset="img/ba/whiten-home-b-960.webp 960w, img/ba/whiten-home-b-1800.webp 1800w" sizes="(max-width: 899px) calc(100vw - 32px), 760px" width="1800" height="1200" alt="قبل از درمان: لبخند با دندان‌های کمی زرد" loading="lazy" decoding="async" draggable="false"></div>
+            <span class="ba__lb ba__lb--b" aria-hidden="true">قبل</span><span class="ba__lb ba__lb--a" aria-hidden="true">بعد</span>
+            <div class="ba__hw"><span class="ba__ln" aria-hidden="true"></span><span class="ba__k" role="slider" tabindex="0" aria-label="جابه‌جا کردن خط مقایسه‌ی قبل و بعد" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" aria-valuetext="نیمی قبل، نیمی بعد"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l-6 6 6 6M15 6l6 6-6 6"/></svg></span></div>
+          </figure>
+            <div class="cx__seg" role="group" aria-label="نمایش سریع">
+              <button type="button" data-v="0" aria-pressed="false">قبل</button><button type="button" data-v="50" aria-pressed="true">مقایسه</button><button type="button" data-v="100" aria-pressed="false">بعد</button>
+            </div>
+          </div>
+          <div class="cx__info">
+            <p class="cx__meta"><span class="cx__n">۰۸</span><span class="cx__tag">سفید کردن</span></p>
+            <h3 class="cx__t" id="cx-t-8">بلیچینگ خانگی با قالب اختصاصی</h3>
+            <p class="cx__p">برای سفید کردن آرام و کنترل‌شده، قالب اختصاصی ساخته شد و دو هفته هر شب ژل در خانه استفاده شد. نتیجه روشن و یکدست است و حساسیت کمتری دارد.</p>
+            <dl class="cx__facts"><div><dt>مدت</dt><dd>۲ هفته</dd></div><div><dt>استفاده</dt><dd>شبی ۱ تا ۲ ساعت</dd></div><div><dt>کنترل</dt><dd>۲ جلسه در مطب</dd></div></dl>
+            <div class="cx__shade"><span class="cx__shade-h">رنگ دندان در راهنمای رنگ</span><span class="cx__sw" style="--c:#E1C99C"><i></i>A3<small>قبل</small></span><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg><span class="cx__sw" style="--c:#EEE2C6"><i></i>B2<small>بعد</small></span></div>
+            <button type="button" class="cx__book" data-book="dental"><span>درخواست نوبت دندانپزشکی</span><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="cx-wall" aria-labelledby="cx-wall-title">
+    <div class="wrap">
+      <header class="sec-head" data-rv>
+        <div>
+          <p class="kicker kicker--light">مراحل کار</p>
+          <h2 class="sec-title" id="cx-wall-title">هر لبخند، <em>با دقت ساخته می‌شود</em></h2>
+        </div>
+        <p class="sec-sub">رنگ‌گیری، قالب، ساخت و کنترل؛ مراحلی که پشت هر نتیجه‌ی خوب است.</p>
+      </header>
+    </div>
+    <div class="cx-wall__rows">
+        <div class="cx-wall__row"><figure class="cx-wall__i"><div class="cx-wall__img"><img src="img/wall/6627570-560.webp" srcset="img/wall/6627570-560.webp 560w, img/wall/6627570-960.webp 960w" sizes="(max-width: 899px) 52vw, 28vw" width="960" height="686" alt="" loading="lazy" decoding="async"></div><figcaption>انتخاب رنگ لمینت</figcaption></figure><figure class="cx-wall__i"><div class="cx-wall__img"><img src="img/wall/33748062-560.webp" srcset="img/wall/33748062-560.webp 560w, img/wall/33748062-960.webp 960w" sizes="(max-width: 899px) 52vw, 28vw" width="960" height="686" alt="" loading="lazy" decoding="async"></div><figcaption>روکش‌ها پیش از نصب</figcaption></figure><figure class="cx-wall__i"><div class="cx-wall__img"><img src="img/wall/4269690-560.webp" srcset="img/wall/4269690-560.webp 560w, img/wall/4269690-960.webp 960w" sizes="(max-width: 899px) 52vw, 28vw" width="960" height="686" alt="" loading="lazy" decoding="async"></div><figcaption>معاینه‌ی لثه</figcaption></figure><figure class="cx-wall__i"><div class="cx-wall__img"><img src="img/wall/6627599-560.webp" srcset="img/wall/6627599-560.webp 560w, img/wall/6627599-960.webp 960w" sizes="(max-width: 899px) 52vw, 28vw" width="960" height="686" alt="" loading="lazy" decoding="async"></div><figcaption>رنگ‌های سرامیک</figcaption></figure><figure class="cx-wall__i"><div class="cx-wall__img"><img src="img/wall/6812543-560.webp" srcset="img/wall/6812543-560.webp 560w, img/wall/6812543-960.webp 960w" sizes="(max-width: 899px) 52vw, 28vw" width="960" height="686" alt="" loading="lazy" decoding="async"></div><figcaption>آماده‌سازی بلیچینگ</figcaption></figure><figure class="cx-wall__i"><div class="cx-wall__img"><img src="img/wall/12934843-560.webp" srcset="img/wall/12934843-560.webp 560w, img/wall/12934843-960.webp 960w" sizes="(max-width: 899px) 52vw, 28vw" width="960" height="686" alt="" loading="lazy" decoding="async"></div><figcaption>رنگ‌گیری کنار نور روز</figcaption></figure><figure class="cx-wall__i"><div class="cx-wall__img"><img src="img/wall/6627706-560.webp" srcset="img/wall/6627706-560.webp 560w, img/wall/6627706-960.webp 960w" sizes="(max-width: 899px) 52vw, 28vw" width="960" height="686" alt="" loading="lazy" decoding="async"></div><figcaption>ابزار ترمیم</figcaption></figure></div>
+        <div class="cx-wall__row"><figure class="cx-wall__i"><div class="cx-wall__img"><img src="img/wall/6627575-560.webp" srcset="img/wall/6627575-560.webp 560w, img/wall/6627575-960.webp 960w" sizes="(max-width: 899px) 52vw, 28vw" width="960" height="686" alt="" loading="lazy" decoding="async"></div><figcaption>دیدن نتیجه در آینه</figcaption></figure><figure class="cx-wall__i"><div class="cx-wall__img"><img src="img/wall/14235198-560.webp" srcset="img/wall/14235198-560.webp 560w, img/wall/14235198-960.webp 960w" sizes="(max-width: 899px) 52vw, 28vw" width="960" height="686" alt="" loading="lazy" decoding="async"></div><figcaption>معاینه‌ی ارتودنسی</figcaption></figure><figure class="cx-wall__i"><div class="cx-wall__img"><img src="img/wall/6812496-560.webp" srcset="img/wall/6812496-560.webp 560w, img/wall/6812496-960.webp 960w" sizes="(max-width: 899px) 52vw, 28vw" width="960" height="686" alt="" loading="lazy" decoding="async"></div><figcaption>راهنمای رنگ دندان</figcaption></figure><figure class="cx-wall__i"><div class="cx-wall__img"><img src="img/wall/6529106-560.webp" srcset="img/wall/6529106-560.webp 560w, img/wall/6529106-960.webp 960w" sizes="(max-width: 899px) 52vw, 28vw" width="960" height="686" alt="" loading="lazy" decoding="async"></div><figcaption>بلیچینگ با نور</figcaption></figure><figure class="cx-wall__i"><div class="cx-wall__img"><img src="img/wall/33748047-560.webp" srcset="img/wall/33748047-560.webp 560w, img/wall/33748047-960.webp 960w" sizes="(max-width: 899px) 52vw, 28vw" width="960" height="686" alt="" loading="lazy" decoding="async"></div><figcaption>مدل دیجیتال فک</figcaption></figure><figure class="cx-wall__i"><div class="cx-wall__img"><img src="img/wall/6627536-560.webp" srcset="img/wall/6627536-560.webp 560w, img/wall/6627536-960.webp 960w" sizes="(max-width: 899px) 52vw, 28vw" width="960" height="686" alt="" loading="lazy" decoding="async"></div><figcaption>معاینه با آینه</figcaption></figure><figure class="cx-wall__i"><div class="cx-wall__img"><img src="img/wall/7800553-560.webp" srcset="img/wall/7800553-560.webp 560w, img/wall/7800553-960.webp 960w" sizes="(max-width: 899px) 52vw, 28vw" width="960" height="686" alt="" loading="lazy" decoding="async"></div><figcaption>قالب‌ها و مدل‌ها</figcaption></figure></div>
+        <div class="cx-wall__row"><figure class="cx-wall__i"><div class="cx-wall__img"><img src="img/wall/6627572-560.webp" srcset="img/wall/6627572-560.webp 560w, img/wall/6627572-960.webp 960w" sizes="(max-width: 899px) 52vw, 28vw" width="960" height="686" alt="" loading="lazy" decoding="async"></div><figcaption>تطبیق رنگ با دندان</figcaption></figure><figure class="cx-wall__i"><div class="cx-wall__img"><img src="img/wall/4269683-560.webp" srcset="img/wall/4269683-560.webp 560w, img/wall/4269683-960.webp 960w" sizes="(max-width: 899px) 52vw, 28vw" width="960" height="686" alt="" loading="lazy" decoding="async"></div><figcaption>بررسی دقیق</figcaption></figure><figure class="cx-wall__i"><div class="cx-wall__img"><img src="img/wall/6627604-560.webp" srcset="img/wall/6627604-560.webp 560w, img/wall/6627604-960.webp 960w" sizes="(max-width: 899px) 52vw, 28vw" width="960" height="686" alt="" loading="lazy" decoding="async"></div><figcaption>طیف رنگ دندان</figcaption></figure><figure class="cx-wall__i"><div class="cx-wall__img"><img src="img/wall/6812568-560.webp" srcset="img/wall/6812568-560.webp 560w, img/wall/6812568-960.webp 960w" sizes="(max-width: 899px) 52vw, 28vw" width="960" height="686" alt="" loading="lazy" decoding="async"></div><figcaption>درمان با دقت</figcaption></figure><figure class="cx-wall__i"><div class="cx-wall__img"><img src="img/wall/5355899-560.webp" srcset="img/wall/5355899-560.webp 560w, img/wall/5355899-960.webp 960w" sizes="(max-width: 899px) 52vw, 28vw" width="960" height="686" alt="" loading="lazy" decoding="async"></div><figcaption>راهنمای رنگ</figcaption></figure><figure class="cx-wall__i"><div class="cx-wall__img"><img src="img/wall/6627526-560.webp" srcset="img/wall/6627526-560.webp 560w, img/wall/6627526-960.webp 960w" sizes="(max-width: 899px) 52vw, 28vw" width="960" height="686" alt="" loading="lazy" decoding="async"></div><figcaption>جلسه‌ی کنترل</figcaption></figure><figure class="cx-wall__i"><div class="cx-wall__img"><img src="img/wall/4269690-560.webp" srcset="img/wall/4269690-560.webp 560w, img/wall/4269690-960.webp 960w" sizes="(max-width: 899px) 52vw, 28vw" width="960" height="686" alt="" loading="lazy" decoding="async"></div><figcaption>معاینه‌ی لثه</figcaption></figure></div>
+        <div class="cx-wall__row"><figure class="cx-wall__i"><div class="cx-wall__img"><img src="img/wall/6812496-560.webp" srcset="img/wall/6812496-560.webp 560w, img/wall/6812496-960.webp 960w" sizes="(max-width: 899px) 52vw, 28vw" width="960" height="686" alt="" loading="lazy" decoding="async"></div><figcaption>راهنمای رنگ دندان</figcaption></figure><figure class="cx-wall__i"><div class="cx-wall__img"><img src="img/wall/6812543-560.webp" srcset="img/wall/6812543-560.webp 560w, img/wall/6812543-960.webp 960w" sizes="(max-width: 899px) 52vw, 28vw" width="960" height="686" alt="" loading="lazy" decoding="async"></div><figcaption>آماده‌سازی بلیچینگ</figcaption></figure><figure class="cx-wall__i"><div class="cx-wall__img"><img src="img/wall/33748047-560.webp" srcset="img/wall/33748047-560.webp 560w, img/wall/33748047-960.webp 960w" sizes="(max-width: 899px) 52vw, 28vw" width="960" height="686" alt="" loading="lazy" decoding="async"></div><figcaption>مدل دیجیتال فک</figcaption></figure><figure class="cx-wall__i"><div class="cx-wall__img"><img src="img/wall/6627570-560.webp" srcset="img/wall/6627570-560.webp 560w, img/wall/6627570-960.webp 960w" sizes="(max-width: 899px) 52vw, 28vw" width="960" height="686" alt="" loading="lazy" decoding="async"></div><figcaption>انتخاب رنگ لمینت</figcaption></figure><figure class="cx-wall__i"><div class="cx-wall__img"><img src="img/wall/7800553-560.webp" srcset="img/wall/7800553-560.webp 560w, img/wall/7800553-960.webp 960w" sizes="(max-width: 899px) 52vw, 28vw" width="960" height="686" alt="" loading="lazy" decoding="async"></div><figcaption>قالب‌ها و مدل‌ها</figcaption></figure><figure class="cx-wall__i"><div class="cx-wall__img"><img src="img/wall/6627706-560.webp" srcset="img/wall/6627706-560.webp 560w, img/wall/6627706-960.webp 960w" sizes="(max-width: 899px) 52vw, 28vw" width="960" height="686" alt="" loading="lazy" decoding="async"></div><figcaption>ابزار ترمیم</figcaption></figure><figure class="cx-wall__i"><div class="cx-wall__img"><img src="img/wall/6627604-560.webp" srcset="img/wall/6627604-560.webp 560w, img/wall/6627604-960.webp 960w" sizes="(max-width: 899px) 52vw, 28vw" width="960" height="686" alt="" loading="lazy" decoding="async"></div><figcaption>طیف رنگ دندان</figcaption></figure></div>
+    </div>
+  </section>
+
+  <section class="cases cs-page" id="stories" aria-labelledby="cs-st-title">
+    <div class="wrap">
+      <header class="sec-head" data-rv>
+        <div>
+          <p class="kicker">پرونده‌ها</p>
+          <h2 class="sec-title" id="cs-st-title">از اولین جلسه تا نتیجه</h2>
+        </div>
+        <p class="sec-sub">چند پرونده از دندانپزشکی و زیبایی، از اول تا آخر: مشکل چه بود، درمان در چند قدم پیش رفت و نتیجه چه شد.</p>
+      </header>
       <!-- PART:cases-list (مشترک با cases.html؛ فقط اینجا ویرایش کنید و بعد: python3 tools/sync-layout.py) -->
       <div class="cs-list">
         <article class="cs" data-k="dental">
@@ -327,7 +517,6 @@
           </div>
         </article>
       </div>
-      <p class="cs-note"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg>این چهار پرونده و عکس‌هایشان نمونه‌ی طراحی‌اند و پیش از انتشار سایت با پرونده‌های واقعی کلینیک جایگزین می‌شوند. عکس قبل و بعد واقعی بیماران فقط با رضایت کتبی خودشان نشان داده می‌شود.</p>
       <!-- /PART:cases-list -->
     </div>
   </section>
@@ -339,7 +528,7 @@
           <p class="kicker">روند کار</p>
           <h2 class="sec-title" id="cs-proc-title">هر درمان، چهار قدم روشن</h2>
         </div>
-        <p class="sec-sub">پرونده‌های بالا همه همین مسیر را رفته‌اند؛ درمان شما هم همین‌طور پیش می‌رود.</p>
+        <p class="sec-sub">همه‌ی نمونه‌های این صفحه همین مسیر را رفته‌اند؛ درمان شما هم همین‌طور پیش می‌رود.</p>
       </header>
       <div class="cs-proc__track">
         <i class="cs-proc__line" aria-hidden="true"><i></i></i>
@@ -347,7 +536,7 @@
           <li class="cs-proc__s" style="--i:0">
             <span class="cs-proc__ic"><svg class="ic" aria-hidden="true"><use href="#i-scan"/></svg><b>۱</b></span>
             <h3 class="cs-proc__t">معاینه و عکس</h3>
-            <p class="cs-proc__p">اول مشکل دقیق دیده می‌شود: معاینه، و اگر لازم باشد عکس رادیولوژی یا عکس از ناحیه‌ی درمان.</p>
+            <p class="cs-proc__p">اول مشکل دقیق دیده می‌شود: معاینه، و اگر لازم باشد عکس رادیولوژی یا عکس از لبخند.</p>
           </li>
           <li class="cs-proc__s" style="--i:1">
             <span class="cs-proc__ic"><svg class="ic" aria-hidden="true"><use href="#i-file"/></svg><b>۲</b></span>
@@ -365,16 +554,6 @@
             <p class="cs-proc__p">بعد از درمان جلسه‌ی کنترل دارید و نتیجه در پرونده‌تان ثبت می‌شود.</p>
           </li>
         </ol>
-      </div>
-    </div>
-  </section>
-
-  <section class="cs-consent" aria-labelledby="cs-consent-title">
-    <div class="wrap cs-consent__in" data-rv>
-      <span class="cs-consent__ic" aria-hidden="true"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg></span>
-      <div>
-        <h2 class="cs-consent__t" id="cs-consent-title">چرا این‌جا عکس قبل و بعد بیمار نمی‌بینید؟</h2>
-        <p class="cs-consent__p">عکس قبل و بعد واقعی بیماران فقط با رضایت کتبی خودشان نشان داده می‌شود. تا آن موقع، عکس‌های این صفحه نمایشی‌اند و از بیماران کلینیک نیستند. اگر دوست دارید نتیجه‌ی درمانتان این‌جا باشد، به پذیرش بگویید.</p>
       </div>
     </div>
   </section>
@@ -469,7 +648,7 @@
   </div>
   <div class="wrap foot__bottom">
     <p>© ۱۴۰۵ کلینیک ساسان. همه‌ی حقوق محفوظ است. <a class="foot__legal" href="privacy.html">حریم خصوصی و شرایط استفاده</a></p>
-    <p class="foot__sample">نظرها، آمار نظرسنجی و نمونه‌پرونده‌ها نمونه‌ی طراحی‌اند.</p>
+    <p class="foot__sample">نظرها، آمار نظرسنجی، نمونه‌پرونده‌ها و عکس‌های قبل و بعد نمونه‌ی طراحی‌اند.</p>
     <a class="foot__top" href="#top">بالای صفحه<svg class="ic" aria-hidden="true"><use href="#i-arrow-ul"/></svg></a>
   </div>
   </div>
@@ -647,5 +826,6 @@
 <script src="js/book.js"></script>
 <!-- /LAYOUT:bottom -->
 <script src="js/pages.js"></script>
+<script src="js/cases.js"></script>
 </body>
 </html>

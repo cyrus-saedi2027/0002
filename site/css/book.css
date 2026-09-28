@@ -225,7 +225,4 @@ html.rm .bk-call__ic, html.rm .bk-call__ring { animation: none !important; }
 }
 
 html.bk-open main *, html.bk-open .foot * { animation-play-state: paused !important; }
-html.hc .bk__panel { box-shadow: 0 0 0 3px #000; }
-html.hc .bk__glow, html.hc .bk__skin { display: none; }
-html.hc .bk-dept, html.hc .bk-code__cells i, html.hc .bk-how { box-shadow: inset 0 0 0 2px #000; }
-html.hc .bk-dept.is-on, html.hc .bk-seg label.is-on { background: #FFF6C2; box-shadow: inset 0 0 0 3px #000; }
+

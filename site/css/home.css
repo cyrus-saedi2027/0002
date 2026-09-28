@@ -303,7 +303,7 @@ html.motion .deck.is-flipped .pcard:hover .pcard__face { translate: 0 -10px; }
 .jsky__l--2 { opacity: 0; background: radial-gradient(40% 46% at 80% 26%, rgba(45, 212, 240, .2), rgba(45, 212, 240, 0) 70%), radial-gradient(40% 44% at 14% 78%, rgba(85, 216, 191, .24), rgba(85, 216, 191, 0) 70%), #EDF5F3; }
 .jsky__l--3 { opacity: 0; background: radial-gradient(40% 46% at 78% 24%, rgba(123, 97, 255, .16), rgba(123, 97, 255, 0) 70%), radial-gradient(40% 44% at 16% 80%, rgba(165, 175, 255, .3), rgba(165, 175, 255, 0) 70%), #F1F0FB; }
 .jsky__l--4 { opacity: 0; background: radial-gradient(40% 46% at 82% 22%, rgba(232, 67, 111, .12), rgba(232, 67, 111, 0) 70%), radial-gradient(40% 44% at 12% 82%, rgba(255, 116, 70, .14), rgba(255, 116, 70, 0) 70%), #FBF1F4; }
-html.hc .jsky { display: none; }
+
 /* کاشی‌های «در یک نگاه»: عکس آرام نزدیک می‌شود و برچسب بالا می‌آید */
 .tile img { transition: transform 1.1s var(--ease-out); }
 /* ==========================================================================
@@ -446,11 +446,6 @@ html.hc .jsky { display: none; }
   .doc__days { margin-bottom: 16px; }
 }
 
-html.hc .docs { background: #000; }
-html.hc .docs__sky { display: none; }
-html.hc .docs .sec-sub, html.hc .doc__head { color: #fff; }
-html.hc .doc__body, html.hc .doc { box-shadow: inset 0 0 0 2px #000; }
-
 /* ==========================================================================
    ایمنی و استریل: موشن‌گرافیک چرخه‌ی چهارمرحله‌ای (حلقه روی بوم، نشانه‌ها و متن‌ها HTML؛ js: Safe)
    ========================================================================== */
@@ -503,10 +498,7 @@ html:not(.motion) .sf .sf__txt span, html.rm .sf .sf__txt span { color: var(--in
   .sfx__node { width: 46px; height: 46px; margin: -23px 0 0 -23px; }
   .sfx__node .ic { width: 19px; height: 19px; }
 }
-html.hc .safe { background: #fff; }
 
-html.hc .sfx__node { box-shadow: 0 0 0 2px #000; }
-html.hc .sf.is-on .sf__btn { box-shadow: inset 0 0 0 3px #000; }
 .tile figcaption { transition: transform .6s var(--ease-out); }
 @media (hover: hover) { .tile:hover img { transform: scale(1.07); } .tile:hover figcaption { transform: translateY(-4px); } }
 /* نور براق کارت بخش که دنبال نشانگر می‌رود */
@@ -546,8 +538,6 @@ html.hc .sf.is-on .sf__btn { box-shadow: inset 0 0 0 3px #000; }
 .cs__stats span { font-size: .8125rem; line-height: 1.5; color: var(--ink-3); }
 .cs__doc { display: flex; align-items: center; gap: 8px; margin-top: 16px; font-size: .875rem; font-weight: 600; color: var(--ink-2); }
 .cs__doc .ic { width: 18px; height: 18px; color: var(--blue); }
-.cs-note { display: flex; align-items: flex-start; gap: 10px; margin-top: clamp(48px, 8vh, 80px); padding: 14px 16px; border-radius: var(--r2); background: var(--mist); border: 1px solid var(--line); font-size: .875rem; line-height: 1.85; color: var(--ink-2); }
-.cs-note .ic { flex: none; width: 18px; height: 18px; margin-top: 3px; color: var(--ok); }
 @media (max-width: 899.98px) {
   .cs { grid-template-columns: minmax(0, 1fr); gap: 24px; }
   .cs .cs__media, .cs:nth-child(even) .cs__media { order: -1; }
@@ -556,8 +546,6 @@ html.hc .sf.is-on .sf__btn { box-shadow: inset 0 0 0 3px #000; }
   .cs--tall .cs__img--a { aspect-ratio: 4 / 3; }
   .cs__img--b { width: 40%; border-width: 4px; }
 }
-html.hc .cs__img--b { border-color: #000; }
-html.hc .cs__who, html.hc .cs__p, html.hc .cs__stats span, html.hc .cs-note { color: #000; }
 
 /* ==========================================================================
    نظر بیماران
@@ -687,9 +675,6 @@ html.hc .cs__who, html.hc .cs__p, html.hc .cs__stats span, html.hc .cs-note { co
   .mag__meta { grid-area: meta; }
   .mag__pv { display: none; }
 }
-html.hc .mag { background: #000; }
-html.hc .mag::before { display: none; }
-html.hc .mag__meta, html.hc .mag__note, html.hc .mag__no { color: #fff; }
 
 /* ==========================================================================
    سؤال‌های پرتکرار
@@ -947,8 +932,6 @@ html.svc-open main *, html.svc-open .foot * { animation-play-state: paused !impo
 .svc__grp-go:hover { background: color-mix(in srgb, var(--tb) 70%, var(--tone) 12%); }
 .svc__grp-go:active { scale: .96; transition-duration: .1s; }
 .svc__grp-go .ic { width: 16px; height: 16px; }
-html.hc .svc__seg-ind { background: #000; }
-html.hc .svc__grp-go { box-shadow: inset 0 0 0 2px #000; color: #000; }
 
 /* ==========================================================================
    واکنش‌گرا
@@ -1076,25 +1059,6 @@ html.hc .svc__grp-go { box-shadow: inset 0 0 0 2px #000; color: #000; }
 }
 
 /* ---------- کنتراست بالا ---------- */
-html.hc .stage__shade { background: rgba(0, 0, 0, .78); }
-html.hc .hero__lead { color: #fff; }
-html.hc .qbook { border: 2px solid #000; box-shadow: none; }
-html.hc .qbook__live, html.hc .field__label { color: #000; }
-html.hc .about__p, html.hc .fig dt, html.hc .fig dd span { color: #000; }
-html.hc .figures, html.hc .fig + .fig { border-color: #000; }
-html.hc .depts { background: #000; }
-html.hc .depts__sub { color: #fff; }
-html.hc .faq-item, html.hc .vcard, html.hc .vmap__frame, html.hc .vapp, html.hc .callback, html.hc .chip, html.hc .faq-tabs button { border: 2px solid #000; }
-html.hc .faq-item__a p, html.hc .reach span, html.hc .vcard__note, html.hc .hours b, html.hc .faq-item__tag, html.hc .callback__head span { color: #000; }
-html.hc .svc__item { border: 2px solid #000; }
-html.hc .svc__item p { color: #000; }
-html.hc .rv-card, html.hc .rv-sum { border: 2px solid #000; background: #fff; }
-html.hc .journey { background: #fff !important; }
-html.hc .jr-step__p, html.hc .sec-sub { color: #000; }
-html.hc .jr-step__facts li { border: 2px solid #000; }
-html.hc .rv-note, html.hc .rv-who small, html.hc .rv-count { color: #000; }
-html.hc .tile { outline: 2px solid #000; outline-offset: -2px; }
-html.hc .tile::after { background: linear-gradient(0deg, rgba(0, 0, 0, .92) 0%, rgba(0, 0, 0, .6) 45%, rgba(0, 0, 0, 0) 70%); }
 
 /* ==========================================================================
    تعامل‌ها (دور ۱۰): زبانه‌های کپسولی با نشانگر فنری، حالت‌های دکمه‌ی ارسال
@@ -1106,8 +1070,6 @@ html.hc .tile::after { background: linear-gradient(0deg, rgba(0, 0, 0, .92) 0%, 
 .has-pill > button[aria-selected="true"], .has-pill > button[aria-pressed="true"] { background: transparent; color: #fff; }
 .pill { position: absolute; left: 0; top: 0; z-index: 0; width: var(--w, 0); height: var(--h, 0); border-radius: var(--r1); background: var(--navy-800); box-shadow: 0 6px 14px -6px rgba(13, 27, 48, .5); transform: translate(var(--x, 0), var(--y, 0)); transition: transform .55s var(--spring), width .55s var(--spring), height .3s var(--ease-out); pointer-events: none; }
 html.rm .pill { transition: none; }
-html.hc .has-pill { border: 2px solid #000; }
-html.hc .pill { background: #000; }
 
 /* دکمه‌ی ارسال: در حال بررسی ← انجام شد */
 .btn .spin { display: none; width: 18px; height: 18px; flex: none; border-radius: 50%; border: 2px solid rgba(255, 255, 255, .35); border-top-color: #fff; animation: spin .7s linear infinite; }
@@ -1123,7 +1085,7 @@ html.hc .pill { background: #000; }
 
 /* ---------- بازخورد لمسی: هر کنترل هنگام فشار کمی جمع می‌شود و با فنر برمی‌گردد (ویژگی scale، جدا از transformهای GSAP) ---------- */
 /* فقط ویژگی‌های رنگ و scale/translate؛ transform و opacity را GSAP می‌گرداند و ترنزیشن CSS رویشان مقدار پایانی را خراب می‌کند */
-.rv-btn, .vroutes button, .chip, .social a, .vapp, .vtabs__btn, .prefs__btn, .seg__btn, .tgl, .burger, .pick, .has-pill > button, .sheet__svc {
+.rv-btn, .vroutes button, .chip, .social a, .vapp, .vtabs__btn, .burger, .pick, .has-pill > button, .sheet__svc {
   transition-property: background-color, border-color, color, box-shadow, scale, translate;
   transition-duration: .2s, .2s, .2s, .3s, .5s, .45s;
   transition-timing-function: ease, ease, ease, ease, var(--spring), var(--spring);
@@ -1131,7 +1093,7 @@ html.hc .pill { background: #000; }
 }
 .rv-btn { transition-property: background-color, border-color, color, box-shadow, scale, opacity; transition-duration: .2s, .2s, .2s, .3s, .5s, .2s; transition-timing-function: ease, ease, ease, ease, var(--spring), ease;
 }
-.rv-btn:active, .vroutes button:active, .chip:active, .social a:active, .vtabs__btn:active, .prefs__btn:active, .seg__btn:active, .tgl:active, .burger:active, .has-pill > button:active { scale: .94; transition-duration: .1s; }
+.rv-btn:active, .vroutes button:active, .chip:active, .social a:active, .vtabs__btn:active, .burger:active, .has-pill > button:active { scale: .94; transition-duration: .1s; }
 .vapp:active, .pick:active, .sheet__svc:active { scale: .98; transition-duration: .1s; }
 .sheet__nav a { transition: padding .35s var(--ease-out), color .2s; }
 .sheet__nav a:active { padding-inline-start: 6px; color: var(--blue); }
@@ -1316,11 +1278,7 @@ html.ar-open main *, html.ar-open .foot * { animation-play-state: paused !import
 .ar-card__meta small, .ar-card__by { font-family: var(--f-ui); font-size: .75rem; color: var(--ink-3); }
 .ari-grid .ar-card b { font-size: 1.0625rem; font-weight: 800; line-height: 1.75; color: var(--navy-800); background: linear-gradient(currentColor, currentColor) no-repeat 100% 100% / 0 1.5px; transition: background-size .55s var(--ease-out), color .25s; }
 .ari-grid .ar-card:hover b { background-size: 100% 1.5px; color: var(--tone-ink, var(--navy-800)); }
-html.hc .ari-feat__shade { background: rgba(0, 0, 0, .7); }
-html.hc .ari-idx__bar i { background: #000; }
-html.hc .ar__sheet { border: 2px solid #000; }
-html.hc .ar-lead, html.hc .ar-meta, html.hc .ar-note, html.hc .ar__crumb { color: #000; }
-html.hc .ar-box { border: 2px solid #000; }
+
 @media (max-width: 699.98px) {
   .ar__sheet { width: 100%; top: 8px; border-radius: 16px 16px 0 0; }
   .ar__all span { display: none; }
