@@ -298,7 +298,7 @@ if (require.main === module) {
     const any = cfg.host === '0.0.0.0' || cfg.host === '::';
     console.log(`سرور ساسان کلینیک روشن شد (پیامک: ${cfg.sms.mode === 'live' ? 'اصلی' : 'آزمایشی / Sandbox؛ کد در همین‌جا چاپ می‌شود'})`);
     console.log(`  سایت: http://${any ? '127.0.0.1' : cfg.host}:${cfg.port}`);
-    console.log(`  پنل پذیرش: http://${any ? '127.0.0.1' : cfg.host}:${cfg.port}/panel/` + (app.panel.users.all().length ? '' : '  (اول با npm run user یک مدیر بسازید)'));
+    console.log(`  پنل پذیرش: http://${any ? '127.0.0.1' : cfg.host}:${cfg.port}/panel/` + (app.panel.users.all().length ? '' : '  (اول با npm run user اولین حساب پذیرش را بسازید)'));
     /* با HOST=0.0.0.0 از گوشیِ همان شبکه هم باز می‌شود */
     if (any) Object.values(require('os').networkInterfaces()).flat().filter((i) => i && i.family === 'IPv4' && !i.internal).forEach((i) => console.log(`  از گوشی: http://${i.address}:${cfg.port}`));
   });
