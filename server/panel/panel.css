@@ -681,6 +681,36 @@ a.kpi:hover { transform: translateY(-3px); box-shadow: var(--sh-3); }
 .alog li small { display: block; font-size: .75rem; color: var(--ink-3); }
 .alog time { font-size: .75rem; color: var(--ink-3); }
 
+/* ---------- مخاطبان ---------- */
+.ct-exp { margin-bottom: 16px; }
+.ct-exp .card__b { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; }
+.ct-exp__t { flex: 1 1 320px; display: flex; align-items: flex-start; gap: 12px; }
+.ct-exp__ic { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--blue-50); color: var(--blue); }
+.ct-exp__t b { display: block; }
+.ct-exp__t small { display: block; margin-top: 2px; font-size: .8125rem; line-height: 1.8; color: var(--ink-3); }
+.ct-exp__t small b { display: inline; color: var(--ink); }
+.ct-exp__b { display: flex; flex-wrap: wrap; gap: 8px; }
+.ct-list { display: grid; gap: 10px; }
+.ctr { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 4px 14px; padding: 14px 16px 14px 14px; border-radius: 16px; background: #fff; box-shadow: var(--sh-1); transition: box-shadow .25s, opacity .25s; }
+.ctr:hover { box-shadow: var(--sh-2); }
+.ctr.is-off { opacity: .62; }
+/* ردیف‌های بیرون از صفحه چیده و کشیده نمی‌شوند (فهرست هزاران شماره روان می‌ماند) */
+.ctr { content-visibility: auto; contain-intrinsic-size: auto 104px; }
+.ctr__b { min-width: 0; }
+.ctr__t { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.ctr__t b { font-weight: 700; }
+.ctr__ok, .ctr__no { display: inline-flex; align-items: center; gap: 4px; font-size: .72rem; font-weight: 700; }
+.ctr__ok { color: var(--ok); }
+.ctr__no { color: var(--bad); }
+.ctr__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-top: 4px; font-size: .8125rem; color: var(--ink-3); }
+.ctr__meta > .ltr { font-weight: 700; color: var(--ink-2); }
+.ctr__src { display: inline-flex; align-items: center; gap: 3px; height: 22px; padding: 0 8px; border-radius: 999px; background: var(--mist); font-size: .72rem; font-weight: 600; color: var(--ink-2); }
+.ctr__src em { font-style: normal; color: var(--ink-3); }
+.ctr__note { margin-top: 6px; font-size: .8125rem; line-height: 1.8; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ctr__acts { display: flex; align-items: center; gap: 8px; }
+.ct-more { justify-self: center; margin-top: 6px; }
+.ct-more small { font-weight: 500; }
+
 /* ---------- پنجره ---------- */
 .modal { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px; background: rgba(6, 16, 34, .45); opacity: 0; transition: opacity .3s var(--ease); overflow-y: auto; }
 .modal.is-on { opacity: 1; }
@@ -809,6 +839,17 @@ a.kpi:hover { transform: translateY(-3px); box-shadow: var(--sh-3); }
   .row { grid-template-columns: auto minmax(0, 1fr); padding: 12px; }
   .row__side { grid-column: 2; justify-content: space-between; }
   .row .path { display: none; }
+  /* مخاطبان: سه عدد کنار هم، فشرده */
+  .tiles.tiles--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .tiles--3 .kpi { padding: 12px 10px; }
+  .tiles--3 .kpi__ic, .tiles--3 .kpi small { display: none; }
+  .tiles--3 .kpi b { font-size: 1.4rem; }
+  .tiles--3 .kpi span:not(.kpi__ic) { font-size: .75rem; line-height: 1.6; }
+  .ctr { grid-template-columns: auto minmax(0, 1fr); padding: 12px; }
+  .ctr__acts { grid-column: 1 / -1; margin-top: 8px; }
+  .ctr__acts .tel { flex: 1; justify-content: center; }
+  .ct-exp__b { flex: 1 1 100%; }
+  .ct-exp__b .btn { flex: 1 1 auto; }
   .week { display: none; }
   .tiles { grid-template-columns: minmax(0, 1fr); }
   .row2 { grid-template-columns: minmax(0, 1fr); }

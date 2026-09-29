@@ -91,7 +91,8 @@
     'booking.create': ['ثبت نوبت تلفنی', 'i-cal-plus'], 'booking.update': ['تغییر درخواست', 'i-pencil'], 'callback.update': ['درخواست تماس', 'i-phone'],
     'sms.appt': ['پیامک تأیید نوبت', 'i-msg'], 'user.create': ['ساخت کاربر', 'i-user-plus'], 'user.update': ['تغییر کاربر', 'i-users'],
     'article.create': ['مقاله‌ی تازه', 'i-file'], 'article.update': ['ویرایش مقاله', 'i-pencil'], 'article.hide': ['برداشتن مقاله از سایت', 'i-eye-off'],
-    'article.show': ['انتشار دوباره‌ی مقاله', 'i-eye'], 'article.delete': ['حذف مقاله', 'i-trash'], 'article.revert': ['برگرداندن مقاله به نسخه‌ی سایت', 'i-undo']
+    'article.show': ['انتشار دوباره‌ی مقاله', 'i-eye'], 'article.delete': ['حذف مقاله', 'i-trash'], 'article.revert': ['برگرداندن مقاله به نسخه‌ی سایت', 'i-undo'],
+    'contact.update': ['تغییر مخاطب', 'i-contact'], 'contact.delete': ['پاک کردن مخاطب', 'i-trash'], 'contacts.export': ['خروجی شماره‌ها', 'i-download']
   };
   const TIMED = ['scheduled', 'arrived', 'done', 'no-show'];
   const BUSY = ['scheduled', 'arrived'];
@@ -312,6 +313,7 @@
     closeDrawer(true); closeModal(true); closeMenu();
     S.user = null; S.cfg = null; S.bookings = []; S.callbacks = []; S.known = null; S.loaded = false;
     smsData = null; usersData = null; auditData = null;
+    ctData = null; ctQ = ''; ctF = 'all'; ctN = 60; ctAt = 0; clearTimeout(ctTimer);
     S.routeKey = '';
     if (ART) ART.reset();
   }
@@ -338,6 +340,7 @@
     calendar: { t: 'تقویم', ic: 'i-calendar' },
     callbacks: { t: 'تماس‌ها', ic: 'i-phone', ok: () => can('callbacks') },
     articles: { t: 'مقاله‌ها', ic: 'i-file', ok: () => can('articles') && !!ART, more: true },
+    contacts: { t: 'مخاطبان', ic: 'i-contact', ok: () => can('contacts'), more: true },
     sms: { t: 'پیامک', ic: 'i-msg', ok: () => can('sms'), more: true },
     users: { t: 'کارکنان', ic: 'i-users', ok: () => can('users'), more: true },
     stats: { t: 'آمار بازدید', ic: 'i-chart', ok: () => can('stats'), more: true },
@@ -404,7 +407,7 @@
     if (changed) window.scrollTo(0, 0);
   }
   window.addEventListener('hashchange', route);
-  const VIEWS = { today: vToday, requests: vRequests, calendar: vCalendar, callbacks: vCallbacks, sms: vSms, users: vUsers, stats: vStats, audit: vAudit };
+  const VIEWS = { today: vToday, requests: vRequests, calendar: vCalendar, callbacks: vCallbacks, contacts: vContacts, sms: vSms, users: vUsers, stats: vStats, audit: vAudit };
   if (ART) VIEWS.articles = ART.view;
 
   /* متغیرهای CSS از data-* (CSP: فقط CSSOM) */
@@ -1272,7 +1275,7 @@
      ========================================================================== */
   let auditData = null, auditQ = '';
   /* جزئیات گزارش ممکن است کد وضعیت داشته باشد (called، arrived…)؛ فارسی نمایش داده می‌شود */
-  const auditDetail = (s) => String(s).replace(/\b(new|called|scheduled|arrived|done|cancelled|no-show)\b/g, (k) => STATUS[k] || k);
+  const auditDetail = (s) => fa(String(s).replace(/\b(new|called|scheduled|arrived|done|cancelled|no-show)\b/g, (k) => STATUS[k] || k).replace(/\b(\d{4}-\d{2}-\d{2})\b/g, (d) => dFull(d)));
   function auditList() {
     const q = auditQ.trim();
     const rows = auditData.filter((e) => !q || [(e.by && e.by.name) || '', (AUDIT[e.action] || [e.action])[0], e.target, e.detail].join(' ').includes(q)).slice(0, 400);
@@ -1298,6 +1301,205 @@
     if (S.route === 'audit') render('none');
   }
   document.addEventListener('input', (e) => { if (e.target.id === 'aq') { auditQ = e.target.value; const l = $('#alog'); if (l) l.innerHTML = auditList(); } });
+
+  /* ==========================================================================
+     نما: مخاطبان (هر شماره‌ای که کد تأیید گرفته، نوبت یا تماس خواسته یا تلفنی نوبت گرفته؛ lib/contacts.js)
+     ========================================================================== */
+  let ctData = null, ctQ = '', ctF = 'all', ctN = 60, ctAt = 0, ctLoading = false, ctTimer = 0;
+  const CT_SRC = { otp: 'کد تأیید', booking: 'نوبت از سایت', callback: 'درخواست تماس', phone: 'نوبت تلفنی' };
+  const CT_F = [
+    ['all', 'همه', () => true],
+    ['dental', 'دندان‌پزشکی', (c) => c.depts.includes('dental')],
+    ['beauty', 'زیبایی', (c) => c.depts.includes('beauty')],
+    ['medicine', 'پزشکی عمومی', (c) => c.depts.includes('medicine')],
+    /* کد گرفته ولی درخواستی ثبت نکرده: برای پیگیری پذیرش */
+    ['half', 'نوبت را تمام نکرده', (c) => !c.src.booking && !c.src.callback && !c.src.phone],
+    ['off', 'لغو اطلاع‌رسانی', (c) => c.optout]
+  ];
+  function ctShown() {
+    const f = (CT_F.find((x) => x[0] === ctF) || CT_F[0])[2];
+    const q = en(ctQ).trim().replace(/\s+/g, ' ');
+    const qd = normMobile(q);
+    return ctData.filter((c) => f(c) && (!q || (c.name && c.name.includes(q)) || (/^\d+$/.test(qd) && c.mobile.includes(qd)) || (c.note && c.note.includes(q))));
+  }
+  function ctRow(c) {
+    const src = Object.keys(CT_SRC).filter((k) => c.src[k]).map((k) => `<span class="ctr__src">${esc(CT_SRC[k])}${c.src[k] > 1 ? ' <em class="num">×' + fa(c.src[k]) + '</em>' : ''}</span>`).join('');
+    return `<article class="ctr${c.optout ? ' is-off' : ''}" data-key="ct:${esc(c.mobile)}">
+      ${avatar(c.name || '؟', c.depts.length === 1 ? c.depts[0] : '')}
+      <div class="ctr__b">
+        <div class="ctr__t"><b>${c.name ? esc(c.name) : '<span class="muted">بی‌نام</span>'}</b>
+          ${c.verified ? `<span class="ctr__ok" title="شماره با کد پیامکی تأیید شده">${ic('i-check-circle', 'ic--s')}تأیید با کد</span>` : ''}
+          ${c.optout ? `<span class="ctr__no">${ic('i-ban', 'ic--s')}اطلاع‌رسانی نمی‌خواهد</span>` : ''}</div>
+        <div class="ctr__meta"><span class="ltr num">${esc(telFa(c.mobile))}</span>${c.depts.map((k) => dchip(k)).join('')}${src}</div>
+        <div class="ctr__meta"><span>آخرین بار ${esc(ago(c.last))}</span>${F.dayOf.format(new Date(c.first)) !== F.dayOf.format(new Date(c.last)) ? `<span>اولین بار ${esc(dFull(F.dayOf.format(new Date(c.first))))}</span>` : ''}</div>
+        ${c.note ? `<p class="ctr__note">${esc(c.note)}</p>` : ''}
+      </div>
+      <div class="ctr__acts">${telLink(c.mobile, c.name || 'این شماره')}
+        <button class="iconbtn iconbtn--line" type="button" data-act="ctcopy" data-v="${esc(c.mobile)}" aria-label="کپی شماره" title="کپی شماره">${ic('i-copy')}</button>
+        <button class="iconbtn iconbtn--line" type="button" data-act="ctmenu" data-v="${esc(c.mobile)}" aria-haspopup="menu" aria-label="کارهای بیشتر" title="کارهای بیشتر">${ic('i-more')}</button></div>
+    </article>`;
+  }
+  function ctList() {
+    const list = ctShown();
+    const out = list.filter((c) => !c.optout).length;
+    const n = $('#ctn');
+    if (n) { n.textContent = fa(out); $$('[data-act="ctexp"]').forEach((b) => { b.disabled = !out; }); }
+    if (!list.length) {
+      return `<div data-key="ct:empty">${ctData.length ? empty('i-search', 'چیزی پیدا نشد', ctQ ? 'نام، بخشی از شماره یا یادداشت را امتحان کنید.' : 'در این دسته هنوز شماره‌ای نیست.')
+        : empty('i-contact', 'هنوز شماره‌ای ثبت نشده', 'از این به بعد هر کسی در سایت کد تأیید بگیرد، نوبت بخواهد یا درخواست تماس بدهد، شماره‌اش خودکار این‌جا می‌آید.')}</div>`;
+    }
+    const more = list.length - ctN;
+    return list.slice(0, ctN).map(ctRow).join('') +
+      (more > 0 ? `<button class="btn btn--sec ct-more" type="button" data-act="ctmore" data-key="ct:more">نمایش ${fa(Math.min(more, 60))} شماره‌ی دیگر <small class="muted">(${fa(more)} مانده)</small></button>` : '');
+  }
+  function vContacts() {
+    const head = `<header class="ph"><div><h1>مخاطبان</h1><p>هر شماره‌ای که به سایت یا پذیرش داده شده، خودکار این‌جا جمع می‌شود: کسی که کد تأیید گرفته، نوبت خواسته، درخواست تماس داده یا تلفنی نوبت گرفته. برای اطلاع‌رسانی‌های کلینیک.</p></div><span class="sp"></span>
+      <button class="btn btn--sec btn--s" type="button" data-act="ctref"><span class="spin"></span>${ic('i-refresh', 'ic--s')}<span class="btn__t">تازه کردن</span></button></header>`;
+    if (!ctData) { loadContacts(); return head + '<div class="tiles">' + '<div class="skel skel--tile"></div>'.repeat(3) + '</div><div class="list">' + '<div class="skel"></div>'.repeat(4) + '</div>'; }
+    const all = ctData.length, ver = ctData.filter((c) => c.verified).length, off = ctData.filter((c) => c.optout).length;
+    const month = new Date(Date.now() - 30 * 864e5).toISOString();
+    const fresh = ctData.filter((c) => c.first >= month).length;
+    const seg = CT_F.map(([k, t, fn]) => `<button type="button" data-act="ctf" data-v="${k}" aria-pressed="${ctF === k}">${esc(S.cfg.depts[k] ? deptT(k) : t)} <em class="num">${fa(ctData.filter(fn).length)}</em></button>`).join('');
+    return head + `
+      <div class="tiles tiles--3">
+        <div class="kpi k-blue"><span class="kpi__ic">${ic('i-contact')}</span><b class="num" data-count="${all}" data-key="k:ct">${fa(all)}</b><span>شماره‌ی ثبت‌شده</span><small>${fa(fresh)} تای تازه در ۳۰ روز اخیر</small></div>
+        <div class="kpi k-ok"><span class="kpi__ic">${ic('i-check-circle')}</span><b class="num" data-count="${ver}" data-key="k:ctv">${fa(ver)}</b><span>تأییدشده با کد پیامکی</span><small>شماره‌ی درست و در دسترس خود بیمار</small></div>
+        <div class="kpi k-violet"><span class="kpi__ic">${ic('i-send')}</span><b class="num" data-count="${all - off}" data-key="k:cto">${fa(all - off)}</b><span>قابل اطلاع‌رسانی</span><small>${off ? fa(off) + ' نفر لغو اطلاع‌رسانی خواسته‌اند' : 'کسی لغو اطلاع‌رسانی نخواسته'}</small></div>
+      </div>
+      <section class="card ct-exp"><div class="card__b">
+        <div class="ct-exp__t"><span class="ct-exp__ic">${ic('i-download')}</span><div><b>خروجی برای پیامک اطلاع‌رسانی</b><small><b class="num" id="ctn">۰</b> شماره از همین فهرست (با همین دسته و جست‌وجو). کسانی که لغو اطلاع‌رسانی خواسته‌اند خودکار کنار گذاشته می‌شوند.</small></div></div>
+        <div class="ct-exp__b">
+          <button class="btn btn--pri btn--s" type="button" data-act="ctexp" data-v="csv">${ic('i-download', 'ic--s')}فایل اکسل</button>
+          <button class="btn btn--sec btn--s" type="button" data-act="ctexp" data-v="txt">${ic('i-file', 'ic--s')}فقط شماره‌ها</button>
+          <button class="btn btn--sec btn--s" type="button" data-act="ctexp" data-v="copy">${ic('i-copy', 'ic--s')}کپی شماره‌ها</button></div>
+      </div></section>
+      <div class="toolbar"><label class="field"><span class="sr">جست‌وجو در مخاطبان</span><input class="input" id="ctq" type="search" placeholder="جست‌وجو: نام، بخشی از شماره یا یادداشت" value="${esc(ctQ)}" autocomplete="off"></label>
+        <div class="seg" data-k="ctf" role="group" aria-label="دسته">${seg}</div></div>
+      <div class="ct-list" id="ctl">${ctList()}</div>`;
+  }
+  vContacts.after = (v, mode) => {
+    const n = $('#ctn', v);
+    if (n && ctData) { const out = ctShown().filter((c) => !c.optout).length; n.textContent = fa(out); $$('[data-act="ctexp"]', v).forEach((b) => { b.disabled = !out; }); }
+    /* با هر بار آمدن به این صفحه، فهرست در پس‌زمینه تازه می‌شود (بدون اسکلت دوباره) */
+    if (mode === 'enter' && ctData && Date.now() - ctAt > 15e3) loadContacts(true);
+  };
+  const ctSig = (l) => l.map((c) => c.mobile + ':' + c.count + ':' + (c.optout ? 1 : 0) + ':' + c.name + ':' + c.note).join('|');
+  async function loadContacts(quiet) {
+    if (ctLoading) return;
+    ctLoading = true;
+    const r = await call('get', '/contacts');
+    ctLoading = false;
+    if (!r.ok) { if (!quiet) toast(errText(r), true); return false; }
+    ctAt = Date.now();
+    const changed = !ctData || ctSig(r.contacts) !== ctSig(ctData);
+    ctData = r.contacts;
+    if (S.route === 'contacts' && changed) { if (quiet) refreshView(); else render('none'); }
+    return changed;
+  }
+  async function copyText(t) {
+    try { await navigator.clipboard.writeText(t); return true; } catch (e) {
+      /* مرورگرهایی که به clipboard اجازه نمی‌دهند */
+      const ta = document.createElement('textarea');
+      ta.value = t; ta.setAttribute('readonly', ''); ta.className = 'sr';
+      document.body.appendChild(ta); ta.select();
+      let ok = false;
+      try { ok = document.execCommand('copy'); } catch (e2) { ok = false; }
+      ta.remove();
+      return ok;
+    }
+  }
+  function saveFile(name, text, type) {
+    const url = URL.createObjectURL(new Blob([text], { type }));
+    const a = document.createElement('a');
+    a.href = url; a.download = name; a.rel = 'noopener';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+  }
+  /* تاریخ شمسی با رقم لاتین برای اکسل: ۱۴۰۵/۰۷/۰۷ ← 1405/07/07 */
+  const jNum = (ts) => { const d = F.dayOf.format(new Date(ts)); return [jPart(d, 'year'), jPart(d, 'month'), jPart(d, 'day')].map((x) => String(x).padStart(2, '0')).join('/'); };
+  async function ctExport(kind, btn) {
+    const list = ctShown().filter((c) => !c.optout);
+    if (!list.length) { toast('در این فهرست شماره‌ای برای خروجی نیست', true); return; }
+    const stampName = jNum(Date.now()).replace(/\//g, '-');
+    if (kind === 'copy') {
+      if (!(await copyText(list.map((c) => c.mobile).join('\n')))) { toast('کپی ممکن نشد؛ «فقط شماره‌ها» را بگیرید', true); return; }
+      toast(`${fa(list.length)} شماره کپی شد (هر شماره در یک خط)`);
+    } else if (kind === 'txt') {
+      saveFile(`sasan-numbers-${stampName}.txt`, list.map((c) => c.mobile).join('\r\n') + '\r\n', 'text/plain;charset=utf-8');
+      toast(`فایل ${fa(list.length)} شماره آماده شد`);
+    } else {
+      const q = (s) => '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"';
+      const head = ['موبایل', 'نام', 'بخش‌ها', 'از کجا', 'تأیید با کد', 'اولین بار', 'آخرین بار', 'دفعات', 'یادداشت'];
+      const rows = list.map((c) => [
+        /* ="0912…" تا اکسل صفر اول شماره را نیندازد */
+        '="' + c.mobile + '"', q(c.name), q(c.depts.map(deptT).join('، ')), q(Object.keys(CT_SRC).filter((k) => c.src[k]).map((k) => CT_SRC[k]).join('، ')),
+        q(c.verified ? 'بله' : 'نه'), q(jNum(c.first)), q(jNum(c.last)), c.count, q(c.note)
+      ].join(','));
+      saveFile(`sasan-contacts-${stampName}.csv`, '﻿' + [head.map(q).join(',')].concat(rows).join('\r\n') + '\r\n', 'text/csv;charset=utf-8');
+      toast(`فایل اکسل ${fa(list.length)} شماره آماده شد`);
+    }
+    busy(btn, true);
+    await call('post', '/contacts/exported', { count: list.length, kind });
+    busy(btn, false);
+    auditData = null;
+  }
+  function ctEdit(mobile) {
+    const c = ctData && ctData.find((x) => x.mobile === mobile);
+    if (!c) return;
+    openModal(`<div class="modal__h"><h2 id="mdTitle">${c.name ? esc(c.name) : 'مخاطب'} <small class="ltr num muted">${esc(telFa(c.mobile))}</small></h2><button class="iconbtn" type="button" data-act="mclose" aria-label="بستن">${ic('i-x')}</button></div>
+      <form class="modal__b form" id="ctForm" novalidate>
+        <label class="field"><span>نام</span><input class="input" name="name" maxlength="60" value="${esc(c.name)}" autocomplete="off" placeholder="مثلاً: مریم احمدی"></label>
+        <label class="field"><span>یادداشت پذیرش</span><textarea class="textarea" name="note" maxlength="300" placeholder="مثلاً: فقط عصرها جواب می‌دهد">${esc(c.note || '')}</textarea></label>
+        <label class="check"><input type="checkbox" name="optout" ${c.optout ? 'checked' : ''}><span>لغو اطلاع‌رسانی<small>اگر خودش خواسته پیامک تبلیغی و اطلاع‌رسانی نگیرد. این شماره در خروجی‌ها نمی‌آید (پیامک‌های نوبت خودش مثل قبل می‌رسد).</small></span></label>
+        <dl class="facts"><div><dt>از کجا</dt><dd>${esc(Object.keys(CT_SRC).filter((k) => c.src[k]).map((k) => CT_SRC[k]).join('، ') || '—')}</dd></div><div><dt>دفعات</dt><dd class="num">${fa(c.count)}</dd></div>
+          <div><dt>اولین بار</dt><dd>${esc(dFull(F.dayOf.format(new Date(c.first))))}</dd></div><div><dt>آخرین بار</dt><dd>${esc(ago(c.last))}</dd></div></dl>
+        <p class="err" id="mdErr" role="alert"></p>
+        <div class="modal__f"><button class="btn btn--ghost" type="button" data-act="mclose">انصراف</button><button class="btn btn--pri" type="submit"><span class="spin"></span><span class="btn__t">ذخیره</span></button></div>
+      </form>`, { focus: 'input[name="name"]' });
+    const form = $('#ctForm');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = $('button[type="submit"]', form);
+      busy(btn, true);
+      const ok = await ctPatch(c.mobile, { name: form.name.value.trim(), note: form.note.value.trim(), optout: form.optout.checked });
+      busy(btn, false);
+      if (!ok) { $('#mdErr').textContent = 'ذخیره نشد؛ دوباره امتحان کنید.'; return; }
+      closeModal(); morph(); toast('ذخیره شد');
+    });
+  }
+  async function ctPatch(mobile, body) {
+    const r = await call('patch', '/contacts/' + mobile, body);
+    if (!r.ok) { if (r.status === 404) { ctData = ctData.filter((x) => x.mobile !== mobile); morph(); } toast(errText(r), true); return false; }
+    const i = ctData.findIndex((x) => x.mobile === mobile);
+    if (i >= 0) ctData[i] = r.contact;
+    return true;
+  }
+  async function ctAct(a, mobile) {
+    const c = ctData && ctData.find((x) => x.mobile === mobile);
+    if (!c) return;
+    if (a === 'ctedit') ctEdit(mobile);
+    else if (a === 'ctopt') {
+      const to = !c.optout;
+      if (await ctPatch(mobile, { optout: to })) {
+        morph();
+        toast(to ? 'اطلاع‌رسانی به این شماره لغو شد' : 'این شماره دوباره در اطلاع‌رسانی‌ها می‌آید', false, { t: 'برگرداندن', fn: async () => { if (await ctPatch(mobile, { optout: !to })) morph(); } });
+      }
+    } else if (a === 'ctdel') {
+      if (!(await confirmBox(`شماره‌ی ${telFa(mobile)} از مخاطبان پاک شود؟ اگر بعداً دوباره در سایت شماره بدهد، دوباره اضافه می‌شود.`, 'بله، پاک شود'))) return;
+      const r = await call('del', '/contacts/' + mobile);
+      if (!r.ok && r.status !== 404) { toast(errText(r), true); return; }
+      ctData = ctData.filter((x) => x.mobile !== mobile);
+      morph();
+      toast('از مخاطبان پاک شد');
+    }
+  }
+  /* جست‌وجو: با هر حرف فوراً نه؛ وقتی نوشتن یک لحظه مکث کرد (تایپ تند گیر نمی‌کند) */
+  document.addEventListener('input', (e) => {
+    if (e.target.id !== 'ctq' || !ctData) return;
+    ctQ = e.target.value; ctN = 60;
+    clearTimeout(ctTimer);
+    ctTimer = setTimeout(() => { const l = $('#ctl'); if (l && S.route === 'contacts') l.innerHTML = ctList(); }, 70);
+  });
 
   /* ==========================================================================
      نما: آمار بازدید سایت (بی‌نام، روی سرور خود کلینیک؛ lib/stats.js)
@@ -1542,7 +1744,7 @@
      ========================================================================== */
   document.addEventListener('click', async (e) => {
     const stop = e.target.closest('[data-stop]');
-    if (!e.target.closest('#menu') && !e.target.closest('[data-act="me"], [data-act="more"]')) closeMenu();
+    if (!e.target.closest('#menu') && !e.target.closest('[data-act="me"], [data-act="more"], [data-act="ctmenu"]')) closeMenu();
     if (stop) return;
     const el = e.target.closest('[data-act]');
     if (!el) return;
@@ -1558,6 +1760,21 @@
       case 'clearq': $('#q').value = ''; onSearch('', 'q'); break;
       case 'cbf': S.cbF = v; morph(); break;
       case 'stdays': statsDays = Number(v) || 30; statsData = null; render('none'); break;
+      case 'ctf': ctF = v; ctN = 60; morph(); break;
+      case 'ctmore': { ctN += 60; const l = $('#ctl'); if (l) { const y = scrollY; l.innerHTML = ctList(); scrollTo(0, y); } break; }
+      case 'ctref': { busy(el, true); ctAt = 0; const ch = await loadContacts(true); busy(el, false); if (ch === false) toast('فهرست به‌روز است'); else if (ch) toast('فهرست تازه شد'); break; }
+      case 'ctcopy': toast((await copyText(v)) ? 'شماره کپی شد' : 'کپی ممکن نشد؛ شماره را دستی بردارید', false); break;
+      case 'ctexp': ctExport(v, el); break;
+      case 'ctmenu': {
+        const same = $('#menu') && $('#menu').dataset.for === v;
+        closeMenu();
+        const c = ctData && ctData.find((x) => x.mobile === v);
+        if (same || !c) break;
+        openMenu(el, [{ act: 'ctedit', ic: 'i-pencil', t: 'نام و یادداشت' }, { act: 'ctopt', ic: c.optout ? 'i-bell' : 'i-ban', t: c.optout ? 'برگرداندن به اطلاع‌رسانی' : 'لغو اطلاع‌رسانی' }, { act: 'ctdel', ic: 'i-trash', t: 'پاک کردن از مخاطبان', cls: 'is-bad' }].map(menuItem).join('').replace(/data-act="(ct\w+)"/g, `data-act="$1" data-v="${esc(v)}"`));
+        $('#menu').dataset.for = v;
+        break;
+      }
+      case 'ctedit': case 'ctopt': case 'ctdel': closeMenu(); ctAct(a, v); break;
       case 'cb': openCallback(el.dataset.id); break;
       case 'cbs': {
         const note = $('#modal textarea[name="note"]');

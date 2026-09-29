@@ -29,6 +29,7 @@ const B = require('./lib/bookings');
 const { createPanel } = require('./lib/panel');
 const { Stats } = require('./lib/stats');
 const { ArticleCMS } = require('./lib/cms');
+const { Contacts } = require('./lib/contacts');
 
 const MIME = {
   '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'application/javascript; charset=utf-8',
@@ -60,6 +61,9 @@ function createApp(cfg, deps = {}) {
   const store = deps.store || new B.BookingStore(cfg.dataDir);
   const stats = deps.stats || new Stats(cfg.dataDir);
   const log = deps.log || ((...a) => console.log(new Date().toISOString(), ...a));
+  /* هر شماره‌ای که به سایت داده شده (برای اطلاع‌رسانی‌های کلینیک)؛ بار اول از درخواست‌های قبلی پر می‌شود */
+  const contacts = deps.contacts || new Contacts(cfg.dataDir);
+  contacts.backfill(store.list, store.callbacks);
   const cms = deps.cms || new ArticleCMS({ siteDir: cfg.siteDir, contentDir: cfg.contentDir || path.join(__dirname, '..', 'content', 'articles'), dataDir: cfg.dataDir, log });
   const sweep = setInterval(() => { lim.sweep(); otp.sweep(); }, 60e3);
   sweep.unref();
@@ -103,7 +107,7 @@ function createApp(cfg, deps = {}) {
     if (!o) return true;
     try { return new URL(o).host === req.headers.host; } catch (e) { return false; }
   };
-  const panel = createPanel({ cfg, store, sms, log, lim, json, readBody, ipOf, originOk: sameOrigin, users: deps.users, sessions: deps.sessions, stats, cms });
+  const panel = createPanel({ cfg, store, sms, log, lim, json, readBody, ipOf, originOk: sameOrigin, users: deps.users, sessions: deps.sessions, stats, cms, contacts });
 
   /* ---------- API ---------- */
   async function sendOtp(req, res) {
@@ -127,6 +131,7 @@ function createApp(cfg, deps = {}) {
     /* فقط در حالت آزمایشی (Sandbox) پیامکی واقعاً فرستاده نمی‌شود؛ کد برای آزمایش در لاگ سرور می‌آید */
     if (cfg.sms.mode === 'sandbox') log(`[sandbox] کد ${mask(mobile)}: ${code}`);
     else log('otp sent', mask(mobile));
+    contacts.note(mobile, { source: 'otp' });
     return json(res, 200, { ok: true, ttl: TTL / 1000, resend: RESEND / 1000 });
   }
 
@@ -146,6 +151,7 @@ function createApp(cfg, deps = {}) {
     if (c.r === 'code') return json(res, 401, { ok: false, error: 'code', left: c.left });
     const b = await store.add(v);
     log('request', b.ref, b.dept, mask(b.mobile));
+    contacts.note(b.mobile, { source: 'booking', name: b.name, dept: b.dept, verified: true });
     /* پیامک‌های بعد از ثبت (اختیاری)؛ شکستشان درخواست را باطل نمی‌کند */
     const dept = B.DEPT[b.dept].t;
     if (cfg.sms.confirmTemplateId) sms.verify(b.mobile, cfg.sms.confirmTemplateId, { DEPT: dept, REF: b.ref }).then((r) => { if (!r.ok) log('confirm sms failed', r.status); return panel.recordSms(b.ref, 'received', r); }).catch((e) => log('confirm sms error', e && e.message));
@@ -162,6 +168,7 @@ function createApp(cfg, deps = {}) {
     if (!B.validMobile(mobile) || name.length < 2) return json(res, 400, { ok: false, error: 'input' });
     if (lim.take('cb:m:' + mobile, 3, 864e5)) return json(res, 429, { ok: false, error: 'rate' });
     await store.addCallback({ name, mobile, topic });
+    contacts.note(mobile, { source: 'callback', name });
     log('callback', mask(mobile));
     return json(res, 200, { ok: true });
   }
@@ -285,8 +292,8 @@ function createApp(cfg, deps = {}) {
     }
     serveStatic(req, res, url);
   };
-  handler.store = store; handler.otp = otp; handler.panel = panel; handler.stats = stats; handler.cms = cms;
-  handler.close = () => { clearInterval(sweep); panel.close(); stats.close(); };
+  handler.store = store; handler.otp = otp; handler.panel = panel; handler.stats = stats; handler.cms = cms; handler.contacts = contacts;
+  handler.close = () => { clearInterval(sweep); panel.close(); stats.close(); contacts.close(); };
   return handler;
 }
 

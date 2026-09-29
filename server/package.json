@@ -9,7 +9,7 @@
     "setup": "node tools/sms.js setup",
     "check": "node tools/sms.js check",
     "user": "node tools/users.js",
-    "test": "node --test test/api.test.js test/panel.test.js test/articles.test.js"
+    "test": "node --test test/api.test.js test/panel.test.js test/articles.test.js test/contacts.test.js"
   },
   "engines": {
     "node": ">=18.17"

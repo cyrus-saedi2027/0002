@@ -5,6 +5,7 @@
    - POST login/code {ticket, code} و POST login/resend {ticket}
    - نشست با کوکی HttpOnly و SameSite=Strict؛ هر درخواست غیر GET سربرگ x-sasan-panel: 1 و مبدأ همین سایت را لازم دارد
    نقش: فقط «پذیرش»، با همه‌ی کارها (درخواست‌ها، تقویم، تماس‌ها، پیامک، کارکنان، گزارش کارها، مقاله‌ها و آمار بازدید)
+   مخاطبان: GET contacts، PATCH/DELETE contacts/:mobile، POST contacts/exported (ثبت خروجی در گزارش کارها)
    مقاله‌ها: GET/POST articles، GET/PUT/DELETE articles/:slug، POST articles/:slug/hide، POST articles/upload (lib/cms.js)
    پیامک: تأیید نوبت از پنل و یادآوری خودکار یک روز قبل (قالب نوع ۲، پارامترها NAME, DEPT, DATE, TIME)،
    گزارش رسیدن هر پیامک و اعتبار پنل sms.ir
@@ -23,7 +24,7 @@ const { DELIVERY_FINAL } = require('./smsir');
 const A = require('./articles');
 
 const COOKIE = 'sasan_panel';
-const PERMS = ['write', 'phone', 'callbacks', 'sms', 'users', 'audit', 'stats', 'articles'];
+const PERMS = ['write', 'phone', 'callbacks', 'sms', 'users', 'audit', 'stats', 'articles', 'contacts'];
 const can = (u, perm) => !!u && PERMS.includes(perm);
 const sha = (s) => crypto.createHash('sha256').update(String(s)).digest('hex');
 const mask = (m) => m.slice(0, 4) + '***' + m.slice(-4);
@@ -220,6 +221,7 @@ function createPanel(ctx) {
       if (sched) { Object.assign(x, sched, { status: 'scheduled' }); B.addLog(x, u.name, 'when', { date: x.date, time: x.time }); }
     });
     audit.add(u, 'booking.create', b.ref, B.DEPT[b.dept].t + (sched ? ' · نوبت ' + sched.date : ''));
+    if (ctx.contacts) ctx.contacts.note(b.mobile, { source: 'phone', name: b.name, dept: b.dept });
     const s = sched && body.sms ? await sendApptSms(b, 'appt', u) : null;
     return json(res, 200, { ok: true, booking: store.list.find((x) => x.ref === b.ref), sms: s });
   }
@@ -455,6 +457,31 @@ function createPanel(ctx) {
       if (v.active === false || body.password) sessions.dropUser(t.id);
       audit.add(u, 'user.update', t.username, [v.active === false && 'غیرفعال', v.active === true && 'فعال', body.password && 'رمز تازه'].filter(Boolean).join('، ') || 'مشخصات');
       return json(res, 200, { ok: true, user: pub(r.user) });
+    }
+    if (p === '/api/panel/contacts' || p.startsWith('/api/panel/contacts/')) {
+      const C = ctx.contacts;
+      if (!can(u, 'contacts') || !C) return deny();
+      if (p === '/api/panel/contacts' && m === 'GET') return json(res, 200, { ok: true, contacts: C.list() });
+      if (p === '/api/panel/contacts/exported' && m === 'POST') {
+        const body = await readBody(req, 512);
+        audit.add(u, 'contacts.export', '', `${Math.max(0, Number(body.count) || 0)} شماره · ${body.kind === 'txt' ? 'فقط شماره‌ها' : body.kind === 'copy' ? 'کپی' : 'اکسل'}`);
+        return json(res, 200, { ok: true });
+      }
+      const cm = /^\/api\/panel\/contacts\/(\d{11})$/.exec(p);
+      if (!cm) return json(res, 404, { ok: false, error: 'not-found' });
+      if (m === 'PATCH') {
+        const body = await readBody(req, 1024);
+        const c = C.update(cm[1], body);
+        if (!c) return json(res, 404, { ok: false, error: 'not-found' });
+        if (body.optout !== undefined) audit.add(u, 'contact.update', mask(c.mobile), c.optout ? 'لغو اطلاع‌رسانی' : 'اطلاع‌رسانی دوباره');
+        return json(res, 200, { ok: true, contact: c });
+      }
+      if (m === 'DELETE') {
+        if (!C.remove(cm[1])) return json(res, 404, { ok: false, error: 'not-found' });
+        audit.add(u, 'contact.delete', mask(cm[1]), '');
+        return json(res, 200, { ok: true });
+      }
+      return json(res, 405, { ok: false, error: 'method' });
     }
     if (p === '/api/panel/articles' || p.startsWith('/api/panel/articles/')) {
       if (!can(u, 'articles') || !ctx.cms) return deny();

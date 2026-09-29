@@ -19,7 +19,7 @@
   const STATUSES = ['new', 'called', 'scheduled', 'arrived', 'done', 'cancelled', 'no-show'];
   /* پنل فقط یک نقش دارد: پذیرش، با همه‌ی دسترسی‌ها */
   const ROLES = { reception: 'پذیرش' };
-  const CAN = ['write', 'phone', 'callbacks', 'sms', 'users', 'audit', 'stats', 'articles'];
+  const CAN = ['write', 'phone', 'callbacks', 'sms', 'users', 'audit', 'stats', 'articles', 'contacts'];
 
   const dayFmt = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tehran', year: 'numeric', month: '2-digit', day: '2-digit' });
   const hmFmt = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Tehran', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
@@ -32,6 +32,19 @@
   const clone = (x) => JSON.parse(JSON.stringify(x));
   const msgId = () => 80000000 + Math.floor(Math.random() * 9999999);
   const RECEPTION = 'سارا محمدی';
+
+  /* همان منطق lib/contacts.js سرور */
+  function addContact(map, mobile, o) {
+    const when = o.at || new Date().toISOString();
+    let c = map.get(mobile);
+    if (!c) { c = { mobile, name: '', first: when, last: when, count: 0, src: {}, depts: [], verified: false, optout: false, note: '' }; map.set(mobile, c); }
+    if (when < c.first) c.first = when;
+    if (when >= c.last) { c.last = when; if (o.name) c.name = o.name; }
+    if (!c.name && o.name) c.name = o.name;
+    c.count++; c.src[o.source] = (c.src[o.source] || 0) + 1;
+    if (o.dept && !c.depts.includes(o.dept)) c.depts.push(o.dept);
+    if (o.verified) c.verified = true;
+  }
 
   function seed() {
     const t = today();
@@ -117,7 +130,20 @@
       { at: at(5 * HOUR), by: { id: 'u1', name: RECEPTION }, action: 'booking.create', target: B[8].ref, detail: 'پزشک عمومی · نوبت ' + t },
       { at: at(9 * DAY), by: { id: 'u1', name: RECEPTION }, action: 'user.update', target: 'paziresh.shab', detail: 'غیرفعال' }
     ];
-    return { B, callbacks, users, audit };
+    /* مخاطبان: از همین درخواست‌ها و تماس‌ها، به‌علاوه‌ی چند نفری که کد گرفته‌اند ولی نوبت را تمام نکرده‌اند */
+    const contacts = new Map();
+    const note = (mobile, o) => addContact(contacts, mobile, o);
+    B.forEach((x) => {
+      if (x.source === 'phone') note(x.mobile, { source: 'phone', name: x.name, dept: x.dept, at: x.createdAt });
+      else { note(x.mobile, { source: 'otp', at: at(Date.now() - Date.parse(x.createdAt) + 2 * MIN) }); note(x.mobile, { source: 'booking', name: x.name, dept: x.dept, verified: true, at: x.createdAt }); }
+    });
+    callbacks.forEach((x) => note(x.mobile, { source: 'callback', name: x.name, at: x.createdAt }));
+    [['09001234601', 40 * MIN], ['09001234602', 7 * HOUR], ['09001234603', 3 * DAY], ['09001234604', 12 * DAY]].forEach(([mb, ms]) => note(mb, { source: 'otp', at: at(ms) }));
+    /* یک بیمار قدیمی که دوباره آمده و یکی که پیامک اطلاع‌رسانی نمی‌خواهد */
+    note('09001234586', { source: 'otp', at: at(40 * DAY) }); note('09001234586', { source: 'booking', name: 'یوسف کریمی', dept: 'dental', verified: true, at: at(40 * DAY - MIN) });
+    contacts.get('09001234588').optout = true;
+    contacts.get('09001234588').note = 'خواست پیامک تبلیغاتی نگیرد.';
+    return { B, callbacks, users, audit, contacts };
   }
 
   function create() {
@@ -129,6 +155,7 @@
     const fail = (status, error, extra = {}) => Object.assign({ ok: false, status, error }, clone(extra));
     const cfg = () => ({ depts: DEPTS, doctors: DOCTORS, types: TYPES, statuses: STATUSES, roles: ROLES, sms: { mode: 'sandbox', appt: true, remind: true, received: true, remindHour: 17 }, twofa: true, today: today(), now: Date.now(), can: CAN });
     const log = (action, target, detail = '') => { const u = me(); db.audit.unshift({ at: new Date().toISOString(), by: { id: u.id, name: u.name }, action, target, detail }); };
+    const noteContact = (mobile, o) => addContact(db.contacts, mobile, o);
     const pushSms = (b, kind) => { b.sms.push({ at: new Date().toISOString(), kind, ok: true, id: msgId(), err: '', dlv: null }); b.log.push({ at: new Date().toISOString(), by: me().name, ev: 'sms', v: { kind, ok: true } }); };
 
     async function handle(m, p, body = {}) {
@@ -159,6 +186,8 @@
           const b = { ref: 'SS-70425', v: 0, status: 'new', dept: 'dental', type: 'ویزیت اول', name: 'آرش فرهادی', mobile: '09001234593', note: 'دندان شکسته؛ هر چه زودتر', source: 'site', createdAt: new Date().toISOString(), sms: [], log: [] };
           b.sms.push({ at: b.createdAt, kind: 'received', ok: true, id: msgId(), err: '', dlv: null });
           db.B.push(b);
+          noteContact(b.mobile, { source: 'otp' });
+          noteContact(b.mobile, { source: 'booking', name: b.name, dept: b.dept, verified: true });
         }
         return ok({ bookings: db.B, today: today() });
       }
@@ -169,6 +198,7 @@
         if (body.date) { Object.assign(b, { status: 'scheduled', date: body.date, time: body.time, doctor: body.doctor || '' }); b.log.push({ at: new Date().toISOString(), by: u.name, ev: 'when', v: { date: b.date, time: b.time } }); }
         db.B.push(b);
         log('booking.create', b.ref, DEPTS[b.dept].t);
+        noteContact(b.mobile, { source: 'phone', name: b.name, dept: b.dept });
         let sms = null;
         if (body.date && body.sms) { pushSms(b, 'appt'); sms = { ok: true }; }
         return ok({ booking: b, sms });
@@ -240,6 +270,26 @@
         return ok({ user: t });
       }
       if (p === '/audit') return can('audit') ? ok({ audit: db.audit }) : fail(403, 'forbidden');
+      if (p.startsWith('/contacts')) {
+        if (!can('contacts')) return fail(403, 'forbidden');
+        const C = db.contacts;
+        if (p === '/contacts' && m === 'GET') return ok({ contacts: [...C.values()].sort((a, b) => (a.last < b.last ? 1 : -1)) });
+        if (p === '/contacts/exported' && m === 'POST') { log('contacts.export', '', `${Number(body.count) || 0} شماره · ${body.kind === 'txt' ? 'فقط شماره‌ها' : body.kind === 'copy' ? 'کپی' : 'اکسل'}`); return ok(); }
+        const cm = /^\/contacts\/(\d{11})$/.exec(p);
+        const c = cm && C.get(cm[1]);
+        if (!c) return fail(404, 'not-found');
+        const mask = c.mobile.slice(0, 4) + '***' + c.mobile.slice(-4);
+        if (m === 'PATCH') {
+          const was = c.optout;
+          if (body.optout !== undefined) c.optout = !!body.optout;
+          if (body.name !== undefined) c.name = String(body.name).trim().slice(0, 60);
+          if (body.note !== undefined) c.note = String(body.note).trim().slice(0, 300);
+          log('contact.update', mask, c.optout !== was ? (c.optout ? 'لغو اطلاع‌رسانی' : 'برگشت به اطلاع‌رسانی') : 'نام و یادداشت');
+          return ok({ contact: c });
+        }
+        if (m === 'DELETE') { C.delete(c.mobile); log('contact.delete', mask); return ok(); }
+        return fail(405, 'method');
+      }
       if (p.startsWith('/stats')) return can('stats') ? ok(demoStats(Number((/days=(\d+)/.exec(p) || [])[1]) || 30)) : fail(403, 'forbidden');
       if (p.startsWith('/articles')) return can('articles') ? arts.handle(m, p, body, u, log) : fail(403, 'forbidden');
       return fail(404, 'not-found');
