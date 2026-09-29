@@ -31,8 +31,10 @@ def span(text, name, kind='LAYOUT'):
 
 
 def mark_current(block, page):
-    """لینک‌هایی که به همین صفحه می‌روند: aria-current؛ لینک «صفحه‌ی اصلی» در صفحه‌های دیگر دست نمی‌خورد."""
-    return re.sub(r'(<a\b[^>]*\bhref="%s")' % re.escape(page), r'\1 aria-current="page"', block)
+    """لینک‌هایی که به همین صفحه می‌روند: aria-current؛ لینک «صفحه‌ی اصلی» در صفحه‌های دیگر دست نمی‌خورد.
+    صفحه‌ی هر مقاله (article-….html) زیر «مقالات» است، پس پیوند articles.html روشن می‌شود."""
+    target = 'articles.html' if page.startswith('article-') else page
+    return re.sub(r'(<a\b[^>]*\bhref="%s")' % re.escape(target), r'\1 aria-current="page"', block)
 
 
 def main():

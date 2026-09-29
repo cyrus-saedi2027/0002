@@ -82,6 +82,9 @@ def main():
     pages = sorted(SITE.glob('*.html'))
     for p in pages:
         t = p.read_text(encoding='utf-8')
+        # صفحه‌های مجله (articles.html و article-….html) اطلاعات جست‌وجوی خودشان را از server/tools/articles.js می‌گیرند
+        if 'server/lib/articles.js' in t:
+            continue
         b = block(p.name, t, domain)
         if '<!-- SEO' in t:
             t = re.sub(r'<!-- SEO.*?<!-- /SEO -->', lambda m: b, t, flags=re.S)

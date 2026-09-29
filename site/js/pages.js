@@ -458,7 +458,7 @@
     document.addEventListener('keydown', (e) => {
       if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey) return;
       const a = document.activeElement; if (a && (/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) || a.isContentEditable)) return;
-      if (document.querySelector('#bk:not([hidden]), #ar:not([hidden]), #svc:not([hidden])')) return;
+      if (document.querySelector('#bk:not([hidden]), #svc:not([hidden])')) return;
       e.preventDefault(); input.focus({ preventScroll: true });
     });
     stickBar(bar, sec);
@@ -593,7 +593,7 @@
   };
 
   /* ابزارهای مشترک برای اسکریپت صفحه‌ها (مثل cases.js) */
-  S.Pages = { Pill, syncLenis };
+  S.Pages = { Pill, syncLenis, stickBar, backTo };
 
   /* ==========================================================================
      راه‌اندازی

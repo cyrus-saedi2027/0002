@@ -141,7 +141,7 @@
         <button type="button" class="nav__link nav__link--menu" aria-expanded="false" aria-controls="mega">خدمات<svg class="ic ic--s" aria-hidden="true"><use href="#i-chev-d"/></svg></button>
         <a class="nav__link" href="doctors.html">پزشکان</a>
         <a class="nav__link" href="cases.html">نمونه‌کارها</a>
-        <a class="nav__link" href="index.html#mag-all" data-article="all">مقالات</a>
+        <a class="nav__link" href="articles.html">مقالات</a>
         <a class="nav__link" href="about.html">درباره‌ی ما</a>
         <a class="nav__link" href="contact.html">تماس</a>
       </nav>
@@ -210,7 +210,7 @@
       <nav class="sheet__nav" aria-label="منوی موبایل">
         <a href="doctors.html">پزشکان<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
         <a href="cases.html">نمونه‌کارها<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
-        <a href="index.html#mag-all" data-article="all">مقالات<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
+        <a href="articles.html">مقالات<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
         <a href="about.html">درباره‌ی ما<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
         <a href="contact.html">تماس و آدرس<svg class="ic" aria-hidden="true"><use href="#i-chev-l"/></svg></a>
       </nav>
@@ -833,69 +833,71 @@
           <p class="kicker kicker--light">مجله‌ی سلامت ساسان</p>
           <h2 class="sec-title" id="mag-title">قبل از درمان، این‌ها را بخوانید</h2>
         </div>
-        <a class="link-arrow link-arrow--light" href="#mag-all" data-article="all">همه‌ی مقاله‌ها<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        <a class="link-arrow link-arrow--light" href="articles.html">همه‌ی مقاله‌ها<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
       </header>
       <ol class="mag__list" tabindex="0" aria-label="مقاله‌ها؛ با کشیدن یا کلیدهای جهت جابه‌جا شوید">
+<!-- ARTICLES:mag -->
         <li data-rv class="mag__item" data-k="dental">
-          <a class="mag__row" href="#mag-implant" data-article="implant" data-i="0">
-            <span class="mag__media"><img src="img/art-implant-l.webp" alt="" width="1120" height="700" loading="lazy" decoding="async"></span>
+          <a class="mag__row" href="article-implant-or-bridge.html" data-i="0">
+            <span class="mag__media"><img src="img/art/implant-or-bridge/cover-720.webp" alt="" width="1120" height="700" loading="lazy" decoding="async"></span>
             <span class="mag__no">۰۱</span>
             <span class="mag__cat">دندانپزشکی</span>
             <span class="mag__title">ایمپلنت یا بریج؛ برای جای خالی یک دندان کدام بهتر است؟</span>
-            <span class="mag__meta">۶ دقیقه مطالعه · بخش دندانپزشکی</span>
+            <span class="mag__meta">۱۱ دقیقه مطالعه · بخش دندانپزشکی</span>
             <span class="mag__go" aria-hidden="true"><svg class="ic"><use href="#i-arrow"/></svg></span>
           </a>
         </li>
         <li data-rv class="mag__item" data-k="beauty">
-          <a class="mag__row" href="#mag-sunscreen" data-article="sunscreen" data-i="1">
-            <span class="mag__media"><img src="img/art-sunscreen-l.webp" alt="" width="1120" height="700" loading="lazy" decoding="async"></span>
+          <a class="mag__row" href="article-sunscreen-guide.html" data-i="1">
+            <span class="mag__media"><img src="img/art/sunscreen-guide/cover-720.webp" alt="" width="1120" height="700" loading="lazy" decoding="async"></span>
             <span class="mag__no">۰۲</span>
             <span class="mag__cat">زیبایی و لیزر</span>
-            <span class="mag__title">ضدآفتاب را چقدر و هر چند ساعت بزنیم؟ سه اشتباه رایج</span>
-            <span class="mag__meta">۴ دقیقه مطالعه · بخش زیبایی و لیزر</span>
+            <span class="mag__title">ضدآفتاب را چقدر و هر چند ساعت بزنیم؟ راهنمای کامل، از SPF تا اشتباه‌های رایج</span>
+            <span class="mag__meta">۸ دقیقه مطالعه · بخش زیبایی و لیزر</span>
             <span class="mag__go" aria-hidden="true"><svg class="ic"><use href="#i-arrow"/></svg></span>
           </a>
         </li>
         <li data-rv class="mag__item" data-k="medicine">
-          <a class="mag__row" href="#mag-blood-pressure" data-article="blood-pressure" data-i="2">
-            <span class="mag__media"><img src="img/art-bp-l.webp" alt="" width="1120" height="700" loading="lazy" decoding="async"></span>
+          <a class="mag__row" href="article-blood-pressure-at-home.html" data-i="2">
+            <span class="mag__media"><img src="img/art/blood-pressure-at-home/cover-720.webp" alt="" width="1120" height="700" loading="lazy" decoding="async"></span>
             <span class="mag__no">۰۳</span>
-            <span class="mag__cat">پزشکی</span>
-            <span class="mag__title">فشار خون را کی و چطور اندازه بگیریم؟ اشتباه‌هایی که عدد را خراب می‌کنند</span>
-            <span class="mag__meta">۵ دقیقه مطالعه · پزشک عمومی</span>
+            <span class="mag__cat">پزشکی عمومی</span>
+            <span class="mag__title">فشار خون را در خانه چطور درست اندازه بگیریم؟ اشتباه‌هایی که عدد را خراب می‌کنند</span>
+            <span class="mag__meta">۸ دقیقه مطالعه · پزشک عمومی</span>
             <span class="mag__go" aria-hidden="true"><svg class="ic"><use href="#i-arrow"/></svg></span>
           </a>
         </li>
         <li data-rv class="mag__item" data-k="dental">
-          <a class="mag__row" href="#mag-sensitivity" data-article="sensitivity" data-i="3">
-            <span class="mag__media"><img src="img/art-sensitivity-l.webp" alt="" width="1120" height="700" loading="lazy" decoding="async"></span>
+          <a class="mag__row" href="article-tooth-sensitivity.html" data-i="3">
+            <span class="mag__media"><img src="img/art/tooth-sensitivity/cover-720.webp" alt="" width="1120" height="700" loading="lazy" decoding="async"></span>
             <span class="mag__no">۰۴</span>
             <span class="mag__cat">دندانپزشکی</span>
-            <span class="mag__title">حساسیت دندان به سرما؛ از خمیردندان مناسب تا وقتی باید سراغ دندانپزشک رفت</span>
-            <span class="mag__meta">۵ دقیقه مطالعه · بخش دندانپزشکی</span>
+            <span class="mag__title">حساسیت دندان به سرما و شیرینی؛ از علت‌ها و خمیردندان مناسب تا وقتی باید سراغ دندانپزشک رفت</span>
+            <span class="mag__meta">۸ دقیقه مطالعه · بخش دندانپزشکی</span>
             <span class="mag__go" aria-hidden="true"><svg class="ic"><use href="#i-arrow"/></svg></span>
           </a>
         </li>
         <li data-rv class="mag__item" data-k="beauty">
-          <a class="mag__row" href="#mag-botox" data-article="botox" data-i="4">
-            <span class="mag__media"><img src="img/art-botox-l.webp" alt="" width="1120" height="700" loading="lazy" decoding="async"></span>
+          <a class="mag__row" href="article-botox-first-time.html" data-i="4">
+            <span class="mag__media"><img src="img/art/botox-first-time/cover-720.webp" alt="" width="1120" height="700" loading="lazy" decoding="async"></span>
             <span class="mag__no">۰۵</span>
             <span class="mag__cat">زیبایی و لیزر</span>
             <span class="mag__title">اولین تزریق بوتاکس؛ از جلسه‌ی مشاوره تا دو هفته بعد</span>
-            <span class="mag__meta">۶ دقیقه مطالعه · بخش زیبایی و لیزر</span>
+            <span class="mag__meta">۷ دقیقه مطالعه · بخش زیبایی و لیزر</span>
             <span class="mag__go" aria-hidden="true"><svg class="ic"><use href="#i-arrow"/></svg></span>
           </a>
         </li>
         <li data-rv class="mag__item" data-k="medicine">
-          <a class="mag__row" href="#mag-wound-care" data-article="wound-care" data-i="5">
-            <span class="mag__media"><img src="img/art-wound-l.webp" alt="" width="1120" height="700" loading="lazy" decoding="async"></span>
+          <a class="mag__row" href="article-wound-and-stitch-care.html" data-i="5">
+            <span class="mag__media"><img src="img/art/wound-and-stitch-care/cover-720.webp" alt="" width="1120" height="700" loading="lazy" decoding="async"></span>
             <span class="mag__no">۰۶</span>
-            <span class="mag__cat">پزشکی</span>
+            <span class="mag__cat">پزشکی عمومی</span>
             <span class="mag__title">مراقبت از بخیه و زخم در خانه؛ از پانسمان تا کشیدن بخیه</span>
-            <span class="mag__meta">۵ دقیقه مطالعه · پزشک عمومی</span>
+            <span class="mag__meta">۸ دقیقه مطالعه · پزشک عمومی</span>
             <span class="mag__go" aria-hidden="true"><svg class="ic"><use href="#i-arrow"/></svg></span>
           </a>
         </li>
+<!-- /ARTICLES:mag -->
       </ol>
       <div class="hctl mag__ctl" aria-hidden="false">
         <div class="hctl__bar"><i></i></div>
@@ -906,7 +908,9 @@
       </div>
       <p class="mag__note">مقاله‌ها را پزشکان همین کلینیک می‌نویسند و هر شش ماه یک بار بازبینی می‌کنند.</p>
     </div>
-    <div class="mag__pv" aria-hidden="true"><div class="mag__pv-in"><img src="img/art-implant-p.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" data-i="0"><img src="img/art-sunscreen-p.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" data-i="1"><img src="img/art-bp-p.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" data-i="2"><img src="img/art-sensitivity-p.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" data-i="3"><img src="img/art-botox-p.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" data-i="4"><img src="img/art-wound-p.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" data-i="5"></div></div>
+    <div class="mag__pv" aria-hidden="true"><div class="mag__pv-in"><!-- ARTICLES:pv -->
+<img src="img/art/implant-or-bridge/cover-p.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" data-i="0"><img src="img/art/sunscreen-guide/cover-p.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" data-i="1"><img src="img/art/blood-pressure-at-home/cover-p.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" data-i="2"><img src="img/art/tooth-sensitivity/cover-p.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" data-i="3"><img src="img/art/botox-first-time/cover-p.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" data-i="4"><img src="img/art/wound-and-stitch-care/cover-p.webp" alt="" width="800" height="1000" loading="lazy" decoding="async" data-i="5">
+<!-- /ARTICLES:pv --></div></div>
   </section>
 
   <section class="faq" id="faq" aria-labelledby="faq-title">
@@ -1177,7 +1181,7 @@
         <li><a href="index.html#journey">مسیر درمان</a></li>
         <li><a href="cases.html">نمونه‌ی درمان‌ها</a></li>
         <li><a href="index.html#reviews">نظر بیماران</a></li>
-        <li><a href="index.html#mag-all" data-article="all">مجله‌ی سلامت</a></li>
+        <li><a href="articles.html">مجله‌ی سلامت</a></li>
         <li><a href="faq.html">سؤال‌های پرتکرار</a></li>
         <li><a href="contact.html">مسیر و تماس</a></li>
       </ul>
@@ -1254,23 +1258,6 @@
         <div class="svc__list" id="svcList"></div>
         <p class="svc__note">برای زمان مراجعه و هماهنگی با پذیرش تماس بگیرید: <a href="tel:+981154611560" dir="ltr">۰۱۱ ۵۴۶۱ ۱۵۶۰</a></p>
       </div>
-    </div>
-  </div>
-</div>
-
-<!-- ========== مجله: خواندن مقاله (js/home.js → Reader) ========== -->
-<div class="ar" id="ar" role="dialog" aria-modal="true" aria-labelledby="arTitle" hidden>
-  <div class="ar__scrim" data-ar-close></div>
-  <div class="ar__sheet">
-    <div class="ar__bar">
-      <button type="button" class="ar__back" id="arBack"><svg class="ic" aria-hidden="true"><use href="#i-arrow-r"/></svg><span>بازگشت</span></button>
-      <span class="ar__crumb" id="arCrumb">مجله‌ی سلامت ساسان</span>
-      <button type="button" class="ar__all" id="arAll" data-ar-go="all"><svg class="ic" aria-hidden="true"><use href="#i-file"/></svg><span>همه‌ی مقاله‌ها</span></button>
-      <button type="button" class="ar__copy" id="arCopy" aria-label="کپی نشانی این مقاله"><svg class="ic" aria-hidden="true"><use href="#i-copy"/></svg></button>
-      <i class="ar__prog" aria-hidden="true"><i></i></i>
-    </div>
-    <div class="ar__scroll" id="arScroll" data-lenis-prevent tabindex="-1">
-      <div class="ar__page" id="arPage"></div>
     </div>
   </div>
 </div>
@@ -1384,7 +1371,6 @@
 <script src="js/vendor/Flip.min.js"></script>
 <script src="js/vendor/lenis.min.js"></script>
 <script src="js/core.js"></script>
-<script src="js/articles.js"></script>
 <script src="js/home.js"></script>
 <script src="js/fx.js"></script>
 <script src="js/book.js"></script>
