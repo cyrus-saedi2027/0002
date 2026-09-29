@@ -4,10 +4,7 @@
    - POST login {username, password} → اگر کد پیامکی روشن است: { step: 'code', ticket }
    - POST login/code {ticket, code} و POST login/resend {ticket}
    - نشست با کوکی HttpOnly و SameSite=Strict؛ هر درخواست غیر GET سربرگ x-sasan-panel: 1 و مبدأ همین سایت را لازم دارد
-   نقش‌ها:
-   - admin: همه‌چیز، از جمله کارکنان و گزارش کارها
-   - reception: درخواست‌ها، تقویم، درخواست‌های تماس، پیامک
-   - doctor: فقط نوبت‌های خودش، بدون شماره‌ی بیمار و بدون تغییر
+   نقش: فقط «پذیرش»، با همه‌ی کارها (درخواست‌ها، تقویم، تماس‌ها، پیامک، کارکنان، گزارش کارها، مقاله‌ها و آمار بازدید)
    پیامک: تأیید نوبت از پنل و یادآوری خودکار یک روز قبل (قالب نوع ۲، پارامترها NAME, DEPT, DATE, TIME)،
    گزارش رسیدن هر پیامک و اعتبار پنل sms.ir
    ========================================================================== */
@@ -24,17 +21,12 @@ const { OtpStore, TTL, RESEND } = require('./otp');
 const { DELIVERY_FINAL } = require('./smsir');
 
 const COOKIE = 'sasan_panel';
-const CAN = {
-  admin: ['write', 'phone', 'callbacks', 'sms', 'users', 'audit', 'stats'],
-  reception: ['write', 'phone', 'callbacks', 'sms', 'stats'],
-  doctor: []
-};
-const can = (u, perm) => (CAN[u.role] || []).includes(perm);
+const PERMS = ['write', 'phone', 'callbacks', 'sms', 'users', 'audit', 'stats', 'articles'];
+const can = (u, perm) => !!u && PERMS.includes(perm);
 const sha = (s) => crypto.createHash('sha256').update(String(s)).digest('hex');
 const mask = (m) => m.slice(0, 4) + '***' + m.slice(-4);
 const digits = (s) => String(s || '').replace(/[۰-۹]/g, (c) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(c)).replace(/[٠-٩]/g, (c) => '٠١٢٣٤٥٦٧٨٩'.indexOf(c));
 const CB_STATUSES = ['new', 'called', 'done'];
-const SEEN = ['scheduled', 'arrived', 'done', 'no-show'];
 /* وضعیت‌هایی که روز و ساعت لازم دارند */
 const TIMED = ['scheduled', 'arrived'];
 
@@ -195,17 +187,13 @@ function createPanel(ctx) {
   }, 5 * 60e3);
   timer.unref();
 
-  /* ---------- داده‌ها برای هر نقش ---------- */
-  const visible = (u) => (u.role === 'doctor' ? store.list.filter((b) => b.doctor === u.doctor && SEEN.includes(b.status)) : store.list);
-  const view = (u, b) => {
-    if (u.role !== 'doctor') return b;
-    const { mobile, sms: s, ...rest } = b;
-    return Object.assign(rest, { mobile: '' });
-  };
+  /* ---------- داده‌ها (پنل یک نقش دارد: پذیرش، با دسترسی کامل) ---------- */
+  const visible = () => store.list;
+  const view = (u, b) => b;
   const config = (u) => ({
     depts: B.DEPT, doctors: B.DOCTORS, types: B.TYPES, statuses: B.STATUSES, roles: ROLES,
     sms: { mode: cfg.sms.mode, appt: !!cfg.sms.apptTemplateId, remind: !!cfg.sms.remindTemplateId, received: !!cfg.sms.confirmTemplateId, remindHour: cfg.sms.remindHour },
-    twofa, today: T.today(), now: Date.now(), can: CAN[u.role]
+    twofa, today: T.today(), now: Date.now(), can: PERMS
   });
 
   /* ---------- درخواست‌ها ---------- */
@@ -386,7 +374,7 @@ function createPanel(ctx) {
         if (error) return json(res, 400, { ok: false, error: 'input', message: error });
         const r = await users.create(v, String(body.password || ''), { mustChange: true });
         if (r.error) return json(res, 400, { ok: false, error: 'input', message: r.error });
-        audit.add(u, 'user.create', v.username, ROLES[v.role]);
+        audit.add(u, 'user.create', v.username, v.name);
         return json(res, 200, { ok: true, user: pub(r.user) });
       }
     }
@@ -398,9 +386,9 @@ function createPanel(ctx) {
       const body = await readBody(req, 2048);
       const { v, error } = validateUser(body, { partial: true, current: t });
       if (error) return json(res, 400, { ok: false, error: 'input', message: error });
-      const losesAdmin = t.role === 'admin' && t.active !== false && ((v.role && v.role !== 'admin') || v.active === false);
-      if (t.id === u.id && losesAdmin) return json(res, 400, { ok: false, error: 'input', message: 'نقش یا دسترسی خودتان را نمی‌توانید بگیرید' });
-      if (losesAdmin && users.activeAdmins() <= 1) return json(res, 400, { ok: false, error: 'input', message: 'دست‌کم یک مدیر فعال لازم است' });
+      const deactivates = t.active !== false && v.active === false;
+      if (t.id === u.id && deactivates) return json(res, 400, { ok: false, error: 'input', message: 'حساب خودتان را نمی‌توانید غیرفعال کنید' });
+      if (deactivates && users.activeCount() <= 1) return json(res, 400, { ok: false, error: 'input', message: 'دست‌کم یک حساب فعال لازم است' });
       if (body.password && t.id === u.id) return json(res, 400, { ok: false, error: 'input', message: 'رمز خودتان را از «تغییر رمز» عوض کنید' });
       if (body.password) {
         const pr = await users.setPassword(t.id, String(body.password), { mustChange: true });
@@ -409,7 +397,7 @@ function createPanel(ctx) {
       const r = await users.update(t.id, v);
       if (r.error) return json(res, 400, { ok: false, error: 'input', message: r.error });
       if (v.active === false || body.password) sessions.dropUser(t.id);
-      audit.add(u, 'user.update', t.username, [v.role && 'نقش ' + ROLES[v.role], v.active === false && 'غیرفعال', v.active === true && 'فعال', body.password && 'رمز تازه'].filter(Boolean).join('، ') || 'مشخصات');
+      audit.add(u, 'user.update', t.username, [v.active === false && 'غیرفعال', v.active === true && 'فعال', body.password && 'رمز تازه'].filter(Boolean).join('، ') || 'مشخصات');
       return json(res, 200, { ok: true, user: pub(r.user) });
     }
     if (p === '/api/panel/stats' && m === 'GET') {

@@ -162,7 +162,7 @@ async function setup() {
   console.log(green('\nserver/.env ذخیره شد.'));
   console.log(`اجرا:  ${bold('npm start')}`);
   console.log(`سایت:  http://127.0.0.1:${v.PORT}`);
-  console.log(`پنل پذیرش:  http://127.0.0.1:${v.PORT}/panel/  ${dim('(اولین بار: npm run user برای ساخت حساب مدیر)')}`);
+  console.log(`پنل پذیرش:  http://127.0.0.1:${v.PORT}/panel/  ${dim('(اولین بار: npm run user برای ساخت اولین حساب پذیرش)')}`);
   if (v.HOST === '0.0.0.0') lanIps().forEach((ip) => console.log(`از گوشی: http://${ip}:${v.PORT}`));
   if (!live) console.log(dim('در حالت آزمایشی پیامک واقعی نمی‌آید؛ کد در همین ترمینال چاپ می‌شود.'));
 }

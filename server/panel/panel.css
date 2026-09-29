@@ -59,6 +59,8 @@
 *, *::before, *::after { box-sizing: border-box; }
 /* جای نوار اسکرول همیشه نگه داشته می‌شود: با باز شدن کشو یا پنجره صفحه افقی جابه‌جا نمی‌شود */
 html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; overflow-x: clip; scrollbar-gutter: stable; }
+/* صفحه‌ی ورود کشو و پنجره ندارد؛ نوار خالی کنار صحنه‌ی تیره دیده نشود */
+html.is-login { scrollbar-gutter: auto; }
 body { margin: 0; font-family: var(--f); font-size: 15px; line-height: 1.6; color: var(--ink); background: var(--bg); -webkit-font-smoothing: antialiased; }
 [hidden] { display: none !important; }
 button, input, select, textarea { font: inherit; color: inherit; }
@@ -207,29 +209,85 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 
 /* ---------- ورود ---------- */
 .login { display: grid; grid-template-columns: minmax(0, 1fr) minmax(420px, 520px); min-height: 100vh; min-height: 100svh; background: #fff; }
-.login__art { position: relative; overflow: hidden; isolation: isolate; display: grid; align-content: end; padding: clamp(32px, 5vw, 64px); color: #fff; background: var(--navy-900); }
+.login__art { position: relative; overflow: hidden; isolation: isolate; display: grid; place-items: center; padding: clamp(32px, 5vw, 64px); color: #fff; background: var(--navy-900); }
+/* رنگ‌های پس‌زمینه ثابت‌اند؛ حرکت فقط در صحنه است تا روی نمایشگرهای بزرگ هم فریمی جا نیفتد */
 .blob { position: absolute; z-index: -1; width: 70vmin; height: 70vmin; border-radius: 50%; opacity: .75; }
-.blob--1 { top: -18vmin; right: -12vmin; background: radial-gradient(closest-side, rgba(30, 94, 235, .9), transparent); animation: blob1 18s var(--ease-io) infinite alternate; }
-.blob--2 { bottom: -22vmin; left: -10vmin; background: radial-gradient(closest-side, rgba(214, 90, 131, .7), transparent); animation: blob2 22s var(--ease-io) infinite alternate; }
-.blob--3 { top: 30%; left: 30%; width: 50vmin; height: 50vmin; background: radial-gradient(closest-side, rgba(31, 174, 134, .45), transparent); animation: blob3 20s var(--ease-io) infinite alternate; }
-@keyframes blob1 { to { transform: translate3d(-14vmin, 12vmin, 0) scale(1.15); } }
-@keyframes blob2 { to { transform: translate3d(16vmin, -10vmin, 0) scale(.9); } }
-@keyframes blob3 { to { transform: translate3d(-12vmin, -14vmin, 0) scale(1.2); } }
-.login__art::after { content: ""; position: absolute; inset: 0; z-index: -1; background-image: linear-gradient(rgba(255, 255, 255, .05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, .05) 1px, transparent 1px); background-size: 56px 56px; -webkit-mask-image: radial-gradient(70% 70% at 50% 40%, #000, transparent); mask-image: radial-gradient(70% 70% at 50% 40%, #000, transparent); }
-.login__pitch { display: grid; gap: 18px; max-width: 460px; }
-.login__pitch img { width: 56px; height: 56px; }
-.login__pitch b { font-size: clamp(1.6rem, 1.1rem + 1.6vw, 2.4rem); line-height: 1.35; }
-.login__pitch ul { display: grid; gap: 10px; }
-.login__pitch li { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; background: rgba(255, 255, 255, .07); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12); color: rgba(226, 234, 246, .9); animation: rise .8s var(--ease) backwards; }
-.login__pitch li:nth-child(2) { animation-delay: .08s; }
-.login__pitch li:nth-child(3) { animation-delay: .16s; }
-.login__pitch li .ic { color: #9EC5FF; }
+.blob--1 { top: -18vmin; right: -12vmin; background: radial-gradient(closest-side, rgba(30, 94, 235, .9), transparent); }
+.blob--2 { bottom: -22vmin; left: -10vmin; background: radial-gradient(closest-side, rgba(214, 90, 131, .7), transparent); }
+.blob--3 { top: 30%; left: 30%; width: 50vmin; height: 50vmin; background: radial-gradient(closest-side, rgba(31, 174, 134, .45), transparent); }
+.login__art::after { content: ""; position: absolute; inset: 0; z-index: -1; background-image: linear-gradient(rgba(255, 255, 255, .05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, .05) 1px, transparent 1px); background-size: 56px 56px; -webkit-mask-image: radial-gradient(70% 70% at 50% 50%, #000, transparent); mask-image: radial-gradient(70% 70% at 50% 50%, #000, transparent); }
+
+/* صحنه‌ی متحرک ورود: هسته‌ی کلینیک با ضربان، سه بخش در مدار، و چهار کارت که یک روز پذیرش را در یک حلقه‌ی ۱۲ ثانیه‌ای تعریف می‌کنند.
+   همه‌چیز transform و opacity است (بدون blur پس‌زمینه) تا روی لپ‌تاپ‌های معمولی هم روان بماند. */
+.lx { position: relative; width: min(540px, 84%, 76vh); aspect-ratio: 1; }
+.lx__ring { position: absolute; border-radius: 50%; }
+.lx__ring--out { inset: 0; border: 1px dashed rgba(158, 197, 255, .2); animation: spin 140s linear infinite; }
+.lx__ring--in { inset: 17%; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .1); }
+/* ستاره‌ی کوچکی که دور حلقه‌ی داخلی می‌چرخد */
+.lx__comet { position: absolute; inset: 17%; animation: spin 9s linear infinite; }
+.lx__comet::after { content: ""; position: absolute; top: -4px; left: 50%; width: 8px; height: 8px; margin-left: -4px; border-radius: 50%; background: #CFE0FF; box-shadow: 0 0 12px 3px rgba(158, 197, 255, .7); }
+.lx__orbit { position: absolute; inset: 17%; animation: spin 48s linear infinite; }
+.lx__arm { position: absolute; inset: 0; transform: rotate(var(--a)); }
+.lx__arm--1 { --a: 0deg; }
+.lx__arm--2 { --a: 120deg; }
+.lx__arm--3 { --a: 240deg; }
+.lx__sat { position: absolute; top: 0; left: 50%; display: grid; place-items: center; width: 58px; height: 58px; margin: -29px 0 0 -29px; border-radius: 50%; background: radial-gradient(circle at 30% 25%, #1B3A66, #0B1A33 75%); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .16), 0 14px 30px -12px var(--c); color: var(--c); transform: rotate(calc(-1 * var(--a))); animation: lxUnspin 48s linear infinite; }
+.lx__sat .ic { width: 24px; height: 24px; }
+.lx__sat--dental { --c: #5DB8F0; }
+.lx__sat--beauty { --c: #F08BAE; }
+.lx__sat--medicine { --c: #4FD1A9; }
+@keyframes lxUnspin { from { transform: rotate(calc(-1 * var(--a))); } to { transform: rotate(calc(-1 * var(--a) - 360deg)); } }
+.lx__core { position: absolute; inset: 33%; display: grid; place-items: center; border-radius: 50%; background: radial-gradient(circle at 35% 28%, #1F4478, #0B1A33 72%); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .16), 0 30px 80px -24px rgba(30, 94, 235, .75); }
+.lx__core img { position: relative; width: 46%; height: auto; animation: lxBreathe 4s var(--ease-io) infinite; }
+/* هر بار که کارتی می‌رسد، هسته یک بار روشن می‌شود */
+.lx__core::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(closest-side, rgba(158, 197, 255, .35), transparent); opacity: 0; animation: lxFlash 12s linear infinite; }
+.lx__pulse { position: absolute; inset: 0; border-radius: 50%; box-shadow: inset 0 0 0 2px rgba(158, 197, 255, .5); opacity: 0; animation: lxPulse 3.2s cubic-bezier(.2, .6, .35, 1) infinite; }
+.lx__pulse--2 { animation-delay: 1.6s; }
+@keyframes lxBreathe { 50% { transform: scale(1.06); } }
+@keyframes lxPulse { 0% { opacity: .75; transform: scale(1); } 100% { opacity: 0; transform: scale(1.95); } }
+@keyframes lxFlash { 0%, 19%, 39%, 59%, 100% { opacity: 0; } 2%, 22%, 42%, 62% { opacity: 1; } 10%, 30%, 50%, 70% { opacity: 0; } }
+
+.lx__card { position: absolute; z-index: 2; display: flex; align-items: center; gap: 10px; width: clamp(168px, 40%, 222px); padding: 10px 12px; border-radius: 16px; background: linear-gradient(180deg, #213B66, #12264A); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14), 0 22px 44px -20px rgba(0, 0, 0, .7); }
+.lx__card--1 { top: 5%; right: -2%; animation: lxC1 12s var(--ease) infinite; }
+.lx__card--2 { top: 38%; left: -6%; animation: lxC2 12s var(--ease) infinite; }
+.lx__card--3 { bottom: 20%; right: -8%; animation: lxC3 12s var(--ease) infinite; }
+.lx__card--4 { bottom: 1%; left: 8%; animation: lxC4 12s var(--ease) infinite; }
+@keyframes lxC1 { 0% { opacity: 0; transform: translate3d(0, 16px, 0) scale(.94); } 5%, 86% { opacity: 1; transform: none; } 94%, 100% { opacity: 0; transform: translate3d(0, -10px, 0) scale(.97); } }
+@keyframes lxC2 { 0%, 20% { opacity: 0; transform: translate3d(0, 16px, 0) scale(.94); } 25%, 86% { opacity: 1; transform: none; } 94%, 100% { opacity: 0; transform: translate3d(0, -10px, 0) scale(.97); } }
+@keyframes lxC3 { 0%, 40% { opacity: 0; transform: translate3d(0, 16px, 0) scale(.94); } 45%, 86% { opacity: 1; transform: none; } 94%, 100% { opacity: 0; transform: translate3d(0, -10px, 0) scale(.97); } }
+@keyframes lxC4 { 0%, 60% { opacity: 0; transform: translate3d(0, 16px, 0) scale(.94); } 65%, 86% { opacity: 1; transform: none; } 94%, 100% { opacity: 0; transform: translate3d(0, -10px, 0) scale(.97); } }
+.lx__tile { display: grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: 11px; }
+.lx__tile .ic { width: 19px; height: 19px; }
+.lx__tile--blue { background: rgba(30, 94, 235, .28); color: #9EC5FF; }
+.lx__tile--violet { background: rgba(107, 78, 230, .3); color: #C4B2FF; }
+.lx__tile--teal { background: rgba(11, 154, 168, .3); color: #7FE0EA; }
+.lx__tile--green { background: rgba(18, 163, 107, .3); color: #7FE3B8; }
+.lx__lines { display: grid; gap: 7px; flex: 1; }
+.lx__lines i { height: 7px; border-radius: 4px; background: rgba(255, 255, 255, .26); }
+.lx__lines i + i { width: 62%; background: rgba(255, 255, 255, .13); }
+.lx__new { flex: none; width: 9px; height: 9px; border-radius: 50%; background: #FF8FA8; box-shadow: 0 0 0 4px rgba(255, 143, 168, .18); animation: lxBlink 1.2s var(--ease-io) infinite; }
+@keyframes lxBlink { 50% { transform: scale(.6); opacity: .5; } }
+.lx__time { flex: none; padding: 3px 9px; border-radius: 999px; background: rgba(196, 178, 255, .16); color: #DCD2FF; font-size: .8125rem; font-weight: 700; }
+.lx__ticks { display: flex; flex: none; color: #7FE0EA; }
+.lx__ticks .ic { width: 16px; height: 16px; stroke-width: 2.4; animation: lxT1 12s var(--spring) infinite; }
+.lx__ticks .ic + .ic { margin-right: -9px; animation-name: lxT2; }
+@keyframes lxT1 { 0%, 48% { opacity: 0; transform: scale(.3); } 51%, 88% { opacity: 1; transform: none; } 94%, 100% { opacity: 0; } }
+@keyframes lxT2 { 0%, 53% { opacity: 0; transform: scale(.3); } 56%, 88% { opacity: 1; transform: none; } 94%, 100% { opacity: 0; } }
+.lx__ok { flex: none; color: #7FE3B8; }
+.lx__ok .ic { display: block; animation: lxOk 12s var(--spring) infinite; }
+@keyframes lxOk { 0%, 68% { opacity: 0; transform: scale(.3) rotate(-40deg); } 72%, 88% { opacity: 1; transform: none; } 94%, 100% { opacity: 0; } }
+.lx__dot { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: #9EC5FF; opacity: 0; animation: lxRise 9s var(--ease-io) infinite; }
+.lx__dot--1 { top: 72%; left: 20%; }
+.lx__dot--2 { top: 24%; left: 30%; animation-delay: -2s; animation-duration: 11s; }
+.lx__dot--3 { top: 64%; left: 78%; animation-delay: -4.5s; }
+.lx__dot--4 { top: 14%; left: 64%; animation-delay: -6s; animation-duration: 10s; background: #C4B2FF; }
+.lx__dot--5 { top: 86%; left: 56%; animation-delay: -7.5s; background: #7FE3B8; }
+@keyframes lxRise { 0% { opacity: 0; transform: translate3d(0, 20px, 0); } 30%, 60% { opacity: .8; } 100% { opacity: 0; transform: translate3d(0, -60px, 0); } }
+
 .login__side { display: grid; align-items: center; padding: clamp(20px, 4vw, 48px); }
 .login__card { width: 100%; max-width: 400px; margin: 0 auto; display: grid; gap: 26px; }
-.login__brand { display: none; align-items: center; gap: 12px; }
-.login__brand img { width: 44px; height: 44px; padding: 8px; border-radius: 12px; background: var(--navy-800); }
-.login__brand b { display: block; font-size: 1.05rem; }
-.login__brand small { color: var(--ink-3); font-size: .8125rem; }
+.login__brand { display: none; margin-bottom: -12px; font-size: .8125rem; color: var(--ink-3); }
+.login__brand b { margin-left: 8px; padding-left: 8px; border-left: 1px solid var(--line-2); color: var(--blue); font-weight: 800; }
 .login__step { animation: rise .6s var(--ease) backwards; }
 .login h1 { font-size: 1.6rem; line-height: 1.4; }
 .login__sub { margin-top: 6px; color: var(--ink-3); font-size: .9375rem; }
@@ -242,8 +300,12 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .code.is-bad input { box-shadow: inset 0 0 0 2px var(--bad); }
 @keyframes shake { 20%, 60% { transform: translateX(-7px); } 40%, 80% { transform: translateX(7px); } }
 .code-meta { display: flex; justify-content: space-between; align-items: center; font-size: .875rem; color: var(--ink-3); }
-.login__demo { display: grid; gap: 10px; padding: 14px 16px; border-radius: 14px; background: var(--warn-50); font-size: .8125rem; line-height: 1.8; color: #6B4A00; }
-.login__demo .opt span { min-height: 36px; font-size: .8125rem; }
+.login__help { display: grid; gap: 12px; margin-top: 6px; padding-top: 18px; border-top: 1px solid var(--line); }
+.login__help li { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 12px; align-items: start; color: var(--ink-3); font-size: .8125rem; line-height: 1.95; }
+.login__help li > span { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 10px; background: var(--blue-50); color: var(--blue); }
+.login__help b { color: var(--ink-2); font-weight: 700; }
+.login__tip { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 14px; background: var(--mist); color: var(--ink-3); font-size: .8125rem; line-height: 1.95; }
+.login__tip .ic { margin-top: 4px; color: var(--blue); }
 .login__foot { font-size: .875rem; text-align: center; }
 .login__foot a { color: var(--ink-3); }
 
@@ -717,10 +779,15 @@ a.kpi:hover { transform: translateY(-3px); box-shadow: var(--sh-3); }
   .tabs .badge { position: absolute; top: -2px; left: -2px; transform: scale(.85); }
 }
 @media (max-width: 900px) {
-  .login { grid-template-columns: minmax(0, 1fr); }
-  .login__art { display: none; }
-  .login__brand { display: flex; }
-  .login__side { background: linear-gradient(180deg, var(--blue-50), #fff 40%); }
+  /* گوشی و تبلت: صحنه نواری بالای فرم است؛ فقط هسته و مدار، بدون کارت‌ها */
+  .login { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr; }
+  .login__art { height: clamp(210px, 32svh, 290px); padding: 0; border-radius: 0 0 28px 28px; }
+  .lx { width: min(250px, 64vw); margin-top: 6px; }
+  .lx__card, .lx__ring--out { display: none; }
+  .lx__sat { width: 44px; height: 44px; margin: -22px 0 0 -22px; }
+  .lx__sat .ic { width: 19px; height: 19px; }
+  .login__brand { display: block; }
+  .login__side { align-items: start; padding-top: 26px; }
 }
 @media (max-width: 760px) {
   body { font-size: 14.5px; }
@@ -779,7 +846,7 @@ a.kpi:hover { transform: translateY(-3px); box-shadow: var(--sh-3); }
 /* ---------- حرکت کمتر ---------- */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; animation-delay: 0s !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
-  .blob { animation: none !important; }
+  .lx *, .lx *::before, .lx *::after { animation: none !important; }
 }
 
 /* ---------- چاپ ---------- */

@@ -81,27 +81,51 @@
 <main class="login" id="login" hidden>
   <section class="login__art" aria-hidden="true">
     <i class="blob blob--1"></i><i class="blob blob--2"></i><i class="blob blob--3"></i>
-    <div class="login__pitch">
-      <img src="logo-light.svg" alt="">
-      <b>پنل پذیرش ساسان کلینیک</b>
-      <ul>
-        <li><svg class="ic"><use href="#i-phone-call"/></svg>درخواست‌های سایت، یک‌جا و به ترتیب انتظار</li>
-        <li><svg class="ic"><use href="#i-cal-check"/></svg>نوبت با چند کلیک، همراه پیامک تأیید</li>
-        <li><svg class="ic"><use href="#i-user-check"/></svg>پذیرش بیمار و برنامه‌ی زنده‌ی امروز</li>
-      </ul>
+    <!-- یک روز پذیرش در یک حلقه: درخواست می‌رسد، نوبت ثبت می‌شود، پیامک می‌رود، بیمار می‌رسد -->
+    <div class="lx">
+      <i class="lx__ring lx__ring--out"></i>
+      <i class="lx__ring lx__ring--in"></i>
+      <i class="lx__comet"></i>
+      <div class="lx__orbit">
+        <span class="lx__arm lx__arm--1"><b class="lx__sat lx__sat--dental"><svg class="ic"><use href="#i-tooth"/></svg></b></span>
+        <span class="lx__arm lx__arm--2"><b class="lx__sat lx__sat--beauty"><svg class="ic"><use href="#i-sparkles"/></svg></b></span>
+        <span class="lx__arm lx__arm--3"><b class="lx__sat lx__sat--medicine"><svg class="ic"><use href="#i-steth"/></svg></b></span>
+      </div>
+      <div class="lx__core">
+        <i class="lx__pulse"></i><i class="lx__pulse lx__pulse--2"></i>
+        <img src="logo-light.svg" alt="">
+      </div>
+      <div class="lx__card lx__card--1">
+        <span class="lx__tile lx__tile--blue"><svg class="ic"><use href="#i-phone-call"/></svg></span>
+        <span class="lx__lines"><i></i><i></i></span>
+        <span class="lx__new"></span>
+      </div>
+      <div class="lx__card lx__card--2">
+        <span class="lx__tile lx__tile--violet"><svg class="ic"><use href="#i-cal-check"/></svg></span>
+        <span class="lx__lines"><i></i><i></i></span>
+        <span class="lx__time num">۱۰:۳۰</span>
+      </div>
+      <div class="lx__card lx__card--3">
+        <span class="lx__tile lx__tile--teal"><svg class="ic"><use href="#i-msg"/></svg></span>
+        <span class="lx__lines"><i></i><i></i></span>
+        <span class="lx__ticks"><svg class="ic"><use href="#i-check"/></svg><svg class="ic"><use href="#i-check"/></svg></span>
+      </div>
+      <div class="lx__card lx__card--4">
+        <span class="lx__tile lx__tile--green"><svg class="ic"><use href="#i-user-check"/></svg></span>
+        <span class="lx__lines"><i></i><i></i></span>
+        <span class="lx__ok"><svg class="ic"><use href="#i-check-circle"/></svg></span>
+      </div>
+      <i class="lx__dot lx__dot--1"></i><i class="lx__dot lx__dot--2"></i><i class="lx__dot lx__dot--3"></i><i class="lx__dot lx__dot--4"></i><i class="lx__dot lx__dot--5"></i>
     </div>
   </section>
   <section class="login__side">
     <div class="login__card">
-      <div class="login__brand">
-        <img src="logo-light.svg" alt="">
-        <div><b>ساسان کلینیک</b><small>پنل پذیرش · فقط برای کارکنان</small></div>
-      </div>
+      <div class="login__brand"><b>ساسان کلینیک</b><small>پنل پذیرش · فقط برای کارکنان</small></div>
 
       <form class="login__step form" id="loginForm" novalidate>
         <div>
-          <h1>ورود به پنل</h1>
-          <p class="login__sub">با نام کاربری و رمزی که مدیر کلینیک به شما داده است وارد شوید.</p>
+          <h1>سلام، خوش آمدید</h1>
+          <p class="login__sub">برای شروع کار امروز، نام کاربری و رمزتان را بزنید.</p>
         </div>
         <label class="field"><span>نام کاربری</span>
           <input class="input input--ltr" id="lgUser" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required>
@@ -114,6 +138,10 @@
         </label>
         <p class="err" id="lgErr" role="alert"></p>
         <button class="btn btn--pri btn--lg btn--block" type="submit"><span class="spin"></span><span class="btn__t">ادامه</span><svg class="ic"><use href="#i-arrow"/></svg></button>
+        <ul class="login__help">
+          <li><span><svg class="ic ic--s"><use href="#i-msg"/></svg></span><p>بعد از رمز، یک <b>کد ۵ رقمی</b> به موبایلتان پیامک می‌شود؛ گوشی را دم دست داشته باشید.</p></li>
+          <li><span><svg class="ic ic--s"><use href="#i-users"/></svg></span><p>حساب ندارید یا رمز یادتان رفته؟ یکی از همکاران پذیرش از بخش <b>«همکاران»</b> برایتان حساب یا رمز تازه می‌گذارد.</p></li>
+        </ul>
       </form>
 
       <form class="login__step form" id="codeForm" novalidate hidden>
@@ -130,12 +158,11 @@
         </div>
         <div class="code-meta"><span id="cdTimer" class="num" aria-live="polite"></span><button class="linkbtn" type="button" id="cdResend" disabled>ارسال دوباره</button></div>
         <p class="err" id="cdErr" role="alert"></p>
+        <p class="login__tip"><svg class="ic ic--s"><use href="#i-info"/></svg><span>کد ۲ دقیقه اعتبار دارد و فقط یک بار به کار می‌آید. اگر پیامک نرسید، بعد از تمام شدن شمارش «ارسال دوباره» را بزنید.</span></p>
         <button class="btn btn--pri btn--lg btn--block" type="submit"><span class="spin"></span><span class="btn__t">ورود</span></button>
         <button class="linkbtn" type="button" id="cdBack">برگشت و ورود با حساب دیگر</button>
       </form>
 
-      <div class="login__demo" id="lgDemo" hidden><p><b>نسخه‌ی نمایشی:</b> به سرور کلینیک وصل نیست. با هر نام کاربری و رمزی وارد شوید؛ کد ورود هم هر ۵ رقمی است. داده‌ها ساختگی‌اند و پیامکی فرستاده نمی‌شود.</p>
-        <div class="opts" id="lgRole"></div></div>
       <p class="login__foot"><a href="../index.html">بازگشت به سایت کلینیک</a></p>
     </div>
   </section>

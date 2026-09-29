@@ -17,8 +17,9 @@
   };
   const TYPES = ['ویزیت اول', 'ادامه‌ی درمان', 'مشاوره'];
   const STATUSES = ['new', 'called', 'scheduled', 'arrived', 'done', 'cancelled', 'no-show'];
-  const ROLES = { admin: 'مدیر', reception: 'پذیرش', doctor: 'پزشک' };
-  const CAN = { admin: ['write', 'phone', 'callbacks', 'sms', 'users', 'audit', 'stats'], reception: ['write', 'phone', 'callbacks', 'sms', 'stats'], doctor: [] };
+  /* پنل فقط یک نقش دارد: پذیرش، با همه‌ی دسترسی‌ها */
+  const ROLES = { reception: 'پذیرش' };
+  const CAN = ['write', 'phone', 'callbacks', 'sms', 'users', 'audit', 'stats', 'articles'];
 
   const dayFmt = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tehran', year: 'numeric', month: '2-digit', day: '2-digit' });
   const hmFmt = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Tehran', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
@@ -101,38 +102,38 @@
       { id: 'c3', name: 'لیلا صادقی', mobile: '09001234592', topic: 'لیزر موهای زائد', status: 'done', createdAt: at(DAY + HOUR), v: 2 }
     ];
     const users = [
-      { id: 'u1', username: 'modir', name: 'مدیر کلینیک', role: 'admin', mobile: '09000000001', doctor: '', active: true, mustChange: false, createdAt: at(30 * DAY), lastLoginAt: at(2 * MIN) },
-      { id: 'u2', username: 'paziresh', name: RECEPTION, role: 'reception', mobile: '09000000002', doctor: '', active: true, mustChange: false, createdAt: at(20 * DAY), lastLoginAt: at(35 * MIN) },
-      { id: 'u3', username: 'dr.nikpour', name: 'دکتر نیک‌پور', role: 'doctor', mobile: '09000000003', doctor: 'doc-1', active: true, mustChange: false, createdAt: at(20 * DAY), lastLoginAt: at(DAY) },
-      { id: 'u4', username: 'paziresh.shab', name: 'رضا کریمی', role: 'reception', mobile: '09000000004', doctor: '', active: false, mustChange: false, createdAt: at(25 * DAY), lastLoginAt: at(9 * DAY) }
+      { id: 'u1', username: 'paziresh', name: RECEPTION, role: 'reception', mobile: '09000000001', active: true, mustChange: false, createdAt: at(30 * DAY), lastLoginAt: at(2 * MIN) },
+      { id: 'u2', username: 'paziresh.asr', name: 'نیلوفر رحیمی', role: 'reception', mobile: '09000000002', active: true, mustChange: false, createdAt: at(20 * DAY), lastLoginAt: at(35 * MIN) },
+      { id: 'u3', username: 'paziresh.shab', name: 'رضا کریمی', role: 'reception', mobile: '09000000003', active: false, mustChange: false, createdAt: at(25 * DAY), lastLoginAt: at(9 * DAY) }
     ];
+    const NIL = { id: 'u2', name: 'نیلوفر رحیمی' };
     const audit = [
-      { at: at(2 * MIN), by: { id: 'u1', name: 'مدیر کلینیک' }, action: 'login', target: 'modir', detail: '' },
-      { at: at(35 * MIN), by: { id: 'u2', name: RECEPTION }, action: 'login', target: 'paziresh', detail: '' },
-      { at: at(HOUR), by: { id: 'u2', name: RECEPTION }, action: 'callback.update', target: '0900***4591', detail: 'called' },
-      { at: at(2 * HOUR + 39 * MIN), by: { id: 'u2', name: RECEPTION }, action: 'booking.update', target: B[3].ref, detail: 'وضعیت called، یادداشت' },
-      { at: at(3 * HOUR), by: { id: 'u2', name: RECEPTION }, action: 'booking.update', target: B[2].ref, detail: 'جواب نداد' },
+      { at: at(2 * MIN), by: { id: 'u1', name: RECEPTION }, action: 'login', target: 'paziresh', detail: '' },
+      { at: at(35 * MIN), by: NIL, action: 'login', target: 'paziresh.asr', detail: '' },
+      { at: at(HOUR), by: NIL, action: 'callback.update', target: '0900***4591', detail: 'called' },
+      { at: at(2 * HOUR + 39 * MIN), by: { id: 'u1', name: RECEPTION }, action: 'booking.update', target: B[3].ref, detail: 'وضعیت called، یادداشت' },
+      { at: at(3 * HOUR), by: { id: 'u1', name: RECEPTION }, action: 'booking.update', target: B[2].ref, detail: 'جواب نداد' },
       { at: at(3 * HOUR + 5 * MIN), by: null, action: 'login.fail', target: 'paziresh', detail: '' },
-      { at: at(5 * HOUR), by: { id: 'u2', name: RECEPTION }, action: 'booking.create', target: B[8].ref, detail: 'پزشک عمومی · نوبت ' + t },
-      { at: at(9 * DAY), by: { id: 'u1', name: 'مدیر کلینیک' }, action: 'user.update', target: 'paziresh.shab', detail: 'غیرفعال' }
+      { at: at(5 * HOUR), by: { id: 'u1', name: RECEPTION }, action: 'booking.create', target: B[8].ref, detail: 'پزشک عمومی · نوبت ' + t },
+      { at: at(9 * DAY), by: { id: 'u1', name: RECEPTION }, action: 'user.update', target: 'paziresh.shab', detail: 'غیرفعال' }
     ];
     return { B, callbacks, users, audit };
   }
 
   function create() {
     const db = seed();
-    let role = 'admin', authed = false, arriveAt = 0, arrived = false;
-    const me = () => db.users.find((u) => u.role === role && u.active);
+    let authed = false, arriveAt = 0, arrived = false;
+    const me = () => db.users[0];
     const wait = (ms) => new Promise((r) => setTimeout(r, ms));
     const ok = (o = {}) => Object.assign({ ok: true, status: 200 }, clone(o));
     const fail = (status, error, extra = {}) => Object.assign({ ok: false, status, error }, clone(extra));
-    const cfg = () => ({ depts: DEPTS, doctors: DOCTORS, types: TYPES, statuses: STATUSES, roles: ROLES, sms: { mode: 'sandbox', appt: true, remind: true, received: true, remindHour: 17 }, twofa: true, today: today(), now: Date.now(), can: CAN[role] });
+    const cfg = () => ({ depts: DEPTS, doctors: DOCTORS, types: TYPES, statuses: STATUSES, roles: ROLES, sms: { mode: 'sandbox', appt: true, remind: true, received: true, remindHour: 17 }, twofa: true, today: today(), now: Date.now(), can: CAN });
     const log = (action, target, detail = '') => { const u = me(); db.audit.unshift({ at: new Date().toISOString(), by: { id: u.id, name: u.name }, action, target, detail }); };
     const pushSms = (b, kind) => { b.sms.push({ at: new Date().toISOString(), kind, ok: true, id: msgId(), err: '', dlv: null }); b.log.push({ at: new Date().toISOString(), by: me().name, ev: 'sms', v: { kind, ok: true } }); };
 
     async function handle(m, p, body = {}) {
       await wait(110 + Math.random() * 170);
-      if (p === '/login' && m === 'POST') return body.username && body.password ? ok({ step: 'code', ticket: 'demo', mobile: '0900***000' + ({ admin: 1, reception: 2, doctor: 3 }[role]), ttl: 120, wait: 120 }) : fail(401, 'auth');
+      if (p === '/login' && m === 'POST') return body.username && body.password ? ok({ step: 'code', ticket: 'demo', mobile: '0900***0001', ttl: 120, wait: 120 }) : fail(401, 'auth');
       if (p === '/login/code' && m === 'POST') {
         if (!/^\d{5}$/.test(String(body.code))) return fail(401, 'code', { left: 4 });
         authed = true; arriveAt = Date.now() + 45e3;
@@ -142,7 +143,7 @@
       }
       if (p === '/login/resend' && m === 'POST') return ok({ wait: 120, ttl: 120 });
       if (!authed) return fail(401, 'auth');
-      const u = me(), can = (x) => CAN[role].includes(x);
+      const u = me(), can = (x) => CAN.includes(x);
       if (p === '/logout') { log('logout', u.username); authed = false; return ok(); }
       if (p === '/me') return ok({ user: u, cfg: cfg() });
       if (p === '/password') {
@@ -159,8 +160,7 @@
           b.sms.push({ at: b.createdAt, kind: 'received', ok: true, id: msgId(), err: '', dlv: null });
           db.B.push(b);
         }
-        const list = role === 'doctor' ? db.B.filter((b) => b.doctor === u.doctor && ['scheduled', 'arrived', 'done', 'no-show'].includes(b.status)).map((b) => Object.assign(clone(b), { mobile: '', sms: undefined })) : db.B;
-        return ok({ bookings: list, today: today() });
+        return ok({ bookings: db.B, today: today() });
       }
       const write = /^\/bookings/.test(p) && m !== 'GET';
       if (write && !can('write')) return fail(403, 'forbidden');
@@ -223,9 +223,9 @@
         if (db.users.some((x) => x.username === body.username)) return fail(400, 'input', { message: 'این نام کاربری هست' });
         if (!/^09\d{9}$/.test(body.mobile || '')) return fail(400, 'input', { message: 'موبایل باید ۱۱ رقم و با ۰۹ شروع شود (برای کد ورود)' });
         if (String(body.password || '').length < 8) return fail(400, 'input', { message: 'رمز باید دست‌کم ۸ نویسه باشد' });
-        const nu = { id: 'u' + (db.users.length + 1), username: body.username, name: body.name, role: body.role, mobile: body.mobile, doctor: body.role === 'doctor' ? body.doctor : '', active: true, mustChange: true, createdAt: new Date().toISOString(), lastLoginAt: null };
+        const nu = { id: 'u' + (db.users.length + 1), username: body.username, name: body.name, role: 'reception', mobile: body.mobile, active: true, mustChange: true, createdAt: new Date().toISOString(), lastLoginAt: null };
         db.users.push(nu);
-        log('user.create', nu.username, ROLES[nu.role]);
+        log('user.create', nu.username, nu.name);
         return ok({ user: nu });
       }
       mm = /^\/users\/([^/]+)$/.exec(p);
@@ -233,8 +233,8 @@
         if (!can('users')) return fail(403, 'forbidden');
         const t = db.users.find((x) => x.id === mm[1]);
         if (!t) return fail(404, 'not-found');
-        if (t.id === u.id && (body.active === false || (body.role && body.role !== 'admin'))) return fail(400, 'input', { message: 'نقش یا دسترسی خودتان را نمی‌توانید بگیرید' });
-        ['name', 'role', 'mobile', 'doctor', 'active'].forEach((k) => { if (body[k] !== undefined) t[k] = body[k]; });
+        if (t.id === u.id && body.active === false) return fail(400, 'input', { message: 'حساب خودتان را نمی‌توانید غیرفعال کنید' });
+        ['name', 'mobile', 'active'].forEach((k) => { if (body[k] !== undefined) t[k] = body[k]; });
         if (body.password) t.mustChange = true;
         log('user.update', t.username, body.password ? 'رمز تازه' : 'مشخصات');
         return ok({ user: t });
@@ -244,8 +244,7 @@
       return fail(404, 'not-found');
     }
     return {
-      get: (p) => handle('GET', p), post: (p, b = {}) => handle('POST', p, b), patch: (p, b) => handle('PATCH', p, b),
-      setRole: (r) => { if (ROLES[r]) role = r; }
+      get: (p) => handle('GET', p), post: (p, b = {}) => handle('POST', p, b), patch: (p, b) => handle('PATCH', p, b)
     };
   }
 

@@ -72,7 +72,7 @@ test('ورود پنل: رمز، کد پیامکی، کوکی امن، خروج',
   const ok = await b.req('POST', '/api/panel/login/code', { ticket: r.body.ticket, code: sms.params.CODE.replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[d]) });
   assert.strictEqual(ok.status, 200);
   assert.match(ok.setCookie, /^sasan_panel=[\w-]{40,}; Path=\/api\/panel; HttpOnly; SameSite=Strict; Max-Age=43200$/);
-  assert.strictEqual(ok.body.user.role, 'admin');
+  assert.strictEqual(ok.body.user.role, 'reception', 'old roles become reception');
   assert.ok(!('pass' in ok.body.user), 'password hash never leaves the server');
   const me = await b.req('GET', '/api/panel/me');
   assert.strictEqual(me.status, 200);
@@ -146,49 +146,48 @@ test('درخواست‌ها: نوبت تلفنی با پیامک تأیید، ت
   s.done();
 });
 
-test('نقش‌ها: پزشک فقط نوبت‌های خودش را بدون شماره می‌بیند؛ پذیرش به کارکنان دسترسی ندارد؛ رمز موقت', async () => {
+test('یک نقش: هر همکار پذیرش همه‌ی کارها را دارد؛ رمز موقت؛ خودتان را نمی‌توانید غیرفعال کنید', async () => {
   const s = await setup();
-  const admin = s.browser();
-  await s.login(admin, 'admin', 'Clinic-pass-1');
+  const first = s.browser();
+  await s.login(first, 'admin', 'Clinic-pass-1');
   const day = T.addDays(T.today(), 1);
-  await admin.req('POST', '/api/panel/bookings', { name: 'بیمار یک', mobile: '09121111111', dept: 'dental', type: 'ویزیت اول', date: day, time: 600, doctor: 'doc-1' });
-  await admin.req('POST', '/api/panel/bookings', { name: 'بیمار دو', mobile: '09122222222', dept: 'dental', type: 'ویزیت اول', date: day, time: 660, doctor: 'doc-2' });
-  await admin.req('POST', '/api/panel/bookings', { name: 'بیمار سه', mobile: '09123333333', dept: 'dental', type: 'مشاوره' });
-  const bad = await admin.req('POST', '/api/panel/users', { username: 'dr', name: 'دکتر', role: 'doctor', mobile: '09120000003', password: 'Temp-pass-99' });
-  assert.strictEqual(bad.status, 400, 'doctor role needs a doctor');
-  const weak = await admin.req('POST', '/api/panel/users', { username: 'nik', name: 'دکتر نیک‌پور', role: 'doctor', doctor: 'doc-1', mobile: '09120000003', password: '12345678' });
+  await first.req('POST', '/api/panel/bookings', { name: 'بیمار یک', mobile: '09121111111', dept: 'dental', type: 'ویزیت اول', date: day, time: 600, doctor: 'doc-1' });
+  await first.req('POST', '/api/panel/bookings', { name: 'بیمار دو', mobile: '09122222222', dept: 'dental', type: 'ویزیت اول', date: day, time: 660, doctor: 'doc-2' });
+  await first.req('POST', '/api/panel/bookings', { name: 'بیمار سه', mobile: '09123333333', dept: 'dental', type: 'مشاوره' });
+  const weak = await first.req('POST', '/api/panel/users', { username: 'sara', name: 'سارا محمدی', mobile: '09120000002', password: '12345678' });
   assert.strictEqual(weak.status, 400);
-  assert.strictEqual((await admin.req('POST', '/api/panel/users', { username: 'nik', name: 'دکتر نیک‌پور', role: 'doctor', doctor: 'doc-1', mobile: '09120000003', password: 'Temp-pass-99' })).status, 200);
-  const rc = await admin.req('POST', '/api/panel/users', { username: 'sara', name: 'سارا پذیرش', role: 'reception', mobile: '09120000002', password: 'Temp-pass-77' });
+  /* نقش فرستاده‌شده نادیده گرفته می‌شود؛ همه پذیرش‌اند */
+  const rc = await first.req('POST', '/api/panel/users', { username: 'sara', name: 'سارا محمدی', role: 'doctor', doctor: 'doc-1', mobile: '09120000002', password: 'Temp-pass-77' });
+  assert.strictEqual(rc.status, 200);
+  assert.strictEqual(rc.body.user.role, 'reception');
+  assert.ok(!('doctor' in rc.body.user));
   assert.strictEqual(rc.body.user.mustChange, true);
-
-  const doc = s.browser();
-  await s.login(doc, 'nik', 'Temp-pass-99');
-  assert.strictEqual((await doc.req('GET', '/api/panel/bookings')).body.error, 'must-change');
-  assert.strictEqual((await doc.req('POST', '/api/panel/password', { current: 'wrong', next: 'Doctor-own-1' })).status, 401);
-  assert.strictEqual((await doc.req('POST', '/api/panel/password', { current: 'Temp-pass-99', next: 'Doctor-own-1' })).status, 200);
-  const dl = await doc.req('GET', '/api/panel/bookings');
-  assert.strictEqual(dl.body.bookings.length, 1);
-  assert.strictEqual(dl.body.bookings[0].doctor, 'doc-1');
-  assert.strictEqual(dl.body.bookings[0].mobile, '');
-  assert.ok(!('sms' in dl.body.bookings[0]));
-  assert.strictEqual((await doc.req('PATCH', '/api/panel/bookings/' + dl.body.bookings[0].ref, { status: 'done' })).status, 403);
-  assert.strictEqual((await doc.req('GET', '/api/panel/callbacks')).status, 403);
 
   const rec = s.browser();
   await s.login(rec, 'sara', 'Temp-pass-77');
-  await rec.req('POST', '/api/panel/password', { current: 'Temp-pass-77', next: 'Desk-own-pass-2' });
-  assert.strictEqual((await rec.req('GET', '/api/panel/bookings')).body.bookings.length, 3);
-  assert.strictEqual((await rec.req('GET', '/api/panel/users')).status, 403);
-  assert.strictEqual((await rec.req('GET', '/api/panel/audit')).status, 403);
-  /* مدیر رمز پذیرش را عوض می‌کند: نشست قبلی پذیرش باطل می‌شود */
+  assert.strictEqual((await rec.req('GET', '/api/panel/bookings')).body.error, 'must-change');
+  assert.strictEqual((await rec.req('POST', '/api/panel/password', { current: 'wrong', next: 'Desk-own-pass-2' })).status, 401);
+  assert.strictEqual((await rec.req('POST', '/api/panel/password', { current: 'Temp-pass-77', next: 'Desk-own-pass-2' })).status, 200);
+  const me = await rec.req('GET', '/api/panel/me');
+  for (const p of ['write', 'users', 'audit', 'stats', 'articles', 'sms', 'callbacks']) assert.ok(me.body.cfg.can.includes(p), p);
+  const list = await rec.req('GET', '/api/panel/bookings');
+  assert.strictEqual(list.body.bookings.length, 3);
+  assert.strictEqual(list.body.bookings[0].mobile.length, 11, 'full mobile for reception');
+  assert.strictEqual((await rec.req('PATCH', '/api/panel/bookings/' + list.body.bookings[0].ref, { status: 'called' })).status, 200);
+  assert.strictEqual((await rec.req('GET', '/api/panel/users')).status, 200);
+  assert.strictEqual((await rec.req('GET', '/api/panel/audit')).status, 200);
+  assert.strictEqual((await rec.req('GET', '/api/panel/callbacks')).status, 200);
+  /* همکار رمز دیگری را عوض می‌کند: نشست قبلی او باطل می‌شود و رمز تازه موقت است */
   const id = rc.body.user.id;
-  assert.strictEqual((await admin.req('PATCH', '/api/panel/users/' + id, { password: 'Reset-pass-55' })).status, 200);
+  assert.strictEqual((await first.req('PATCH', '/api/panel/users/' + id, { password: 'Reset-pass-55' })).status, 200);
   assert.strictEqual((await rec.req('GET', '/api/panel/me')).status, 401);
-  /* آخرین مدیر را نمی‌شود غیرفعال کرد */
-  const self = (await admin.req('GET', '/api/panel/me')).body.user.id;
-  assert.strictEqual((await admin.req('PATCH', '/api/panel/users/' + self, { active: false })).status, 400);
-  const audit = await admin.req('GET', '/api/panel/audit');
+  /* رمز خود را فقط از «تغییر رمز» و حساب خود را نمی‌شود غیرفعال کرد */
+  const self = (await first.req('GET', '/api/panel/me')).body.user.id;
+  assert.strictEqual((await first.req('PATCH', '/api/panel/users/' + self, { password: 'Other-pass-12' })).status, 400);
+  assert.strictEqual((await first.req('PATCH', '/api/panel/users/' + self, { active: false })).status, 400);
+  assert.strictEqual((await first.req('PATCH', '/api/panel/users/' + id, { active: false })).status, 200);
+  assert.strictEqual((await s.login(s.browser(), 'sara', 'Reset-pass-55')).status, 401, 'inactive account cannot log in');
+  const audit = await first.req('GET', '/api/panel/audit');
   const actions = audit.body.audit.map((e) => e.action);
   for (const a of ['login', 'booking.create', 'user.create', 'password.change', 'user.update']) assert.ok(actions.includes(a), a);
   assert.ok(!JSON.stringify(audit.body).includes('Temp-pass'), 'no passwords in the audit log');

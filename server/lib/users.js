@@ -1,17 +1,17 @@
 /* ==========================================================================
    کارکنان پنل پذیرش
    - رمز فقط به‌صورت هش scrypt با نمک تصادفی ذخیره می‌شود؛ مقایسه زمان‌ثابت است
-   - نقش‌ها: admin (مدیر: همه‌چیز)، reception (پذیرش)، doctor (پزشک: فقط نوبت‌های خودش، بدون شماره‌ی بیمار)
+   - پنل یک نقش دارد: پذیرش (همه‌ی کارها، از جمله کارکنان، مقاله‌ها و آمار)؛ حساب‌های قدیمی با نقش مدیر یا پزشک هم پذیرش حساب می‌شوند
    - موبایل هر کاربر برای کد ورود پیامکی است
-   - رمزی که مدیر می‌سازد یا عوض می‌کند موقت است و کاربر در اولین ورود باید رمز خودش را بگذارد
+   - رمزی که همکار برای حساب دیگری می‌سازد یا عوض می‌کند موقت است و کاربر در اولین ورود باید رمز خودش را بگذارد
    ========================================================================== */
 'use strict';
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const { normMobile, validMobile, clean, DOCTORS } = require('./bookings');
+const { normMobile, validMobile, clean } = require('./bookings');
 
-const ROLES = { admin: 'مدیر', reception: 'پذیرش', doctor: 'پزشک' };
+const ROLES = { reception: 'پذیرش' };
 const KEYLEN = 64, OPTS = { N: 16384, r: 8, p: 1 };
 
 const scrypt = (pw, salt) => new Promise((res, rej) => crypto.scrypt(String(pw).normalize('NFC'), salt, KEYLEN, OPTS, (e, k) => (e ? rej(e) : res(k))));
@@ -40,7 +40,7 @@ function passProblem(pw, username) {
   return null;
 }
 
-/* ورودی مدیر برای ساخت یا ویرایش کاربر؛ { v } یا { error } */
+/* ورودی فرم همکاران برای ساخت یا ویرایش کاربر؛ { v } یا { error } */
 function validateUser(b, { partial = false, current = null } = {}) {
   const v = {};
   if (!partial || b.username !== undefined) {
@@ -52,25 +52,17 @@ function validateUser(b, { partial = false, current = null } = {}) {
     v.name = clean(b.name, 60);
     if (v.name.length < 2) return { error: 'نام را بنویسید' };
   }
-  if (!partial || b.role !== undefined) {
-    if (!ROLES[b.role]) return { error: 'نقش نادرست است' };
-    v.role = b.role;
-  }
+  /* نقش همیشه پذیرش است؛ نقش فرستاده‌شده نادیده گرفته می‌شود */
+  if (!partial) v.role = 'reception';
   if (!partial || b.mobile !== undefined) {
     v.mobile = normMobile(b.mobile);
     if (!validMobile(v.mobile)) return { error: 'موبایل باید ۱۱ رقم و با ۰۹ شروع شود (برای کد ورود)' };
-  }
-  const role = v.role || (current && current.role);
-  if (b.doctor !== undefined || v.role) {
-    const d = String(b.doctor === undefined ? (current && current.doctor) || '' : b.doctor || '');
-    if (role === 'doctor' && !DOCTORS[d]) return { error: 'برای نقش پزشک، پزشک مربوط را انتخاب کنید' };
-    v.doctor = role === 'doctor' ? d : '';
   }
   if (b.active !== undefined) v.active = !!b.active;
   return { v };
 }
 
-const pub = (u) => ({ id: u.id, username: u.username, name: u.name, role: u.role, mobile: u.mobile, doctor: u.doctor || '', active: u.active !== false, mustChange: !!u.mustChange, createdAt: u.createdAt, lastLoginAt: u.lastLoginAt || null });
+const pub = (u) => ({ id: u.id, username: u.username, name: u.name, role: 'reception', mobile: u.mobile, active: u.active !== false, mustChange: !!u.mustChange, createdAt: u.createdAt, lastLoginAt: u.lastLoginAt || null });
 
 class UserStore {
   constructor(dir) {
@@ -86,6 +78,8 @@ class UserStore {
     try { m = fs.statSync(this.file).mtimeMs; } catch (e) { m = 0; }
     if (m === this.mtime) return;
     try { const j = JSON.parse(fs.readFileSync(this.file, 'utf8')); this.list = Array.isArray(j) ? j : []; } catch (e) { if (!m) this.list = []; }
+    /* نقش‌های قدیمی (مدیر، پزشک) همه پذیرش می‌شوند؛ با اولین ذخیره در فایل هم می‌نشیند */
+    this.list.forEach((u) => { if (u.role !== 'reception' || 'doctor' in u) { u.role = 'reception'; delete u.doctor; } });
     this.mtime = m;
   }
   save() {
@@ -103,7 +97,7 @@ class UserStore {
   all() { this.fresh(); return this.list; }
   byId(id) { this.fresh(); return this.list.find((u) => u.id === id) || null; }
   byUsername(n) { this.fresh(); const k = String(n || '').trim().toLowerCase(); return this.list.find((u) => u.username === k) || null; }
-  activeAdmins() { this.fresh(); return this.list.filter((u) => u.role === 'admin' && u.active !== false).length; }
+  activeCount() { this.fresh(); return this.list.filter((u) => u.active !== false).length; }
   /* رمز نادرست، کاربر غیرفعال یا ناموجود: null */
   async login(username, password) {
     const u = this.byUsername(username);
@@ -114,7 +108,8 @@ class UserStore {
     if (this.byUsername(v.username)) return { error: 'این نام کاربری هست' };
     const p = passProblem(password, v.username);
     if (p) return { error: p };
-    const u = Object.assign({ id: 'u' + crypto.randomBytes(6).toString('hex'), active: true, createdAt: new Date().toISOString() }, v, { pass: await hashPass(password), passAt: new Date().toISOString(), mustChange });
+    const u = Object.assign({ id: 'u' + crypto.randomBytes(6).toString('hex'), active: true, createdAt: new Date().toISOString() }, v, { role: 'reception', pass: await hashPass(password), passAt: new Date().toISOString(), mustChange });
+    delete u.doctor;
     this.list.push(u);
     await this.save();
     return { user: u };

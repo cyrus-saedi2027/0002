@@ -123,7 +123,6 @@
     sel: null, pick: null, stale: false, known: null, poll: 0, dirty: false, seg: {}, morphId: 0
   };
   const can = (p) => !!(S.cfg && S.cfg.can.includes(p));
-  const isDoctor = () => S.user && S.user.role === 'doctor';
   const byRef = (ref) => S.bookings.find((b) => b.ref === ref);
   const docName = (id) => (S.cfg.doctors[id] ? S.cfg.doctors[id].name : '');
   const deptT = (k) => (S.cfg.depts[k] ? S.cfg.depts[k].t : k);
@@ -175,7 +174,7 @@
   function loginMsg(r) {
     if (r.error === 'auth') return 'نام کاربری یا رمز درست نیست.';
     if (r.error === 'locked') return `به‌خاطر چند تلاش نادرست، ورود با این حساب ${fa(Math.ceil((r.wait || 60) / 60))} دقیقه بسته است.`;
-    if (r.error === 'sms') return 'فرستادن کد پیامکی ممکن نشد. چند دقیقه‌ی دیگر امتحان کنید یا به مدیر خبر دهید.';
+    if (r.error === 'sms') return 'فرستادن کد پیامکی ممکن نشد. چند دقیقه‌ی دیگر امتحان کنید یا به همکارتان در پذیرش خبر دهید.';
     if (r.error === 'expired') return 'زمان کد تمام شد؛ دوباره وارد شوید.';
     if (r.error === 'attempts') return 'کد چند بار اشتباه وارد شد؛ دوباره وارد شوید.';
     if (r.error === 'code') return `کد درست نیست؛ ${fa(r.left)} فرصت دیگر دارید.`;
@@ -184,10 +183,11 @@
   function showLogin(msg) {
     $('#app').hidden = true;
     $('#login').hidden = false;
+    document.documentElement.classList.add('is-login');
     $('#loginForm').hidden = false;
     $('#codeForm').hidden = true;
     lgErr(msg || '');
-    $('#lgPass').value = '';
+    $('#lgPass').value = DEMO ? 'sasan-demo' : '';
     document.title = 'ورود · پنل پذیرش ساسان کلینیک';
     setTimeout(() => ($('#lgUser').value ? $('#lgPass') : $('#lgUser')).focus(), 60);
   }
@@ -215,11 +215,31 @@
   function showCode(r) {
     $('#loginForm').hidden = true;
     $('#codeForm').hidden = false;
-    $('#cdSub').innerHTML = `کد ۵ رقمی به موبایل <b class="ltr">${esc(fa(r.mobile || ''))}</b> پیامک شد.` + (DEMO ? ' <span class="muted">(نمایشی: هر ۵ رقمی)</span>' : '');
+    $('#cdSub').innerHTML = `کد ۵ رقمی به موبایل <b class="ltr">${esc(fa(r.mobile || ''))}</b> پیامک شد.`;
     boxes().forEach((b) => { b.value = ''; b.classList.remove('is-on'); });
     cdErr('');
     runTimer(r.wait || 120);
     setTimeout(() => boxes()[0].focus(), 60);
+    if (DEMO) demoFill();
+  }
+  /* نسخه‌ی نمایشی پیامکی نمی‌فرستد؛ کد مثل پرکردن خودکار گوشی رقم‌به‌رقم نوشته می‌شود */
+  function demoFill() {
+    const code = '48215';
+    let k = 0, stop = false;
+    /* اگر خود کاربر شروع به نوشتن کرد، کنار می‌رویم */
+    const off = () => { stop = true; };
+    $('#cdBoxes').addEventListener('keydown', off, { once: true });
+    $('#cdBoxes').addEventListener('paste', off, { once: true });
+    const step = () => {
+      if (stop || $('#codeForm').hidden || k >= 5) return;
+      const all = boxes();
+      if (all.some((b, i) => (i < k ? b.value !== code[i] : !!b.value))) return;
+      all[k].value = code[k];
+      all[k].dispatchEvent(new Event('input', { bubbles: true }));
+      k++;
+      if (k < 5) setTimeout(step, 110);
+    };
+    setTimeout(step, 900);
   }
   function runTimer(sec) {
     clearInterval(codeTimer);
@@ -305,7 +325,7 @@
      ========================================================================== */
   const ROUTES = {
     today: { t: 'پیشخوان', ic: 'i-home' },
-    requests: { t: 'درخواست‌ها', ic: 'i-inbox', ok: () => !isDoctor() },
+    requests: { t: 'درخواست‌ها', ic: 'i-inbox' },
     calendar: { t: 'تقویم', ic: 'i-calendar' },
     callbacks: { t: 'تماس‌ها', ic: 'i-phone', ok: () => can('callbacks') },
     sms: { t: 'پیامک', ic: 'i-msg', ok: () => can('sms'), more: true },
@@ -324,12 +344,10 @@
     $('#tabbar').innerHTML = main.map(link).join('') + `<button type="button" data-act="more" aria-haspopup="menu">${ic('i-more')}<span>بیشتر</span></button>`;
     $('#tabbar').style.setProperty('--n', String(main.length + 1));
     const u = S.user;
-    $('#meBtn').innerHTML = `<span class="av">${initial(u.name)}</span><span><b>${esc(u.name)}</b><small>${esc(S.cfg.roles[u.role])}</small></span>`;
+    $('#meBtn').innerHTML = `<span class="av">${initial(u.name)}</span><span><b>${esc(u.name)}</b><small>پذیرش</small></span>`;
     $('#newBtn').hidden = !can('write');
     $('#fab').hidden = !can('write');
     $('#ribbon').hidden = !DEMO;
-    $('#searchBox').hidden = isDoctor();
-    $('.searchbtn').hidden = isDoctor();
   }
   function moveTabInd(instant) {
     const ind = $('.tabs__ind');
@@ -355,7 +373,7 @@
       el.textContent = fa(v);
       if (v && prev && prev !== el.textContent) { el.classList.remove('is-pop'); void el.offsetWidth; el.classList.add('is-pop'); }
     });
-    document.title = (n && !isDoctor() ? `(${fa(n + c)}) ` : '') + 'پنل پذیرش · ساسان کلینیک';
+    document.title = (n ? `(${fa(n + c)}) ` : '') + 'پنل پذیرش · ساسان کلینیک';
   }
 
   /* ---------- مسیرها ---------- */
@@ -482,7 +500,7 @@
   /* درخواست تازه‌ای که از سایت رسیده */
   function announce(list) {
     const refs = new Set(list.map((b) => b.ref));
-    if (S.known && !isDoctor()) {
+    if (S.known) {
       const fresh = list.filter((b) => !S.known.has(b.ref) && b.status === 'new' && b.source !== 'phone');
       fresh.slice(0, 2).forEach((b) => toast(`درخواست تازه: ${b.name} · ${deptT(b.dept)}`));
       if (fresh.length) { S.fresh = new Set(fresh.map((b) => b.ref)); setTimeout(() => { S.fresh = null; }, 4000); }
@@ -519,6 +537,7 @@
   async function enter(me) {
     S.user = me.user; S.cfg = me.cfg;
     $('#login').hidden = true;
+    document.documentElement.classList.remove('is-login');
     $('#app').hidden = false;
     renderShell();
     if (S.user.mustChange) { forcePassword(); return; }
@@ -621,30 +640,22 @@
     const doneN = todays.filter((b) => b.status === 'done').length;
     const inClinic = todays.filter((b) => b.status === 'arrived');
     const leftN = todays.filter((b) => b.status === 'scheduled').length;
-    const queue = isDoctor() ? [] : B.filter((b) => b.status === 'new' || b.status === 'called').map((x) => ({ kind: 'b', x, at: x.createdAt }))
+    const queue = B.filter((b) => b.status === 'new' || b.status === 'called').map((x) => ({ kind: 'b', x, at: x.createdAt }))
       .concat(can('callbacks') ? S.callbacks.filter((c) => c.status !== 'done').map((x) => ({ kind: 'cb', x, at: x.createdAt })) : [])
       .sort((a, b) => (a.at < b.at ? -1 : 1));
     const waiting = queue.length;
     let summary;
-    if (isDoctor()) summary = todays.length ? `امروز <b>${fa(todays.length)}</b> نوبت دارید${inClinic.length ? `؛ <b>${fa(inClinic.length)}</b> نفر در کلینیک منتظرند` : ''}.` : 'امروز نوبتی برایتان ثبت نشده.';
-    else summary = (waiting ? `<b>${fa(waiting)}</b> نفر منتظر تماس‌اند` : 'همه‌ی درخواست‌ها پیگیری شده‌اند') + ` و امروز <b>${fa(todays.length)}</b> نوبت داریم` + (inClinic.length ? `؛ <b>${fa(inClinic.length)}</b> نفر همین حالا در کلینیک‌اند.` : '.');
+    summary = (waiting ? `<b>${fa(waiting)}</b> نفر منتظر تماس‌اند` : 'همه‌ی درخواست‌ها پیگیری شده‌اند') + ` و امروز <b>${fa(todays.length)}</b> نوبت داریم` + (inClinic.length ? `؛ <b>${fa(inClinic.length)}</b> نفر همین حالا در کلینیک‌اند.` : '.');
     const pct = todays.length ? Math.round((doneN / todays.length) * 100) : 0;
     const hero = `<section class="hero">
       <div><span class="hero__k">${ic(hour >= 6 && hour < 18 ? 'i-sun' : 'i-moon', 'ic--s')}${esc(hello)}، ${esc(first)}</span>
-        <h1>${isDoctor() ? 'برنامه‌ی امروز شما' : waiting ? 'اول با این‌ها تماس بگیرید' : 'کارهای تماس انجام شده'}</h1>
+        <h1>${waiting ? 'اول با این‌ها تماس بگیرید' : 'کارهای تماس انجام شده'}</h1>
         <p>${summary}</p><span class="hero__clock num" id="heroClock"></span></div>
       <div class="ring" data-p="${pct}" aria-label="${fa(doneN)} از ${fa(todays.length)} نوبت امروز انجام شد"><svg viewBox="0 0 108 108" aria-hidden="true"><circle class="ring__t" cx="54" cy="54" r="46" pathLength="100"/><circle class="ring__v" cx="54" cy="54" r="46" pathLength="100"/></svg><b class="num">${fa(doneN)} از ${fa(todays.length)}<small>انجام شده</small></b></div>
     </section>`;
     const kp = (k) => `<${k.href ? `a href="${k.href}"` : 'div'} class="kpi ${k.c}${k.alert ? ' is-alert' : ''}"><span class="kpi__ic">${ic(k.ic)}</span><b class="num" data-count="${k.n}" data-key="k:${k.id}">${fa(k.n)}</b><span>${esc(k.t)}</span>${k.s ? `<small>${esc(k.s)}</small>` : ''}</${k.href ? 'a' : 'div'}>`;
     let kpis;
-    if (isDoctor()) {
-      kpis = [
-        { id: 'left', n: leftN, t: 'نوبت باقی‌مانده', ic: 'i-calendar', c: 'k-violet' },
-        { id: 'in', n: inClinic.length, t: 'در کلینیک', s: 'پذیرش شده و منتظر', ic: 'i-user-check', c: 'k-teal' },
-        { id: 'done', n: doneN, t: 'انجام‌شده‌ی امروز', ic: 'i-check-circle', c: 'k-ok' },
-        { id: 'tmr', n: tomorrow.length, t: 'نوبت‌های فردا', ic: 'i-cal', c: 'k-blue', href: '#/calendar' }
-      ];
-    } else {
+    {
       const fresh = B.filter((b) => b.status === 'new');
       const late = queue.filter((q) => ageMin(q.at) > 240).length;
       const oldest = fresh.slice().sort(sortBy.created)[0];
@@ -664,8 +675,7 @@
     if (todays.length && !nowPut) day += `<div class="now" data-key="now"><span class="num">الان ${tLabel(nm)}</span></div>`;
     const tmr = tomorrow.length ? `<div class="sec"><div class="sec__h">${ic('i-cal', 'ic--s')}فردا · ${esc(dLong(addDays(t, 1)))}</div><div class="tmr">${tomorrow.slice(0, 8).map((b) => `<button class="chip ${esc(b.dept)}" type="button" data-act="open" data-ref="${esc(b.ref)}" data-key="t:${esc(b.ref)}"><span class="dot"></span><span class="num">${tLabel(b.time)}</span> ${esc(b.name)}</button>`).join('')}${tomorrow.length > 8 ? `<a class="chip" href="#/calendar">+${fa(tomorrow.length - 8)}</a>` : ''}</div></div>` : '';
     const dayCard = `<section class="card"><div class="card__h">${ic('i-calendar')}<h2>برنامه‌ی امروز</h2><span class="sp"></span><button class="iconbtn no-print" type="button" data-act="print" aria-label="چاپ برنامه‌ی امروز" title="چاپ">${ic('i-print')}</button></div>
-      <div class="card__b stack">${todays.length ? `<div class="day">${day}</div>` : empty('i-calendar', 'امروز نوبتی ثبت نشده', isDoctor() ? '' : 'نوبت‌هایی که بدهید این‌جا به ترتیب ساعت می‌آیند.')}${tmr}</div></section>`;
-    if (isDoctor()) return hero + `<div class="kpis">${kpis.map(kp).join('')}</div>` + dayCard;
+      <div class="card__b stack">${todays.length ? `<div class="day">${day}</div>` : empty('i-calendar', 'امروز نوبتی ثبت نشده', 'نوبت‌هایی که بدهید این‌جا به ترتیب ساعت می‌آیند.')}${tmr}</div></section>`;
     const qCard = `<section class="card card--flat tasks-card"><div class="card__h">${ic('i-list-checks')}<h2>کارهای الان</h2>${waiting ? `<span class="badge">${fa(waiting)}</span>` : ''}<span class="sp"></span><a class="btn btn--ghost btn--s" href="#/requests">همه‌ی درخواست‌ها ${ic('i-chev-l', 'ic--s')}</a></div>
       <div class="card__b"><div class="tasks">${queue.slice(0, 12).map(taskHtml).join('') || `<div data-key="q:empty">${empty('i-check-circle', 'صف تماس خالی است', 'با همه‌ی درخواست‌ها تماس گرفته شده. آفرین!', true)}</div>`}</div>
       ${queue.length > 12 ? `<p class="hint">و ${fa(queue.length - 12)} مورد دیگر در «درخواست‌ها».</p>` : ''}</div></section>`;
@@ -1050,10 +1060,10 @@
       (!S.cal.dept || b.dept === S.cal.dept) && (!S.cal.doc || b.doctor === S.cal.doc)).sort(sortBy.when);
     const D = S.cal.dept && S.cfg.depts[S.cal.dept];
     const label = `${dm(sat)} تا ${dm(fri)}`;
-    const chips = isDoctor() ? '' : [['', 'همه']].concat(Object.keys(S.cfg.depts).map((k) => [k, S.cfg.depts[k].t]))
+    const chips = [['', 'همه']].concat(Object.keys(S.cfg.depts).map((k) => [k, S.cfg.depts[k].t]))
       .map(([k, tt]) => `<button class="chip ${k}" type="button" data-act="cdept" data-v="${k}" aria-pressed="${S.cal.dept === k}">${k ? '<span class="dot"></span>' : ''}${esc(tt)}</button>`).join('');
     const docs = Object.entries(S.cfg.doctors).filter(([, v]) => !S.cal.dept || v.k === S.cal.dept);
-    const docSel = isDoctor() ? '' : `<select class="select" data-act="cdoc" aria-label="پزشک"><option value="">همه‌ی پزشکان</option>${docs.map(([k, v]) => `<option value="${k}"${S.cal.doc === k ? ' selected' : ''}>${esc(v.name)}</option>`).join('')}</select>`;
+    const docSel = `<select class="select" data-act="cdoc" aria-label="پزشک"><option value="">همه‌ی پزشکان</option>${docs.map(([k, v]) => `<option value="${k}"${S.cal.doc === k ? ' selected' : ''}>${esc(v.name)}</option>`).join('')}</select>`;
     const w = can('write');
     let cols = '', strip = '';
     for (let i = 0; i < 7; i++) {
@@ -1187,13 +1197,13 @@
   function vUsers() {
     if (!usersData) { loadUsers(); return '<header class="ph"><div><h1>کارکنان</h1></div></header><div class="users">' + '<div class="skel skel--tile"></div>'.repeat(4) + '</div>'; }
     const cards = usersData.map((u) => `<article class="ucard${u.active ? '' : ' is-off'}" data-key="u:${esc(u.id)}">
-      <div class="ucard__h">${avatar(u.name, u.role === 'doctor' && S.cfg.doctors[u.doctor] ? S.cfg.doctors[u.doctor].k : '', 'av--s')}<div><b>${esc(u.name)}</b><small class="ltr">${esc(u.username)}</small></div><span class="role role--${esc(u.role)}">${esc(S.cfg.roles[u.role])}</span></div>
-      <dl>${u.doctor ? `<div><dt>پزشک</dt><dd>${esc(docName(u.doctor))}</dd></div>` : ''}<div><dt>موبایل (کد ورود)</dt><dd class="ltr num">${esc(telFa(u.mobile))}</dd></div>
+      <div class="ucard__h">${avatar(u.name, '', 'av--s')}<div><b>${esc(u.name)}</b><small class="ltr">${esc(u.username)}</small></div>${u.id === S.user.id ? '<span class="role role--reception">خودتان</span>' : ''}</div>
+      <dl><div><dt>موبایل (کد ورود)</dt><dd class="ltr num">${esc(telFa(u.mobile))}</dd></div>
         <div><dt>آخرین ورود</dt><dd>${u.lastLoginAt ? esc(ago(u.lastLoginAt)) : '<span class="muted">هنوز وارد نشده</span>'}</dd></div>
         <div><dt>وضعیت</dt><dd>${u.active ? '<span class="pill pill--done">فعال</span>' : '<span class="pill pill--cancelled">غیرفعال</span>'}${u.mustChange ? ' <span class="pill pill--called pill--plain">رمز موقت</span>' : ''}</dd></div></dl>
       <button class="btn btn--sec btn--s" type="button" data-act="uedit" data-id="${esc(u.id)}">${ic('i-pencil', 'ic--s')}ویرایش</button>
     </article>`).join('');
-    return `<header class="ph"><div><h1>کارکنان</h1><p>هر کس با حساب خودش وارد می‌شود و هر کارش در «گزارش کارها» با نامش ثبت می‌شود. حساب مشترک نسازید.</p></div><span class="sp"></span>
+    return `<header class="ph"><div><h1>کارکنان</h1><p>هر همکار با حساب خودش وارد می‌شود و هر کارش در «گزارش کارها» با نامش ثبت می‌شود. همه‌ی حساب‌ها به همه‌ی بخش‌های پنل دسترسی دارند؛ حساب مشترک نسازید.</p></div><span class="sp"></span>
         <button class="btn btn--pri" type="button" data-act="unew">${ic('i-user-plus')}<span class="btn__t">کاربر تازه</span></button></header>
       <div class="users">${cards}</div>`;
   }
@@ -1210,15 +1220,11 @@
   };
   function openUser(id) {
     const u = id ? usersData.find((x) => x.id === id) : null;
-    const roles = Object.entries(S.cfg.roles).map(([k, t]) => `<label class="opt"><input type="radio" name="role" value="${k}" ${(u ? u.role : 'reception') === k ? 'checked' : ''}><span>${esc(t)}</span></label>`).join('');
-    const docs = Object.entries(S.cfg.doctors).map(([k, v]) => `<option value="${k}"${u && u.doctor === k ? ' selected' : ''}>${esc(v.name)} · ${esc(deptT(v.k))}</option>`).join('');
     const self = u && u.id === S.user.id;
     openModal(`<div class="modal__h"><h2 id="mdTitle">${u ? 'ویرایش ' + esc(u.name) : 'کاربر تازه'}</h2><button class="iconbtn" type="button" data-act="mclose" aria-label="بستن">${ic('i-x')}</button></div>
       <form class="modal__b form" id="userForm" novalidate>
         <div class="row2"><label class="field"><span>نام و نام خانوادگی</span><input class="input" name="name" value="${esc(u ? u.name : '')}" required></label>
           <label class="field"><span>نام کاربری</span><input class="input input--ltr" name="username" value="${esc(u ? u.username : '')}" autocapitalize="none" spellcheck="false" ${u ? 'disabled' : 'required'}></label></div>
-        <div class="field"><span class="flabel">نقش</span><div class="opts">${roles}</div><small>پذیرش: درخواست‌ها، تقویم و پیامک · پزشک: فقط نوبت‌های خودش، بدون شماره‌ی بیمار · مدیر: همه‌چیز</small></div>
-        <label class="field" id="docField"><span>کدام پزشک؟</span><select class="select" name="doctor"><option value="">انتخاب کنید</option>${docs}</select></label>
         <label class="field"><span>موبایل</span><input class="input input--ltr" name="mobile" inputmode="tel" value="${esc(u ? u.mobile : '')}" placeholder="09xxxxxxxxx"><small>کد ورود پنل به این شماره پیامک می‌شود.</small></label>
         ${self ? '<p class="hint">رمز خودتان را از منوی حساب ← «تغییر رمز» عوض کنید.</p>' : `<label class="field"><span>${u ? 'رمز موقت تازه (اختیاری)' : 'رمز موقت'}</span><span class="pass"><input class="input input--ltr" name="password" autocomplete="new-password" ${u ? '' : 'required'}><button class="iconbtn" type="button" data-act="genpass" aria-label="ساخت رمز تصادفی" title="ساخت رمز تصادفی">${ic('i-key')}</button></span><small>کاربر در اولین ورود باید رمز خودش را بگذارد. رمز موقت را حضوری یا تلفنی بدهید، نه با پیامک عمومی.</small></label>`}
         ${u && !self ? `<label class="check"><input type="checkbox" name="active" ${u.active ? 'checked' : ''}><span>حساب فعال است<small>با غیرفعال کردن، کاربر فوراً از پنل بیرون می‌رود.</small></span></label>` : ''}
@@ -1226,12 +1232,9 @@
         <div class="modal__f"><button class="btn btn--ghost" type="button" data-act="mclose">انصراف</button><button class="btn btn--pri" type="submit"><span class="spin"></span><span class="btn__t">${u ? 'ذخیره' : 'ساخت حساب'}</span></button></div>
       </form>`, { id });
     const form = $('#userForm');
-    const syncDoc = () => { $('#docField').hidden = form.role.value !== 'doctor'; };
-    syncDoc();
-    form.addEventListener('change', syncDoc);
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const body = { name: form.name.value, role: form.role.value, mobile: normMobile(form.mobile.value), doctor: form.doctor.value };
+      const body = { name: form.name.value, mobile: normMobile(form.mobile.value) };
       if (!u) body.username = form.username.value.trim().toLowerCase();
       if (form.password && form.password.value) body.password = form.password.value;
       if (form.active) body.active = form.active.checked;
@@ -1367,7 +1370,7 @@
   function passwordModal(forced) {
     openModal(`<div class="modal__h"><h2 id="mdTitle">${forced ? 'رمز خودتان را بگذارید' : 'تغییر رمز'}</h2>${forced ? '' : `<button class="iconbtn" type="button" data-act="mclose" aria-label="بستن">${ic('i-x')}</button>`}</div>
       <form class="modal__b form" id="passForm" novalidate>
-        ${forced ? '<p class="hint">رمزی که مدیر داده موقت است. پیش از کار با پنل، رمز تازه‌ای بگذارید که فقط خودتان بدانید.</p>' : ''}
+        ${forced ? '<p class="hint">رمزی که همکارتان برایتان گذاشته موقت است. پیش از کار با پنل، رمز تازه‌ای بگذارید که فقط خودتان بدانید.</p>' : ''}
         <label class="field"><span>${forced ? 'رمز موقت' : 'رمز فعلی'}</span><input class="input input--ltr" type="password" name="current" autocomplete="current-password" required></label>
         <label class="field"><span>رمز تازه</span><input class="input input--ltr" type="password" name="next" autocomplete="new-password" required><small>دست‌کم ۸ نویسه؛ ترکیب حرف و عدد، و نه نام کاربری.</small></label>
         <label class="field"><span>تکرار رمز تازه</span><input class="input input--ltr" type="password" name="again" autocomplete="new-password" required></label>
@@ -1516,7 +1519,7 @@
   }
   function closeMenu() { const m = $('#menu'); if (m) m.remove(); }
   const menuItem = (x) => x.href ? `<a role="menuitem" href="${x.href}">${ic(x.ic)}${esc(x.t)}</a>` : `<button role="menuitem" type="button" data-act="${x.act}" class="${x.cls || ''}">${ic(x.ic)}${esc(x.t)}</button>`;
-  const acctHtml = () => `<div class="menu__who"><b>${esc(S.user.name)}</b><small>${esc(S.cfg.roles[S.user.role])} · <span class="ltr">${esc(S.user.username || '')}</span></small></div><hr>` +
+  const acctHtml = () => `<div class="menu__who"><b>${esc(S.user.name)}</b><small>پذیرش · <span class="ltr">${esc(S.user.username || '')}</span></small></div><hr>` +
     [{ act: 'pass', ic: 'i-key', t: 'تغییر رمز' }, { act: 'logout', ic: 'i-logout', t: 'خروج از پنل', cls: 'is-bad' }].map(menuItem).join('');
 
   /* ==========================================================================
@@ -1679,7 +1682,7 @@
     }
     if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[role="button"][data-act]')) { e.preventDefault(); e.target.click(); return; }
     if (!S.user || typing || e.ctrlKey || e.metaKey || e.altKey || !$('#modal').hidden) return;
-    if (e.key === '/' && !isDoctor()) { e.preventDefault(); focusSearch(); }
+    if (e.key === '/') { e.preventDefault(); focusSearch(); }
     else if (e.code === 'KeyN' && can('write') && $('#drawer').hidden) { e.preventDefault(); openNew(); }
   });
   document.addEventListener('keydown', (e) => {
@@ -1701,15 +1704,8 @@
     d.addEventListener('touchend', () => { if (y0 == null) return; y0 = null; d.style.removeProperty('transition'); d.style.removeProperty('transform'); if (dy > 110) closeDrawer(); });
   })();
 
-  /* ---------- نسخه‌ی نمایشی: انتخاب نقش ---------- */
-  if (DEMO) {
-    $('#lgDemo').hidden = false;
-    $('#lgRole').innerHTML = [['admin', 'مدیر'], ['reception', 'پذیرش'], ['doctor', 'پزشک']].map(([k, t], i) => `<label class="opt"><input type="radio" name="demoRole" value="${k}" ${i === 0 ? 'checked' : ''}><span>ورود به‌عنوان ${t}</span></label>`).join('');
-    $('#lgRole').addEventListener('change', (e) => api.setRole(e.target.value));
-    $('#lgUser').value = 'demo';
-  }
-
   /* ---------- شروع ---------- */
+  if (DEMO) $('#lgUser').value = 'paziresh';
   (async () => {
     const r = await api.get('/me');
     const boot = $('#boot');
