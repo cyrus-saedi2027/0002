@@ -13,6 +13,7 @@
    - PATCH /api/bookings/:ref پذیرش: وضعیت (called, scheduled, done, cancelled, no-show)
                              و بعد از تماس، روز و ساعت و پزشک
    - /panel/ و /api/panel/*  پنل پذیرش (ویزیتور) با ورود کارکنان — lib/panel.js
+   - مقاله‌هایی که از پنل نوشته یا ویرایش می‌شوند (lib/cms.js): صفحه‌های وابسته به‌جای فایل‌های site/ فرستاده می‌شوند
    اجرا: node server/server.js   (تنظیمات: server/.env.example)
    ========================================================================== */
 'use strict';
@@ -27,6 +28,7 @@ const { OtpStore, TTL, RESEND } = require('./lib/otp');
 const B = require('./lib/bookings');
 const { createPanel } = require('./lib/panel');
 const { Stats } = require('./lib/stats');
+const { ArticleCMS } = require('./lib/cms');
 
 const MIME = {
   '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'application/javascript; charset=utf-8',
@@ -58,6 +60,7 @@ function createApp(cfg, deps = {}) {
   const store = deps.store || new B.BookingStore(cfg.dataDir);
   const stats = deps.stats || new Stats(cfg.dataDir);
   const log = deps.log || ((...a) => console.log(new Date().toISOString(), ...a));
+  const cms = deps.cms || new ArticleCMS({ siteDir: cfg.siteDir, contentDir: cfg.contentDir || path.join(__dirname, '..', 'content', 'articles'), dataDir: cfg.dataDir, log });
   const sweep = setInterval(() => { lim.sweep(); otp.sweep(); }, 60e3);
   sweep.unref();
 
@@ -100,7 +103,7 @@ function createApp(cfg, deps = {}) {
     if (!o) return true;
     try { return new URL(o).host === req.headers.host; } catch (e) { return false; }
   };
-  const panel = createPanel({ cfg, store, sms, log, lim, json, readBody, ipOf, originOk: sameOrigin, users: deps.users, sessions: deps.sessions, stats });
+  const panel = createPanel({ cfg, store, sms, log, lim, json, readBody, ipOf, originOk: sameOrigin, users: deps.users, sessions: deps.sessions, stats, cms });
 
   /* ---------- API ---------- */
   async function sendOtp(req, res) {
@@ -229,8 +232,22 @@ function createApp(cfg, deps = {}) {
     const root = inPanel ? cfg.panelDir || path.join(__dirname, 'panel') : cfg.siteDir;
     if (inPanel) rel = rel.slice('/panel'.length);
     if (rel.endsWith('/')) rel += 'index.html';
-    const file = path.resolve(root, '.' + rel);
+    let file = path.resolve(root, '.' + rel);
     if (!file.startsWith(root + path.sep) || /(^|[\\/])\./.test(path.relative(root, file))) { headers(res); res.writeHead(404); return res.end(); }
+    if (!inPanel) {
+      /* صفحه‌ای که با مقاله‌های پنل دوباره ساخته شده، یا مقاله‌ای که از سایت برداشته شده */
+      const ov = cms.page(rel.slice(1));
+      if (ov === false) return notFound(req, res);
+      if (typeof ov === 'string') {
+        const html = rel.endsWith('.html');
+        headers(res, { 'Content-Type': html ? MIME['.html'] : MIME['.xml'], 'Cache-Control': 'no-cache', ...(html ? { 'Content-Security-Policy': CSP } : {}) });
+        res.writeHead(200);
+        return res.end(req.method === 'HEAD' ? undefined : html ? ov.replace(/<head>/i, '<head>\n' + META) : ov);
+      }
+      /* عکس‌هایی که از پنل بارگذاری شده‌اند (نامشان تصادفی و ثابت است) */
+      const up = cms.uploadFile(rel);
+      if (up) file = up;
+    }
     fs.stat(file, (err, st) => {
       if (err || !st.isFile()) return notFound(req, res);
       const ext = path.extname(file).toLowerCase();
@@ -268,7 +285,7 @@ function createApp(cfg, deps = {}) {
     }
     serveStatic(req, res, url);
   };
-  handler.store = store; handler.otp = otp; handler.panel = panel; handler.stats = stats;
+  handler.store = store; handler.otp = otp; handler.panel = panel; handler.stats = stats; handler.cms = cms;
   handler.close = () => { clearInterval(sweep); panel.close(); stats.close(); };
   return handler;
 }

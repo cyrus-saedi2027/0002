@@ -43,6 +43,8 @@ function load(env = process.env) {
     host: env.HOST || '127.0.0.1',
     siteDir: path.resolve(env.SITE_DIR || path.join(__dirname, '..', '..', 'site')),
     panelDir: path.resolve(env.PANEL_DIR || path.join(__dirname, '..', 'panel')),
+    /* مقاله‌های خود سایت (مقاله‌های پنل در DATA_DIR/articles اند) */
+    contentDir: path.resolve(env.CONTENT_DIR || path.join(__dirname, '..', '..', 'content', 'articles')),
     /* کد پیامکی ورود پنل (پیش‌فرض روشن؛ فقط برای آزمایش روی کامپیوتر خودتان PANEL_2FA=0) */
     panel2fa: env.PANEL_2FA !== '0',
     dataDir: path.resolve(env.DATA_DIR || path.join(__dirname, '..', 'data')),

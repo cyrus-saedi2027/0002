@@ -5,6 +5,7 @@
    - POST login/code {ticket, code} و POST login/resend {ticket}
    - نشست با کوکی HttpOnly و SameSite=Strict؛ هر درخواست غیر GET سربرگ x-sasan-panel: 1 و مبدأ همین سایت را لازم دارد
    نقش: فقط «پذیرش»، با همه‌ی کارها (درخواست‌ها، تقویم، تماس‌ها، پیامک، کارکنان، گزارش کارها، مقاله‌ها و آمار بازدید)
+   مقاله‌ها: GET/POST articles، GET/PUT/DELETE articles/:slug، POST articles/:slug/hide، POST articles/upload (lib/cms.js)
    پیامک: تأیید نوبت از پنل و یادآوری خودکار یک روز قبل (قالب نوع ۲، پارامترها NAME, DEPT, DATE, TIME)،
    گزارش رسیدن هر پیامک و اعتبار پنل sms.ir
    ========================================================================== */
@@ -19,6 +20,7 @@ const { Sessions } = require('./sessions');
 const { Audit } = require('./audit');
 const { OtpStore, TTL, RESEND } = require('./otp');
 const { DELIVERY_FINAL } = require('./smsir');
+const A = require('./articles');
 
 const COOKIE = 'sasan_panel';
 const PERMS = ['write', 'phone', 'callbacks', 'sms', 'users', 'audit', 'stats', 'articles'];
@@ -257,13 +259,67 @@ function createPanel(ctx) {
     if (titles.has(p)) return titles.get(p);
     let t = '';
     try {
-      const f = path.join(cfg.siteDir, p === '/' ? 'index.html' : p.slice(1));
-      const m = /<title>([^<]*)<\/title>/.exec(fs.readFileSync(f, 'utf8'));
+      const name = p === '/' ? 'index.html' : p.slice(1);
+      const ov = ctx.cms && ctx.cms.page(name);
+      const m = /<title>([^<]*)<\/title>/.exec(typeof ov === 'string' ? ov : fs.readFileSync(path.join(cfg.siteDir, name), 'utf8'));
       t = m ? m[1].replace(/&amp;/g, '&').split('|')[0].trim() : '';
     } catch (e) { /* صفحه‌ای که دیگر نیست */ }
     if (p === '/') t = 'صفحه‌ی اصلی';
     titles.set(p, t);
     return t;
+  }
+
+  /* ---------- مقاله‌ها ---------- */
+  async function articles(req, res, u, p, m) {
+    const cms = ctx.cms;
+    const fail = (r) => json(res, r.code || 400, { ok: false, error: r.code === 404 ? 'not-found' : r.code === 409 ? 'exists' : 'input', message: r.error });
+    const done = (r, action, detail) => { titles.clear(); if (action) audit.add(u, action, r.slug, detail); };
+    if (p === '/api/panel/articles') {
+      if (m === 'GET') return json(res, 200, { ok: true, articles: cms.list(), cats: Object.fromEntries(A.ORDER.map((k) => [k, A.CATS[k].name])), site: A.SITE_URL });
+      if (m === 'POST') {
+        const body = await readBody(req, 400e3);
+        const r = await cms.save(body.slug, body, u, { create: true });
+        if (r.error) return fail(r);
+        done(r.article, 'article.create', r.article.title + (r.article.hidden ? ' · پیش‌نویس' : ''));
+        return json(res, 200, { ok: true, article: r.article });
+      }
+      return json(res, 405, { ok: false, error: 'method' });
+    }
+    if (p === '/api/panel/articles/upload' && m === 'POST') {
+      const lw = lim.take('pup:' + u.id, 80, 3600e3);
+      if (lw) return json(res, 429, { ok: false, error: 'rate', wait: lw });
+      const body = await readBody(req, 12e6);
+      const r = await cms.saveUpload(body.files);
+      if (r.error) return fail(r);
+      return json(res, 200, { ok: true, base: r.base, url: r.url });
+    }
+    const mm = /^\/api\/panel\/articles\/([a-z0-9-]{1,60})(\/hide)?$/.exec(p);
+    if (!mm) return json(res, 404, { ok: false, error: 'not-found' });
+    const slug = mm[1];
+    if (mm[2]) {
+      if (m !== 'POST') return json(res, 405, { ok: false, error: 'method' });
+      const body = await readBody(req, 512);
+      const r = await cms.setHidden(slug, !!body.hidden);
+      if (r.error) return fail(r);
+      done(r.article, body.hidden ? 'article.hide' : 'article.show', r.article.title);
+      return json(res, 200, { ok: true, article: r.article });
+    }
+    if (m === 'GET') { const a = cms.get(slug); return a ? json(res, 200, { ok: true, article: a }) : json(res, 404, { ok: false, error: 'not-found' }); }
+    if (m === 'PUT') {
+      const body = await readBody(req, 400e3);
+      const r = await cms.save(slug, body, u);
+      if (r.error) return fail(r);
+      done(r.article, 'article.update', r.article.title + (r.article.hidden ? ' · پیش‌نویس' : ''));
+      return json(res, 200, { ok: true, article: r.article });
+    }
+    if (m === 'DELETE') {
+      const before = cms.get(slug);
+      const r = await cms.remove(slug);
+      if (r.error) return fail(r);
+      done({ slug }, r.reverted ? 'article.revert' : 'article.delete', before ? before.title : '');
+      return json(res, 200, { ok: true, removed: r.removed, reverted: r.reverted, article: r.article });
+    }
+    return json(res, 405, { ok: false, error: 'method' });
   }
 
   /* ---------- مسیرها ---------- */
@@ -399,6 +455,10 @@ function createPanel(ctx) {
       if (v.active === false || body.password) sessions.dropUser(t.id);
       audit.add(u, 'user.update', t.username, [v.active === false && 'غیرفعال', v.active === true && 'فعال', body.password && 'رمز تازه'].filter(Boolean).join('، ') || 'مشخصات');
       return json(res, 200, { ok: true, user: pub(r.user) });
+    }
+    if (p === '/api/panel/articles' || p.startsWith('/api/panel/articles/')) {
+      if (!can(u, 'articles') || !ctx.cms) return deny();
+      return articles(req, res, u, p, m);
     }
     if (p === '/api/panel/stats' && m === 'GET') {
       if (!can(u, 'stats') || !ctx.stats) return deny();

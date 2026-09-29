@@ -90,10 +90,12 @@ function merge(builtin, custom) {
 }
 
 /* ---------- عکس‌ها ---------- */
-/* «img/art/x/y» یا «img/art/x/y-1280.webp» → srcset با سه اندازه (اگر فایل‌ها باشند) */
+/* «img/art/x/y» یا «img/art/x/y-1280.webp» → srcset با سه اندازه (اگر فایل‌ها باشند).
+   siteDir می‌تواند فهرستی از پوشه‌ها هم باشد (پوشه‌ی سایت و عکس‌های بارگذاری‌شده از پنل) */
 function pic(base, siteDir) {
   const b = String(base).replace(/-(\d+)\.webp$/, '');
-  const have = siteDir ? WIDTHS.filter((w) => fs.existsSync(path.join(siteDir, `${b}-${w}.webp`))) : WIDTHS;
+  const dirs = siteDir ? [].concat(siteDir) : null;
+  const have = dirs ? WIDTHS.filter((w) => dirs.some((d) => fs.existsSync(path.join(d, `${b}-${w}.webp`)))) : WIDTHS;
   if (!have.length) return { src: base, srcset: '' };
   const mid = have.includes(1280) ? 1280 : have[have.length - 1];
   return { src: `${b}-${mid}.webp`, srcset: have.map((w) => `${b}-${w}.webp ${w}w`).join(', ') };
@@ -386,4 +388,31 @@ function deptCards(list, k, siteDir, max = 6) {
   return list.filter((a) => a.k === k).slice(0, max).map((a) => card(a, null, siteDir)).join('\n');
 }
 
-module.exports = { SITE_URL, CATS, WIDTHS, parse, normalize, loadDir, merge, sort, articlePage, indexPage, magList, deptCards, jalali, fa, esc, strip, pic };
+/* ---------- همه‌ی صفحه‌هایی که به فهرست مقاله‌ها بستگی دارند ----------
+   list: مقاله‌های منتشرشده (مرتب)؛ siteDir: پوشه‌ی سایت (قالب، صفحه‌ی اصلی و صفحه‌های بخش از همین‌جا خوانده می‌شوند)؛
+   imgDirs: جاهایی که عکس‌ها هستند (پیش‌فرض همان پوشه‌ی سایت).
+   خروجی: Map از نام فایل به HTML تازه: article-….html، articles.html، index.html و صفحه‌های بخش */
+function renderAll(list, siteDir, imgDirs = siteDir) {
+  const tpl = fs.readFileSync(path.join(siteDir, 'doctors.html'), 'utf8');
+  const out = new Map();
+  list.forEach((a) => out.set(a.url, articlePage(a, list, tpl, imgDirs)));
+  out.set('articles.html', indexPage(list, tpl, imgDirs));
+  /* ردیف‌های مجله در صفحه‌ی اصلی */
+  const idx = fs.readFileSync(path.join(siteDir, 'index.html'), 'utf8');
+  const m = magList(list, imgDirs);
+  const put = (t, name, inner) => {
+    const re = new RegExp(`(<!-- ARTICLES:${name} -->)[\\s\\S]*?(<!-- /ARTICLES:${name} -->)`);
+    if (!re.test(t)) throw new Error(`index.html: نشانه‌ی ARTICLES:${name} پیدا نشد`);
+    return t.replace(re, (all, a, b) => `${a}\n${inner}\n${b}`);
+  };
+  out.set('index.html', put(put(idx, 'mag', m.rows), 'pv', m.pv));
+  /* صفحه‌ی هر بخش (dental.html و …): کارت مقاله‌های همان بخش */
+  fs.readdirSync(siteDir).filter((f) => /\.html$/.test(f) && !out.has(f) && !/^article-/.test(f)).forEach((f) => {
+    const t = fs.readFileSync(path.join(siteDir, f), 'utf8');
+    const re = /(<!-- ARTICLES:dept:(\w+) -->)[\s\S]*?(<!-- \/ARTICLES:dept:\2 -->)/g;
+    if (re.test(t)) out.set(f, t.replace(re, (all, a, k, b) => `${a}\n${deptCards(list, k, imgDirs)}\n${b}`));
+  });
+  return out;
+}
+
+module.exports = { SITE_URL, CATS, ORDER, WIDTHS, parse, normalize, loadDir, merge, sort, articlePage, indexPage, magList, deptCards, renderAll, jalali, fa, esc, strip, pic };

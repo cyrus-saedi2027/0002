@@ -21,26 +21,7 @@ function build() {
   if (!list.length) throw new Error('هیچ مقاله‌ای در content/articles نیست');
   const slugs = new Set();
   list.forEach((a) => { if (slugs.has(a.slug)) throw new Error('نشانی تکراری: ' + a.slug); slugs.add(a.slug); });
-  const tpl = fs.readFileSync(path.join(SITE, 'doctors.html'), 'utf8');
-  const out = new Map();
-  list.forEach((a) => out.set(a.url, A.articlePage(a, list, tpl, SITE)));
-  out.set('articles.html', A.indexPage(list, tpl, SITE));
-  /* ردیف‌های مجله در صفحه‌ی اصلی */
-  const idx = fs.readFileSync(path.join(SITE, 'index.html'), 'utf8');
-  const m = A.magList(list, SITE);
-  const put = (t, name, inner) => {
-    const re = new RegExp(`(<!-- ARTICLES:${name} -->)[\\s\\S]*?(<!-- /ARTICLES:${name} -->)`);
-    if (!re.test(t)) throw new Error(`index.html: نشانه‌ی ARTICLES:${name} پیدا نشد`);
-    return t.replace(re, (all, a, b) => `${a}\n${inner}\n${b}`);
-  };
-  out.set('index.html', put(put(idx, 'mag', m.rows), 'pv', m.pv));
-  /* صفحه‌ی هر بخش (dental.html و …): کارت مقاله‌های همان بخش */
-  fs.readdirSync(SITE).filter((f) => /\.html$/.test(f) && !out.has(f)).forEach((f) => {
-    const t = fs.readFileSync(path.join(SITE, f), 'utf8');
-    const re = /(<!-- ARTICLES:dept:(\w+) -->)[\s\S]*?(<!-- \/ARTICLES:dept:\2 -->)/g;
-    if (re.test(t)) out.set(f, t.replace(re, (all, a, k, b) => `${a}\n${A.deptCards(list, k, SITE)}\n${b}`));
-  });
-  return { list, out };
+  return { list, out: A.renderAll(list, SITE) };
 }
 
 function main() {
