@@ -34,7 +34,15 @@ if ! node_ok; then
 fi
 if ! node_ok; then
   V=v22.12.0; T=/tmp/node.tar.xz
-  [ -s "$T" ] || curl -fsSL "https://nodejs.org/dist/$V/node-$V-linux-x64.tar.xz" -o "$T" || { echo "Node.js بارگیری نشد؛ فایل node-$V-linux-x64.tar.xz را در $T بگذارید و دوباره اجرا کنید"; exit 1; }
+  case "$(uname -m)" in aarch64|arm64) ARCH=arm64 ;; *) ARCH=x64 ;; esac
+  F="node-$V-linux-$ARCH.tar.xz"
+  # اگر nodejs.org از سرور در دسترس نبود، از آینه‌ها
+  if [ ! -s "$T" ]; then
+    for U in "https://nodejs.org/dist/$V/$F" "https://npmmirror.com/mirrors/node/$V/$F" "https://mirrors.huaweicloud.com/nodejs/$V/$F"; do
+      curl -fsSL -m 300 "$U" -o "$T" && break || rm -f "$T"
+    done
+  fi
+  [ -s "$T" ] || { echo "Node.js بارگیری نشد؛ فایل $F را در $T بگذارید و دوباره اجرا کنید"; exit 1; }
   rm -rf /opt/node && mkdir -p /opt/node && tar -xJf "$T" -C /opt/node --strip-components=1
   ln -sf /opt/node/bin/node /usr/local/bin/node && ln -sf /opt/node/bin/npm /usr/local/bin/npm
 fi
