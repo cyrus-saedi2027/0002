@@ -153,9 +153,19 @@
     const wait = (ms) => new Promise((r) => setTimeout(r, ms));
     const ok = (o = {}) => Object.assign({ ok: true, status: 200 }, clone(o));
     const fail = (status, error, extra = {}) => Object.assign({ ok: false, status, error }, clone(extra));
-    const cfg = () => ({ depts: DEPTS, doctors: DOCTORS, types: TYPES, statuses: STATUSES, roles: ROLES, sms: { mode: 'sandbox', appt: true, remind: true, received: true, remindHour: 17 }, twofa: true, today: today(), now: Date.now(), can: CAN });
+    const cfg = () => ({ depts: DEPTS, doctors: DOCTORS, types: TYPES, statuses: STATUSES, roles: ROLES, sms: { mode: 'live', appt: true, remind: true, received: true, remindHour: 17 }, twofa: true, today: today(), now: Date.now(), can: CAN });
     const log = (action, target, detail = '') => { const u = me(); db.audit.unshift({ at: new Date().toISOString(), by: { id: u.id, name: u.name }, action, target, detail }); };
     const noteContact = (mobile, o) => addContact(db.contacts, mobile, o);
+    /* قالب‌های پیامک نمایشی: همه روشن با نام کلینیک، جز خبر درخواست تازه به پذیرش که هنوز ثبت نشده */
+    const TPL = [
+      ['otp', 'کد تأیید (سایت و ورود پنل)', 'ساسان کلینیک\nکد تأیید شما: #CODE#\nاین کد را به کسی ندهید.\nsasan-clinic.ir'],
+      ['received', 'پیامک «درخواست ثبت شد» به بیمار', 'درخواست نوبت #DEPT# شما در ساسان کلینیک ثبت شد.\nکد پیگیری: #REF#\nپذیرش به‌زودی برای هماهنگی روز و ساعت با شما تماس می‌گیرد.\n۰۱۱۵۴۶۱۱۵۶۰'],
+      ['reception', 'خبر درخواست تازه به موبایل پذیرش', 'درخواست نوبت تازه در سایت ساسان کلینیک:\n#NAME# · #DEPT#\nموبایل: #MOBILE#\nاز پنل پذیرش پیگیری کنید.'],
+      ['appt', 'تأیید نوبت از پنل', '#NAME# عزیز، نوبت #DEPT# شما در ساسان کلینیک برای #DATE# ساعت #TIME# ثبت شد.\nبرای تغییر یا لغو: ۰۱۱۵۴۶۱۱۵۶۰'],
+      ['remind', 'یادآوری یک روز قبل', 'یادآوری: #NAME# عزیز، فردا #DATE# ساعت #TIME# نوبت #DEPT# در ساسان کلینیک دارید.\nبرای تغییر یا لغو: ۰۱۱۵۴۶۱۱۵۶۰']
+    ].map(([kind, label, text]) => ({ kind, label, text, on: kind !== 'reception', branded: kind !== 'reception', pending: null }));
+    let receptionMobile = '';
+    const tplView = () => ({ live: true, receptionMobile, list: TPL.map((x) => Object.assign({}, x, { id: x.on ? 400000 : 0, test: false, rejected: null, failed: '', needsMobile: x.kind === 'reception' && !receptionMobile })) });
     const pushSms = (b, kind) => { b.sms.push({ at: new Date().toISOString(), kind, ok: true, id: msgId(), err: '', dlv: null }); b.log.push({ at: new Date().toISOString(), by: me().name, ev: 'sms', v: { kind, ok: true } }); };
 
     async function handle(m, p, body = {}) {
@@ -243,7 +253,25 @@
         const list = [];
         db.B.forEach((b) => (b.sms || []).forEach((e) => list.push(Object.assign({ ref: b.ref, name: b.name, dept: b.dept }, e))));
         list.sort((a, b) => (a.at < b.at ? 1 : -1));
-        return ok({ mode: 'sandbox', credit: 1510, creditError: '', remindHour: 17, templates: { otp: true, received: true, reception: false, appt: true, remind: true }, log: list });
+        return ok({ mode: 'live', credit: 1510, creditError: '', remindHour: 17, templates: { otp: true, received: true, reception: !!tplView().list[2].on, appt: true, remind: true }, tpl: tplView(), log: list });
+      }
+      /* قالب‌های نام‌دار (نمایشی): «ثبت» خبر پذیرش را در انتظار می‌گذارد و «پرسیدن وضعیت» تأییدش می‌کند */
+      if (p === '/sms/templates/submit' && m === 'POST') {
+        const made = [];
+        TPL.forEach((x) => { if (!x.on && !x.pending) { x.pending = { id: 600000 + made.length, at: new Date().toISOString() }; made.push({ kind: x.kind, id: x.pending.id }); } });
+        log('sms.templates', '', `${made.length} قالب ثبت شد`);
+        return ok({ results: made, tpl: tplView() });
+      }
+      if (p === '/sms/templates/check' && m === 'POST') {
+        const changed = [];
+        TPL.forEach((x) => { if (x.pending) { x.on = true; x.branded = true; x.pending = null; changed.push({ kind: x.kind, status: 2 }); db.audit.unshift({ at: new Date().toISOString(), by: { id: 'system', name: 'سیستم' }, action: 'sms.template', target: x.label, detail: 'تأیید شد و روشن شد' }); } });
+        return ok({ changed, tpl: tplView() });
+      }
+      if (p === '/sms/reception' && m === 'PUT') {
+        if (body.mobile && !/^09\d{9}$/.test(body.mobile)) return fail(400, 'input', { message: 'موبایل باید ۱۱ رقم و با ۰۹ شروع شود.' });
+        receptionMobile = body.mobile || '';
+        log('sms.reception', body.mobile ? body.mobile.slice(0, 4) + '***' + body.mobile.slice(-4) : '', body.mobile ? 'موبایل پذیرش' : 'خاموش');
+        return ok({ tpl: tplView() });
       }
       if (p === '/sms/refresh') { db.B.forEach((b) => (b.sms || []).forEach((e) => { if (e.ok && !e.dlv) e.dlv = Math.random() < .85 ? 1 : 3; })); return ok({ checked: 3 }); }
       if (p === '/users') {

@@ -30,6 +30,7 @@ const { createPanel } = require('./lib/panel');
 const { Stats } = require('./lib/stats');
 const { ArticleCMS } = require('./lib/cms');
 const { Contacts } = require('./lib/contacts');
+const { SmsTemplates, KINDS: TPL } = require('./lib/templates');
 
 const MIME = {
   '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'application/javascript; charset=utf-8',
@@ -55,12 +56,15 @@ const PANEL_CSP = [
 const mask = (m) => m.slice(0, 4) + '***' + m.slice(-4);
 
 function createApp(cfg, deps = {}) {
-  const sms = deps.sms || smsir.create(cfg.sms);
+  const log = deps.log || ((...a) => console.log(new Date().toISOString(), ...a));
+  /* قالب‌های نام‌دار sms.ir: بعد از تأیید، خودکار جای قالب‌های .env را می‌گیرند (lib/templates.js) */
+  const rawSms = deps.sms || smsir.create(cfg.sms);
+  const templates = new SmsTemplates({ cfg, sms: rawSms, dataDir: cfg.dataDir, log });
+  const sms = templates.wrap(rawSms);
   const otp = new OtpStore(cfg.otpSecret);
   const lim = new Limiter();
   const store = deps.store || new B.BookingStore(cfg.dataDir);
   const stats = deps.stats || new Stats(cfg.dataDir);
-  const log = deps.log || ((...a) => console.log(new Date().toISOString(), ...a));
   /* هر شماره‌ای که به سایت داده شده (برای اطلاع‌رسانی‌های کلینیک)؛ بار اول از درخواست‌های قبلی پر می‌شود */
   const contacts = deps.contacts || new Contacts(cfg.dataDir);
   contacts.backfill(store.list, store.callbacks);
@@ -107,7 +111,9 @@ function createApp(cfg, deps = {}) {
     if (!o) return true;
     try { return new URL(o).host === req.headers.host; } catch (e) { return false; }
   };
-  const panel = createPanel({ cfg, store, sms, log, lim, json, readBody, ipOf, originOk: sameOrigin, users: deps.users, sessions: deps.sessions, stats, cms, contacts });
+  const panel = createPanel({ cfg, store, sms, log, lim, json, readBody, ipOf, originOk: sameOrigin, users: deps.users, sessions: deps.sessions, stats, cms, contacts, templates });
+  templates.onChange = (c) => panel.audit.add({ id: 'system', name: 'سیستم' }, 'sms.template', TPL[c.kind].label, c.failed ? 'خاموش شد: ' + c.reason : c.status === 2 ? 'تأیید شد و روشن شد' : 'رد شد' + (c.reason ? ': ' + c.reason : ''));
+  templates.start();
 
   /* ---------- API ---------- */
   async function sendOtp(req, res) {
@@ -292,8 +298,8 @@ function createApp(cfg, deps = {}) {
     }
     serveStatic(req, res, url);
   };
-  handler.store = store; handler.otp = otp; handler.panel = panel; handler.stats = stats; handler.cms = cms; handler.contacts = contacts;
-  handler.close = () => { clearInterval(sweep); panel.close(); stats.close(); contacts.close(); };
+  handler.store = store; handler.otp = otp; handler.panel = panel; handler.stats = stats; handler.cms = cms; handler.contacts = contacts; handler.templates = templates;
+  handler.close = () => { clearInterval(sweep); panel.close(); stats.close(); contacts.close(); templates.close(); };
   return handler;
 }
 

@@ -92,6 +92,7 @@
     'sms.appt': ['پیامک تأیید نوبت', 'i-msg'], 'user.create': ['ساخت کاربر', 'i-user-plus'], 'user.update': ['تغییر کاربر', 'i-users'],
     'article.create': ['مقاله‌ی تازه', 'i-file'], 'article.update': ['ویرایش مقاله', 'i-pencil'], 'article.hide': ['برداشتن مقاله از سایت', 'i-eye-off'],
     'article.show': ['انتشار دوباره‌ی مقاله', 'i-eye'], 'article.delete': ['حذف مقاله', 'i-trash'], 'article.revert': ['برگرداندن مقاله به نسخه‌ی سایت', 'i-undo'],
+    'sms.template': ['قالب پیامک', 'i-msg'], 'sms.templates': ['ثبت قالب‌های پیامک در sms.ir', 'i-send'], 'sms.reception': ['موبایل پذیرش برای خبر درخواست', 'i-phone'],
     'contact.update': ['تغییر مخاطب', 'i-contact'], 'contact.delete': ['پاک کردن مخاطب', 'i-trash'], 'contacts.export': ['خروجی شماره‌ها', 'i-download']
   };
   const TIMED = ['scheduled', 'arrived', 'done', 'no-show'];
@@ -1196,10 +1197,44 @@
         <section class="card"><div class="card__h">${ic('i-msg')}<h2>پیامک‌های فرستاده‌شده</h2></div>
           ${rows ? `<div class="scrollx"><table class="table stack"><thead><tr><th>زمان</th><th>بیمار</th><th>نوع</th><th>نتیجه</th><th>رسیدن</th></tr></thead><tbody>${rows}</tbody></table></div>` : `<div class="card__b">${empty('i-msg', 'هنوز پیامکی به بیماران فرستاده نشده')}</div>`}
         </section>
-        <section class="card"><div class="card__h">${ic('i-shield')}<h2>قالب‌های پیامک</h2></div><div class="card__b stack"><ul class="checks">${tpl}</ul>
-          <p class="hint">قالب‌های خاموش را روی سرور با <code>npm run setup</code> بسازید؛ بعد از تأیید کارشناسان sms.ir شناسه‌شان در <code>server/.env</code> قرار می‌گیرد و همین‌جا روشن می‌شوند. کد تأیید هیچ‌وقت در فهرست پیامک‌ها نمی‌آید.</p>
-          <p class="hint">یادآوری خودکار: ${T.remind ? `هر روز از ساعت ${tLabel(d.remindHour * 60)} برای نوبت‌های فردا` : 'خاموش (قالب یادآوری تنظیم نشده)'}</p></div></section>
+        <section class="card"><div class="card__h">${ic('i-shield')}<h2>قالب‌های پیامک</h2></div><div class="card__b stack">${d.tpl ? tplCard(d.tpl) : `<ul class="checks">${tpl}</ul>`}
+          <p class="hint">یادآوری خودکار: ${T.remind ? `هر روز از ساعت ${tLabel(d.remindHour * 60)} برای نوبت‌های فردا` : 'خاموش (قالب یادآوری هنوز روشن نشده)'}. کد تأیید هیچ‌وقت در فهرست پیامک‌ها نمی‌آید.</p></div></section>
       </div>`;
+  }
+  /* وضعیت هر قالب: روشن با نام کلینیک، روشن با متن آزمایشی، در انتظار تأیید sms.ir، رد یا خاموش‌شده */
+  function tplCard(tp) {
+    const rows = tp.list.map((x) => {
+      let st, cls, icn;
+      if (x.failed) { st = 'خاموش شد: ' + x.failed + (x.kind === 'otp' ? ' (کد تأیید با قالب قبلی فرستاده می‌شود)' : ''); cls = 'is-bad'; icn = 'i-alert'; }
+      else if (x.on && x.branded) { st = 'روشن · با نام ساسان کلینیک'; cls = 'is-ok'; icn = 'i-check-circle'; }
+      else if (x.on && x.test) { st = 'روشن با متن آزمایشی sms.ir' + (x.pending ? '؛ قالب با نام کلینیک در انتظار تأیید است' : '؛ «ثبت قالب‌ها با نام کلینیک» را بزنید'); cls = 'is-ok'; icn = 'i-check-circle'; }
+      else if (x.on) { st = 'روشن' + (x.pending ? '؛ قالب تازه در انتظار تأیید است' : ''); cls = 'is-ok'; icn = 'i-check-circle'; }
+      else if (x.pending) { st = `در انتظار تأیید sms.ir (ثبت: ${ago(x.pending.at)})؛ بعد از تأیید خودش روشن می‌شود`; cls = 'is-wait'; icn = 'i-clock'; }
+      else if (x.rejected) { st = 'رد شد' + (x.rejected.reason ? ': ' + x.rejected.reason : '') + '؛ می‌شود دوباره ثبتش کرد'; cls = 'is-bad'; icn = 'i-alert'; }
+      else { st = 'خاموش؛ هنوز ثبت نشده'; cls = 'is-no'; icn = 'i-ban'; }
+      if (x.kind === 'reception' && x.needsMobile) st += ' · موبایل پذیرش را پایین همین کارت بنویسید';
+      return `<li class="tpl ${cls}" data-key="tp:${esc(x.kind)}">${ic(icn)}<div><b>${esc(x.label)}</b><small>${esc(st)}</small></div></li>`;
+    }).join('');
+    const canSub = tp.live && tp.list.some((x) => !x.branded && !x.pending);
+    const anyPending = tp.live && tp.list.some((x) => x.pending);
+    const texts = tp.list.map((x) => `<div class="tpl-txt__i"><b>${esc(x.label)}</b><p>${esc(x.text).replace(/\n/g, '<br>')}</p></div>`).join('');
+    return `<ul class="tpls">${rows}</ul>
+      ${tp.live ? `<div class="tpl-acts">${canSub ? `<button class="btn btn--pri btn--s" type="button" data-act="tplsub"><span class="spin"></span>${ic('i-send', 'ic--s')}<span class="btn__t">ثبت قالب‌ها با نام کلینیک در sms.ir</span></button>` : ''}
+        ${anyPending ? `<button class="btn btn--sec btn--s" type="button" data-act="tplchk"><span class="spin"></span>${ic('i-refresh', 'ic--s')}<span class="btn__t">پرسیدن وضعیت از sms.ir</span></button>` : ''}</div>
+        <p class="hint">هر قالب پیامک باید اول به تأیید کارشناسان sms.ir برسد (معمولاً چند ساعت). پنل هر ۲۰ دقیقه خودش وضعیت را می‌پرسد و هر قالبی تأیید شد، همان لحظه روشن می‌شود؛ لازم نیست کاری بکنید.</p>`
+        : '<p class="hint">سرور در حالت آزمایشی (Sandbox) است و پیامک واقعی نمی‌فرستد؛ قالب‌ها در حالت اصلی ثبت و روشن می‌شوند.</p>'}
+      <details class="tpl-txt"><summary>متن پیامک‌ها</summary>${texts}<p class="hint">چیزهای بین # (مثل #NAME#) موقع ارسال با نام بیمار، بخش، روز و ساعت پر می‌شوند.</p></details>
+      <div class="tpl-rm"><label class="field"><span>موبایل پذیرش (برای خبر درخواست تازه)</span><input class="input input--ltr" id="rmIn" inputmode="tel" autocomplete="off" placeholder="09xxxxxxxxx" value="${esc(tp.receptionMobile)}"></label>
+        <button class="btn btn--sec btn--s" type="button" data-act="rmsave"><span class="spin"></span><span class="btn__t">ذخیره</span></button></div>`;
+  }
+  async function tplAfter(r) {
+    if (r.tpl && smsData) smsData.tpl = r.tpl;
+    /* تیک «پیامک تأیید نوبت» در پنل به همین قالب‌ها بسته است */
+    const me = await call('get', '/me');
+    if (me.ok) S.cfg = me.cfg;
+    const s = await call('get', '/sms');
+    if (s.ok) smsData = s;
+    if (S.route === 'sms') morph();
   }
   async function loadSms() {
     const r = await call('get', '/sms');
@@ -1858,6 +1893,40 @@
         busy(el, false);
         if (s.ok) { smsData = s; render('none'); }
         toast('وضعیت رسیدن به‌روز شد');
+        break;
+      }
+      case 'tplsub': {
+        busy(el, true);
+        const r = await call('post', '/sms/templates/submit');
+        busy(el, false);
+        if (!r.ok) { toast(errText(r), true); break; }
+        const made = r.results.filter((x) => x.id && !x.skip).length, bad = r.results.filter((x) => x.error);
+        await tplAfter(r);
+        if (bad.length) toast('ثبت ' + fa(bad.length) + ' قالب ممکن نشد: ' + bad[0].error, true);
+        if (made) toast(`${fa(made)} قالب برای تأیید به sms.ir فرستاده شد؛ بعد از تأیید خودشان روشن می‌شوند`);
+        else if (!bad.length) toast('قالب تازه‌ای برای ثبت نبود');
+        break;
+      }
+      case 'tplchk': {
+        busy(el, true);
+        const r = await call('post', '/sms/templates/check');
+        busy(el, false);
+        if (!r.ok) { toast(errText(r), true); break; }
+        await tplAfter(r);
+        const on = r.changed.filter((x) => x.status === 2).length, no = r.changed.filter((x) => x.status === 3).length;
+        toast(on || no ? [on ? fa(on) + ' قالب تأیید و روشن شد' : '', no ? fa(no) + ' قالب رد شد' : ''].filter(Boolean).join('، ') : 'هنوز جوابی از sms.ir نیامده؛ پنل خودش باز هم می‌پرسد', no > 0 && !on);
+        break;
+      }
+      case 'rmsave': {
+        const inp = $('#rmIn');
+        const val = inp ? normMobile(inp.value) : '';
+        if (val && !/^09\d{9}$/.test(val)) { toast('موبایل باید ۱۱ رقم و با ۰۹ شروع شود', true); break; }
+        busy(el, true);
+        const r = await call('put', '/sms/reception', { mobile: val });
+        busy(el, false);
+        if (!r.ok) { toast(errText(r), true); break; }
+        await tplAfter(r);
+        toast(val ? 'موبایل پذیرش ذخیره شد' : 'خبر درخواست تازه به موبایل پذیرش خاموش شد');
         break;
       }
       case 'unew': openUser(null); break;

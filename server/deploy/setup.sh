@@ -192,4 +192,9 @@ for u in "http://$DOMAIN/" "http://www.$DOMAIN/" "https://www.$DOMAIN/" "https:/
   printf '%-32s ' "$u"; curl -s -o /dev/null -m 10 -w '%{http_code} → %{redirect_url}\n' "$u" || echo "در دسترس نیست (DNS؟)"
 done
 (cd "$SRV" && runuser -u www-data -- "$NODE" tools/sms.js check) || true
+# قالب‌های پیامک با نام ساسان کلینیک: sms.ir فقط وقتی تأیید می‌کند که سایت روی دامنه باز باشد
+if grep -q '^SMSIR_MODE=live' "$SRV/.env" && [ "$(curl -s -o /dev/null -m 10 -w '%{http_code}' "https://$DOMAIN/")" = "200" ]; then
+  say "قالب‌های پیامک نام‌دار"
+  (cd "$SRV" && runuser -u www-data -- "$NODE" tools/sms.js templates) || true
+fi
 echo; echo "تمام. پنل پذیرش: https://$DOMAIN/panel/   (اولین حساب: cd $SRV && runuser -u www-data -- node tools/users.js)"

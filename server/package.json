@@ -8,8 +8,9 @@
     "start": "node server.js",
     "setup": "node tools/sms.js setup",
     "check": "node tools/sms.js check",
+    "templates": "node tools/sms.js templates",
     "user": "node tools/users.js",
-    "test": "node --test test/api.test.js test/panel.test.js test/articles.test.js test/contacts.test.js"
+    "test": "node --test test/api.test.js test/panel.test.js test/articles.test.js test/contacts.test.js test/templates.test.js"
   },
   "engines": {
     "node": ">=18.17"

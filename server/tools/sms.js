@@ -3,6 +3,8 @@
    ابزار راه‌اندازی پیامک (بدون وابستگی)
      npm run setup   پرسش‌وپاسخ: حالت، کلید، قالب؛ ساخت server/.env با رمزهای تصادفی
      npm run check   بررسی کلید، اعتبار پنل و وضعیت قالب (در حال بررسی / تأیید / رد)
+     node tools/sms.js templates   ثبت قالب‌های نام‌دار ساسان کلینیک در sms.ir (بعد از بالا آمدن سایت روی دامنه)؛
+                                   سرور بعد از تأیید، خودش روشنشان می‌کند (lib/templates.js). روی سرور با runuser -u www-data
    کلیدها فقط در server/.env (دسترسی 600) نوشته می‌شوند و هیچ‌جا چاپ نمی‌شوند.
    ========================================================================== */
 'use strict';
@@ -16,16 +18,10 @@ const { ask, green, red, dim, bold } = require('./cli');
 const ENV = process.env.SASAN_ENV_FILE || path.join(__dirname, '..', '.env');
 const BASE = 'https://api.sms.ir/v1';
 const TEMPLATE_TITLE = 'کد تأیید ساسان کلینیک';
-const TEMPLATE_TEXT = 'ساسان کلینیک\nکد تأیید شما: #CODE#\nاین کد را به کسی ندهید.';
-/* قالب‌های پنل پذیرش (نوع ۲، اطلاع‌رسانی و یادآوری)؛ هر متغیر حداکثر ۲۵ نویسه */
-const PARAMS = [
-  { name: 'NAME', description: 'نام بیمار' }, { name: 'DEPT', description: 'بخش (مثلاً دندانپزشکی)' },
-  { name: 'DATE', description: 'روز نوبت، مثلاً شنبه ۱۲ مهر' }, { name: 'TIME', description: 'ساعت نوبت، مثلاً ۱۰:۳۰' }
-];
-const PANEL_TEMPLATES = [
-  { env: 'SMSIR_APPT_TEMPLATE_ID', label: 'تأیید نوبت', title: 'تأیید نوبت ساسان کلینیک', text: '#NAME# عزیز، نوبت #DEPT# شما در ساسان کلینیک برای #DATE# ساعت #TIME# ثبت شد.\nبرای تغییر یا لغو: ۰۱۱۵۴۶۱۱۵۶۰' },
-  { env: 'SMSIR_REMIND_TEMPLATE_ID', label: 'یادآوری یک روز قبل', title: 'یادآوری نوبت ساسان کلینیک', text: 'یادآوری: #NAME# عزیز، فردا #DATE# ساعت #TIME# نوبت #DEPT# در ساسان کلینیک دارید.\nبرای تغییر یا لغو: ۰۱۱۵۴۶۱۱۵۶۰' }
-];
+const TEMPLATE_TEXT = 'ساسان کلینیک\nکد تأیید شما: #CODE#\nاین کد را به کسی ندهید.\nsasan-clinic.ir';
+/* قالب‌های نام‌دار دیگر (ثبت درخواست، خبر به پذیرش، تأیید نوبت، یادآوری): lib/templates.js */
+const { KINDS } = require('../lib/templates');
+const PANEL_TEMPLATES = ['received', 'reception', 'appt', 'remind'].map((k) => ({ env: { received: 'SMSIR_CONFIRM_TEMPLATE_ID', reception: 'SMSIR_RECEPTION_TEMPLATE_ID', appt: 'SMSIR_APPT_TEMPLATE_ID', remind: 'SMSIR_REMIND_TEMPLATE_ID' }[k], label: KINDS[k].label }));
 
 /* ---------- server/.env ---------- */
 function readEnv() {
@@ -84,12 +80,22 @@ async function check() {
   if (live && t.status !== 2) { console.log(bold('  تا قالب تأیید نشود پیامک فرستاده نمی‌شود. چند ساعت بعد دوباره npm run check را بزنید.')); process.exitCode = 1; return; }
   if (live) {
     for (const pt of PANEL_TEMPLATES) {
-      if (!v[pt.env]) { console.log(dim(`  پنل پذیرش · ${pt.label}: تنظیم نشده (اختیاری؛ npm run setup می‌سازدش)`)); continue; }
+      if (!v[pt.env]) continue;
       console.log(dim(`  پنل پذیرش · ${pt.label}:`));
       await showTemplate(c, v[pt.env]);
     }
   }
   if (!v.OTP_SECRET || v.OTP_SECRET.length < 32) console.log(red('  OTP_SECRET کوتاه است؛ npm run setup را دوباره اجرا کنید.'));
+  if (live) {
+    const { load } = require('../lib/config');
+    const { SmsTemplates } = require('../lib/templates');
+    try {
+      const T = new SmsTemplates({ cfg: load(), sms: c, dataDir: path.resolve(v.DATA_DIR || path.join(__dirname, '..', 'data')) });
+      console.log(dim('  قالب‌های نام‌دار ساسان کلینیک:'));
+      printTemplates(T.view());
+      T.close();
+    } catch (e) { /* تنظیمات ناقص؛ بالاتر گفته شد */ }
+  }
   console.log(green('همه‌چیز آماده است. npm start را بزنید و سایت را باز کنید.'));
 }
 
@@ -133,19 +139,8 @@ async function setup() {
         console.log(dim('  می‌توانید قالب را در پنل (برنامه‌نویسان ← لیست قالب‌ها) با همین متن بسازید و دوباره npm run setup بزنید.'));
       }
     }
-    const c2 = client(v.SMSIR_API_KEY);
-    const missing = PANEL_TEMPLATES.filter((pt) => !v[pt.env]);
-    if (missing.length) {
-      const yes = await ask('قالب‌های پیامک پنل پذیرش (تأیید نوبت و یادآوری یک روز قبل) هم در پنل ساخته شوند؟ (بله/نه)', { def: 'بله' });
-      if (/^(y|yes|بله|آره|۱|1)$/i.test(yes)) {
-        for (const pt of missing) {
-          console.log(dim('  متن: ' + pt.text.replace(/\n/g, ' ⏎ ')));
-          const r = await c2.addTemplate(pt.title, pt.text, 2, PARAMS);
-          if (r.ok) { v[pt.env] = String(r.data); console.log(green(`  قالب ${pt.label} ثبت شد (شناسه ${r.data}) و در انتظار تأیید است.`)); }
-          else console.log(red(`  قالب ${pt.label} ساخته نشد: ${r.message}`));
-        }
-      }
-    }
+    console.log(dim('  قالب‌های دیگر (ثبت درخواست، خبر به پذیرش، تأیید نوبت و یادآوری) بعد از بالا آمدن سایت روی دامنه ثبت می‌شوند:'));
+    console.log(dim('  node tools/sms.js templates  (یا از پنل پذیرش ← بیشتر ← پیامک ← «ثبت قالب‌ها با نام کلینیک»)'));
   } else {
     delete v.SMSIR_TEMPLATE_PARAM;
   }
@@ -167,6 +162,33 @@ async function setup() {
   if (!live) console.log(dim('در حالت آزمایشی پیامک واقعی نمی‌آید؛ کد در همین ترمینال چاپ می‌شود.'));
 }
 
+/* ---------- node tools/sms.js templates ---------- */
+async function templates() {
+  const { load } = require('../lib/config');
+  const { SmsTemplates } = require('../lib/templates');
+  const cfg = load();
+  if (cfg.sms.mode !== 'live') { console.log(dim('سرور در حالت آزمایشی است؛ قالب‌ها فقط در حالت اصلی (SMSIR_MODE=live) ثبت می‌شوند.')); return; }
+  const T = new SmsTemplates({ cfg, sms: smsir.create(cfg.sms), dataDir: cfg.dataDir });
+  try {
+    const r = await T.submit();
+    const SKIP = { pending: 'در انتظار تأیید (قبلاً ثبت شده)', on: 'روشن است', env: 'قالب server/.env نام کلینیک را دارد' };
+    for (const x of r.results) {
+      const label = T.view().list.find((y) => y.kind === x.kind).label;
+      console.log(`  ${label}: ` + (x.error ? red('ثبت نشد: ' + x.error) : x.skip ? dim(SKIP[x.skip]) : green(`ثبت شد (شناسه ${x.id})`)));
+    }
+    await T.check();
+    printTemplates(T.view());
+  } finally { T.close(); }
+}
+function printTemplates(v) {
+  for (const x of v.list) {
+    const st = x.failed ? red('خاموش شد: ' + x.failed) : x.on && x.branded ? green('روشن با نام کلینیک') : x.on ? green('روشن') + (x.test ? dim(' (متن آزمایشی sms.ir)') : '')
+      : x.pending ? bold('در انتظار تأیید sms.ir') : x.rejected ? red('رد شد: ' + (x.rejected.reason || '')) : dim('خاموش');
+    console.log(`  ${x.label}: ${st}${x.pending && x.on ? bold(' · قالب تازه در انتظار تأیید') : ''}`);
+  }
+  console.log(dim('  سرور هر ۲۰ دقیقه وضعیت قالب‌های در انتظار را می‌پرسد و هر کدام تأیید شد، خودش روشن می‌کند (پنل ← بیشتر ← پیامک).'));
+}
+
 const cmd = process.argv[2];
-(cmd === 'setup' ? setup() : cmd === 'check' ? check() : Promise.resolve(console.log('npm run setup  |  npm run check')))
+(cmd === 'setup' ? setup() : cmd === 'check' ? check() : cmd === 'templates' ? templates() : Promise.resolve(console.log('npm run setup  |  npm run check  |  node tools/sms.js templates')))
   .catch((e) => { console.error(red(e && e.message ? e.message : String(e))); process.exitCode = 1; });

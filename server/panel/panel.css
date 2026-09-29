@@ -681,6 +681,29 @@ a.kpi:hover { transform: translateY(-3px); box-shadow: var(--sh-3); }
 .alog li small { display: block; font-size: .75rem; color: var(--ink-3); }
 .alog time { font-size: .75rem; color: var(--ink-3); }
 
+/* قالب‌های پیامک */
+.tpls { display: grid; gap: 8px; }
+.tpl { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: 10px; padding: 10px 12px; border-radius: 12px; background: var(--mist); }
+.tpl > .ic { margin-top: 2px; }
+.tpl b { display: block; font-size: .875rem; }
+.tpl small { display: block; margin-top: 2px; font-size: .78rem; line-height: 1.8; color: var(--ink-3); }
+.tpl.is-ok > .ic { color: var(--ok); }
+.tpl.is-wait > .ic { color: var(--warn); }
+.tpl.is-bad > .ic { color: var(--bad); }
+.tpl.is-bad small { color: var(--bad); }
+.tpl.is-no > .ic { color: var(--ink-4); }
+.tpl-acts { display: flex; flex-wrap: wrap; gap: 8px; }
+.tpl-acts:empty { display: none; }
+.tpl-txt { border-radius: 12px; background: var(--mist); }
+.tpl-txt summary { padding: 10px 12px; font-size: .8125rem; font-weight: 700; color: var(--ink-2); cursor: pointer; }
+.tpl-txt[open] summary { border-bottom: 1px solid var(--line); }
+.tpl-txt__i { padding: 10px 12px 0; }
+.tpl-txt__i b { font-size: .78rem; color: var(--ink-3); }
+.tpl-txt__i p { margin-top: 2px; font-size: .8125rem; line-height: 1.9; }
+.tpl-txt > .hint { padding: 10px 12px 12px; }
+.tpl-rm { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px; }
+.tpl-rm .field { flex: 1 1 200px; }
+
 /* ---------- مخاطبان ---------- */
 .ct-exp { margin-bottom: 16px; }
 .ct-exp .card__b { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; }

@@ -6,6 +6,7 @@
    - نشست با کوکی HttpOnly و SameSite=Strict؛ هر درخواست غیر GET سربرگ x-sasan-panel: 1 و مبدأ همین سایت را لازم دارد
    نقش: فقط «پذیرش»، با همه‌ی کارها (درخواست‌ها، تقویم، تماس‌ها، پیامک، کارکنان، گزارش کارها، مقاله‌ها و آمار بازدید)
    مخاطبان: GET contacts، PATCH/DELETE contacts/:mobile، POST contacts/exported (ثبت خروجی در گزارش کارها)
+   قالب‌های پیامک نام‌دار: POST sms/templates/submit و sms/templates/check، PUT sms/reception (lib/templates.js)
    مقاله‌ها: GET/POST articles، GET/PUT/DELETE articles/:slug، POST articles/:slug/hide، POST articles/upload (lib/cms.js)
    پیامک: تأیید نوبت از پنل و یادآوری خودکار یک روز قبل (قالب نوع ۲، پارامترها NAME, DEPT, DATE, TIME)،
    گزارش رسیدن هر پیامک و اعتبار پنل sms.ir
@@ -413,8 +414,35 @@ function createPanel(ctx) {
       return json(res, 200, {
         ok: true, mode: cfg.sms.mode, credit: credit.value, creditError: credit.message, remindHour: cfg.sms.remindHour,
         templates: { otp: !!cfg.sms.templateId, received: !!cfg.sms.confirmTemplateId, reception: !!cfg.sms.receptionTemplateId, appt: !!cfg.sms.apptTemplateId, remind: !!cfg.sms.remindTemplateId },
+        tpl: ctx.templates ? ctx.templates.view() : null,
         log: logList.slice(0, 300)
       });
+    }
+    /* قالب‌های نام‌دار: ثبت در sms.ir، پرسیدن وضعیت، موبایل پذیرش (lib/templates.js) */
+    if (p.startsWith('/api/panel/sms/templates/') || p === '/api/panel/sms/reception') {
+      const T = ctx.templates;
+      if (!can(u, 'sms') || !T) return deny();
+      if (p === '/api/panel/sms/reception' && m === 'PUT') {
+        const body = await readBody(req, 512);
+        if (!T.setReceptionMobile(body.mobile || '')) return json(res, 400, { ok: false, error: 'input', message: 'موبایل باید ۱۱ رقم و با ۰۹ شروع شود.' });
+        audit.add(u, 'sms.reception', body.mobile ? mask(B.normMobile(body.mobile)) : '', body.mobile ? 'موبایل پذیرش' : 'خاموش');
+        return json(res, 200, { ok: true, tpl: T.view() });
+      }
+      if (m !== 'POST') return json(res, 405, { ok: false, error: 'method' });
+      if (!T.live) return json(res, 400, { ok: false, error: 'input', message: 'سرور در حالت آزمایشی (Sandbox) است؛ قالب‌ها فقط در حالت اصلی ثبت می‌شوند.' });
+      const w = lim.take('ptpl:' + u.id, 20, 3600e3);
+      if (w) return json(res, 429, { ok: false, error: 'rate', wait: w });
+      if (p === '/api/panel/sms/templates/submit') {
+        const r = await T.submit();
+        const made = r.results.filter((x) => x.id && !x.skip).length, bad = r.results.filter((x) => x.error);
+        audit.add(u, 'sms.templates', '', `${made} قالب ثبت شد${bad.length ? ' · ' + bad.length + ' خطا' : ''}`);
+        return json(res, 200, { ok: true, results: r.results, tpl: T.view() });
+      }
+      if (p === '/api/panel/sms/templates/check') {
+        const r = await T.check();
+        return json(res, 200, { ok: true, changed: r.changed || [], tpl: T.view() });
+      }
+      return json(res, 404, { ok: false, error: 'not-found' });
     }
     if (p === '/api/panel/sms/refresh' && m === 'POST') {
       if (!can(u, 'sms')) return deny();
