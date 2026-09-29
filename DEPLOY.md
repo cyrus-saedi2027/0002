@@ -1,128 +1,120 @@
-# گذاشتن سایت روی سرور (وقتی سرور و دامنه آماده شد)
+# گذاشتن سایت روی سرور
 
-این راهنما برای روزی است که سرور و دامنه‌ی کلینیک آماده شود. همه‌ی کارهای لازم از قبل آماده شده‌اند؛ روی سرور فقط همین قدم‌ها انجام می‌شود.
+سایت (`site/`)، سرور نوبت و پنل پذیرش (`server/`) یک برنامه‌ی Node.js هستند و هیچ وابستگی بیرونی ندارند: قلم‌ها و کتابخانه‌های حرکت از خود سایت بارگیری می‌شوند و صفحه‌ها به Google Fonts یا CDN درخواستی نمی‌فرستند. همه‌ی کارهای سرور با دو اسکریپت آماده انجام می‌شود.
 
-سایت (`site/`) و سرور نوبت (`server/`) یک برنامه‌ی Node.js هستند و هیچ وابستگی بیرونی ندارند: قلم‌ها و کتابخانه‌های حرکت هم از خود سایت بارگیری می‌شوند و صفحه‌ها به Google Fonts یا CDN درخواستی نمی‌فرستند.
+| | |
+|---|---|
+| دامنه | `sasan-clinic.ir` (نسخه‌ی اصلی؛ `www` و `http` به `https://sasan-clinic.ir` می‌روند) |
+| سرور | Ubuntu یا Debian با دسترسی root؛ پوشه‌ی برنامه `/srv/sasan` |
+| DNS | رکورد A برای `sasan-clinic.ir` و `www.sasan-clinic.ir` به آی‌پی سرور (اگر CDN جلوی سایت است، همان CDN به این آی‌پی) |
 
-## ۱. آنچه لازم است
+## ۱. راه سریع (پیشنهادی)
 
-- یک سرور لینوکس (مثلاً Ubuntu 22.04 یا 24.04) با دسترسی SSH
-- Node.js نسخه‌ی ۱۸ یا بالاتر (پیشنهاد: نسخه‌ی LTS)
-- nginx و certbot (برای HTTPS)
-- رکورد DNS از نوع A برای دامنه (و `www`) به آی‌پی سرور
-
-## ۲. آوردن پروژه و تنظیم پیامک
+از کامپیوتری که این مخزن را دارد:
 
 ```bash
-git clone <نشانی مخزن> /srv/sasan && cd /srv/sasan/server
-npm test               # آزمون‌ها باید همه قبول شوند
-npm run setup          # حالت ۲ (اصلی)، کلید اصلی sms.ir، قالب کد تأیید، قالب‌های تأیید نوبت و یادآوری
-npm run check          # کلید، اعتبار پنل و وضعیت تأیید قالب‌ها
-npm run user           # اولین حساب پنل پذیرش (مدیر)؛ بقیه‌ی کارکنان از خود پنل ساخته می‌شوند
+bash server/deploy/push.sh root@89.44.243.30 sasan-clinic.ir
 ```
 
-در `server/.env` (با `npm run setup` ساخته می‌شود و هرگز وارد git نمی‌شود) این‌ها را برای سرور بگذارید:
+این دستور:
+1. آزمون‌ها را اجرا می‌کند و اگر چیزی رد شود، هیچ فایلی نمی‌فرستد.
+2. فایل‌ها را با rsync به `/srv/sasan` می‌برد. `server/.env` و `server/data` روی سرور دست نمی‌خورند؛ درخواست‌ها، کارکنان، مقاله‌های پنل و عکس‌هایشان می‌مانند.
+3. روی سرور `server/deploy/setup.sh` را اجرا می‌کند:
+   - nginx، certbot و Node.js (اگر نباشد، از nodejs.org)
+   - سرویس systemd با کاربر `www-data`
+   - تنظیم nginx: هدایت `http` و `www` به `https://sasan-clinic.ir`، و مجاز کردن بارگذاری عکس مقاله‌ها تا ۱۶ مگابایت
+   - گرفتن گواهی HTTPS و تمدید خودکار آن
+   - پشتیبان شبانه‌ی `server/data` (۳۰ روز آخر در `/var/backups/sasan`)
+   - بررسی نهایی: سلامت سرور، هدایت‌ها و `npm run check`
+
+اگر سرور فقط رمز دارد (نه کلید SSH)، رمز را در متغیر `SSHPASS` بگذارید؛ ابزار `sshpass` هم لازم است.
+
+هر به‌روزرسانی بعدی هم با همین یک دستور انجام می‌شود. اجرای دوباره‌ی آن بی‌خطر است.
+
+### بار اول: server/.env
+
+بار اول، `push.sh` بعد از نصب Node.js روی سرور می‌ایستد و می‌خواهد `server/.env` را روی خود سرور بسازید:
+
+```bash
+ssh root@89.44.243.30
+cd /srv/sasan/server && node tools/sms.js setup      # حالت ۲ (اصلی)، کلید اصلی sms.ir، قالب کد تأیید
+```
+
+یا دستی از روی `server/.env.example`، با این مقدارها:
 
 ```
-HOST=127.0.0.1
+SMSIR_MODE=live
+SMSIR_API_KEY=<کلید اصلی sms.ir>
+SMSIR_TEMPLATE_ID=284896
+SMSIR_TEMPLATE_PARAM=OTP
+OTP_SECRET=<خروجی: openssl rand -hex 32>
+PANEL_2FA=1
 PORT=8080
-TRUST_PROXY=1
-HSTS=1
+HOST=127.0.0.1
 ```
 
-- **پیش از استفاده، کلید اصلی sms.ir را در پنل عوض کنید** (کلید قبلی در گفت‌وگو فرستاده شده بود) و کلید تازه را فقط در `server/.env` بگذارید.
-- در پنل sms.ir دسترسی کلید را به آی‌پی همین سرور محدود کنید.
+بعد `push.sh` را دوباره اجرا کنید. `TRUST_PROXY` و `HSTS` را `setup.sh` خودش تنظیم می‌کند.
 
-## ۳. اجرای دائمی با systemd
+در پنل sms.ir دسترسی کلید اصلی را به آی‌پی همین سرور محدود کنید.
 
-فایل `/etc/systemd/system/sasan.service`:
-
-```ini
-[Unit]
-Description=Sasan clinic site and booking server
-After=network.target
-
-[Service]
-WorkingDirectory=/srv/sasan/server
-ExecStart=/usr/bin/node server.js
-Restart=always
-User=www-data
-Environment=NODE_ENV=production
-
-[Install]
-WantedBy=multi-user.target
-```
+### اولین حساب پنل پذیرش
 
 ```bash
-sudo chown -R www-data /srv/sasan/server/data 2>/dev/null; sudo chown www-data /srv/sasan/server/.env
-sudo systemctl daemon-reload && sudo systemctl enable --now sasan
+cd /srv/sasan/server && runuser -u www-data -- node tools/users.js
 ```
 
-## ۴. nginx و HTTPS
+بقیه‌ی همکاران را از خود پنل (`https://sasan-clinic.ir/panel/` ← «بیشتر» ← «کارکنان») بسازید.
 
-فایل `/etc/nginx/sites-available/sasan` (به جای `example.ir` دامنه‌ی واقعی):
+## ۲. قالب‌های پیامک sms.ir
 
-```nginx
-server {
-  listen 80;
-  server_name example.ir www.example.ir;
-  location / { return 301 https://example.ir$request_uri; }
-}
-server {
-  listen 443 ssl http2;
-  server_name example.ir;
-  # مسیر گواهی‌ها را certbot خودش اضافه می‌کند
+| قالب | شناسه | وضعیت |
+|---|---|---|
+| کد تأیید (سایت و ورود پنل) | `284896`، متغیر `OTP` | تأییدشده؛ متنش آزمایشی است («این قالب برای تست هست…») |
+| کد تأیید با نام کلینیک | `381780` | رد شده. دلیل sms.ir: «سایت باید فعال و دارای محتوای کامل باشد» |
+| تأیید نوبت و یادآوری یک روز قبل (پنل) | هنوز ساخته نشده | بعد از بالا آمدن سایت |
 
-  gzip on; gzip_proxied any; gzip_min_length 1024;
-  gzip_types text/css application/javascript application/json image/svg+xml application/manifest+json application/xml text/plain;
+sms.ir قالب‌ها را فقط وقتی تأیید می‌کند که سایت روی دامنه باز شود. پس:
 
-  client_max_body_size 16k;
-  location / {
-    proxy_pass http://127.0.0.1:8080;
-    proxy_set_header Host $host;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-  }
-}
-```
+1. سایت با قالب `284896` بالا می‌آید. کد تأیید کار می‌کند، فقط متنش آزمایشی است.
+2. وقتی `https://sasan-clinic.ir` باز شد، روی سرور `node tools/sms.js setup` را بزنید:
+   - قالب کد تأیید با نام «ساسان کلینیک» را بسازد.
+   - قالب‌های تأیید نوبت و یادآوری را بسازد.
+3. بعد از تأیید قالب‌ها (معمولاً چند ساعت)، `node tools/sms.js check` وضعیت را نشان می‌دهد.
+4. شناسه‌ی تازه را در `SMSIR_TEMPLATE_ID` (با `SMSIR_TEMPLATE_PARAM=CODE`) بگذارید و `systemctl restart sasan` بزنید.
 
-```bash
-sudo ln -s /etc/nginx/sites-available/sasan /etc/nginx/sites-enabled/
-sudo certbot --nginx -d example.ir -d www.example.ir
-sudo nginx -t && sudo systemctl reload nginx
-```
+## ۳. Google Search Console
 
-سرور خودش سربرگ‌های امنیتی (CSP و ...)، کش فایل‌ها و صفحه‌ی ۴۰۴ را می‌فرستد.
+1. در <https://search.google.com/search-console> دامنه را اضافه کنید:
+   - نوع «Domain»، با رکورد TXT در DNS؛ یا
+   - نوع «URL prefix»، با کد متای HTML. در این حالت، کد را با این دستور در صفحه‌ی اصلی بگذارید و دوباره `push.sh` بزنید:
 
-## ۵. دامنه در صفحه‌ها (جست‌وجو و پیش‌نمایش لینک)
+     ```bash
+     python3 tools/seo.py --google-verify=<کد>
+     ```
 
-```bash
-cd /srv/sasan
-python3 tools/seo.py https://example.ir
-```
+2. `https://sasan-clinic.ir/sitemap.xml` را در بخش Sitemaps ثبت کنید.
 
-نشانی کامل صفحه‌ها (canonical)، عکس پیش‌نمایش لینک در تلگرام و واتساپ و اینستاگرام، اطلاعات ساختاریافته‌ی کلینیک برای گوگل، `sitemap.xml` و `robots.txt` با همین دامنه ساخته می‌شوند. بعد نشانی `https://example.ir/sitemap.xml` را در Google Search Console ثبت کنید.
+جزئیات، نمایه‌ی کسب‌وکار گوگل و برنامه‌ی محتوا: `SEO.md`.
 
-## ۶. آزمایش نهایی روی سرور
+## ۴. آزمایش نهایی روی سرور
 
-- باز شدن همه‌ی صفحه‌ها با HTTPS، روی گوشی و کامپیوتر
-- درخواست نوبت با شماره‌ی خودتان: رسیدن کد پیامکی و ثبت درخواست
-- فرم «با من تماس بگیرید»
-- یک نشانی ناموجود (مثلاً `/abc`) باید صفحه‌ی ۴۰۴ کلینیک را نشان دهد
-- `npm run check` در پوشه‌ی `server`
-- پنل پذیرش: `https://example.ir/panel/` ← ورود با حساب مدیر و کد پیامکی ← ساخت حساب پذیرش و پزشک‌ها در «کارکنان» ← دادن یک نوبت آزمایشی با تیک پیامک به شماره‌ی خودتان
+- باز شدن همه‌ی صفحه‌ها با HTTPS، روی گوشی و کامپیوتر.
+- هدایت‌ها: `http://sasan-clinic.ir`، `http://www.sasan-clinic.ir` و `https://www.sasan-clinic.ir` همه به `https://sasan-clinic.ir` می‌روند.
+- درخواست نوبت با شماره‌ی خودتان: رسیدن کد پیامکی و ثبت درخواست. فرم «با من تماس بگیرید» هم همین‌طور.
+- یک نشانی ناموجود (مثلاً `/abc`) صفحه‌ی ۴۰۴ کلینیک را نشان دهد.
+- پنل پذیرش `https://sasan-clinic.ir/panel/`:
+  - ورود با کد پیامکی
+  - دیدن همان درخواست
+  - دادن نوبت با تیک پیامک به شماره‌ی خودتان
+  - «مقاله‌ها»: ذخیره‌ی یک پیش‌نویس با عکس، سپس حذف آن
 
-## ۷. پشتیبان‌گیری از داده‌ها
+## ۵. اجرای دستی (بدون اسکریپت)
 
-همه‌ی داده‌ها (درخواست‌ها، کارکنان، گزارش کارها) در `server/data` است. روزی یک بار از آن کپی بگیرید؛ مثلاً با cron:
+همه‌ی کارهای `setup.sh` را می‌شود دستی هم انجام داد. خود اسکریپت خوانا و با توضیح است:
+- سرویس: `/etc/systemd/system/sasan.service`
+- nginx: `/etc/nginx/sites-available/sasan`
+- پشتیبان: `/etc/cron.d/sasan-backup`
 
-```bash
-sudo mkdir -p /var/backups/sasan
-echo '15 3 * * * root tar czf /var/backups/sasan/data-$(date +\%F).tgz -C /srv/sasan/server data && find /var/backups/sasan -mtime +30 -delete' | sudo tee /etc/cron.d/sasan-backup
-```
+نکته برای nginx دستی: `client_max_body_size 16m;` لازم است، وگرنه ذخیره‌ی مقاله و عکس از پنل رد می‌شود.
 
-کپی‌ها را گاهی بیرون از سرور هم نگه دارید؛ این فایل‌ها اطلاعات بیماران است و نباید جای عمومی برود.
-
-## بعد از آن (طبق نقشه‌ی راه)
-
-پنل پذیرش ساخته شده است (`server/README.md`، بخش «پنل پذیرش»). بعد از راه‌اندازی، کارفرما جزئیات بیشتر پنل را می‌گوید (مثلاً مدیریت محتوای سایت از پنل) — `IDEAS.md`.
+داده‌ها (درخواست‌ها، کارکنان، گزارش کارها، مقاله‌ها و عکس‌های پنل) همه در `server/data` است. کپی پشتیبان‌ها را گاهی بیرون از سرور هم نگه دارید. این فایل‌ها اطلاعات بیماران است و نباید جای عمومی برود.
