@@ -241,10 +241,13 @@
       }
       if (p === '/audit') return can('audit') ? ok({ audit: db.audit }) : fail(403, 'forbidden');
       if (p.startsWith('/stats')) return can('stats') ? ok(demoStats(Number((/days=(\d+)/.exec(p) || [])[1]) || 30)) : fail(403, 'forbidden');
+      if (p.startsWith('/articles')) return can('articles') ? arts.handle(m, p, body, u, log) : fail(403, 'forbidden');
       return fail(404, 'not-found');
     }
+    const arts = demoArticles(ok, fail, clone);
     return {
-      get: (p) => handle('GET', p), post: (p, b = {}) => handle('POST', p, b), patch: (p, b) => handle('PATCH', p, b)
+      get: (p) => handle('GET', p), post: (p, b = {}) => handle('POST', p, b), patch: (p, b) => handle('PATCH', p, b),
+      put: (p, b) => handle('PUT', p, b), del: (p) => handle('DELETE', p)
     };
   }
 
@@ -269,6 +272,128 @@
       pages: pg.map(([k, t, f]) => ({ k, t, v: Math.round(V * f) })), sources: src.map(([k, f]) => ({ k, v: Math.round(U * f) })),
       devices: { m: Math.round(U * 0.74), d: Math.round(U * 0.2), t: Math.round(U * 0.06) }
     };
+  }
+
+  /* ---------- مقاله‌های نمایشی: از خود صفحه‌های سایت خوانده می‌شوند و تغییرها فقط در همین صفحه می‌مانند ---------- */
+  function demoArticles(ok, fail, clone) {
+    const SITE = location.pathname.includes('/panel/') ? '../' : './';
+    const CATN = { dental: 'دندانپزشکی', beauty: 'زیبایی و لیزر', medicine: 'پزشکی عمومی' };
+    const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+    const doc = (h) => new DOMParser().parseFromString(h, 'text/html');
+    const text = (h) => doc('<body>' + (h || '') + '</body>').body.textContent.replace(/\s+/g, ' ').trim();
+    const en = (s) => String(s || '').replace(/[۰-۹]/g, (c) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(c));
+    const base = (src) => ((/(img\/art\/[a-z0-9-]+\/[a-z0-9-]+?)(?:-p)?-\d+\.webp$/.exec(src || '') || [])[1] || '');
+    const AR = new Map(), orig = new Map(), imgs = {};
+    let loaded = null, n = 0;
+    const words = (a) => text(a.lead + ' ' + a.body + ' ' + a.faq.map((f) => f.q + ' ' + f.a).join(' ')).split(' ').length;
+    function load() {
+      if (loaded) return loaded;
+      loaded = (async () => {
+        try {
+          const d = doc(await (await fetch(SITE + 'articles.html', { cache: 'no-store' })).text());
+          const dates = {};
+          d.querySelectorAll('script[type="application/ld+json"]').forEach((s) => { try { const j = JSON.parse(s.textContent); (j.blogPost || []).forEach((b) => { dates[b.url.split('/').pop()] = b; }); } catch (e) { /* */ } });
+          d.querySelectorAll('.ax-grid a.ac').forEach((a) => {
+            const url = a.getAttribute('href'), slug = url.replace(/^article-|\.html$/g, '');
+            const mins = Number(en((a.querySelector('.ac__meta small') || {}).textContent).replace(/\D/g, '')) || 4;
+            const dt = dates[url] || {};
+            AR.set(slug, { slug, url, k: a.dataset.k, title: a.querySelector('b').textContent.trim(), cover: base(a.querySelector('img').getAttribute('src')), mins, words: mins * 190,
+              date: dt.datePublished || '', updated: dt.dateModified || '', src: 'site', hidden: false, full: false });
+          });
+        } catch (e) { /* پیش‌نمایش بدون صفحه‌های سایت */ }
+      })();
+      return loaded;
+    }
+    /* متن کامل یک مقاله از صفحه‌ی خودش */
+    async function full(a) {
+      if (a.full) return a;
+      try {
+        const d = doc(await (await fetch(SITE + a.url, { cache: 'no-store' })).text());
+        const body = d.querySelector('.ap-body').cloneNode(true);
+        const sum = body.querySelector('.ap-sum');
+        if (sum) sum.remove();
+        body.querySelectorAll('h2[id]').forEach((h) => h.removeAttribute('id'));
+        body.querySelectorAll('img').forEach((im) => {
+          const b = base(im.getAttribute('src')), alt = im.getAttribute('alt') || '';
+          if (!b) { im.remove(); return; }
+          const tall = Number(im.getAttribute('height')) > Number(im.getAttribute('width'));
+          [...im.attributes].map((x) => x.name).forEach((x) => im.removeAttribute(x));
+          im.setAttribute('data-art', b); im.setAttribute('data-ar', tall ? '4/5' : '3/2'); im.setAttribute('alt', alt);
+        });
+        let tags = [];
+        d.querySelectorAll('script[type="application/ld+json"]').forEach((s) => { try { const j = JSON.parse(s.textContent); if (j['@type'] === 'BlogPosting' && j.keywords) tags = j.keywords.split('، ').filter(Boolean); } catch (e) { /* */ } });
+        const cov = d.querySelector('.ap-cover img');
+        Object.assign(a, {
+          title: d.querySelector('#ap-title').textContent.trim(), lead: d.querySelector('.ap-lead').innerHTML.trim(), body: body.innerHTML.trim(),
+          points: [...d.querySelectorAll('.ap-sum li')].map((li) => li.innerHTML.trim()),
+          faq: [...d.querySelectorAll('details.ap-q')].map((x) => ({ q: x.querySelector('summary span').innerHTML.trim(), a: x.querySelector('.ap-q__a p').innerHTML.trim() })),
+          seo: d.title, desc: (d.querySelector('meta[name="description"]') || {}).content || '', tags,
+          cover: base(cov && cov.getAttribute('src')) || a.cover, coverAlt: (cov && cov.getAttribute('alt')) || '', full: true
+        });
+        a.words = words(a);
+        if (!orig.has(a.slug)) orig.set(a.slug, clone(a));
+      } catch (e) { Object.assign(a, { lead: '', body: '', points: [], faq: [], tags: [], seo: '', desc: '', coverAlt: '', full: true }); }
+      return a;
+    }
+    const today = () => new Date().toISOString().slice(0, 10);
+    const summary = (a) => ({ slug: a.slug, url: a.url, k: a.k, cat: CATN[a.k], title: a.title, cover: imgs[a.cover] || a.cover + '-720.webp', date: a.date, updated: a.updated,
+      words: a.words, mins: Math.max(2, Math.round(a.words / 190)), hidden: a.hidden, src: a.src, savedBy: a.savedBy || '', savedAt: a.savedAt || '' });
+    const detail = (a) => Object.assign(clone(a), { coverUrl: imgs[a.cover] || a.cover + '-1280.webp', mins: Math.max(2, Math.round(a.words / 190)) });
+    function check(b) {
+      if (!CATN[b.k]) return 'بخش مقاله را انتخاب کنید';
+      if (text(b.title).length < 10) return 'عنوان دست‌کم ۱۰ نویسه باشد';
+      if (text(b.lead).length < 40) return 'مقدمه دست‌کم ۴۰ نویسه باشد';
+      if (text(b.body).length < 200) return 'متن مقاله خیلی کوتاه است';
+      if (!b.cover) return 'عکس اصلی مقاله را بگذارید';
+      return '';
+    }
+    async function handle(m, p, body, u, log) {
+      await load();
+      if (p === '/articles' && m === 'GET') {
+        const list = [...AR.values()].sort((x, y) => String(y.date).localeCompare(String(x.date)));
+        return ok({ articles: list.map(summary), cats: CATN, site: 'https://sasan-clinic.ir' });
+      }
+      if (p === '/articles/upload' && m === 'POST') {
+        const b = 'img/art/p/pdemo' + String(++n).padStart(6, '0');
+        imgs[b] = 'data:image/webp;base64,' + body.files[1280];
+        return ok({ base: b, url: imgs[b] });
+      }
+      const mm = /^\/articles\/([a-z0-9-]+)(\/hide)?$/.exec(p);
+      if (p === '/articles' && m === 'POST' || (mm && m === 'PUT')) {
+        const slug = String(m === 'POST' ? body.slug : mm[1]).trim();
+        if (m === 'POST' && (!SLUG.test(slug) || slug.length < 3)) return fail(400, 'input', { message: 'نشانی صفحه: حروف کوچک انگلیسی، عدد و خط تیره' });
+        if (m === 'POST' && AR.has(slug)) return fail(409, 'exists', { message: 'مقاله‌ای با همین نشانی هست؛ نشانی دیگری بنویسید' });
+        const prev = AR.get(slug);
+        if (m === 'PUT' && !prev) return fail(404, 'not-found');
+        const e = check(body);
+        if (e) return fail(400, 'input', { message: e });
+        const now = new Date().toISOString();
+        const a = Object.assign(prev || { slug, url: 'article-' + slug + '.html', date: today(), src: 'panel' }, {
+          k: body.k, title: text(body.title), lead: body.lead, body: body.body, cover: body.cover, coverAlt: body.coverAlt || '', seo: body.seo || '', desc: body.desc || '',
+          points: body.points || [], faq: body.faq || [], tags: body.tags || [], hidden: !!body.hidden, updated: today(), savedBy: u.name, savedAt: now, full: true
+        });
+        if (prev && prev.src === 'site') a.src = 'edited';
+        a.words = words(a);
+        AR.set(slug, a);
+        log(m === 'POST' ? 'article.create' : 'article.update', slug, a.title + (a.hidden ? ' · پیش‌نویس' : ''));
+        return ok({ article: detail(a) });
+      }
+      if (!mm) return fail(404, 'not-found');
+      const a = AR.get(mm[1]);
+      if (!a) return fail(404, 'not-found');
+      if (mm[2]) { a.hidden = !!body.hidden; log(a.hidden ? 'article.hide' : 'article.show', a.slug, a.title); return ok({ article: detail(await full(a)) }); }
+      if (m === 'GET') return ok({ article: detail(await full(a)) });
+      if (m === 'DELETE') {
+        if (a.src === 'site') return fail(400, 'input', { message: 'این مقاله همان نسخه‌ی اصلی سایت است' });
+        if (a.src === 'panel') { AR.delete(a.slug); log('article.delete', a.slug, a.title); return ok({ removed: true, reverted: false }); }
+        const o = clone(orig.get(a.slug));
+        AR.set(a.slug, o);
+        log('article.revert', a.slug, o.title);
+        return ok({ removed: false, reverted: true, article: detail(o) });
+      }
+      return fail(405, 'method');
+    }
+    return { handle };
   }
 
   window.SasanDemo = { create };

@@ -89,7 +89,9 @@
   const AUDIT = {
     login: ['ورود به پنل', 'i-lock'], 'login.fail': ['ورود ناموفق', 'i-alert'], logout: ['خروج', 'i-logout'], 'password.change': ['تغییر رمز', 'i-key'],
     'booking.create': ['ثبت نوبت تلفنی', 'i-cal-plus'], 'booking.update': ['تغییر درخواست', 'i-pencil'], 'callback.update': ['درخواست تماس', 'i-phone'],
-    'sms.appt': ['پیامک تأیید نوبت', 'i-msg'], 'user.create': ['ساخت کاربر', 'i-user-plus'], 'user.update': ['تغییر کاربر', 'i-users']
+    'sms.appt': ['پیامک تأیید نوبت', 'i-msg'], 'user.create': ['ساخت کاربر', 'i-user-plus'], 'user.update': ['تغییر کاربر', 'i-users'],
+    'article.create': ['مقاله‌ی تازه', 'i-file'], 'article.update': ['ویرایش مقاله', 'i-pencil'], 'article.hide': ['برداشتن مقاله از سایت', 'i-eye-off'],
+    'article.show': ['انتشار دوباره‌ی مقاله', 'i-eye'], 'article.delete': ['حذف مقاله', 'i-trash'], 'article.revert': ['برگرداندن مقاله به نسخه‌ی سایت', 'i-undo']
   };
   const TIMED = ['scheduled', 'arrived', 'done', 'no-show'];
   const BUSY = ['scheduled', 'arrived'];
@@ -113,7 +115,7 @@
         return Object.assign({ ok: r.ok }, j, { status: r.status });
       } catch (e) { return { ok: false, status: 0, error: 'network' }; }
     };
-    return { get: (p) => call('GET', p), post: (p, b = {}) => call('POST', p, b), patch: (p, b) => call('PATCH', p, b) };
+    return { get: (p) => call('GET', p), post: (p, b = {}) => call('POST', p, b), patch: (p, b) => call('PATCH', p, b), put: (p, b) => call('PUT', p, b), del: (p) => call('DELETE', p) };
   })();
 
   /* ---------- وضعیت ---------- */
@@ -310,6 +312,8 @@
     closeDrawer(true); closeModal(true); closeMenu();
     S.user = null; S.cfg = null; S.bookings = []; S.callbacks = []; S.known = null; S.loaded = false;
     smsData = null; usersData = null; auditData = null;
+    S.routeKey = '';
+    if (ART) ART.reset();
   }
   function sessionEnded() { resetState(); showLogin('نشست شما تمام شد؛ دوباره وارد شوید.'); }
   async function logout() {
@@ -323,11 +327,17 @@
   /* ==========================================================================
      قاب پنل: زبانه‌ها با نشانگر لغزان، نشان‌های شمارنده
      ========================================================================== */
+  /* مقاله‌ها در فایل جدای editor.js اند و ابزارهای پنل را از همین‌جا می‌گیرند */
+  const ART = window.SasanArticles ? window.SasanArticles({
+    $, $$, ic, esc, fa, call, toast, busy, openModal, closeModal, confirmBox, errText, relDay, DEMO,
+    rerender: (mode) => render(mode), morph: () => morph(), route: () => S.route
+  }) : null;
   const ROUTES = {
     today: { t: 'پیشخوان', ic: 'i-home' },
     requests: { t: 'درخواست‌ها', ic: 'i-inbox' },
     calendar: { t: 'تقویم', ic: 'i-calendar' },
     callbacks: { t: 'تماس‌ها', ic: 'i-phone', ok: () => can('callbacks') },
+    articles: { t: 'مقاله‌ها', ic: 'i-file', ok: () => can('articles') && !!ART, more: true },
     sms: { t: 'پیامک', ic: 'i-msg', ok: () => can('sms'), more: true },
     users: { t: 'کارکنان', ic: 'i-users', ok: () => can('users'), more: true },
     stats: { t: 'آمار بازدید', ic: 'i-chart', ok: () => can('stats'), more: true },
@@ -379,10 +389,14 @@
   /* ---------- مسیرها ---------- */
   function route() {
     if (!S.user || S.user.mustChange) return;
+    /* ویرایشگر مقاله با تغییرات ذخیره‌نشده: اول پرسیده می‌شود */
+    if (ART && ART.guard()) return;
     let r = (location.hash.match(/^#\/([a-z]+)/) || [])[1] || 'today';
     if (!allowed(r)) r = 'today';
-    const changed = r !== S.route;
-    S.route = r;
+    const key = r === 'articles' ? location.hash : r;
+    const changed = key !== S.routeKey;
+    S.route = r; S.routeKey = key;
+    document.body.classList.toggle('in-art', r === 'articles');
     $$('#tabs a, #tabbar a').forEach((a) => { if (a.dataset.r === r) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
     moveTabInd(false);
     closeMenu();
@@ -391,6 +405,7 @@
   }
   window.addEventListener('hashchange', route);
   const VIEWS = { today: vToday, requests: vRequests, calendar: vCalendar, callbacks: vCallbacks, sms: vSms, users: vUsers, stats: vStats, audit: vAudit };
+  if (ART) VIEWS.articles = ART.view;
 
   /* متغیرهای CSS از data-* (CSP: فقط CSSOM) */
   function applyVars(root) {
@@ -471,7 +486,7 @@
   }
   /* بعد از گرفتن داده‌ی تازه: اگر کاربر مشغول نوشتن یا پنجره‌ای باز است، صبر می‌کنیم */
   function refreshView() {
-    if (!S.user || !VIEWS[S.route]) return;
+    if (!S.user || !VIEWS[S.route] || S.route === 'articles') return;
     const a = document.activeElement;
     if (a && $('#content').contains(a) && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) { S.dirty = true; return; }
     if (!$('#modal').hidden) { S.dirty = true; return; }
@@ -543,7 +558,7 @@
     if (S.user.mustChange) { forcePassword(); return; }
     $('#content').innerHTML = '<div class="stack"><div class="skel skel--tile"></div><div class="kpis">' + '<div class="skel skel--tile"></div>'.repeat(4) + '</div><div class="list">' + '<div class="skel"></div>'.repeat(3) + '</div></div>';
     await loadAll();
-    S.route = '';
+    S.route = ''; S.routeKey = '';
     route();
     startPolling();
   }
@@ -1391,7 +1406,7 @@
       S.user = r.user;
       closeModal(true);
       toast('رمز تازه ذخیره شد');
-      if (forced) { renderShell(); await loadAll(); S.route = ''; route(); startPolling(); }
+      if (forced) { renderShell(); await loadAll(); S.route = ''; S.routeKey = ''; route(); startPolling(); }
     });
   }
   function forcePassword() {
@@ -1673,7 +1688,7 @@
     setTimeout(() => { const q = $('#q2'); if (q) q.focus(); }, 90);
   }
   document.addEventListener('keydown', (e) => {
-    const typing = /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
+    const typing = /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) || document.activeElement.isContentEditable;
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && e.target.id === 'dwNote') { e.preventDefault(); saveNote(e.target); return; }
     if (e.key === 'Escape') {
       if ($('#menu')) { closeMenu(); return; }
