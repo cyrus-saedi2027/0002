@@ -310,6 +310,7 @@
     callbacks: { t: 'تماس‌ها', ic: 'i-phone', ok: () => can('callbacks') },
     sms: { t: 'پیامک', ic: 'i-msg', ok: () => can('sms'), more: true },
     users: { t: 'کارکنان', ic: 'i-users', ok: () => can('users'), more: true },
+    stats: { t: 'آمار بازدید', ic: 'i-chart', ok: () => can('stats'), more: true },
     audit: { t: 'گزارش کارها', ic: 'i-history', ok: () => can('audit'), more: true }
   };
   const allowed = (r) => ROUTES[r] && (!ROUTES[r].ok || ROUTES[r].ok());
@@ -371,7 +372,7 @@
     if (changed) window.scrollTo(0, 0);
   }
   window.addEventListener('hashchange', route);
-  const VIEWS = { today: vToday, requests: vRequests, calendar: vCalendar, callbacks: vCallbacks, sms: vSms, users: vUsers, audit: vAudit };
+  const VIEWS = { today: vToday, requests: vRequests, calendar: vCalendar, callbacks: vCallbacks, sms: vSms, users: vUsers, stats: vStats, audit: vAudit };
 
   /* متغیرهای CSS از data-* (CSP: فقط CSSOM) */
   function applyVars(root) {
@@ -1281,6 +1282,62 @@
   document.addEventListener('input', (e) => { if (e.target.id === 'aq') { auditQ = e.target.value; const l = $('#alog'); if (l) l.innerHTML = auditList(); } });
 
   /* ==========================================================================
+     نما: آمار بازدید سایت (بی‌نام، روی سرور خود کلینیک؛ lib/stats.js)
+     ========================================================================== */
+  let statsData = null, statsDays = 30;
+  const DEV = { m: 'موبایل', t: 'تبلت', d: 'کامپیوتر' };
+  function statsChart(days) {
+    const W = 720, H = 190, P = 26, n = days.length, max = Math.max(4, ...days.map((x) => x.uniq));
+    const bw = (W - P) / n, top = Math.ceil(max / 4) * 4;
+    const grid = [0, 1, 2, 3, 4].map((i) => { const y = H - 24 - (i / 4) * (H - 40); return `<line x1="0" x2="${W - P}" y1="${y}" y2="${y}" class="st-grid"/><text x="${W - 2}" y="${y + 4}" class="st-ax">${fa(Math.round((top * i) / 4))}</text>`; }).join('');
+    const bars = days.map((x, i) => {
+      const h = Math.max(x.uniq ? 3 : 0, (x.uniq / top) * (H - 40)), xx = W - P - (i + 1) * bw + bw * 0.18;
+      return `<g class="st-b"><rect x="${xx.toFixed(1)}" y="${(H - 24 - h).toFixed(1)}" width="${(bw * 0.64).toFixed(1)}" height="${h.toFixed(1)}" rx="${Math.min(4, bw * 0.3).toFixed(1)}"/><title>${esc(dFull(x.d))}: ${fa(x.uniq)} بازدیدکننده، ${fa(x.views)} بازدید صفحه</title></g>`;
+    }).join('');
+    const every = n > 45 ? 14 : n > 10 ? 7 : 1;
+    const labs = days.map((x, i) => (i % every === (n - 1) % every ? `<text x="${(W - P - (i + 0.5) * bw).toFixed(1)}" y="${H - 6}" class="st-ax" text-anchor="middle">${esc(dm(x.d))}</text>` : '')).join('');
+    return `<svg class="st-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="بازدیدکننده‌های روزانه">${grid}${bars}${labs}</svg>`;
+  }
+  function statsList(items, total, name) {
+    if (!items.length) return '<p class="muted">هنوز چیزی ثبت نشده.</p>';
+    return `<ol class="st-list">${items.map((x) => { const pc = total ? Math.round((x.v / total) * 100) : 0; return `<li><span class="st-list__t">${esc(name(x))}</span><b class="num">${fa(x.v)}</b><i class="st-bar"><i class="st-bar__f" data-w="${pc}"></i></i></li>`; }).join('')}</ol>`;
+  }
+  function vStats() {
+    const head = `<header class="ph"><div><h1>آمار بازدید سایت</h1><p>بی‌نام و بدون کوکی، روی سرور خود کلینیک. کلمه‌های جست‌وجو و رتبه در گوگل را در Search Console ببینید.</p></div><span class="sp"></span>
+      <div class="seg" role="group" aria-label="بازه">${[[7, '۷ روز'], [30, '۳۰ روز'], [90, '۹۰ روز']].map(([d, t]) => `<button type="button" data-act="stdays" data-v="${d}" aria-pressed="${statsDays === d}">${t}</button>`).join('')}</div></header>`;
+    if (!statsData) { loadStats(); return head + '<div class="tiles">' + '<div class="skel skel--tile"></div>'.repeat(3) + '</div><div class="skel skel--chart"></div>'; }
+    const d = statsData, t = d.totals;
+    const grow = t.prev ? Math.round(((t.cur - t.prev) / t.prev) * 100) : null;
+    const growTxt = grow == null ? 'برای مقایسه هنوز داده‌ی کافی نیست' : `${grow >= 0 ? '+' : '−'}${fa(Math.abs(grow))}٪ نسبت به نیمه‌ی اول بازه`;
+    const devTot = d.devices.m + d.devices.t + d.devices.d;
+    const srcTot = d.sources.reduce((a, x) => a + x.v, 0), pgTot = d.pages.reduce((a, x) => a + x.v, 0);
+    return head + `
+      <div class="tiles">
+        <div class="kpi k-blue"><span class="kpi__ic">${ic('i-users')}</span><b class="num">${fa(t.uniq)}</b><span>بازدیدکننده در ${fa(statsDays)} روز</span><small class="${grow != null && grow < 0 ? 'is-down' : 'is-up'}">${esc(growTxt)}</small></div>
+        <div class="kpi k-violet"><span class="kpi__ic">${ic('i-eye')}</span><b class="num">${fa(t.views)}</b><span>بازدید صفحه</span><small>${t.uniq ? fa((t.views / t.uniq).toFixed(1)) + ' صفحه برای هر بازدیدکننده' : '—'}</small></div>
+        <div class="kpi k-ok"><span class="kpi__ic">${ic('i-sun')}</span><b class="num">${fa(t.today ? t.today.uniq : 0)}</b><span>بازدیدکننده‌ی امروز</span><small>دیروز: ${fa(t.yesterday ? t.yesterday.uniq : 0)}</small></div>
+      </div>
+      <section class="card st-card"><div class="card__h">${ic('i-chart')}<h2>بازدیدکننده‌های روزانه</h2></div><div class="card__b">${statsChart(d.days)}</div></section>
+      <div class="grid2">
+        <section class="card"><div class="card__h">${ic('i-list-checks')}<h2>صفحه‌های پربازدید</h2></div><div class="card__b">${statsList(d.pages, pgTot, (x) => x.t || x.k)}</div></section>
+        <section class="card"><div class="card__h">${ic('i-send')}<h2>از کجا آمده‌اند؟</h2></div><div class="card__b">${statsList(d.sources, srcTot, (x) => x.k)}
+          <h3 class="st-h3">دستگاه</h3>${statsList(['m', 'd', 't'].map((k) => ({ k, v: d.devices[k] })).filter((x) => x.v), devTot, (x) => DEV[x.k])}</div></section>
+      </div>
+      <p class="hint st-hint">${ic('i-info', 'ic--s')}<span>برای دیدن کلمه‌هایی که مردم با آن‌ها در گوگل سایت را پیدا می‌کنند، جایگاه هر صفحه و خطاهای نمایه، به <a href="https://search.google.com/search-console" target="_blank" rel="noopener">Google Search Console</a> بروید (راهنما: SEO.md در مخزن).</span></p>`;
+  }
+  /* نوارهای درصد بعد از قرار گرفتن در صفحه پهن می‌شوند (فقط transform؛ از راه CSSOM که CSP پنل اجازه می‌دهد) */
+  vStats.after = (v) => {
+    const bars = $$('.st-bar__f', v);
+    requestAnimationFrame(() => requestAnimationFrame(() => bars.forEach((b) => { b.style.transform = `scaleX(${Math.max(0.02, (+b.dataset.w || 0) / 100)})`; })));
+  };
+  async function loadStats() {
+    const r = await call('get', '/stats?days=' + statsDays);
+    if (!r.ok) { toast(errText(r), true); return; }
+    statsData = r;
+    if (S.route === 'stats') render('none');
+  }
+
+  /* ==========================================================================
      پنجره (modal)
      ========================================================================== */
   let modalCtx = null, lastFocusModal = null;
@@ -1482,6 +1539,7 @@
       case 'fdept': S.f.dept = v; morph(); break;
       case 'clearq': $('#q').value = ''; onSearch('', 'q'); break;
       case 'cbf': S.cbF = v; morph(); break;
+      case 'stdays': statsDays = Number(v) || 30; statsData = null; render('none'); break;
       case 'cb': openCallback(el.dataset.id); break;
       case 'cbs': {
         const note = $('#modal textarea[name="note"]');

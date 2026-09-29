@@ -18,7 +18,7 @@
   const TYPES = ['ویزیت اول', 'ادامه‌ی درمان', 'مشاوره'];
   const STATUSES = ['new', 'called', 'scheduled', 'arrived', 'done', 'cancelled', 'no-show'];
   const ROLES = { admin: 'مدیر', reception: 'پذیرش', doctor: 'پزشک' };
-  const CAN = { admin: ['write', 'phone', 'callbacks', 'sms', 'users', 'audit'], reception: ['write', 'phone', 'callbacks', 'sms'], doctor: [] };
+  const CAN = { admin: ['write', 'phone', 'callbacks', 'sms', 'users', 'audit', 'stats'], reception: ['write', 'phone', 'callbacks', 'sms', 'stats'], doctor: [] };
 
   const dayFmt = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tehran', year: 'numeric', month: '2-digit', day: '2-digit' });
   const hmFmt = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Tehran', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
@@ -240,11 +240,35 @@
         return ok({ user: t });
       }
       if (p === '/audit') return can('audit') ? ok({ audit: db.audit }) : fail(403, 'forbidden');
+      if (p.startsWith('/stats')) return can('stats') ? ok(demoStats(Number((/days=(\d+)/.exec(p) || [])[1]) || 30)) : fail(403, 'forbidden');
       return fail(404, 'not-found');
     }
     return {
       get: (p) => handle('GET', p), post: (p, b = {}) => handle('POST', p, b), patch: (p, b) => handle('PATCH', p, b),
       setRole: (r) => { if (ROLES[r]) role = r; }
+    };
+  }
+
+  /* آمار بازدید نمایشی: الگوی هفتگی و کمی رشد (در سایت واقعی از سرور کلینیک می‌آید) */
+  function demoStats(n) {
+    const days = [];
+    let seed = 11;
+    const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+    for (let i = n - 1; i >= 0; i--) {
+      const d = new Date(Date.now() - i * 864e5).toISOString().slice(0, 10);
+      const wd = new Date(d + 'T12:00:00Z').getUTCDay();
+      const base = 38 + (n - i) * 0.35 + (wd === 5 ? -10 : wd === 6 ? 8 : 0);
+      const uniq = Math.max(4, Math.round(base * (0.8 + rnd() * 0.4)));
+      days.push({ d, uniq, views: Math.round(uniq * (2.1 + rnd() * 0.9)) });
+    }
+    const sum = (a, f) => a.reduce((x, y) => x + y[f], 0), half = Math.floor(n / 2);
+    const U = sum(days, 'uniq'), V = sum(days, 'views');
+    const pg = [['/', 'صفحه‌ی اصلی', 0.3], ['/dental.html', 'دندانپزشکی در سلمان‌شهر (متل‌قو)', 0.17], ['/contact.html', 'آدرس و تلفن ساسان کلینیک سلمان‌شهر', 0.11], ['/article-implant-or-bridge.html', 'ایمپلنت یا بریج؛ برای جای خالی یک دندان کدام بهتر است؟', 0.08], ['/beauty.html', 'زیبایی و لیزر در سلمان‌شهر', 0.07], ['/doctors.html', 'دندانپزشک و پزشکان سلمان‌شهر', 0.06], ['/article-after-tooth-extraction.html', 'بعد از کشیدن دندان؛ از ۲۴ ساعت اول تا یک هفته بعد', 0.05], ['/medicine.html', 'پزشک عمومی شبانه‌روزی سلمان‌شهر', 0.05]];
+    const src = [['گوگل', 0.46], ['مستقیم', 0.24], ['اینستاگرام', 0.14], ['بلد', 0.07], ['نشان', 0.04], ['تلگرام', 0.03]];
+    return {
+      days, totals: { views: V, uniq: U, today: days[days.length - 1], yesterday: days[days.length - 2] || null, prev: sum(days.slice(0, half), 'uniq'), cur: sum(days.slice(n - half), 'uniq') },
+      pages: pg.map(([k, t, f]) => ({ k, t, v: Math.round(V * f) })), sources: src.map(([k, f]) => ({ k, v: Math.round(U * f) })),
+      devices: { m: Math.round(U * 0.74), d: Math.round(U * 0.2), t: Math.round(U * 0.06) }
     };
   }
 

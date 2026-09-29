@@ -1,3 +1,5 @@
 User-agent: *
 Allow: /
 Disallow: /api/
+Disallow: /panel/
+Sitemap: https://sasan-clinic.ir/sitemap.xml

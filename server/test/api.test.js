@@ -167,3 +167,25 @@ test('درخواست تماس', async () => {
   assert.strictEqual((await s.req('POST', '/api/callback', { name: 'س', mobile: '0912' })).status, 400);
   s.done();
 });
+
+test('آمار بازدید: شمارش بی‌نام، ربات‌ها و نشانی‌های نامعتبر شمرده نمی‌شوند', async () => {
+  const s = await setup();
+  const ua = { 'user-agent': 'Mozilla/5.0 (Linux; Android 14) Mobile' };
+  let r = await s.req('POST', '/api/hit', { p: '/dental.html', r: 'www.google.com', w: 390 }, ua);
+  assert.strictEqual(r.status, 204);
+  await s.req('POST', '/api/hit', { p: '/dental.html', r: '', w: 390 }, ua);
+  await s.req('POST', '/api/hit', { p: '/', r: 'l.instagram.com', w: 1440 }, { 'user-agent': 'Mozilla/5.0 (Windows NT 10.0) Chrome' });
+  await s.req('POST', '/api/hit', { p: '/', w: 1440 }, { 'user-agent': 'Googlebot/2.1' });
+  await s.req('POST', '/api/hit', { p: '/../etc/passwd', w: 1440 }, ua);
+  const sum = s.app.stats.summary(7);
+  assert.strictEqual(sum.totals.views, 3);
+  assert.strictEqual(sum.totals.uniq, 2);
+  assert.deepStrictEqual(sum.pages.map((x) => x.k), ['/dental.html', '/']);
+  assert.deepStrictEqual(sum.sources.map((x) => x.k).sort(), ['اینستاگرام', 'گوگل'].sort());
+  assert.strictEqual(sum.devices.m, 1); assert.strictEqual(sum.devices.d, 1);
+  /* در فایل هیچ IP یا مرورگری نیست */
+  s.app.stats.save();
+  const raw = fs.readFileSync(path.join(s.cfg.dataDir, 'stats.json'), 'utf8');
+  assert.ok(!/127\.0\.0\.1|Mozilla|Android/.test(raw));
+  s.done();
+});

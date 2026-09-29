@@ -378,6 +378,8 @@
     /* اگر مقصد در این اندازه‌ی صفحه دیده نمی‌شود (مثل فرم نوبت روی موبایل)، جایگزینش */
     if (!target.getClientRects().length && target.dataset.fallback) target = document.getElementById(target.dataset.fallback) || target;
     e.preventDefault();
+    /* نمودارهای بین راه (js/mg.js) پیش از حساب کردن مقصد ساخته می‌شوند تا ارتفاعشان مقصد را جابه‌جا نکند */
+    if (window.Sasan && window.Sasan.MG) window.Sasan.MG.prepare(target);
     Motion.scrollTo(target, -20);
     if (id === '#main') { target.setAttribute('tabindex', '-1'); target.focus({ preventScroll: true }); }
   });
@@ -602,7 +604,9 @@
       if (!h || /^(mag-|services-all$|dental$|beauty$|medicine$|book$)/.test(h)) return;
       const t = h === 'top' ? null : document.getElementById(h);
       if (h !== 'top' && !t) return;
-      const y = t ? Math.max(0, t.getBoundingClientRect().top + window.scrollY - 20) : 0;
+      /* اگر مقصد scroll-margin دارد (مثل خدمت‌های صفحه‌ی هر بخش زیر هدر و نوار چسبان)، همان رعایت می‌شود */
+      const gap = t ? (parseFloat(getComputedStyle(t).scrollMarginTop) || 20) : 0;
+      const y = t ? Math.max(0, t.getBoundingClientRect().top + window.scrollY - gap) : 0;
       window.scrollTo(0, y);
       if (Motion.lenis) Motion.lenis.scrollTo(y, { immediate: true, force: true });
     };
@@ -629,4 +633,18 @@
     if (hasGsap) ScrollTrigger.addEventListener('refresh', () => { base = sig(); });
   });
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
+  /* آمار بازدید بی‌نام، فقط روی سرور خود کلینیک (متای sasan-api): بدون کوکی؛ «ردیابی نکن» مرورگر رعایت می‌شود */
+  (function () {
+    const api = document.querySelector('meta[name="sasan-api"]');
+    if (!api || navigator.doNotTrack === '1' || !navigator.sendBeacon) return;
+    const send = () => {
+      let r = '';
+      try { const u = new URL(document.referrer); if (u.host !== location.host) r = u.host; } catch (e) { /* بدون صفحه‌ی قبلی */ }
+      const body = new Blob([JSON.stringify({ p: location.pathname, r, w: window.innerWidth })], { type: 'application/json' });
+      try { navigator.sendBeacon(api.content.replace(/\/$/, '') + '/hit', body); } catch (e) { /* بی‌اهمیت */ }
+    };
+    if (document.readyState === 'complete') setTimeout(send, 600);
+    else window.addEventListener('load', () => setTimeout(send, 600), { once: true });
+  })();
 })();

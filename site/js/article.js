@@ -70,9 +70,12 @@
       if (!t) return;
       e.preventDefault();
       if (tocm && tocm.contains(a)) tocm.open = false;
-      const off = -(hdr() + 22);
-      if (Motion.lenis) Motion.scrollTo(t, off);
-      else window.scrollTo({ top: t.getBoundingClientRect().top + window.scrollY + off, behavior: rm() ? 'auto' : 'smooth' });
+      /* نمودارهای بین راه اول ساخته می‌شوند (ارتفاعشان عوض می‌شود)؛ بعد جای دقیق حساب می‌شود.
+         عدد داده می‌شود نه خود عنصر، چون Lenis برای عنصر scroll-margin را هم اضافه می‌کند */
+      if (S.MG) S.MG.prepare(t);
+      const y = Math.max(0, Math.round(t.getBoundingClientRect().top + window.scrollY - (hdr() + 22)));
+      if (Motion.lenis) Motion.scrollTo(y);
+      else window.scrollTo({ top: y, behavior: rm() ? 'auto' : 'smooth' });
       try { history.replaceState(null, '', '#' + t.id); } catch (err) { /* محیط محدود */ }
       t.setAttribute('tabindex', '-1'); t.focus({ preventScroll: true });
     });
@@ -106,17 +109,8 @@
       if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(ok, ok); else ok();
     }));
 
-    /* نمودارهای متحرک: کمی پیش از رسیدن ساخته می‌شوند و فقط وقتی روی صفحه‌اند حرکت می‌کنند */
-    const mgs = $$('[data-mg]', ap);
-    if (mgs.length && S.MG) {
-      const build = (el) => { if (el._mg) return; try { el._mg = S.MG.build(el) || {}; el.classList.add('is-built'); } catch (err) { el._mg = {}; if (window.console) console.error(err); } remeasure(); };
-      if ('IntersectionObserver' in window) {
-        const near = new IntersectionObserver((es) => es.forEach((en) => { if (en.isIntersecting) { near.unobserve(en.target); build(en.target); } }), { rootMargin: '60% 0px' });
-        /* ترتیب اجرای دو ناظر تضمینی نیست (مثلاً با پرش مستقیم از فهرست)؛ اگر نمودار هنوز ساخته نشده، همین‌جا ساخته می‌شود */
-        const seen = new IntersectionObserver((es) => es.forEach((en) => { if (en.isIntersecting) build(en.target); const m = en.target._mg; if (m && m.show) m.show(en.isIntersecting); }), { threshold: 0.25 });
-        mgs.forEach((el) => { near.observe(el); seen.observe(el); });
-      } else mgs.forEach((el) => { build(el); if (el._mg.show) el._mg.show(true); });
-    }
+    /* نمودارهای متحرک (js/mg.js) */
+    if (S.MG) S.MG.auto(ap, remeasure);
   }
 
   /* ==========================================================================

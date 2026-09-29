@@ -1223,6 +1223,9 @@
     $('#svcH2').textContent = all ? 'خدمات سه بخش' : 'خدمات این بخش';
     const book = $('#svcBook');
     $('span', book).textContent = all ? 'درخواست نوبت' : 'درخواست نوبت در این بخش';
+    /* هر بخش صفحه‌ی کامل خودش را دارد (dental.html و …) */
+    const pg = $('#svcPage');
+    if (pg) { pg.hidden = all; if (!all) pg.href = key + '.html'; }
     /* از «همه‌ی خدمات» کپسول از انتخاب بخش شروع می‌شود */
     if (all) book.dataset.book = 'any'; else delete book.dataset.book;
     const list = $('#svcList');

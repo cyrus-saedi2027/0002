@@ -8,6 +8,7 @@
                              (در صورت تنظیم: پیامک ثبت درخواست به بیمار و خبر به پذیرش)
    - POST /api/callback      درخواست تماس پذیرش
    - GET  /api/health        وضعیت
+   - POST /api/hit           آمار بازدید بی‌نام هر صفحه (lib/stats.js؛ بدون کوکی و بدون ذخیره‌ی IP)
    - GET  /api/bookings      فهرست درخواست‌ها برای پنل مدیریت (فقط با ADMIN_TOKEN)
    - PATCH /api/bookings/:ref پذیرش: وضعیت (called, scheduled, done, cancelled, no-show)
                              و بعد از تماس، روز و ساعت و پزشک
@@ -25,6 +26,7 @@ const { Limiter } = require('./lib/limit');
 const { OtpStore, TTL, RESEND } = require('./lib/otp');
 const B = require('./lib/bookings');
 const { createPanel } = require('./lib/panel');
+const { Stats } = require('./lib/stats');
 
 const MIME = {
   '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'application/javascript; charset=utf-8',
@@ -54,6 +56,7 @@ function createApp(cfg, deps = {}) {
   const otp = new OtpStore(cfg.otpSecret);
   const lim = new Limiter();
   const store = deps.store || new B.BookingStore(cfg.dataDir);
+  const stats = deps.stats || new Stats(cfg.dataDir);
   const log = deps.log || ((...a) => console.log(new Date().toISOString(), ...a));
   const sweep = setInterval(() => { lim.sweep(); otp.sweep(); }, 60e3);
   sweep.unref();
@@ -97,7 +100,7 @@ function createApp(cfg, deps = {}) {
     if (!o) return true;
     try { return new URL(o).host === req.headers.host; } catch (e) { return false; }
   };
-  const panel = createPanel({ cfg, store, sms, log, lim, json, readBody, ipOf, originOk: sameOrigin, users: deps.users, sessions: deps.sessions });
+  const panel = createPanel({ cfg, store, sms, log, lim, json, readBody, ipOf, originOk: sameOrigin, users: deps.users, sessions: deps.sessions, stats });
 
   /* ---------- API ---------- */
   async function sendOtp(req, res) {
@@ -174,6 +177,14 @@ function createApp(cfg, deps = {}) {
       if (p === '/api/otp/send') return sendOtp(req, res);
       if (p === '/api/booking') return booking(req, res);
       if (p === '/api/callback') return callback(req, res);
+      if (p === '/api/hit') {
+        /* آمار بازدید: فقط شمارنده؛ جواب خالی */
+        if (!lim.take('hit:ip:' + ipOf(req), 240, 600e3)) {
+          const body = await readBody(req, 512);
+          stats.hit({ path: body.p, ref: body.r, w: body.w, ua: String(req.headers['user-agent'] || ''), ip: ipOf(req) });
+        }
+        headers(res, { 'Cache-Control': 'no-store' }); res.writeHead(204); return res.end();
+      }
     }
     if (p === '/api/bookings' || p.startsWith('/api/bookings/') || p === '/api/callbacks') {
       if (!cfg.adminToken) return json(res, 404, { ok: false, error: 'not-found' });
@@ -257,8 +268,8 @@ function createApp(cfg, deps = {}) {
     }
     serveStatic(req, res, url);
   };
-  handler.store = store; handler.otp = otp; handler.panel = panel;
-  handler.close = () => { clearInterval(sweep); panel.close(); };
+  handler.store = store; handler.otp = otp; handler.panel = panel; handler.stats = stats;
+  handler.close = () => { clearInterval(sweep); panel.close(); stats.close(); };
   return handler;
 }
 

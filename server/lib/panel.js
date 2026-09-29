@@ -13,6 +13,8 @@
    ========================================================================== */
 'use strict';
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 const B = require('./bookings');
 const T = require('./tehran');
 const { UserStore, ROLES, validateUser, pub, checkPass } = require('./users');
@@ -23,8 +25,8 @@ const { DELIVERY_FINAL } = require('./smsir');
 
 const COOKIE = 'sasan_panel';
 const CAN = {
-  admin: ['write', 'phone', 'callbacks', 'sms', 'users', 'audit'],
-  reception: ['write', 'phone', 'callbacks', 'sms'],
+  admin: ['write', 'phone', 'callbacks', 'sms', 'users', 'audit', 'stats'],
+  reception: ['write', 'phone', 'callbacks', 'sms', 'stats'],
   doctor: []
 };
 const can = (u, perm) => (CAN[u.role] || []).includes(perm);
@@ -261,6 +263,21 @@ function createPanel(ctx) {
     return json(res, 200, { ok: true, booking: store.list.find((x) => x.ref === ref), sms: s });
   }
 
+  /* عنوان صفحه‌های سایت برای آمار بازدید (از <title> خود فایل؛ بخش «| ساسان کلینیک» حذف می‌شود) */
+  const titles = new Map();
+  function pageTitle(p) {
+    if (titles.has(p)) return titles.get(p);
+    let t = '';
+    try {
+      const f = path.join(cfg.siteDir, p === '/' ? 'index.html' : p.slice(1));
+      const m = /<title>([^<]*)<\/title>/.exec(fs.readFileSync(f, 'utf8'));
+      t = m ? m[1].replace(/&amp;/g, '&').split('|')[0].trim() : '';
+    } catch (e) { /* صفحه‌ای که دیگر نیست */ }
+    if (p === '/') t = 'صفحه‌ی اصلی';
+    titles.set(p, t);
+    return t;
+  }
+
   /* ---------- مسیرها ---------- */
   async function handle(req, res, url) {
     const p = url.pathname, m = req.method;
@@ -394,6 +411,12 @@ function createPanel(ctx) {
       if (v.active === false || body.password) sessions.dropUser(t.id);
       audit.add(u, 'user.update', t.username, [v.role && 'نقش ' + ROLES[v.role], v.active === false && 'غیرفعال', v.active === true && 'فعال', body.password && 'رمز تازه'].filter(Boolean).join('، ') || 'مشخصات');
       return json(res, 200, { ok: true, user: pub(r.user) });
+    }
+    if (p === '/api/panel/stats' && m === 'GET') {
+      if (!can(u, 'stats') || !ctx.stats) return deny();
+      const sum = ctx.stats.summary(Number(url.searchParams.get('days')) || 30);
+      sum.pages.forEach((x) => { x.t = pageTitle(x.k); });
+      return json(res, 200, Object.assign({ ok: true }, sum));
     }
     if (p === '/api/panel/audit' && m === 'GET') {
       if (!can(u, 'audit')) return deny();

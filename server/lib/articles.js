@@ -381,4 +381,9 @@ function magList(list, siteDir) {
   return { rows, pv };
 }
 
-module.exports = { SITE_URL, CATS, WIDTHS, parse, normalize, loadDir, merge, sort, articlePage, indexPage, magList, jalali, fa, esc, strip, pic };
+/* کارت مقاله‌های یک بخش برای صفحه‌ی همان بخش (dental.html و …)، بین <!-- ARTICLES:dept:بخش --> و <!-- /ARTICLES:dept:بخش --> */
+function deptCards(list, k, siteDir, max = 6) {
+  return list.filter((a) => a.k === k).slice(0, max).map((a) => card(a, null, siteDir)).join('\n');
+}
+
+module.exports = { SITE_URL, CATS, WIDTHS, parse, normalize, loadDir, merge, sort, articlePage, indexPage, magList, deptCards, jalali, fa, esc, strip, pic };

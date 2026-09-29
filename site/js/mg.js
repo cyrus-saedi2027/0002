@@ -1311,8 +1311,17 @@
     return { show(v) { svg.classList.toggle('is-on', !!v); if (v) first(); c.show(v); }, destroy() { c.stop(); } };
   };
 
+  /* نمودارهایی که هنوز ساخته نشده‌اند؛ پیش از پرش به یک بخش، هر نموداری که بالای مقصد است ساخته می‌شود
+     (ساخته شدن ارتفاع نمودار را عوض می‌کند و بدون این، مقصد بعد از رسیدن جابه‌جا می‌شد) */
+  const pending = [];
   /* هر نمودار دو چیدمان دارد: پهن و باریک (متن درشت‌تر برای گوشی)؛ اگر پهنا از مرز رد شود، از نو ساخته می‌شود */
   S.MG = {
+    prepare(target) {
+      if (!target) return;
+      pending.forEach(({ mgs, build }) => mgs.forEach((el) => {
+        if (!el._mg && (el.compareDocumentPosition(target) & Node.DOCUMENT_POSITION_FOLLOWING)) build(el);
+      }));
+    },
     build(el) {
       const f = B[el.dataset.mg];
       if (!f) return null;
@@ -1331,6 +1340,21 @@
       make();
       if ('ResizeObserver' in window) { let rt = 0; new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(make, 150); }).observe(el); }
       return { show(v) { vis = v; if (inst && inst.show) inst.show(v); } };
+    },
+    /* همه‌ی نمودارهای داخل root: کمی پیش از رسیدن ساخته می‌شوند و فقط وقتی روی صفحه‌اند حرکت می‌کنند.
+       ترتیب اجرای دو ناظر تضمینی نیست (مثلاً با پرش مستقیم از فهرست)؛ اگر نمودار هنوز ساخته نشده، با دیده شدن ساخته می‌شود */
+    auto(root, onBuilt) {
+      const mgs = $$('[data-mg]', root);
+      if (!mgs.length) return;
+      const build = (el) => { if (el._mg) return; try { el._mg = S.MG.build(el) || {}; el.classList.add('is-built'); } catch (err) { el._mg = {}; if (window.console) console.error(err); } if (onBuilt) onBuilt(); };
+      pending.push({ mgs, build });
+      /* آمدن با نشانی بخش (#…): نمودارهای بالای مقصد همین حالا ساخته می‌شوند تا پرش به مقصد جابه‌جا نشود */
+      const h = location.hash && document.getElementById(decodeURIComponent(location.hash.slice(1)));
+      if (h) S.MG.prepare(h);
+      if (!('IntersectionObserver' in window)) { mgs.forEach((el) => { build(el); if (el._mg.show) el._mg.show(true); }); return; }
+      const near = new IntersectionObserver((es) => es.forEach((en) => { if (en.isIntersecting) { near.unobserve(en.target); build(en.target); } }), { rootMargin: '60% 0px' });
+      const seen = new IntersectionObserver((es) => es.forEach((en) => { if (en.isIntersecting) build(en.target); const m = en.target._mg; if (m && m.show) m.show(en.isIntersecting); }), { threshold: 0.25 });
+      mgs.forEach((el) => { near.observe(el); seen.observe(el); });
     }
   };
 })();

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* ==========================================================================
    ساختن صفحه‌های مجله از content/articles:
-     node server/tools/articles.js          صفحه‌ی هر مقاله، articles.html و ردیف‌های مجله در index.html را می‌سازد
+     node server/tools/articles.js          صفحه‌ی هر مقاله، articles.html، ردیف‌های مجله در index.html و کارت مقاله‌های صفحه‌ی هر بخش را می‌سازد
      node server/tools/articles.js --check  فقط بررسی می‌کند که خروجی‌ها به‌روزند (خروج با کد ۱ اگر نباشند)
    بعد از آن: python3 tools/sync-layout.py و python3 tools/seo.py
    ========================================================================== */
@@ -34,6 +34,12 @@ function build() {
     return t.replace(re, (all, a, b) => `${a}\n${inner}\n${b}`);
   };
   out.set('index.html', put(put(idx, 'mag', m.rows), 'pv', m.pv));
+  /* صفحه‌ی هر بخش (dental.html و …): کارت مقاله‌های همان بخش */
+  fs.readdirSync(SITE).filter((f) => /\.html$/.test(f) && !out.has(f)).forEach((f) => {
+    const t = fs.readFileSync(path.join(SITE, f), 'utf8');
+    const re = /(<!-- ARTICLES:dept:(\w+) -->)[\s\S]*?(<!-- \/ARTICLES:dept:\2 -->)/g;
+    if (re.test(t)) out.set(f, t.replace(re, (all, a, k, b) => `${a}\n${A.deptCards(list, k, SITE)}\n${b}`));
+  });
   return { list, out };
 }
 
