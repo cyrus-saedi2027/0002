@@ -1279,7 +1279,7 @@
         <div class="row2"><label class="field"><span>نام و نام خانوادگی</span><input class="input" name="name" value="${esc(u ? u.name : '')}" required></label>
           <label class="field"><span>نام کاربری</span><input class="input input--ltr" name="username" value="${esc(u ? u.username : '')}" autocapitalize="none" spellcheck="false" ${u ? 'disabled' : 'required'}></label></div>
         <label class="field"><span>موبایل</span><input class="input input--ltr" name="mobile" inputmode="tel" value="${esc(u ? u.mobile : '')}" placeholder="09xxxxxxxxx"><small>کد ورود پنل به این شماره پیامک می‌شود.</small></label>
-        ${self ? '<p class="hint">رمز خودتان را از منوی حساب ← «تغییر رمز» عوض کنید.</p>' : `<label class="field"><span>${u ? 'رمز موقت تازه (اختیاری)' : 'رمز موقت'}</span><span class="pass"><input class="input input--ltr" name="password" autocomplete="new-password" ${u ? '' : 'required'}><button class="iconbtn" type="button" data-act="genpass" aria-label="ساخت رمز تصادفی" title="ساخت رمز تصادفی">${ic('i-key')}</button></span><small>کاربر در اولین ورود باید رمز خودش را بگذارد. رمز موقت را حضوری یا تلفنی بدهید، نه با پیامک عمومی.</small></label>`}
+        ${self ? '<p class="hint">رمز خودتان را از منوی حساب ← «تغییر رمز» عوض کنید.</p>' : `<label class="field"><span>${u ? 'رمز موقت تازه (اختیاری)' : 'رمز موقت'}</span><span class="pass"><input class="input input--ltr" name="password" autocomplete="new-password" spellcheck="false" autocapitalize="none" ${u ? '' : 'required'}><button class="iconbtn" type="button" data-act="genpass" aria-label="ساخت رمز تصادفی" title="ساخت رمز تصادفی">${ic('i-key')}</button></span><small>کاربر در اولین ورود باید رمز خودش را بگذارد. رمز موقت را حضوری یا تلفنی بدهید، نه با پیامک عمومی.</small></label>`}
         ${u && !self ? `<label class="check"><input type="checkbox" name="active" ${u.active ? 'checked' : ''}><span>حساب فعال است<small>با غیرفعال کردن، کاربر فوراً از پنل بیرون می‌رود.</small></span></label>` : ''}
         <p class="err" id="mdErr" role="alert"></p>
         <div class="modal__f"><button class="btn btn--ghost" type="button" data-act="mclose">انصراف</button><button class="btn btn--pri" type="submit"><span class="spin"></span><span class="btn__t">${u ? 'ذخیره' : 'ساخت حساب'}</span></button></div>
@@ -1770,7 +1770,7 @@
     if (f) f.focus();
   }
   function closeMenu() { const m = $('#menu'); if (m) m.remove(); }
-  const menuItem = (x) => x.href ? `<a role="menuitem" href="${x.href}">${ic(x.ic)}${esc(x.t)}</a>` : `<button role="menuitem" type="button" data-act="${x.act}" class="${x.cls || ''}">${ic(x.ic)}${esc(x.t)}</button>`;
+  const menuItem = (x) => x.href ? `<a role="menuitem" href="${x.href}"${x.blank ? ' target="_blank" rel="noopener"' : ''}>${ic(x.ic)}${esc(x.t)}</a>` : `<button role="menuitem" type="button" data-act="${x.act}" class="${x.cls || ''}">${ic(x.ic)}${esc(x.t)}</button>`;
   const acctHtml = () => `<div class="menu__who"><b>${esc(S.user.name)}</b><small>پذیرش · <span class="ltr">${esc(S.user.username || '')}</span></small></div><hr>` +
     [{ act: 'pass', ic: 'i-key', t: 'تغییر رمز' }, { act: 'logout', ic: 'i-logout', t: 'خروج از پنل', cls: 'is-bad' }].map(menuItem).join('');
 
@@ -1939,7 +1939,8 @@
       case 'more': {
         if ($('#menu')) { closeMenu(); break; }
         const items = moreRoutes().map((r) => ({ href: '#/' + r, ic: ROUTES[r].ic, t: ROUTES[r].t }));
-        openMenu(el, items.map(menuItem).join('') + (mobile.matches ? '<hr>' + acctHtml() : ''));
+        /* راهنمای کامل پنل با عکس هر بخش (guide.html) در زبانه‌ی تازه */
+        openMenu(el, items.map(menuItem).join('') + '<hr>' + menuItem({ href: 'guide.html', ic: 'i-help', t: 'راهنمای پنل', blank: true }) + (mobile.matches ? '<hr>' + acctHtml() : ''));
         break;
       }
       case 'pass': closeMenu(); passwordModal(false); break;
