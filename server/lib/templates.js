@@ -83,7 +83,9 @@ class SmsTemplates {
   }
   on(k) { const s = this.state[k]; return !!(this.live && s && s.status === 2 && !s.failed && s.id); }
   /* تنظیم‌های زنده‌ی cfg.sms از روی وضعیت قالب‌ها (همه‌ی ارسال‌ها همین‌ها را هنگام ارسال می‌خوانند) */
-  usingFallback() { const ei = this.envInfo.otp; return !!(this.fallback && this.live && (!ei || ei.status !== 2)); }
+  /* قالب جایگزین فقط وقتی که معلوم است قالب اصلی تأیید نشده؛ تا وضعیتش معلوم نیست (مثلاً چند ثانیه‌ی اول بعد از روشن شدن)
+     همان قالب اصلی. اگر تأیید نشده باشد، wrap همان لحظه با جایگزین می‌فرستد */
+  usingFallback() { const ei = this.envInfo.otp; return !!(this.fallback && this.live && ei && ei.status !== 2); }
   apply() {
     if (this.onlyOtp) {
       for (const [k, d] of Object.entries(KINDS)) if (k !== 'otp') this.cfg.sms[d.field] = 0;
@@ -215,11 +217,27 @@ class SmsTemplates {
       async verify(mobile, templateId, params) {
         const r = await sms.verify(mobile, templateId, params);
         /* قالب کد تأیید .env هنوز تأیید نشده یا از کار افتاده: همان کد با قالب جایگزین */
-        if (!r.ok && self.fallback && templateId === self.env.otp && templateId !== self.fallback && r.status > 0 && ![20, 102, 104, 115].includes(r.status)) {
+        const other = !r.ok && self.fallback && self.env.otp && self.env.otp !== self.fallback && r.status > 0 && ![20, 102, 104, 115].includes(r.status);
+        if (other && templateId === self.env.otp) {
+          const prev = self.envInfo.otp;
           self.envInfo.otp = { status: 0, branded: false, reason: r.message || '' };
           self.apply();
-          self.log('otp template not usable, fallback', r.status);
-          return sms.verify(mobile, self.fallback, { [self.fallbackParam]: Object.values(params)[0] });
+          const f = await sms.verify(mobile, self.fallback, { [self.fallbackParam]: Object.values(params)[0] });
+          if (f.ok) { self.log('otp template not usable, fallback', r.status); return f; }
+          /* جایگزین هم کار نکرد (مثلاً از sms.ir پاک شده): همان قالب اصلی می‌ماند */
+          if (prev) self.envInfo.otp = prev; else delete self.envInfo.otp;
+          self.apply();
+          self.log('otp fallback failed too', r.status, f.status);
+          return r;
+        }
+        /* قالب جایگزین کار نکرد (مثلاً پاک شده): شاید قالب اصلی تا حالا تأیید شده باشد */
+        if (other && templateId === self.fallback) {
+          const e = await sms.verify(mobile, self.env.otp, { [self.env.param]: Object.values(params)[0] });
+          if (!e.ok) return r;
+          self.envInfo.otp = { status: 2, branded: true, reason: '' };
+          self.apply();
+          self.log('otp fallback not usable, back to main template', r.status);
+          return e;
         }
         if (r.ok || !DEAD.includes(r.status)) return r;
         const k = Object.keys(KINDS).find((x) => self.on(x) && self.state[x].id === templateId);

@@ -147,7 +147,7 @@ test('قالب نام‌دار .env که هنوز در بررسی است دوب�
   s.done();
 });
 
-test('فقط کد تأیید: تا تأیید قالب .env، کد با قالب جایگزین می‌رود؛ بعد از تأیید خودکار جابه‌جا می‌شود؛ پیامک دیگری نیست', async () => {
+test('فقط کد تأیید: تا تأیید قالب .env، کد با قالب جایگزین می‌رود؛ بعد از تأیید خودکار جابه‌جا می‌شود؛ جایگزین پاک‌شده گیر نمی‌اندازد؛ پیامک دیگری نیست', async () => {
   const f = fakeSmsir();
   f.tpl[381780] = { status: 1, templateText: 'ساسان کلینیک ... #OTP#', parameters: [{ name: 'OTP' }] };
   /* sms.ir قالب تأییدنشده را نمی‌فرستد */
@@ -162,13 +162,20 @@ test('فقط کد تأیید: تا تأیید قالب .env، کد با قالب
   const app = createApp(cfg, { sms: f, log: () => {} });
   /* بقیه‌ی پیامک‌ها خاموش، حتی اگر در .env بودند */
   assert.deepStrictEqual([cfg.sms.confirmTemplateId, cfg.sms.receptionTemplateId, cfg.sms.apptTemplateId, cfg.sms.remindTemplateId, cfg.sms.receptionMobile], [0, 0, 0, 0, '']);
-  assert.strictEqual(cfg.sms.templateId, 284896);
+  /* تا وضعیت قالب اصلی معلوم نیست، همان قالب اصلی */
+  assert.strictEqual(cfg.sms.templateId, 381780);
   const srv = http.createServer(app); await new Promise((r) => srv.listen(0, '127.0.0.1', r));
   const base = `http://127.0.0.1:${srv.address().port}`;
   const send = (m) => fetch(base + '/api/otp/send', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ mobile: m }) }).then((r) => r.status);
+  /* قالب اصلی هنوز تأیید نشده: همان کد با جایگزین، و ارسال‌های بعدی مستقیم با جایگزین */
   assert.strictEqual(await send('09121113301'), 200);
-  assert.strictEqual(f.sent[f.sent.length - 1].templateId, 284896);
+  assert.deepStrictEqual(f.sent.slice(-2).map((x) => x.templateId), [381780, 284896]);
+  assert.strictEqual(f.sent[f.sent.length - 1].params.OTP, f.sent[f.sent.length - 2].params.OTP);
   assert.ok(/^\d{5}$/.test(f.sent[f.sent.length - 1].params.OTP));
+  assert.strictEqual(cfg.sms.templateId, 284896);
+  const n = f.sent.length;
+  assert.strictEqual(await send('09121113304'), 200);
+  assert.deepStrictEqual(f.sent.slice(n).map((x) => x.templateId), [284896]);
   /* sms.ir تأیید کرد */
   f.tpl[381780].status = 2;
   const ch = await app.templates.check();
@@ -184,5 +191,16 @@ test('فقط کد تأیید: تا تأیید قالب .env، کد با قالب
   assert.strictEqual(await send('09121113303'), 200);
   const last2 = f.sent.slice(-2).map((x) => x.templateId);
   assert.deepStrictEqual(last2, [381780, 284896]);
+  /* قالب اصلی دوباره تأیید شد ولی جایگزین از sms.ir پاک شده: ارسال با جایگزین شکست می‌خورد و همان لحظه با قالب اصلی می‌رود */
+  f.tpl[381780].status = 2;
+  f.dead.add(284896);
+  assert.strictEqual(await send('09121113305'), 200);
+  assert.deepStrictEqual(f.sent.slice(-2).map((x) => x.templateId), [284896, 381780]);
+  assert.strictEqual(cfg.sms.templateId, 381780);
+  /* قالب اصلی و جایگزین هر دو از کار افتاده: خطا، و قالب اصلی می‌ماند (جایگزینِ خراب نمی‌چسبد) */
+  f.tpl[381780].status = 3;
+  assert.strictEqual(await send('09121113306'), 502);
+  assert.deepStrictEqual(f.sent.slice(-2).map((x) => x.templateId), [381780, 284896]);
+  assert.strictEqual(cfg.sms.templateId, 381780);
   app.close(); srv.closeAllConnections(); srv.close();
 });

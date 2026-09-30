@@ -88,7 +88,7 @@ SMSIR_MODE=live
 SMSIR_API_KEY=$KEY
 SMSIR_TEMPLATE_ID=381780
 SMSIR_TEMPLATE_PARAM=OTP
-SMSIR_TEMPLATE_FALLBACK_ID=284896
+SMSIR_TEMPLATE_FALLBACK_ID=
 SMSIR_ONLY_OTP=1
 RECEPTION_MOBILE=$MOB
 OTP_SECRET=$(rnd 32)
@@ -109,8 +109,14 @@ if ! grep -q '^SMSIR_ONLY_OTP=' "$SRV/.env"; then
   upsert SMSIR_ONLY_OTP 1
   upsert SMSIR_TEMPLATE_ID 381780
   upsert SMSIR_TEMPLATE_PARAM OTP
-  upsert SMSIR_TEMPLATE_FALLBACK_ID 284896
-  ok "تا تأیید قالب 381780، کد تأیید با قالب 284896 فرستاده می‌شود؛ بعد از تأیید، خودکار جابه‌جا می‌شود"
+  upsert SMSIR_TEMPLATE_FALLBACK_ID ''
+  ok "کد تأیید با قالب 381780 فرستاده می‌شود"
+fi
+# قالب 284896 (متن آزمایشی) از sms.ir پاک شده و 381780 تأیید شده است؛ دیگر جایگزینی لازم نیست
+if grep -q '^SMSIR_TEMPLATE_FALLBACK_ID=284896$' "$SRV/.env"; then
+  say "پیامک: قالب جایگزین 284896 برداشته شد"
+  upsert SMSIR_TEMPLATE_FALLBACK_ID ''
+  ok "کد تأیید فقط با قالب 381780 (تأییدشده) فرستاده می‌شود"
 fi
 
 # ---------- پنل تازه (--reset) ----------
