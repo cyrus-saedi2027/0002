@@ -62,7 +62,8 @@ test('مقاله‌ی پنل: عکس، ساختن، صفحه‌های وابست
   const s = await setup();
   const staticArticles = fs.readFileSync(path.join(SITE, 'articles.html'), 'utf8');
   /* پیش از هر تغییر، همان فایل‌های سایت فرستاده می‌شوند */
-  assert.ok((await s.req('GET', '/articles.html')).body.includes(staticArticles.slice(-500)));
+  /* نشانی js و css با ?v= نسخه‌دار می‌شود؛ بقیه‌ی صفحه همان فایل است */
+  assert.ok((await s.req('GET', '/articles.html')).body.replace(/\?v=[0-9a-z]+/g, '').includes(staticArticles.slice(-500)));
   assert.strictEqual((await s.req('GET', '/api/panel/articles')).status, 401);
   assert.strictEqual((await s.login()).status, 200);
   const list0 = await s.req('GET', '/api/panel/articles');

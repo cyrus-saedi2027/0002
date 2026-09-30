@@ -117,8 +117,15 @@
   /* ---------- مرحله‌ی ۳: کد تأیید ---------- */
   const codeIn = $('#bkCode'), codeBox = $('.bk-code', bk), cells = $$('.bk-code__cells i', bk), timerRow = $('#bkTimerRow'), timerTxt = $('#bkTimerTxt'), resendBtn = $('#bkResend'), tbar = $('.bk-timer__bar i', bk), demoNote = $('#bkDemo');
   let tmr = 0;
+  /* کد ۵ رقمی از هر چیزی که در کادر آمد: تایپ، پرکردن خودکار گوشی یا چسباندن کل متن پیامک */
+  const pickCode = (s) => {
+    const d = digits(s), all = d.replace(/\D/g, '');
+    if (all.length <= 5) return all;
+    const runs = d.match(/\d+/g).filter((x) => x.length === 5);
+    return runs.length ? runs[runs.length - 1] : all.slice(0, 5);
+  };
   const paintCode = () => {
-    const v = digits(codeIn.value).replace(/\D/g, '').slice(0, 5);
+    const v = pickCode(codeIn.value);
     if (codeIn.value !== v) codeIn.value = v;
     cells.forEach((c, i) => {
       const had = c.textContent;
@@ -201,13 +208,13 @@
     st.busy = false; nextBtn.classList.remove('is-busy');
     if (!r.ok) { codeBox.classList.add('is-bad'); shake(codeBox); say(errText(r)); codeIn.select(); return; }
     codeBox.classList.add('is-ok');
-    st.ref = r.ref; st.smsOk = !!r.sms; clearInterval(tmr);
+    st.ref = r.ref; st.smsOk = !!r.sms; st.again = !!r.again; clearInterval(tmr);
     setTimeout(() => go(LAST, 1), can() ? 380 : 0);
   }
 
   /* ---------- مرحله‌ی آخر: ثبت شد ---------- */
   const paintDone = () => {
-    $('#bkDoneP').textContent = `پذیرش ${CALL} با شماره‌ی ${prettyTel(st.tel)} تماس می‌گیرد و روز، ساعت و پزشک را با خودتان هماهنگ می‌کند.${st.smsOk ? ' پیامک ثبت درخواست هم برایتان فرستاده شد.' : ''} اگر عجله دارید، با پذیرش تماس بگیرید: ${TEL}`;
+    $('#bkDoneP').textContent = `${st.again ? 'درخواست قبلی‌تان برای همین بخش هنوز باز بود؛ همان با اطلاعات تازه به‌روز شد. ' : ''}پذیرش ${CALL} با شماره‌ی ${prettyTel(st.tel)} تماس می‌گیرد و روز، ساعت و پزشک را با خودتان هماهنگ می‌کند.${st.smsOk ? ' پیامک ثبت درخواست هم برایتان فرستاده شد.' : ''} اگر عجله دارید، با پذیرش تماس بگیرید: ${TEL}`;
     const rows = [['بخش', DEPT[st.k].t], ['نوع مراجعه', st.type], ['به نام', st.name], ['شماره', ltr(faTel(st.tel))]];
     $('#bkTicket').innerHTML = rows.map(([a, b]) => `<div><dt>${a}</dt><dd>${esc(b)}</dd></div>`).join('') + `<div class="is-wide is-ref"><dt>کد پیگیری</dt><dd>${esc(st.ref)}</dd></div>`;
   };

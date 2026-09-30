@@ -33,6 +33,10 @@ test('health و فایل‌های سایت با متای API و سربرگ‌ه�
   const page = await s.req('GET', '/');
   assert.strictEqual(page.status, 200);
   assert.match(page.body, /<meta name="sasan-api" content="\/api">/);
+  /* js و css با نسخه‌ی فایل، تا بعد از هر به‌روزرسانی مرورگر نسخه‌ی کهنه نخواند */
+  assert.match(page.body, /src="js\/book\.js\?v=[0-9a-z]+"/);
+  assert.match(page.body, /href="css\/base\.css\?v=[0-9a-z]+"/);
+  assert.strictEqual((await s.req('GET', '/js/book.js?v=abc')).status, 200);
   assert.match(page.headers.get('content-security-policy'), /default-src 'self'/);
   assert.strictEqual(page.headers.get('x-content-type-options'), 'nosniff');
   const trav = await s.req('GET', '/../server/server.js');
@@ -84,24 +88,37 @@ test('ثبت درخواست: کد اشتباه، کد درست، یک‌بارم
   s.done();
 });
 
-test('ثبت درخواست: ورودی نادرست و درخواست تکراری پیگیری‌نشده', async () => {
+test('ثبت درخواست: ورودی نادرست؛ درخواست دوباره برای همان بخش روی درخواست باز قبلی می‌نشیند و هیچ‌وقت رد نمی‌شود', async () => {
   const s = await setup();
   const base = { mobile: '09121234567', code: '12345', name: 'علی', dept: 'dental', type: 'ویزیت اول' };
   assert.strictEqual((await s.req('POST', '/api/booking', Object.assign({}, base, { dept: 'x' }))).body.error, 'input');
   assert.strictEqual((await s.req('POST', '/api/booking', Object.assign({}, base, { type: 'x' }))).body.error, 'input');
   assert.strictEqual((await s.req('POST', '/api/booking', Object.assign({}, base, { name: 'ع' }))).body.error, 'input');
   assert.strictEqual((await s.req('POST', '/api/booking', Object.assign({}, base, { mobile: '0912' }))).body.error, 'input');
-  /* دو درخواست باز برای یک شماره؛ سومی رد می‌شود و کدش مصرف نمی‌شود */
-  for (let i = 0; i < 2; i++) {
-    s.app.otp.map.delete(base.mobile);
-    await s.req('POST', '/api/otp/send', { mobile: base.mobile });
-    const r = await s.req('POST', '/api/booking', Object.assign({}, base, { code: s.sent[s.sent.length - 1].params.CODE }));
-    assert.strictEqual(r.status, 200);
+  /* کد مستقیم از خود سرور (بدون پیامک و بدون سقف ارسال ساعتی) */
+  const book = (extra) => s.req('POST', '/api/booking', Object.assign({}, base, { code: s.app.otp.issue(base.mobile) }, extra));
+  /* چهار بار برای دندانپزشکی: یک ردیف، با نام و توضیح آخر و سه بار «درخواست دوباره» در تاریخچه */
+  const first = await book();
+  assert.strictEqual(first.status, 200);
+  for (let i = 0; i < 3; i++) {
+    const r = await book({ name: 'علی رضایی', note: 'بار ' + i, type: 'مشاوره' });
+    assert.strictEqual(r.status, 200); assert.strictEqual(r.body.ref, first.body.ref); assert.strictEqual(r.body.again, true);
   }
-  s.app.otp.map.delete(base.mobile);
-  await s.req('POST', '/api/otp/send', { mobile: base.mobile });
-  const third = await s.req('POST', '/api/booking', Object.assign({}, base, { code: s.sent[s.sent.length - 1].params.CODE }));
-  assert.strictEqual(third.status, 429); assert.strictEqual(third.body.error, 'many');
+  const dental = s.app.store.list.filter((b) => b.dept === 'dental');
+  assert.strictEqual(dental.length, 1);
+  assert.deepStrictEqual([dental[0].name, dental[0].type, dental[0].note, dental[0].again], ['علی رضایی', 'مشاوره', 'بار 2', 3]);
+  assert.strictEqual(dental[0].log.filter((e) => e.ev === 'again').length, 3);
+  /* کد اشتباه روی درخواست دوباره هم کار نمی‌کند */
+  s.app.otp.issue(base.mobile);
+  assert.strictEqual((await s.req('POST', '/api/booking', Object.assign({}, base, { code: '00000' }))).status, 401);
+  /* بخش دیگر: درخواست جدا */
+  const beauty = await book({ dept: 'beauty' });
+  assert.strictEqual(beauty.status, 200); assert.notStrictEqual(beauty.body.ref, first.body.ref);
+  /* درخواست قبلی نوبت گرفته (دیگر باز نیست): درخواست تازه ساخته می‌شود */
+  await s.app.store.update(first.body.ref, { status: 'scheduled' });
+  const after = await book();
+  assert.notStrictEqual(after.body.ref, first.body.ref);
+  assert.strictEqual(s.app.store.list.length, 3);
   s.done();
 });
 

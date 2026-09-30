@@ -81,10 +81,13 @@ class BookingStore {
     }));
     return this.chain;
   }
-  /* 'many' اگر این شماره هنوز درخواست پیگیری‌نشده دارد (جلوی ثبت‌های تکراری را می‌گیرد) */
-  conflict(v) {
-    const open = this.list.filter((b) => b.mobile === v.mobile && OPEN.includes(b.status));
-    return open.length >= 2 ? 'many' : null;
+  /* درخواست بازِ (تازه یا تماس‌گرفته) همین شماره برای همین بخش؛ درخواست دوباره روی همان می‌نشیند و ردیف تکراری ساخته نمی‌شود */
+  openFor(v) {
+    for (let i = this.list.length - 1; i >= 0; i--) {
+      const b = this.list[i];
+      if (b.mobile === v.mobile && b.dept === v.dept && OPEN.includes(b.status)) return b;
+    }
+    return null;
   }
   newRef() {
     let ref;

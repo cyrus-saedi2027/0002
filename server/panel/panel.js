@@ -863,6 +863,7 @@
       let icn = 'i-info', t = '';
       if (e.ev === 'site') { icn = 'i-send'; t = 'درخواست از سایت ثبت شد (شماره با کد پیامکی تأیید شد)'; }
       else if (e.ev === 'create') { icn = 'i-phone'; t = 'نوبت تلفنی ثبت شد'; }
+      else if (e.ev === 'again') { icn = 'i-send'; t = 'بیمار دوباره از سایت درخواست داد (همین درخواست به‌روز شد)'; }
       else if (e.ev === 'status') { icn = e.v === 'arrived' ? 'i-user-check' : e.v === 'cancelled' ? 'i-ban' : 'i-check'; t = 'وضعیت: ' + (STATUS[e.v] || CB_STATUS[e.v] || e.v); }
       else if (e.ev === 'when') { icn = 'i-calendar'; t = 'زمان نوبت: ' + dLong(e.v.date) + ' ساعت ' + tLabel(e.v.time); }
       else if (e.ev === 'doctor') { icn = 'i-user-round'; t = e.v ? 'پزشک: ' + docName(e.v) : 'پزشک برداشته شد'; }

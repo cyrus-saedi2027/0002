@@ -148,13 +148,24 @@ function createApp(cfg, deps = {}) {
     const body = await readBody(req);
     const v = B.validate(body);
     if (!v) return json(res, 400, { ok: false, error: 'input' });
-    /* درخواست پیگیری‌نشده‌ی تکراری پیش از مصرف کد رد می‌شود؛ بین این بررسی و ثبت هیچ await نیست */
-    if (store.conflict(v) === 'many') return json(res, 429, { ok: false, error: 'many' });
     const code = String(body.code || '').replace(/[۰-۹]/g, (c) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(c));
     const c = otp.check(v.mobile, code);
     if (c.r === 'none' || c.r === 'expired') return json(res, 410, { ok: false, error: 'expired' });
     if (c.r === 'attempts') return json(res, 429, { ok: false, error: 'attempts' });
     if (c.r === 'code') return json(res, 401, { ok: false, error: 'code', left: c.left });
+    /* همین شماره برای همین بخش درخواست باز دارد: همان به‌روز می‌شود (بیمار هیچ‌وقت رد نمی‌شود، پذیرش ردیف تکراری نمی‌بیند) */
+    const prev = store.openFor(v);
+    if (prev) {
+      const was = { name: prev.name, type: prev.type, note: prev.note };
+      await store.mutate(prev.ref, (x) => {
+        Object.assign(x, { name: v.name, type: v.type }, v.note ? { note: v.note } : {});
+        x.again = (x.again || 0) + 1;
+        B.addLog(x, '', 'again', was);
+      });
+      log('request again', prev.ref, prev.dept, mask(prev.mobile));
+      contacts.note(prev.mobile, { source: 'booking', name: v.name, dept: v.dept, verified: true });
+      return json(res, 200, { ok: true, ref: prev.ref, again: true, sms: false });
+    }
     const b = await store.add(v);
     log('request', b.ref, b.dept, mask(b.mobile));
     contacts.note(b.mobile, { source: 'booking', name: b.name, dept: b.dept, verified: true });
@@ -225,13 +236,26 @@ function createApp(cfg, deps = {}) {
 
   /* ---------- فایل‌های سایت ---------- */
   const META = '<meta name="sasan-api" content="/api">';
+  /* نشانی js و css سایت با نسخه‌ی خود فایل (اندازه و زمان تغییر): فایلی که با به‌روزرسانی عوض شده نشانی تازه می‌گیرد
+     و مرورگر نسخه‌ی کهنه را از حافظه نمی‌خواند؛ فایل‌های عوض‌نشده همان حافظه‌ی یک‌هفته‌ای را دارند */
+  const vers = new Map();
+  const ver = (p) => {
+    if (!vers.has(p)) {
+      let v = '';
+      try { const st = fs.statSync(path.join(cfg.siteDir, p)); v = st.size.toString(36) + Math.floor(st.mtimeMs).toString(36); } catch (e) { /* نبود؛ بی‌نسخه */ }
+      vers.set(p, v);
+    }
+    return vers.get(p);
+  };
+  const page = (html, head = '') => html.replace(/<head>/i, '<head>\n' + head + META)
+    .replace(/\b(src|href)="((?:js|css)\/[\w./-]+\.(?:js|css))"/g, (m, a, p) => { const v = ver(p); return v ? `${a}="${p}?v=${v}"` : m; });
   /* صفحه‌ی ۴۰۴ سایت (اگر هست) با وضعیت 404؛ <base href="/"> تا عکس‌ها و استایل‌ها از هر نشانی درست بارگیری شوند */
   function notFound(req, res) {
     fs.readFile(path.join(cfg.siteDir, '404.html'), 'utf8', (e, html) => {
       if (e) { headers(res, { 'Content-Type': 'text/plain; charset=utf-8' }); res.writeHead(404); return res.end('Not found'); }
       headers(res, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache', 'Content-Security-Policy': CSP });
       res.writeHead(404);
-      res.end(req.method === 'HEAD' ? undefined : html.replace(/<head>/i, '<head>\n<base href="/">\n' + META));
+      res.end(req.method === 'HEAD' ? undefined : page(html, '<base href="/">\n'));
     });
   }
 
@@ -255,7 +279,7 @@ function createApp(cfg, deps = {}) {
         const html = rel.endsWith('.html');
         headers(res, { 'Content-Type': html ? MIME['.html'] : MIME['.xml'], 'Cache-Control': 'no-cache', ...(html ? { 'Content-Security-Policy': CSP } : {}) });
         res.writeHead(200);
-        return res.end(req.method === 'HEAD' ? undefined : html ? ov.replace(/<head>/i, '<head>\n' + META) : ov);
+        return res.end(req.method === 'HEAD' ? undefined : html ? page(ov) : ov);
       }
       /* عکس‌هایی که از پنل بارگذاری شده‌اند (نامشان تصادفی و ثابت است) */
       const up = cms.uploadFile(rel);
@@ -268,7 +292,7 @@ function createApp(cfg, deps = {}) {
       if (ext === '.html') {
         fs.readFile(file, 'utf8', (e2, html) => {
           if (e2) { res.writeHead(500); return res.end(); }
-          const out = html.replace(/<head>/i, '<head>\n' + META);
+          const out = inPanel ? html.replace(/<head>/i, '<head>\n' + META) : page(html);
           headers(res, inPanel
             ? { 'Content-Type': type, 'Cache-Control': 'no-store', 'Content-Security-Policy': PANEL_CSP, 'X-Robots-Tag': 'noindex, nofollow', 'X-Frame-Options': 'DENY' }
             : { 'Content-Type': type, 'Cache-Control': 'no-cache', 'Content-Security-Policy': CSP });
