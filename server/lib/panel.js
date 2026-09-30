@@ -434,6 +434,7 @@ function createPanel(ctx) {
       if (w) return json(res, 429, { ok: false, error: 'rate', wait: w });
       if (p === '/api/panel/sms/templates/submit') {
         const r = await T.submit();
+        if (!r.ok) return json(res, 400, { ok: false, error: 'input', message: r.error === 'off' ? 'فقط پیامک کد تأیید روشن است؛ قالب دیگری ثبت نمی‌شود.' : 'ثبت نشد.' });
         const made = r.results.filter((x) => x.id && !x.skip).length, bad = r.results.filter((x) => x.error);
         audit.add(u, 'sms.templates', '', `${made} قالب ثبت شد${bad.length ? ' · ' + bad.length + ' خطا' : ''}`);
         return json(res, 200, { ok: true, results: r.results, tpl: T.view() });

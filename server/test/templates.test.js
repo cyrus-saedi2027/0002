@@ -146,3 +146,43 @@ test('قالب نام‌دار .env که هنوز در بررسی است دوب�
   assert.strictEqual(s.cfg.sms.param, 'OTP');
   s.done();
 });
+
+test('فقط کد تأیید: تا تأیید قالب .env، کد با قالب جایگزین می‌رود؛ بعد از تأیید خودکار جابه‌جا می‌شود؛ پیامک دیگری نیست', async () => {
+  const f = fakeSmsir();
+  f.tpl[381780] = { status: 1, templateText: 'ساسان کلینیک ... #OTP#', parameters: [{ name: 'OTP' }] };
+  /* sms.ir قالب تأییدنشده را نمی‌فرستد */
+  const realVerify = f.verify;
+  f.verify = async (m, id, p) => (f.tpl[id] && f.tpl[id].status !== 2 ? (f.sent.push({ mobile: m, templateId: id, params: p }), { ok: false, status: 117, message: 'متن تأیید نشده' }) : realVerify(m, id, p));
+  const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sasan-tpl-'));
+  const cfg = {
+    siteDir: path.resolve(__dirname, '..', '..', 'site'), panelDir: path.resolve(__dirname, '..', 'panel'), dataDir,
+    trustProxy: false, allowedOrigin: '', hsts: false, adminToken: '', otpSecret: 't'.repeat(40), panel2fa: false,
+    sms: { mode: 'live', templateId: 381780, param: 'OTP', onlyOtp: true, fallbackTemplateId: 284896, fallbackParam: '', confirmTemplateId: 555, receptionTemplateId: 556, receptionMobile: '09120000009', apptTemplateId: 557, remindTemplateId: 558, remindHour: 17 }
+  };
+  const app = createApp(cfg, { sms: f, log: () => {} });
+  /* بقیه‌ی پیامک‌ها خاموش، حتی اگر در .env بودند */
+  assert.deepStrictEqual([cfg.sms.confirmTemplateId, cfg.sms.receptionTemplateId, cfg.sms.apptTemplateId, cfg.sms.remindTemplateId, cfg.sms.receptionMobile], [0, 0, 0, 0, '']);
+  assert.strictEqual(cfg.sms.templateId, 284896);
+  const srv = http.createServer(app); await new Promise((r) => srv.listen(0, '127.0.0.1', r));
+  const base = `http://127.0.0.1:${srv.address().port}`;
+  const send = (m) => fetch(base + '/api/otp/send', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ mobile: m }) }).then((r) => r.status);
+  assert.strictEqual(await send('09121113301'), 200);
+  assert.strictEqual(f.sent[f.sent.length - 1].templateId, 284896);
+  assert.ok(/^\d{5}$/.test(f.sent[f.sent.length - 1].params.OTP));
+  /* sms.ir تأیید کرد */
+  f.tpl[381780].status = 2;
+  const ch = await app.templates.check();
+  assert.strictEqual(ch.changed[0].status, 2);
+  assert.strictEqual(cfg.sms.templateId, 381780);
+  assert.strictEqual(await send('09121113302'), 200);
+  assert.strictEqual(f.sent[f.sent.length - 1].templateId, 381780);
+  /* ثبت قالب‌های دیگر خاموش است */
+  assert.strictEqual((await app.templates.submit()).error, 'off');
+  assert.strictEqual(f.made.length, 0);
+  /* اگر بعداً از کار بیفتد، همان کد با قالب جایگزین */
+  f.tpl[381780].status = 3;
+  assert.strictEqual(await send('09121113303'), 200);
+  const last2 = f.sent.slice(-2).map((x) => x.templateId);
+  assert.deepStrictEqual(last2, [381780, 284896]);
+  app.close(); srv.closeAllConnections(); srv.close();
+});

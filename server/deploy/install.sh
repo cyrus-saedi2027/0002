@@ -19,6 +19,8 @@
 #            دامنه‌ی دیگر: bash install.sh example.ir
 # ==========================================================================
 set -euo pipefail
+# همه‌چیز داخل main: bash کل فایل را پیش از اجرا می‌خواند؛ اگر git همین فایل را وسط کار عوض کند، اجرا به‌هم نمی‌ریزد
+main() {
 REPO="${REPO:-https://github.com/cyrus-saedi2027/0002.git}"
 BRANCH="${BRANCH:-claude/stoic-brahmagupta-1np5fy}"
 APP="${APP:-/srv/sasan}"
@@ -84,8 +86,10 @@ if [ ! -f "$SRV/.env" ]; then
 # ساخته‌شده با deploy/install.sh — این فایل را به کسی ندهید و وارد git نکنید
 SMSIR_MODE=live
 SMSIR_API_KEY=$KEY
-SMSIR_TEMPLATE_ID=284896
+SMSIR_TEMPLATE_ID=381780
 SMSIR_TEMPLATE_PARAM=OTP
+SMSIR_TEMPLATE_FALLBACK_ID=284896
+SMSIR_ONLY_OTP=1
 RECEPTION_MOBILE=$MOB
 OTP_SECRET=$(rnd 32)
 ADMIN_TOKEN=$(rnd 20)
@@ -96,6 +100,17 @@ EOF
   umask 022
   printf '%s' "$NAME" >"$NAMEF"
   ok "server/.env ساخته شد"
+fi
+
+# ---------- پیامک: فقط کد تأیید (یک بار، برای نصب‌های قبلی) ----------
+upsert() { if grep -q "^$1=" "$SRV/.env"; then sed -i "s|^$1=.*|$1=$2|" "$SRV/.env"; else echo "$1=$2" >>"$SRV/.env"; fi; }
+if ! grep -q '^SMSIR_ONLY_OTP=' "$SRV/.env"; then
+  say "پیامک: فقط کد تأیید، با قالب 381780"
+  upsert SMSIR_ONLY_OTP 1
+  upsert SMSIR_TEMPLATE_ID 381780
+  upsert SMSIR_TEMPLATE_PARAM OTP
+  upsert SMSIR_TEMPLATE_FALLBACK_ID 284896
+  ok "تا تأیید قالب 381780، کد تأیید با قالب 284896 فرستاده می‌شود؛ بعد از تأیید، خودکار جابه‌جا می‌شود"
 fi
 
 # ---------- پنل تازه (--reset) ----------
@@ -139,4 +154,6 @@ if [ -n "$PASS_LINE" ]; then
   echo "ورود فقط با همین نام کاربری و رمز است. (رمز تازه اگر لازم شد: cd $SRV && runuser -u www-data -- node tools/users.js temp paziresh)"
 fi
 [ "$SCHEME" = http ] && echo "HTTPS هنوز نیست؛ وقتی DNS دامنه به همین سرور رسید، همین دستور را دوباره بزنید: bash $SRV/deploy/install.sh"
-exit 0
+return 0
+}
+main "$@"

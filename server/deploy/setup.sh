@@ -201,7 +201,7 @@ for u in "http://$DOMAIN/" "http://www.$DOMAIN/" "https://www.$DOMAIN/" "https:/
 done
 (cd "$SRV" && runuser -u www-data -- "$NODE" tools/sms.js check) || true
 # قالب‌های پیامک با نام ساسان کلینیک: sms.ir فقط وقتی تأیید می‌کند که سایت روی دامنه باز باشد
-if grep -q '^SMSIR_MODE=live' "$SRV/.env" && [ "$(curl -s -o /dev/null -m 10 -w '%{http_code}' "https://$DOMAIN/")" = "200" ]; then
+if grep -q '^SMSIR_MODE=live' "$SRV/.env" && ! grep -q '^SMSIR_ONLY_OTP=1' "$SRV/.env" && [ "$(curl -s -o /dev/null -m 10 -w '%{http_code}' "https://$DOMAIN/")" = "200" ]; then
   say "قالب‌های پیامک نام‌دار"
   (cd "$SRV" && runuser -u www-data -- "$NODE" tools/sms.js templates) || true
 fi

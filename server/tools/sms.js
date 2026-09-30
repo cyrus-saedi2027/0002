@@ -77,7 +77,8 @@ async function check() {
   if (!id) { console.log(red('  SMSIR_TEMPLATE_ID خالی است. npm run setup را دوباره اجرا کنید تا قالب ساخته شود.')); process.exitCode = 1; return; }
   const t = await showTemplate(c, id, v.SMSIR_TEMPLATE_PARAM || 'CODE');
   if (!t || t.bad) { process.exitCode = 1; return; }
-  if (live && t.status !== 2) { console.log(bold('  تا قالب تأیید نشود پیامک فرستاده نمی‌شود. چند ساعت بعد دوباره npm run check را بزنید.')); process.exitCode = 1; return; }
+  if (live && t.status !== 2 && v.SMSIR_TEMPLATE_FALLBACK_ID) console.log(bold(`  تا تأیید این قالب، کد تأیید با قالب ${v.SMSIR_TEMPLATE_FALLBACK_ID} فرستاده می‌شود؛ بعد از تأیید، سرور خودش جابه‌جا می‌کند.`));
+  else if (live && t.status !== 2) { console.log(bold('  تا قالب تأیید نشود پیامک فرستاده نمی‌شود. چند ساعت بعد دوباره npm run check را بزنید.')); process.exitCode = 1; return; }
   if (live) {
     for (const pt of PANEL_TEMPLATES) {
       if (!v[pt.env]) continue;
@@ -171,6 +172,7 @@ async function templates() {
   const T = new SmsTemplates({ cfg, sms: smsir.create(cfg.sms), dataDir: cfg.dataDir });
   try {
     const r = await T.submit();
+    if (!r.ok) { console.log(dim(r.error === 'off' ? '  فقط پیامک کد تأیید روشن است (SMSIR_ONLY_OTP=1)؛ قالب دیگری ثبت نمی‌شود.' : '  ثبت نشد.')); await T.check(); printTemplates(T.view()); return; }
     const SKIP = { pending: 'در انتظار تأیید (قبلاً ثبت شده)', on: 'روشن است', env: 'قالب server/.env نام کلینیک را دارد' };
     for (const x of r.results) {
       const label = T.view().list.find((y) => y.kind === x.kind).label;
@@ -181,6 +183,11 @@ async function templates() {
   } finally { T.close(); }
 }
 function printTemplates(v) {
+  if (v.onlyOtp) {
+    const o = v.otp;
+    console.log(`  فقط پیامک کد تأیید روشن است · قالب ${o.id}: ` + (o.status === 2 ? green('تأیید شده، در حال استفاده') : o.status === 3 ? red('رد شد: ' + o.reason) : bold('در انتظار تأیید sms.ir')) + (o.usingFallback && o.fallback ? dim(` · فعلاً با قالب ${o.fallback}`) : ''));
+    return;
+  }
   for (const x of v.list) {
     const st = x.failed ? red('خاموش شد: ' + x.failed) : x.on && x.branded ? green('روشن با نام کلینیک') : x.on ? green('روشن') + (x.test ? dim(' (متن آزمایشی sms.ir)') : '')
       : x.pending ? bold('در انتظار تأیید sms.ir') : x.rejected ? red('رد شد: ' + (x.rejected.reason || '')) : dim('خاموش');

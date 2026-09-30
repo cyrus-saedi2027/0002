@@ -55,6 +55,11 @@ class SmsTemplates {
     for (const [k, d] of Object.entries(KINDS)) this.env[k] = Number(cfg.sms[d.field]) || 0;
     /* آیا قالب .env خودش نام کلینیک را دارد (یک بار از sms.ir پرسیده می‌شود) */
     this.envInfo = {};
+    /* SMSIR_ONLY_OTP: فقط پیامک کد تأیید؛ هیچ قالب دیگری ثبت یا روشن نمی‌شود.
+       SMSIR_TEMPLATE_FALLBACK_ID: تا وقتی قالب کد تأیید .env تأیید نشده، کد با این قالب می‌رود و بعد از تأیید، خودکار جایش را می‌گیرد */
+    this.onlyOtp = !!cfg.sms.onlyOtp;
+    this.fallback = Number(cfg.sms.fallbackTemplateId) || 0;
+    this.fallbackParam = cfg.sms.fallbackParam || cfg.sms.param;
     this.state = {};
     this.onChange = null;
     this.timer = null; this.busy = null;
@@ -78,7 +83,16 @@ class SmsTemplates {
   }
   on(k) { const s = this.state[k]; return !!(this.live && s && s.status === 2 && !s.failed && s.id); }
   /* تنظیم‌های زنده‌ی cfg.sms از روی وضعیت قالب‌ها (همه‌ی ارسال‌ها همین‌ها را هنگام ارسال می‌خوانند) */
+  usingFallback() { const ei = this.envInfo.otp; return !!(this.fallback && this.live && (!ei || ei.status !== 2)); }
   apply() {
+    if (this.onlyOtp) {
+      for (const [k, d] of Object.entries(KINDS)) if (k !== 'otp') this.cfg.sms[d.field] = 0;
+      const fb = this.usingFallback();
+      this.cfg.sms.templateId = fb ? this.fallback : this.env.otp;
+      this.cfg.sms.param = fb ? this.fallbackParam : this.env.param;
+      this.cfg.sms.receptionMobile = '';
+      return;
+    }
     for (const [k, d] of Object.entries(KINDS)) {
       const on = this.on(k);
       this.cfg.sms[d.field] = on ? this.state[k].id : this.env[k];
@@ -91,6 +105,7 @@ class SmsTemplates {
   /* ثبت قالب‌های نام‌دار: هر کدام که هنوز ثبت نشده، رد شده یا خاموش شده؛ قالب .envی که خودش نام کلینیک را دارد کافی است */
   async submit() {
     if (!this.live) return { ok: false, error: 'mode' };
+    if (this.onlyOtp) return { ok: false, error: 'off' };
     this.load();
     const results = [];
     for (const [k, d] of Object.entries(KINDS)) {
@@ -122,7 +137,7 @@ class SmsTemplates {
     if (!(k in this.envInfo)) {
       const t = await this.sms.template(this.env[k]);
       if (!t.ok) return false;
-      this.envInfo[k] = { status: t.data && t.data.status, branded: /ساسان/.test(String((t.data && t.data.templateText) || '')) };
+      this.envInfo[k] = { status: t.data && t.data.status, branded: /ساسان/.test(String((t.data && t.data.templateText) || '')), reason: String((t.data && t.data.rejectionReason) || '').slice(0, 200) };
     }
     return this.envInfo[k].status === 2 && this.envInfo[k].branded;
   }
@@ -134,6 +149,20 @@ class SmsTemplates {
     this.busy = (async () => {
       this.load();
       const changed = [];
+      if (this.onlyOtp) {
+        /* فقط وضعیت قالب کد تأیید .env؛ تا تأیید نشده هر بار دوباره پرسیده می‌شود */
+        const before = this.envInfo.otp ? this.envInfo.otp.status : 0;
+        if (this.env.otp && before !== 2) { delete this.envInfo.otp; await this.envBranded('otp'); }
+        const now = this.envInfo.otp ? this.envInfo.otp.status : 0;
+        this.apply();
+        if (now !== before && (now === 2 || now === 3)) {
+          const c = { kind: 'otp', status: now, reason: now === 3 ? this.envInfo.otp.reason : '' };
+          changed.push(c);
+          this.log('sms template', 'otp', now === 2 ? 'approved' : 'rejected');
+          if (this.onChange) this.onChange(c);
+        }
+        return { ok: true, changed };
+      }
       for (const k of Object.keys(KINDS)) {
         const s = this.state[k];
         if (!s || s.status !== 1 || !s.id) continue;
@@ -185,6 +214,13 @@ class SmsTemplates {
     return Object.assign({}, sms, {
       async verify(mobile, templateId, params) {
         const r = await sms.verify(mobile, templateId, params);
+        /* قالب کد تأیید .env هنوز تأیید نشده یا از کار افتاده: همان کد با قالب جایگزین */
+        if (!r.ok && self.fallback && templateId === self.env.otp && templateId !== self.fallback && r.status > 0 && ![20, 102, 104, 115].includes(r.status)) {
+          self.envInfo.otp = { status: 0, branded: false, reason: r.message || '' };
+          self.apply();
+          self.log('otp template not usable, fallback', r.status);
+          return sms.verify(mobile, self.fallback, { [self.fallbackParam]: Object.values(params)[0] });
+        }
         if (r.ok || !DEAD.includes(r.status)) return r;
         const k = Object.keys(KINDS).find((x) => self.on(x) && self.state[x].id === templateId);
         if (!k) return r;
@@ -203,8 +239,11 @@ class SmsTemplates {
   view() {
     this.load();
     this.apply();
+    const ei = this.envInfo.otp;
     return {
       live: this.live,
+      onlyOtp: this.onlyOtp,
+      otp: { id: this.env.otp, status: ei ? ei.status : null, reason: ei ? ei.reason || '' : '', fallback: this.fallback, usingFallback: this.usingFallback() },
       receptionMobile: this.cfg.sms.receptionMobile || '',
       list: Object.entries(KINDS).map(([k, d]) => {
         const s = this.state[k] || null;

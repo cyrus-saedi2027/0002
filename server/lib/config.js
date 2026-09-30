@@ -60,6 +60,10 @@ function load(env = process.env) {
       templateId,
       /* متغیر قالب؛ قالب پیش‌فرض Sandbox (123456) و قالبی که npm run setup می‌سازد هر دو CODE دارند */
       param: env.SMSIR_TEMPLATE_PARAM || 'CODE',
+      /* فقط پیامک کد تأیید (هیچ پیامک دیگری) و قالب جایگزین کد تأیید تا تأیید قالب اصلی (lib/templates.js) */
+      onlyOtp: env.SMSIR_ONLY_OTP === '1',
+      fallbackTemplateId: Number(env.SMSIR_TEMPLATE_FALLBACK_ID || 0),
+      fallbackParam: env.SMSIR_TEMPLATE_FALLBACK_PARAM || '',
       confirmTemplateId: Number(env.SMSIR_CONFIRM_TEMPLATE_ID || 0),
       receptionTemplateId: Number(env.SMSIR_RECEPTION_TEMPLATE_ID || 0),
       receptionMobile: env.RECEPTION_MOBILE || '',

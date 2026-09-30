@@ -1198,11 +1198,21 @@
           ${rows ? `<div class="scrollx"><table class="table stack"><thead><tr><th>زمان</th><th>بیمار</th><th>نوع</th><th>نتیجه</th><th>رسیدن</th></tr></thead><tbody>${rows}</tbody></table></div>` : `<div class="card__b">${empty('i-msg', 'هنوز پیامکی به بیماران فرستاده نشده')}</div>`}
         </section>
         <section class="card"><div class="card__h">${ic('i-shield')}<h2>قالب‌های پیامک</h2></div><div class="card__b stack">${d.tpl ? tplCard(d.tpl) : `<ul class="checks">${tpl}</ul>`}
-          <p class="hint">یادآوری خودکار: ${T.remind ? `هر روز از ساعت ${tLabel(d.remindHour * 60)} برای نوبت‌های فردا` : 'خاموش (قالب یادآوری هنوز روشن نشده)'}. کد تأیید هیچ‌وقت در فهرست پیامک‌ها نمی‌آید.</p></div></section>
+          ${d.tpl && d.tpl.onlyOtp ? '' : `<p class="hint">یادآوری خودکار: ${T.remind ? `هر روز از ساعت ${tLabel(d.remindHour * 60)} برای نوبت‌های فردا` : 'خاموش (قالب یادآوری هنوز روشن نشده)'}. کد تأیید هیچ‌وقت در فهرست پیامک‌ها نمی‌آید.</p>`}</div></section>
       </div>`;
   }
   /* وضعیت هر قالب: روشن با نام کلینیک، روشن با متن آزمایشی، در انتظار تأیید sms.ir، رد یا خاموش‌شده */
   function tplCard(tp) {
+    /* فقط پیامک کد تأیید (SMSIR_ONLY_OTP): یک ردیف، بدون ثبت قالب و بدون موبایل پذیرش */
+    if (tp.onlyOtp) {
+      const o = tp.otp;
+      let st, cls, icn;
+      if (o.status === 2 && !o.usingFallback) { st = `روشن · قالب ${fa(o.id)}`; cls = 'is-ok'; icn = 'i-check-circle'; }
+      else if (o.status === 3) { st = `قالب ${fa(o.id)} رد شد${o.reason ? ': ' + o.reason : ''}` + (o.fallback ? `؛ فعلاً کد با قالب ${fa(o.fallback)} فرستاده می‌شود` : ''); cls = 'is-bad'; icn = 'i-alert'; }
+      else { st = `قالب ${fa(o.id)} در انتظار تأیید sms.ir` + (o.fallback ? `؛ تا آن موقع کد با قالب ${fa(o.fallback)} فرستاده می‌شود و بعد از تأیید، خودکار جابه‌جا می‌شود` : ''); cls = 'is-wait'; icn = 'i-clock'; }
+      return `<ul class="tpls"><li class="tpl ${cls}" data-key="tp:otp">${ic(icn)}<div><b>کد تأیید سایت (درخواست نوبت)</b><small>${esc(st)}</small></div></li></ul>
+        <p class="hint">فقط پیامک کد تأیید فرستاده می‌شود. پیامک‌های دیگر (ثبت درخواست، تأیید نوبت، یادآوری) خاموش‌اند و ورود پنل هم پیامک نمی‌خواهد.</p>`;
+    }
     const rows = tp.list.map((x) => {
       let st, cls, icn;
       if (x.failed) { st = 'خاموش شد: ' + x.failed + (x.kind === 'otp' ? ' (کد تأیید با قالب قبلی فرستاده می‌شود)' : ''); cls = 'is-bad'; icn = 'i-alert'; }
