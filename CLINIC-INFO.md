@@ -15,6 +15,8 @@
 - بلد: https://balad.ir/p/4JKZ9cX2SFLybm
 - نشان: https://nshn.ir/37_bfjCJQxj20-
 - گوگل‌مپ: https://maps.app.goo.gl/BrwKH7eEVEcytrNC7
+  - شناسه‌ها: CID `17153762661804471932`، Place ID `ChIJYzVnjjUHjD8RfPY2okFoDu4`
+  - لینک ثبت نظر: https://search.google.com/local/writereview?placeid=ChIJYzVnjjUHjD8RfPY2okFoDu4
 - نقشه‌ی جاسازی گوگل (Embed):
   `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d315.05215236382094!2d51.203538137472734!3d36.70964590123717!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3f8c07358e673563%3A0xee0e6841a236f67c!2z2K_YsdmF2KfZhtqv2KfZhyDYtNio2KfZhtmHINix2YjYstuMINiz2KfYs9in2YYg2YXYqtmEINmC2Yg!5e0!3m2!1sen!2sam!4v1790461665332!5m2!1sen!2sam`
 

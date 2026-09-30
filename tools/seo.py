@@ -38,7 +38,11 @@ ADDRESS = {'@type': 'PostalAddress', 'streetAddress': 'بلوار امام رض�
            'addressLocality': 'سلمان‌شهر (متل‌قو)', 'addressRegion': 'مازندران', 'addressCountry': 'IR'}
 GEO = {'@type': 'GeoCoordinates', 'latitude': 36.709646, 'longitude': 51.203538}
 AREA = ['سلمان‌شهر', 'متل‌قو', 'عباس‌آباد', 'کلارآباد', 'چالوس', 'تنکابن']
-MAP = 'https://maps.app.goo.gl/BrwKH7eEVEcytrNC7'
+# شناسه‌ی ثابت همان مکان در گوگل‌مپ (CID)؛ گوگل با این لینک سایت را به کارت نقشه‌ی کلینیک وصل می‌کند
+MAP_CID = 'https://maps.google.com/?cid=17153762661804471932'
+NAMES = ['درمانگاه شبانه‌روزی ساسان', 'درمانگاه شبانه‌روزی ساسان متل‌قو', 'کلینیک ساسان سلمان‌شهر', 'Sasan Clinic']
+PROFILES = [MAP_CID, 'https://balad.ir/p/4JKZ9cX2SFLybm', 'https://nshn.ir/37_bfjCJQxj20-',
+            'https://www.instagram.com/clinic_sasan/', 'https://behtarino.com/p/zoawouktdx']
 SERVICES = {
     'dental': ('دندانپزشکی', ['ایمپلنت دندان', 'لمینت و کامپوزیت دندان', 'عصب‌کشی (درمان ریشه)', 'ترمیم و پر کردن دندان', 'روکش دندان',
                              'جراحی لثه', 'کشیدن دندان و دندان عقل', 'جرم‌گیری و بروساژ', 'بلیچینگ (سفید کردن دندان)']),
@@ -66,12 +70,12 @@ def clinic_ld(domain):
         '@context': 'https://schema.org',
         '@type': 'MedicalClinic',
         'name': 'ساسان کلینیک',
-        'alternateName': 'درمانگاه شبانه‌روزی ساسان',
+        'alternateName': NAMES,
         'description': 'درمانگاه شبانه‌روزی سلمان‌شهر (متل‌قو): دندانپزشکی، زیبایی و لیزر و پزشک عمومی ۲۴ ساعته.',
         'telephone': PHONE,
         'address': ADDRESS,
         'geo': GEO,
-        'hasMap': MAP,
+        'hasMap': MAP_CID,
         'areaServed': [{'@type': 'City', 'name': n} for n in AREA],
         'openingHoursSpecification': ALL_DAY,
         'medicalSpecialty': ['Dentistry', 'Dermatology', 'PrimaryCare'],
@@ -79,7 +83,7 @@ def clinic_ld(domain):
         'hasOfferCatalog': {'@type': 'OfferCatalog', 'name': 'خدمات ساسان کلینیک', 'itemListElement': [offers(k) for k in SERVICES]},
         'department': [{'@type': 'Dentist', 'name': 'دندانپزشکی ساسان کلینیک', 'telephone': PHONE, 'address': ADDRESS, 'geo': GEO,
                         'openingHoursSpecification': DENTAL_HOURS, 'hasOfferCatalog': offers('dental')}],
-        'sameAs': ['https://www.instagram.com/clinic_sasan/', 'https://behtarino.com/p/zoawouktdx'],
+        'sameAs': PROFILES,
     }
     if domain:
         ld['@id'] = cid
@@ -93,7 +97,8 @@ def clinic_ld(domain):
 
 
 def website_ld(domain):
-    ld = {'@context': 'https://schema.org', '@type': 'WebSite', 'name': 'ساسان کلینیک', 'inLanguage': 'fa-IR'}
+    ld = {'@context': 'https://schema.org', '@type': 'WebSite', 'name': 'ساسان کلینیک',
+          'alternateName': ['درمانگاه شبانه‌روزی ساسان', 'Sasan Clinic'], 'inLanguage': 'fa-IR'}
     if domain:
         ld.update({'@id': u(domain) + '#website', 'url': u(domain), 'publisher': {'@id': u(domain) + '#clinic'}})
     return ld
