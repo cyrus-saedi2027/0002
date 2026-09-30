@@ -92,7 +92,9 @@ async function check() {
     const { SmsTemplates } = require('../lib/templates');
     try {
       const T = new SmsTemplates({ cfg: load(), sms: c, dataDir: path.resolve(v.DATA_DIR || path.join(__dirname, '..', 'data')) });
-      console.log(dim('  قالب‌های نام‌دار ساسان کلینیک:'));
+      /* وضعیت تازه‌ی قالب کد تأیید از sms.ir؛ بدون این، تا اولین بررسی سرویس «در انتظار» نشان داده می‌شد */
+      if (T.onlyOtp) await T.envBranded('otp');
+      else console.log(dim('  قالب‌های نام‌دار ساسان کلینیک:'));
       printTemplates(T.view());
       T.close();
     } catch (e) { /* تنظیمات ناقص؛ بالاتر گفته شد */ }
