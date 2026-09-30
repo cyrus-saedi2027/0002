@@ -55,8 +55,9 @@ function validateUser(b, { partial = false, current = null } = {}) {
   /* نقش همیشه پذیرش است؛ نقش فرستاده‌شده نادیده گرفته می‌شود */
   if (!partial) v.role = 'reception';
   if (!partial || b.mobile !== undefined) {
-    v.mobile = normMobile(b.mobile);
-    if (!validMobile(v.mobile)) return { error: 'موبایل باید ۱۱ رقم و با ۰۹ شروع شود (برای کد ورود)' };
+    /* موبایل فقط برای کد ورود پیامکی لازم است (PANEL_2FA)؛ خالی هم پذیرفته می‌شود */
+    v.mobile = b.mobile ? normMobile(b.mobile) : '';
+    if (v.mobile && !validMobile(v.mobile)) return { error: 'موبایل باید ۱۱ رقم و با ۰۹ شروع شود (برای کد ورود)' };
   }
   if (b.active !== undefined) v.active = !!b.active;
   return { v };

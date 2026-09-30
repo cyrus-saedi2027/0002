@@ -74,14 +74,19 @@ function tempPass(username) {
   }
 }
 async function createAuto([username, mobile, ...name]) {
-  const { v, error } = validateUser({ username, mobile, name: name.join(' ') || 'پذیرش ساسان کلینیک' });
+  const { v, error } = validateUser({ username, mobile: mobile === '-' ? '' : mobile, name: name.join(' ') || 'پذیرش ساسان کلینیک' });
   if (error) { console.log(red(error)); process.exitCode = 1; return; }
   if (users.byUsername(v.username)) { console.log(dim(`حساب ${v.username} از قبل هست؛ دست نخورد (رمز تازه: node tools/users.js temp ${v.username}).`)); process.exitCode = 3; return; }
-  const pw = tempPass(v.username);
-  const r = await users.create(v, pw, { mustChange: true });
+  /* رمز موقت از PANEL_PASS (مثلاً در دستور نصب) اگر به‌اندازه‌ی کافی قوی است؛ وگرنه تصادفی */
+  const given = process.env.PANEL_PASS || '';
+  const fixed = !!given && !passProblem(given, v.username);
+  const pw = fixed ? given : tempPass(v.username);
+  if (given && !fixed) console.log(dim('رمز داده‌شده ضعیف بود؛ یک رمز تصادفی ساخته شد.'));
+  /* رمزی که در دستور نصب داده شده همان رمز ماندگار است؛ رمز تصادفی در اولین ورود عوض می‌شود */
+  const r = await users.create(v, pw, { mustChange: !fixed });
   if (r.error) { console.log(red(r.error)); process.exitCode = 1; return; }
   console.log(green(`حساب ${v.username} ساخته شد.`));
-  console.log(`رمز موقت: ${bold(pw)}   (در اولین ورود، پنل رمز تازه‌ی خودتان را می‌خواهد)`);
+  console.log(`رمز موقت: ${bold(pw)}` + (fixed ? '' : '   (در اولین ورود، پنل رمز تازه‌ی خودتان را می‌خواهد)'));
 }
 async function tempAuto([username]) {
   const u = users.byUsername(username);

@@ -334,7 +334,7 @@ function createPanel(ctx) {
     if (m === 'POST' && p === '/api/panel/login/resend') return loginResend(req, res);
 
     const a = auth(req);
-    if (!a) return json(res, 401, { ok: false, error: 'auth' });
+    if (!a) return json(res, 401, { ok: false, error: 'auth', twofa });
     const { u } = a;
     if (m === 'POST' && p === '/api/panel/logout') {
       sessions.drop(cookieOf(req));

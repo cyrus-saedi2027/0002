@@ -2013,6 +2013,8 @@
     const boot = $('#boot');
     boot.classList.add('is-out');
     setTimeout(() => boot.remove(), 450);
+    /* ورود بدون کد پیامکی (PANEL_2FA=0): راهنمای «کد ۵ رقمی» زیر فرم لازم نیست */
+    if (r.twofa === false) { const h = $('.login__help li'); if (h) h.remove(); }
     if (r.ok) enter(r); else showLogin(r.error === 'network' ? errText(r) : '');
   })();
 })();

@@ -14,6 +14,7 @@
 #      کلید فقط در server/.env روی همین سرور می‌ماند (دسترسی 600)
 #   ۳. setup.sh: Node.js، nginx، HTTPS، سرویس systemd، پشتیبان شبانه، ثبت قالب‌های پیامک نام‌دار
 #   ۴. اگر هنوز حسابی نیست: حساب پنل پذیرش (paziresh) با رمز موقت تصادفی، و نشان دادن رمز در پایان
+# متغیرهای اختیاری (تا کمتر پرسیده شود): SMS_KEY کلید اصلی sms.ir، PANEL_PASS رمز موقت حساب پنل، PANEL_NAME نام حساب
 # گزینه‌ها:  --reset  داده‌های قبلی پنل کنار گذاشته می‌شوند (پشتیبان: server/data.bak-تاریخ) تا پنل تازه و خالی شروع شود
 #            دامنه‌ی دیگر: bash install.sh example.ir
 # ==========================================================================
@@ -57,10 +58,14 @@ if [ ! -f "$SRV/.env" ]; then
   FIRST=1
   say "تنظیمات (فقط بار اول)"
   command -v curl >/dev/null || apt-get install -y -q curl >/dev/null
-  exec 3<"$TTY"
+  exec 3<"$TTY" 2>/dev/null || exec 3</dev/null
+  # کلید می‌تواند از پیش در SMS_KEY آمده باشد (در دستور نصب)؛ وگرنه پرسیده می‌شود
+  KEY_IN="${SMS_KEY:-}"
   for i in 1 2 3 4 5; do
+    if [ -n "$KEY_IN" ]; then KEY="$KEY_IN"; KEY_IN=""; else
     printf 'کلید اصلی پنل sms.ir را بچسبانید و Enter بزنید (دیده نمی‌شود): '
     IFS= read -rs KEY <&3 || true; echo
+    fi
     KEY="$(printf '%s' "$KEY" | tr -d ' \t\r\n')"
     [ -n "$KEY" ] || continue
     R="$(curl -s -m 20 -H "x-api-key: $KEY" -H 'accept: application/json' https://api.sms.ir/v1/credit || true)"
@@ -69,15 +74,10 @@ if [ ! -f "$SRV/.env" ]; then
     bad "  sms.ir این کلید را نپذیرفت؛ دوباره امتحان کنید."; KEY=""
   done
   [ -n "${KEY:-}" ] || { bad "کلید sms.ir وارد نشد؛ دوباره همین دستور را اجرا کنید."; exit 1; }
-  MOB=""
-  while ! printf '%s' "$MOB" | grep -Eq '^09[0-9]{9}$'; do
-    printf 'موبایل پذیرش (کد ورود پنل و خبر درخواست تازه به این شماره می‌آید)، مثلاً 09121234567: '
-    IFS= read -r MOB <&3 || { bad "ورودی تمام شد"; exit 1; }; MOB="$(printf '%s' "$MOB" | fa2en | sed 's/^+98/0/; s/^0098/0/')"
-  done
-  printf 'نام شما برای حساب پنل (Enter = پذیرش ساسان کلینیک): '
-  IFS= read -r NAME <&3 || true
+  # موبایل لازم نیست: ورود پنل فقط با نام کاربری و رمز است (PANEL_2FA=0)
+  MOB="${RECEPTION_MOBILE:-}"
+  NAME="${PANEL_NAME:-پذیرش ساسان کلینیک}"
   exec 3<&-
-  NAME="${NAME:-پذیرش ساسان کلینیک}"
   rnd() { head -c "$1" /dev/urandom | od -An -tx1 | tr -d ' \n'; }
   umask 077
   cat >"$SRV/.env" <<EOF
@@ -89,7 +89,7 @@ SMSIR_TEMPLATE_PARAM=OTP
 RECEPTION_MOBILE=$MOB
 OTP_SECRET=$(rnd 32)
 ADMIN_TOKEN=$(rnd 20)
-PANEL_2FA=1
+PANEL_2FA=0
 PORT=8080
 HOST=127.0.0.1
 EOF
@@ -117,12 +117,13 @@ PASS_LINE=""
 COUNT="$(cd "$SRV" && "${NODE:-node}" -e "try{const j=require('./data/users.json');console.log(Array.isArray(j)?j.length:0)}catch(e){console.log(0)}" 2>/dev/null || echo 0)"
 if [ "$COUNT" = 0 ]; then
   say "حساب پنل پذیرش"
-  MOB="${MOB:-$(grep -E '^RECEPTION_MOBILE=' "$SRV/.env" | cut -d= -f2)}"
+  MOB="${MOB:-$(grep -E '^RECEPTION_MOBILE=' "$SRV/.env" | cut -d= -f2)}"; MOB="${MOB:--}"
   NAME="${NAME:-$(cat "$NAMEF" 2>/dev/null || echo 'پذیرش ساسان کلینیک')}"
   RUN=(); [ -z "${SKIP_SETUP:-}" ] && RUN=(runuser -u www-data --)
-  OUT="$(cd "$SRV" && "${RUN[@]}" "${NODE:-node}" tools/users.js create paziresh "$MOB" $NAME </dev/null 2>&1 || true)"
+  # رمز موقت: از PANEL_PASS (اگر در دستور نصب آمده و به‌اندازه‌ی کافی قوی است)، وگرنه تصادفی
+  OUT="$(cd "$SRV" && PANEL_PASS="${PANEL_PASS:-}" "${RUN[@]}" env PANEL_PASS="${PANEL_PASS:-}" "${NODE:-node}" tools/users.js create paziresh "$MOB" $NAME </dev/null 2>&1 || true)"
   printf '%s\n' "$OUT"
-  PASS_LINE="$(printf '%s' "$OUT" | sed 's/\x1b\[[0-9;]*m//g' | sed -n 's/.*رمز موقت: \([A-Za-z0-9]*\).*/\1/p' | head -1)"
+  PASS_LINE="$(printf '%s' "$OUT" | sed 's/\x1b\[[0-9;]*m//g' | sed -n 's/.*رمز موقت: \([A-Za-z0-9@#%+=_.-]*\).*/\1/p' | head -1)"
 fi
 rm -f "$NAMEF"
 
@@ -134,9 +135,8 @@ echo "پنل پذیرش:      $SCHEME://$DOMAIN/panel/"
 echo "راهنمای پنل:    $SCHEME://$DOMAIN/panel/guide.html"
 if [ -n "$PASS_LINE" ]; then
   echo
-  printf '\033[1;42;30m  نام کاربری: paziresh    رمز موقت: %s  \033[0m\n' "$PASS_LINE"
-  echo "کد ورود به موبایل $(grep -E '^RECEPTION_MOBILE=' "$SRV/.env" | cut -d= -f2 | sed 's/\(....\).*\(....\)/\1***\2/') پیامک می‌شود. در اولین ورود، پنل رمز تازه‌ی خودتان را می‌خواهد."
-  echo "این رمز را جایی امن یادداشت کنید؛ دوباره نشان داده نمی‌شود (رمز تازه: cd $SRV && runuser -u www-data -- node tools/users.js temp paziresh)"
+  printf '\033[1;42;30m  ورود به پنل ←  نام کاربری: paziresh    رمز: %s  \033[0m\n' "$PASS_LINE"
+  echo "ورود فقط با همین نام کاربری و رمز است. (رمز تازه اگر لازم شد: cd $SRV && runuser -u www-data -- node tools/users.js temp paziresh)"
 fi
 [ "$SCHEME" = http ] && echo "HTTPS هنوز نیست؛ وقتی DNS دامنه به همین سرور رسید، همین دستور را دوباره بزنید: bash $SRV/deploy/install.sh"
 exit 0
