@@ -205,4 +205,4 @@ if grep -q '^SMSIR_MODE=live' "$SRV/.env" && ! grep -q '^SMSIR_ONLY_OTP=1' "$SRV
   say "قالب‌های پیامک نام‌دار"
   (cd "$SRV" && runuser -u www-data -- "$NODE" tools/sms.js templates) || true
 fi
-echo; echo "تمام. پنل پذیرش: https://$DOMAIN/panel/   (اولین حساب: cd $SRV && runuser -u www-data -- node tools/users.js)"
+echo; echo "نصب سرور تمام شد؛ سایت به‌صورت سرویس روشن است (نیازی به npm start نیست). پنل پذیرش: https://$DOMAIN/panel/"
