@@ -202,8 +202,8 @@ done
 (cd "$SRV" && runuser -u www-data -- "$NODE" tools/sms.js check) || true
 # آخرین ارسال‌های کد تأیید در لاگ سرور (شماره‌ها نیمه‌پنهان‌اند)؛ برای پیدا کردن علت اگر کدی نرسید
 if command -v journalctl >/dev/null; then
-  L=$(journalctl -u sasan --since "-1 day" --no-pager -o cat 2>/dev/null | grep -E "otp sent|verify failed|fallback|sms template" | tail -8)
-  if [ -n "$L" ]; then echo "  آخرین ارسال‌های کد تأیید:"; echo "$L" | sed 's/^/    /'; else echo "  در ۲۴ ساعت گذشته درخواست کد تأییدی به سرور نرسیده است."; fi
+  L=$(journalctl -u sasan --since "-1 day" --no-pager -o cat 2>/dev/null | grep -E "otp sent|verify failed|fallback|sms template|request" | tail -10)
+  if [ -n "$L" ]; then echo "  آخرین ارسال‌های کد تأیید و درخواست‌های ثبت‌شده (request = ثبت شد):"; echo "$L" | sed 's/^/    /'; else echo "  در ۲۴ ساعت گذشته درخواست کد تأییدی به سرور نرسیده است."; fi
 fi
 # قالب‌های پیامک با نام ساسان کلینیک: sms.ir فقط وقتی تأیید می‌کند که سایت روی دامنه باز باشد
 if grep -q '^SMSIR_MODE=live' "$SRV/.env" && ! grep -q '^SMSIR_ONLY_OTP=1' "$SRV/.env" && [ "$(curl -s -o /dev/null -m 10 -w '%{http_code}' "https://$DOMAIN/")" = "200" ]; then
