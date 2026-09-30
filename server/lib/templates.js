@@ -28,8 +28,9 @@ const KINDS = {
   },
   reception: {
     field: 'receptionTemplateId', type: 2, label: 'خبر درخواست تازه به موبایل پذیرش', title: 'درخواست تازه برای پذیرش ساسان کلینیک',
-    text: 'درخواست نوبت تازه در سایت ساسان کلینیک:\n#NAME# · #DEPT#\nموبایل: #MOBILE#\nاز پنل پذیرش پیگیری کنید.',
-    params: [P('NAME', 'نام بیمار'), P('DEPT', 'بخش'), P('MOBILE', 'موبایل بیمار')]
+    /* sms.ir متغیر MOBILE را نپذیرفت (کد ۱۶)؛ TEL */
+    text: 'درخواست نوبت تازه در سایت ساسان کلینیک:\n#NAME# · #DEPT#\nشماره: #TEL#\nاز پنل پذیرش پیگیری کنید.',
+    params: [P('NAME', 'نام بیمار'), P('DEPT', 'بخش'), P('TEL', 'شماره‌ی بیمار')]
   },
   appt: {
     field: 'apptTemplateId', type: 2, label: 'تأیید نوبت از پنل', title: 'تأیید نوبت ساسان کلینیک',

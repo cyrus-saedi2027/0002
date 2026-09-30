@@ -161,7 +161,7 @@ function createApp(cfg, deps = {}) {
     /* پیامک‌های بعد از ثبت (اختیاری)؛ شکستشان درخواست را باطل نمی‌کند */
     const dept = B.DEPT[b.dept].t;
     if (cfg.sms.confirmTemplateId) sms.verify(b.mobile, cfg.sms.confirmTemplateId, { DEPT: dept, REF: b.ref }).then((r) => { if (!r.ok) log('confirm sms failed', r.status); return panel.recordSms(b.ref, 'received', r); }).catch((e) => log('confirm sms error', e && e.message));
-    if (cfg.sms.receptionTemplateId && B.validMobile(cfg.sms.receptionMobile)) sms.verify(cfg.sms.receptionMobile, cfg.sms.receptionTemplateId, { NAME: b.name, DEPT: dept, MOBILE: b.mobile }).then((r) => { if (!r.ok) log('reception sms failed', r.status); });
+    if (cfg.sms.receptionTemplateId && B.validMobile(cfg.sms.receptionMobile)) sms.verify(cfg.sms.receptionMobile, cfg.sms.receptionTemplateId, { NAME: b.name, DEPT: dept, TEL: b.mobile }).then((r) => { if (!r.ok) log('reception sms failed', r.status); });
     return json(res, 200, { ok: true, ref: b.ref, sms: !!cfg.sms.confirmTemplateId });
   }
 
