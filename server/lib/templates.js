@@ -153,11 +153,12 @@ class SmsTemplates {
       const changed = [];
       if (this.onlyOtp) {
         /* فقط وضعیت قالب کد تأیید .env؛ تا تأیید نشده هر بار دوباره پرسیده می‌شود */
-        const before = this.envInfo.otp ? this.envInfo.otp.status : 0;
+        /* null: هنوز چیزی نپرسیده‌ایم (تازه روشن شده)؛ آن‌وقت «تأیید شد» خبر تازه نیست و در گزارش نمی‌آید */
+        const before = this.envInfo.otp ? this.envInfo.otp.status : null;
         if (this.env.otp && before !== 2) { delete this.envInfo.otp; await this.envBranded('otp'); }
         const now = this.envInfo.otp ? this.envInfo.otp.status : 0;
         this.apply();
-        if (now !== before && (now === 2 || now === 3)) {
+        if (before !== null && now !== before && (now === 2 || now === 3)) {
           const c = { kind: 'otp', status: now, reason: now === 3 ? this.envInfo.otp.reason : '' };
           changed.push(c);
           this.log('sms template', 'otp', now === 2 ? 'approved' : 'rejected');
