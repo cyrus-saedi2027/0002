@@ -205,6 +205,18 @@ if command -v journalctl >/dev/null; then
   L=$(journalctl -u sasan --since "-1 day" --no-pager -o cat 2>/dev/null | grep -E "otp sent|verify failed|fallback|sms template|request" | tail -10)
   if [ -n "$L" ]; then echo "  آخرین ارسال‌های کد تأیید و درخواست‌های ثبت‌شده (request = ثبت شد):"; echo "$L" | sed 's/^/    /'; else echo "  در ۲۴ ساعت گذشته درخواست کد تأییدی به سرور نرسیده است."; fi
 fi
+# IndexNow: هر بار که صفحه‌های سایت عوض شده باشند، Bing (و موتورهای همراهش) همان لحظه باخبر می‌شوند
+KEYF=$(ls "$APP/site/" 2>/dev/null | grep -E '^[0-9a-f]{32}\.txt$' | head -1)
+if [ -n "$KEYF" ] && [ -f "$APP/site/sitemap.xml" ]; then
+  mkdir -p /var/lib/sasan
+  SUM=$(md5sum "$APP/site/sitemap.xml" | cut -d' ' -f1)
+  if [ "$SUM" != "$(cat /var/lib/sasan/indexnow.md5 2>/dev/null)" ]; then
+    K="${KEYF%.txt}"
+    BODY=$("$NODE" -e 'const fs=require("fs");const [f,d,k]=process.argv.slice(1);const u=[...fs.readFileSync(f,"utf8").matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>m[1]);process.stdout.write(JSON.stringify({host:d,key:k,keyLocation:`https://${d}/${k}.txt`,urlList:u}))' "$APP/site/sitemap.xml" "$DOMAIN" "$K")
+    C=$(curl -s -m 15 -o /dev/null -w '%{http_code}' -H 'Content-Type: application/json; charset=utf-8' -d "$BODY" https://api.indexnow.org/indexnow || true)
+    if [ "$C" = 200 ] || [ "$C" = 202 ]; then echo "IndexNow: صفحه‌های تازه به Bing خبر داده شد"; echo "$SUM" > /var/lib/sasan/indexnow.md5; else echo "IndexNow: فرستاده نشد (کد $C)؛ دفعه‌ی بعد دوباره امتحان می‌شود"; fi
+  fi
+fi
 # قالب‌های پیامک با نام ساسان کلینیک: sms.ir فقط وقتی تأیید می‌کند که سایت روی دامنه باز باشد
 if grep -q '^SMSIR_MODE=live' "$SRV/.env" && ! grep -q '^SMSIR_ONLY_OTP=1' "$SRV/.env" && [ "$(curl -s -o /dev/null -m 10 -w '%{http_code}' "https://$DOMAIN/")" = "200" ]; then
   say "قالب‌های پیامک نام‌دار"
