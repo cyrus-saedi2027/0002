@@ -17,6 +17,7 @@ sasan-repo-history-2026-10-30.bundle    20M   تاریخچه‌ی کامل (۶۳
 README-RESTORE.md               راهنمای بکاپ زنده‌ی سرور و بالا آوردن روی سرور تازه
 SECRETS.txt                     رمزها و کلیدها — روی گیت‌هاب نیست (.gitignore)
 SHA256SUMS                      چک‌سام دو فایل بزرگ
+sasan-FULL-backup-2026-10-30-WITH-SECRETS.zip   همه‌ی فایل‌های بالا در یک فایل، با رمزها — روی گیت‌هاب نیست (.gitignore)
 
 بررسی سالم بودن:   sha256sum -c SHA256SUMS --ignore-missing
 

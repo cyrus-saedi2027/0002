@@ -7,7 +7,8 @@ node_modules/
 .DS_Store
 
 # بکاپ‌ها: رمزها، بکاپ زنده‌ی سرور (شماره‌ی بیمارها، کلیدها) و تاریخچه‌ی کامل فقط روی کامپیوتر خودتان می‌مانند
-backups/**/SECRETS*
+backups/**/*SECRETS*
+backups/**/*.zip
 backups/**/*server-backup*
 backups/**/*.tgz
 backups/**/*.enc
