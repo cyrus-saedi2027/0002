@@ -24,7 +24,7 @@ echo "== آماده‌سازی سرور"
 
 echo "== فرستادن فایل‌ها"
 rsync -az --delete --info=stats1 \
-  --exclude '.git/' --exclude 'node_modules/' --exclude '/server/data/' --exclude '/server/.env' --exclude '.DS_Store' \
+  --exclude '.git/' --exclude 'node_modules/' --exclude '/server/data/' --exclude '/server/.env' --exclude '/backups/' --exclude '.DS_Store' \
   -e "${SSH[*]}" "$ROOT/" "$HOST:/srv/sasan/"
 
 echo "== نصب و راه‌اندازی"

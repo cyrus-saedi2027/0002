@@ -148,3 +148,26 @@ cd /srv/sasan/server && runuser -u www-data -- node tools/users.js
 نکته برای nginx دستی: `client_max_body_size 16m;` لازم است، وگرنه ذخیره‌ی مقاله و عکس از پنل رد می‌شود.
 
 داده‌ها (درخواست‌ها، کارکنان، گزارش کارها، مقاله‌ها و عکس‌های پنل) همه در `server/data` است. کپی پشتیبان‌ها را گاهی بیرون از سرور هم نگه دارید. این فایل‌ها اطلاعات بیماران است و نباید جای عمومی برود.
+
+## ۶. بکاپ کامل و بالا آوردن سایت روی سرور دیگر
+
+دو چیز جداست:
+- **کد** (سایت، سرور، پنل، اسکریپت‌ها): همه روی گیت‌هاب است. یک نسخه‌ی کامل با تاریخ هم در پوشه‌ی `backups/sasan-backup-تاریخ/` هست.
+- **داده‌ی زنده** (نوبت‌ها، مخاطب‌ها، حساب‌های پنل، مقاله‌ها و عکس‌های ساخته‌شده در پنل) و `server/.env`: فقط روی خود سرور است و در گیت‌هاب نیست.
+
+**گرفتن بکاپ از سرور زنده** (هر وقت لازم شد، و حتماً قبل از تمام شدن اشتراک سرور):
+
+```bash
+bash /srv/sasan/server/deploy/backup.sh
+```
+
+خروجی `/root/backups/sasan-server-backup-تاریخ_ساعت.tgz` است. دستور گرفتنش روی کامپیوتر خودتان آخر خروجی نوشته می‌شود (`pscp` یا WinSCP). برای رمزگذاری: `BACKUP_PASS='عبارت' bash /srv/sasan/server/deploy/backup.sh`.
+
+**بالا آوردن روی سرور تازه** (Ubuntu 24.04): کد را بگذارید و `restore.sh` را بزنید؛ قدم‌به‌قدمش در `backups/sasan-backup-تاریخ/README-RESTORE.md` است:
+
+```bash
+git clone --depth 1 -b claude/stoic-brahmagupta-1np5fy https://github.com/cyrus-saedi2027/0002.git /srv/sasan
+bash /srv/sasan/server/deploy/restore.sh /root/sasan-server-backup-....tgz
+```
+
+بعد رکورد A دامنه و www را به آی‌پی سرور تازه ببرید. شرح کامل، از جمله بدون گیت‌هاب، در همان README است.
