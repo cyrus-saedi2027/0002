@@ -9,6 +9,7 @@ node_modules/
 # بکاپ‌ها: رمزها، بکاپ زنده‌ی سرور (شماره‌ی بیمارها، کلیدها) و تاریخچه‌ی کامل فقط روی کامپیوتر خودتان می‌مانند
 backups/**/*SECRETS*
 backups/**/*.zip
+backups/**/*.tar.gz
 backups/**/*server-backup*
 backups/**/*.tgz
 backups/**/*.enc

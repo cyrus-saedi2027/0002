@@ -2,7 +2,10 @@
 # ==========================================================================
 # پشتیبان کامل ساسان کلینیک از روی سرور زنده، با کاربر root:
 #
-#   bash /srv/sasan/server/deploy/backup.sh
+#   bash /srv/sasan/server/deploy/backup.sh --link
+#
+# با --link (پیشنهادی) آخر کار یک لینک https می‌دهد که یک ساعت اعتبار دارد؛ در مرورگر بازش کنید تا فایل دانلود شود،
+# بی‌نیاز به pscp و WinSCP. بدون --link فقط فایل روی سرور می‌ماند و دستور گرفتنش با pscp چاپ می‌شود.
 #
 # یک فایل می‌سازد که برای بالا آوردن سایت روی هر سرور دیگر کافی است (با restore.sh):
 #   data/            نوبت‌ها، درخواست‌های تماس، مخاطب‌ها، حساب‌ها و رمزهای پنل (هش)، مقاله‌ها و عکس‌های ساخته‌شده در پنل، آمار، وضعیت قالب پیامک
@@ -21,7 +24,9 @@ SRV="$APP/server"
 ETC="${ETC:-/etc}"
 OUT_DIR="${OUT_DIR:-/root/backups}"
 NOCERTS=0
-for a in "$@"; do case "$a" in --no-certs) NOCERTS=1 ;; esac; done
+LINK=0
+DOMAIN="${DOMAIN:-sasan-clinic.ir}"
+for a in "$@"; do case "$a" in --no-certs) NOCERTS=1 ;; --link) LINK=1 ;; esac; done
 say() { printf '\n\033[1m== %s\033[0m\n' "$*"; }
 ok() { printf '\033[32m%s\033[0m\n' "$*"; }
 bad() { printf '\033[31m%s\033[0m\n' "$*"; }
@@ -42,6 +47,8 @@ try() { if command -v "$1" >/dev/null 2>&1; then "$@" 2>&1 || true; else echo "(
 say "داده‌ها"
 cp -a "$SRV/data" "$W/data"
 find "$W/data" -name '*.tmp' -delete
+# لینک‌های دانلود قبلی (data/.dl) جزو داده نیستند
+[ -d "$W/data/.dl" ] && find "$W/data/.dl" -delete
 ok "$(find "$W/data" -type f | wc -l) فایل از $SRV/data"
 
 say "تنظیمات (.env)"
@@ -102,14 +109,51 @@ chmod 600 "$FILE"
 SUM="$(sha256sum "$FILE" | cut -d' ' -f1)"
 echo "$SUM  $(basename "$FILE")" >"$FILE.sha256"
 IP="$(hostname -I 2>/dev/null | awk '{print $1}')"; IP="${IP:-آی‌پی-سرور}"
+BYTES="$(stat -c %s "$FILE")"
 echo
 ok "بکاپ آماده است:"
-echo "  $FILE  ($(du -h "$FILE" | cut -f1))"
+echo "  $FILE  ($(du -h "$FILE" | cut -f1) · $BYTES بایت)"
 echo "  sha256: $SUM"
+
+CODE=""
+if [ "$LINK" = 1 ]; then
+  say "لینک دانلود"
+  PORT="$(grep -E '^PORT=' "$SRV/.env" 2>/dev/null | cut -d= -f2 || true)"; PORT="${PORT:-8080}"
+  DL="$SRV/data/.dl"
+  mkdir -p "$DL"; chmod 700 "$DL"; chown www-data:www-data "$DL" 2>/dev/null || true
+  find "$DL" -type f -mmin +60 -delete 2>/dev/null || true
+  TOKEN="$(head -c 32 /dev/urandom | od -An -tx1 | tr -d ' \n')"
+  cp "$FILE" "$DL/$TOKEN.dat"
+  printf '%s' "$(basename "$FILE")" >"$DL/$TOKEN.name"
+  chmod 600 "$DL/$TOKEN.dat" "$DL/$TOKEN.name"
+  chown www-data:www-data "$DL/$TOKEN.dat" "$DL/$TOKEN.name" 2>/dev/null || true
+  here() { curl -s -o /dev/null -m 10 -I -w '%{http_code}' "http://127.0.0.1:$PORT/api/backup-dl/$TOKEN" 2>/dev/null || true; }
+  CODE="$(here)"
+  if [ "$CODE" != 200 ] && command -v systemctl >/dev/null 2>&1; then
+    echo "سرویس هنوز کد قبلی را اجرا می‌کند؛ یک راه‌اندازی دوباره‌ی چندثانیه‌ای تا کد تازه بارگیری شود…"
+    systemctl restart sasan || true
+    sleep 4
+    CODE="$(here)"
+  fi
+  if [ "$CODE" = 200 ]; then
+    PUB="$(curl -s -o /dev/null -m 10 -I -w '%{http_code}' --resolve "$DOMAIN:443:127.0.0.1" "https://$DOMAIN/api/backup-dl/$TOKEN" 2>/dev/null || true)"
+    echo
+    printf '\033[1;42;30m  لینک دانلود (یک ساعت اعتبار دارد):  \033[0m\n'
+    echo
+    echo "  https://$DOMAIN/api/backup-dl/$TOKEN"
+    echo
+    echo "این نشانی را کپی کنید، در مرورگر (با VPN خاموش) باز کنید تا فایل دانلود شود."
+    echo "حجم فایل دانلودشده باید دقیقاً $BYTES بایت باشد؛ اگر کمتر بود، همین لینک را دوباره بزنید."
+    [ "$PUB" = 200 ] || echo "(بررسی https از داخل سرور کد ${PUB:-؟} داد؛ اگر لینک باز نشد، از روش پایین استفاده کنید.)"
+  else
+    bad "لینک ساخته نشد (کد ${CODE:-؟})؛ از روش پایین استفاده کنید."
+  fi
+fi
+
 echo
-echo "حالا فایل را به کامپیوتر خودتان بگیرید (VPN خاموش):"
+if [ "$LINK" = 1 ] && [ "$CODE" = 200 ]; then echo "روش دیگر، اگر لینک باز نشد:"; else echo "فایل را به کامپیوتر خودتان بگیرید (VPN خاموش):"; fi
 echo "  • ویندوز، cmd یا PowerShell در پوشه‌ای که می‌خواهید فایل در آن بیاید:"
 echo "      pscp root@$IP:$FILE ."
 echo "  • یا برنامه‌ی WinSCP: پروتکل SFTP، سرور $IP، کاربر root، پوشه‌ی $OUT_DIR"
 echo "  • مک و لینوکس:  scp root@$IP:$FILE ."
-echo "این فایل را جای امن نگه دارید و روی گیت‌هاب یا جای عمومی نگذارید."
+echo "این فایل را فقط پیش خودتان نگه دارید."

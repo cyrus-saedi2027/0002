@@ -69,7 +69,19 @@ function createApp(cfg, deps = {}) {
   const contacts = deps.contacts || new Contacts(cfg.dataDir);
   contacts.backfill(store.list, store.callbacks);
   const cms = deps.cms || new ArticleCMS({ siteDir: cfg.siteDir, contentDir: cfg.contentDir || path.join(__dirname, '..', 'content', 'articles'), dataDir: cfg.dataDir, log });
-  const sweep = setInterval(() => { lim.sweep(); otp.sweep(); }, 60e3);
+  /* دانلود بکاپ از مرورگر: backup.sh --link فایل را با نام تصادفی در data/.dl می‌گذارد و یک ساعت بعد خود سرور پاکش می‌کند */
+  const DL_DIR = path.join(cfg.dataDir, '.dl');
+  const DL_TTL = 60 * 60e3;
+  function dlSweep() {
+    let names;
+    try { names = fs.readdirSync(DL_DIR); } catch (e) { return; }
+    for (const f of names) {
+      const fp = path.join(DL_DIR, f);
+      try { if (Date.now() - fs.statSync(fp).mtimeMs > DL_TTL) fs.unlinkSync(fp); } catch (e) { /* همین حالا رفته */ }
+    }
+  }
+  dlSweep();
+  const sweep = setInterval(() => { lim.sweep(); otp.sweep(); dlSweep(); }, 60e3);
   sweep.unref();
 
   const headers = (res, extra = {}) => {
@@ -190,9 +202,38 @@ function createApp(cfg, deps = {}) {
     return json(res, 200, { ok: true });
   }
 
+  /* GET /api/backup-dl/<۶۴ حرف تصادفی>: فقط اگر backup.sh --link همان فایل را گذاشته باشد و کمتر از یک ساعت گذشته باشد.
+     نشانی را کسی جز چاپ‌شده در ترمینال سرور نمی‌داند؛ هر چیز دیگری ۴۰۴ می‌گیرد */
+  function downloadBackup(req, res, token) {
+    const w = lim.take('dl:ip:' + ipOf(req), 30, 600e3);
+    if (w) return json(res, 429, { ok: false, error: 'rate', wait: w });
+    const file = path.join(DL_DIR, token + '.dat');
+    fs.stat(file, (err, st) => {
+      if (err || !st.isFile()) return json(res, 404, { ok: false, error: 'not-found' });
+      if (Date.now() - st.mtimeMs > DL_TTL) {
+        /* منقضی: همین‌جا و پیش از جواب پاک می‌شود (نه در پس‌زمینه) تا بعد از ۴۰۴ دیگر چیزی نمانده باشد */
+        for (const ext of ['.dat', '.name']) { try { fs.unlinkSync(path.join(DL_DIR, token + ext)); } catch (e) { /* قبلاً رفته */ } }
+        return json(res, 404, { ok: false, error: 'not-found' });
+      }
+      let name = 'sasan-server-backup.tgz';
+      try { const n = fs.readFileSync(path.join(DL_DIR, token + '.name'), 'utf8').trim(); if (/^[A-Za-z0-9._-]{1,100}$/.test(n)) name = n; } catch (e) { /* نام پیش‌فرض */ }
+      headers(res, {
+        'Content-Type': 'application/octet-stream', 'Content-Length': st.size, 'Content-Disposition': `attachment; filename="${name}"`,
+        'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex, nofollow'
+      });
+      res.writeHead(200);
+      if (req.method === 'HEAD') return res.end();
+      log('backup download', name);
+      /* pipeline: اگر مرورگر وسط دانلود قطع شد، فایل باز نمی‌ماند */
+      require('stream').pipeline(fs.createReadStream(file), res, () => {});
+    });
+  }
+
   async function api(req, res, url) {
     const p = url.pathname;
     if (p.startsWith('/api/panel/')) return panel.handle(req, res, url);
+    const dl = /^\/api\/backup-dl\/([a-f0-9]{64})$/.exec(p);
+    if (dl && (req.method === 'GET' || req.method === 'HEAD')) return downloadBackup(req, res, dl[1]);
     if (req.method === 'OPTIONS' && cfg.allowedOrigin) {
       headers(res, { 'Access-Control-Allow-Origin': cfg.allowedOrigin, 'Access-Control-Allow-Methods': 'GET, POST, PATCH', 'Access-Control-Allow-Headers': 'content-type, authorization', 'Access-Control-Max-Age': '600', Vary: 'Origin' });
       res.writeHead(204); return res.end();

@@ -188,7 +188,7 @@ chmod +x /etc/letsencrypt/renewal-hooks/deploy/reload-nginx.sh
 
 say "پشتیبان شبانه‌ی داده‌ها"
 mkdir -p /var/backups/sasan && chmod 700 /var/backups/sasan
-echo "15 3 * * * root tar czf /var/backups/sasan/data-\$(date +\\%F).tgz -C $SRV data && find /var/backups/sasan -mtime +30 -delete" > /etc/cron.d/sasan-backup
+echo "15 3 * * * root tar czf /var/backups/sasan/data-\$(date +\\%F).tgz --exclude=data/.dl -C $SRV data && find /var/backups/sasan -mtime +30 -delete" > /etc/cron.d/sasan-backup
 
 say "دیواره‌ی آتش"
 if command -v ufw >/dev/null && ufw status | grep -q active; then ufw allow 22/tcp >/dev/null; ufw allow 80/tcp >/dev/null; ufw allow 443/tcp >/dev/null; echo "ufw: 22، 80 و 443 باز"; else echo "ufw فعال نیست"; fi

@@ -155,13 +155,13 @@ cd /srv/sasan/server && runuser -u www-data -- node tools/users.js
 - **کد** (سایت، سرور، پنل، اسکریپت‌ها): همه روی گیت‌هاب است. یک نسخه‌ی کامل با تاریخ هم در پوشه‌ی `backups/sasan-backup-تاریخ/` هست.
 - **داده‌ی زنده** (نوبت‌ها، مخاطب‌ها، حساب‌های پنل، مقاله‌ها و عکس‌های ساخته‌شده در پنل) و `server/.env`: فقط روی خود سرور است و در گیت‌هاب نیست.
 
-**گرفتن بکاپ از سرور زنده** (هر وقت لازم شد، و حتماً قبل از تمام شدن اشتراک سرور):
+**گرفتن بکاپ از سرور زنده** (هر وقت لازم شد، و حتماً قبل از تمام شدن اشتراک سرور): این یک خط را در PuTTY بچسبانید:
 
 ```bash
-bash /srv/sasan/server/deploy/backup.sh
+true; cd /srv/sasan && git fetch -q --depth 1 origin claude/stoic-brahmagupta-1np5fy && git reset -q --hard FETCH_HEAD && bash server/deploy/backup.sh --link; true
 ```
 
-خروجی `/root/backups/sasan-server-backup-تاریخ_ساعت.tgz` است. دستور گرفتنش روی کامپیوتر خودتان آخر خروجی نوشته می‌شود (`pscp` یا WinSCP). برای رمزگذاری: `BACKUP_PASS='عبارت' bash /srv/sasan/server/deploy/backup.sh`.
+آخر خروجی یک **لینک https** می‌دهد که یک ساعت اعتبار دارد؛ در مرورگر باز کنید تا فایل (`sasan-server-backup-تاریخ_ساعت.tgz`) دانلود شود. بدون `--link` فایل فقط در `/root/backups` می‌ماند و دستور `pscp` برای گرفتنش چاپ می‌شود. برای رمزگذاری: `BACKUP_PASS='عبارت' bash /srv/sasan/server/deploy/backup.sh --link`.
 
 **بالا آوردن روی سرور تازه** (Ubuntu 24.04): کد را بگذارید و `restore.sh` را بزنید؛ قدم‌به‌قدمش در `backups/sasan-backup-تاریخ/README-RESTORE.md` است:
 

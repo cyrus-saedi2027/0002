@@ -88,6 +88,36 @@ test('ثبت درخواست: کد اشتباه، کد درست، یک‌بارم
   s.done();
 });
 
+test('دانلود بکاپ: فقط با نشانی تصادفی درست، یک ساعت اعتبار، و بی‌راه به بیرون از پوشه', async () => {
+  const s = await setup();
+  const dl = path.join(s.cfg.dataDir, '.dl');
+  fs.mkdirSync(dl, { recursive: true });
+  const token = 'ab12'.repeat(16);
+  fs.writeFileSync(path.join(dl, token + '.dat'), 'BACKUP-BYTES-OK');
+  fs.writeFileSync(path.join(dl, token + '.name'), 'sasan-server-backup-x.tgz');
+  const ok = await s.req('GET', '/api/backup-dl/' + token);
+  assert.strictEqual(ok.status, 200);
+  assert.strictEqual(ok.body, 'BACKUP-BYTES-OK');
+  assert.match(ok.headers.get('content-disposition'), /attachment; filename="sasan-server-backup-x\.tgz"/);
+  assert.strictEqual(ok.headers.get('cache-control'), 'no-store');
+  /* دوباره هم می‌شود گرفت (اگر دانلود نیمه‌کاره ماند) */
+  assert.strictEqual((await s.req('GET', '/api/backup-dl/' + token)).body, 'BACKUP-BYTES-OK');
+  const head = await fetch(`http://127.0.0.1:${s.srv.address().port}/api/backup-dl/${token}`, { method: 'HEAD' });
+  assert.strictEqual(head.status, 200);
+  /* هر نشانی دیگری: ۴۰۴ */
+  for (const bad of ['c'.repeat(64), 'ab12'.repeat(15), 'AB12'.repeat(16), '..%2f..%2fusers.json', token + '.dat', token + '/x']) {
+    assert.strictEqual((await s.req('GET', '/api/backup-dl/' + bad)).status, 404, bad);
+  }
+  /* پنل و بقیه‌ی API دست‌نخورده */
+  assert.strictEqual((await s.req('GET', '/api/health')).status, 200);
+  /* یک ساعت که گذشت: ۴۰۴ و خود فایل پاک می‌شود */
+  const old = new Date(Date.now() - 61 * 60e3);
+  fs.utimesSync(path.join(dl, token + '.dat'), old, old);
+  assert.strictEqual((await s.req('GET', '/api/backup-dl/' + token)).status, 404);
+  assert.ok(!fs.existsSync(path.join(dl, token + '.dat')));
+  s.done();
+});
+
 test('ثبت درخواست: ورودی نادرست؛ درخواست دوباره برای همان بخش روی درخواست باز قبلی می‌نشیند و هیچ‌وقت رد نمی‌شود', async () => {
   const s = await setup();
   const base = { mobile: '09121234567', code: '12345', name: 'علی', dept: 'dental', type: 'ویزیت اول' };
